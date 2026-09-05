@@ -1,6 +1,6 @@
 // flow.redundant-entry · WCAG 3.3.7. Spec in spec.md; falsification pair in pair.json.
 import { norm } from '../../util.js';
-import { evalIn } from '../../browser.js';
+import { evalIn, shot, fieldSelector } from '../../browser.js';
 
 function match(inputs, recorded, idx) {
   const matched = [];
@@ -34,6 +34,8 @@ export default {
       details.push({ field: { name: f.name, id: f.id, type: f.type, label: f.label, autocomplete: f.autocomplete }, matchedBy: m.by, firstEnteredStep: p.step, firstEnteredAs: { name: p.name, label: p.label, selector: p.selector }, currentValue: f.value, mechanism });
     }
     rec.redundant = { noise: rec.noise, matched: details };
+    const bare = details.filter(d => !d.mechanism).map(d => fieldSelector(d.field)).filter(Boolean);
+    if (bare.length) (rec.evidence ||= {})['3.3.7'] = await shot(page, '[data-uxcli-scope]', bare);
   },
   async evaluate(ctx) {
     const { J, steps, recorded, segOf, breakAfter, blocked } = ctx; const re = {};

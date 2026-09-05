@@ -1,6 +1,6 @@
 // flow.error-prevention · WCAG 3.3.4. Spec in spec.md; falsification pair in pair.json.
 import { norm, alnum, normUrl } from '../../util.js';
-import { screen, arrive, fillStep, act, evalIn } from '../../browser.js';
+import { screen, arrive, fillStep, act, evalIn, shot } from '../../browser.js';
 
 export default {
   id: 'flow.error-prevention', sc: '3.3.4',
@@ -8,6 +8,7 @@ export default {
     const i = rec.i, step = ctx.J.steps[i];
     if (i === ctx.commitIdx - 1 && !step.fill) ctx.reviewScreen = await screen(page, i, rec);
     if (i === ctx.commitIdx) { const prev = ctx.steps[i - 1]; ctx.commitScreen = { ...(await screen(page, i, rec)), flowBreak: !!(prev && prev.flowBreak && rec.arrivedBy === 'goto') }; }
+    if (i === ctx.commitIdx) (rec.evidence ||= {})['3.3.4'] = await shot(page, 'main', []);
   },
   async evaluate(ctx) {
     const { J, recorded, segOf, breakAfter, commitIdx, commitScreen, reviewScreen, authSteps, blocked } = ctx; const ep = {};

@@ -87,3 +87,16 @@ export async function act(page, step) {
 export async function screen(page, i, rec) {
   return { step: i, url: rec.url, noise: rec.noise, text: await evalIn(page, '() => visibleText()'), ro: await evalIn(page, '() => fields()'), links: await evalIn(page, '() => controls()') };
 }
+
+// Evidence: screenshot of a region with the cited fields outlined. Returns a PNG buffer or null.
+export async function shot(page, regionSelector, highlight = []) {
+  try {
+    await page.evaluate(sels => { for (const s of sels) for (const el of document.querySelectorAll(s)) { el.setAttribute('data-uxcli-mark', '1'); el.style.outline = '3px solid #d40000'; el.style.outlineOffset = '2px'; } }, highlight);
+    const loc = regionSelector ? page.locator(regionSelector).first() : null;
+    const buf = loc && await loc.count() && await loc.isVisible() ? await loc.screenshot({ timeout: 5000 }) : await page.screenshot({ timeout: 5000 });
+    await page.evaluate(() => document.querySelectorAll('[data-uxcli-mark]').forEach(el => { el.style.outline = ''; el.style.outlineOffset = ''; el.removeAttribute('data-uxcli-mark'); }));
+    return buf;
+  } catch { return null; }
+}
+export const fieldSelector = f => f.id ? '#' + CSS_escape(f.id) : f.name ? `[name="${f.name.replace(/"/g, '\\"')}"]` : null;
+const CSS_escape = s => s.replace(/([^a-zA-Z0-9_-])/g, '\\$1');

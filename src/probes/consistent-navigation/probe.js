@@ -5,7 +5,11 @@ import { evalIn } from '../../browser.js';
 export default {
   id: 'flow.consistent-navigation', sc: '3.2.3',
   async onStep(page, rec, ctx) {
-    (ctx.navsByStep ||= []).push({ i: rec.i, origin: new URL(rec.url).origin, userReorder: !!ctx.J.steps[rec.i].userReorder, navs: await evalIn(page, '() => navs()') });
+    const navs = await evalIn(page, '() => navs()');
+    (ctx.navsByStep ||= []).push({ i: rec.i, origin: new URL(rec.url).origin, userReorder: !!ctx.J.steps[rec.i].userReorder, navs });
+    const shots = {}; const els = page.locator('nav, [role="navigation"]'); const n = await els.count();
+    for (let k = 0; k < Math.min(n, navs.length); k++) { const el = els.nth(k); if (await el.isVisible().catch(() => false)) shots[navs[k].key] = await el.screenshot({ timeout: 5000 }).catch(() => null); }
+    (rec.evidence ||= {})['3.2.3'] = shots;
   },
   async evaluate(ctx) {
     const navsByStep = ctx.navsByStep || [];

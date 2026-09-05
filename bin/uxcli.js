@@ -3,16 +3,18 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const [cmd, ...rest] = process.argv.slice(2);
-const flags = new Set(rest.filter(a => a.startsWith('--'))); const args = rest.filter(a => !a.startsWith('--'));
+const flags = new Set(rest.filter(a => a.startsWith('--') && !a.includes('='))); const args = rest.filter(a => !a.startsWith('--'));
+const opt = k => (rest.find(a => a.startsWith('--' + k + '=')) || '').split('=').slice(1).join('=') || null;
 const usage = `usage:
-  uxcli run <journey.json> [--json]   measure one flow; card by default, --json for the evidence packet
+  uxcli run <journey.json> [--json] [--out=DIR]   measure one flow; card by default, --json for the evidence packet; screenshots for fails in DIR (default .uxcli/<journey>)
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry)
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 try {
   if (cmd === 'run' && args[0]) {
     const { loadJourney } = await import('../src/journey.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
-    const result = await runJourney(loadJourney(path.resolve(args[0])));
+    const outDir = opt('out') || path.join('.uxcli', path.basename(args[0], '.json'));
+    const result = await runJourney(loadJourney(path.resolve(args[0])), { outDir });
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     process.exit(result.probes.some(p => p.verdict === 'fail') ? 2 : 0);
   } else if (cmd === 'gate') {

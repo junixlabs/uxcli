@@ -1,13 +1,14 @@
 // Walks a journey once, gives every probe the same observations, returns the verdicts.
 import { launch, arrive, noise, markScope, fillStep, act, evalIn } from './browser.js';
 import { BOT } from './util.js';
+import fs from 'node:fs'; import path from 'node:path';
 import errorPrevention from './probes/error-prevention/probe.js';
 import redundantEntry from './probes/redundant-entry/probe.js';
 import consistentNavigation from './probes/consistent-navigation/probe.js';
 
 export const PROBES = [errorPrevention, redundantEntry, consistentNavigation];
 
-export async function runJourney(J, { browser } = {}) {
+export async function runJourney(J, { browser, outDir } = {}) {
   const own = !browser; if (own) browser = await launch();
   const ctx = { J, steps: [], recorded: [], authSteps: new Set(), commitIdx: J.steps.findIndex(s => s.commit), blocked: false, browser };
   const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
@@ -29,6 +30,8 @@ export async function runJourney(J, { browser } = {}) {
   const probes = [];
   for (const p of PROBES) probes.push({ probe: p.id, sc: p.sc, provenance: 'spec', ...(await p.evaluate(ctx)) });
   if (own) await browser.close();
+  if (outDir) writeEvidence(ctx, probes, outDir);
+  for (const s of ctx.steps) delete s.evidence;
   return { journey: J.name, ranAt: new Date().toISOString(), steps: ctx.steps, recorded: ctx.recorded, probes };
 }
 
@@ -40,4 +43,16 @@ function segment(ctx) {
   steps.forEach((s, i) => { s.segment = segOf[i]; });
   ctx.segOf = segOf;
   ctx.breakAfter = (a, b) => { for (let i = Math.min(a, b) + 1; i <= Math.max(a, b); i++) if (segOf[i] !== segOf[i - 1]) return i; return null; };
+}
+
+// Evidence files are written only for fails: the cited screen, cited fields outlined.
+function writeEvidence(ctx, probes, outDir) {
+  fs.mkdirSync(outDir, { recursive: true });
+  const save = (name, buf) => { if (!buf) return null; const f = path.join(outDir, name); fs.writeFileSync(f, buf); return f; };
+  for (const p of probes) {
+    if (p.verdict !== 'fail') continue;
+    if (p.sc === '3.3.7') p.proof = [...new Set(p.reasked.map(m => m.step))].map(i => save(`3.3.7-step${i}.png`, ctx.steps[i]?.evidence?.['3.3.7'])).filter(Boolean);
+    if (p.sc === '3.3.4') p.proof = [save(`3.3.4-step${ctx.commitIdx}.png`, ctx.steps[ctx.commitIdx]?.evidence?.['3.3.4'])].filter(Boolean);
+    if (p.sc === '3.2.3') { const x = p.inversion; p.proof = [x.stepA, x.stepB].map(i => save(`3.2.3-step${i}.png`, ctx.steps[i]?.evidence?.['3.2.3']?.[x.mechanism])).filter(Boolean); }
+  }
 }
