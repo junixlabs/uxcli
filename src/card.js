@@ -4,7 +4,7 @@ const short = s => { s = String(s); if (s.startsWith('t:')) return s.slice(2); s
 export function card(result) {
   const L = [`uxcli run · ${result.journey}`, ''];
   for (const p of result.probes) {
-    const proof = p.proof?.length ? `  proof  ${p.proof.join('  ')}` : null;
+    const proof = p.proof?.length ? `  proof  ${p.proof.join('  ')}` + (p.refute ? `\n  reader ${p.refute.tested ? (p.refute.parsed ? (p.refute.agrees ? 'agrees' : 'DISPUTES') + ' — ' + p.refute.reason : 'unparsed: ' + p.refute.raw) : 'not run: ' + p.refute.why}` : '') : null;
     const head = `${p.sc} ${p.probe.replace('flow.', '').padEnd(22)} ${V(p.verdict).padEnd(13)}`;
     const rule = `  rule   WCAG ${p.sc} (spec)${p.override ? ` · process joined by sameProcess ${JSON.stringify(p.override.sameProcess)} (project)` : ''}`;
     if (p.verdict === 'fail' && p.sc === '3.3.7') {
