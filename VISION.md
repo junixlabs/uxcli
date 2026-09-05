@@ -58,11 +58,11 @@ UXCLI does not score design. It does not certify taste. It does not replace visu
 
 | Axis | Evidence | Verdict |
 |---|---|---|
-| Method | focus-visible 7/7 W3C ACT, 22 GOV.UK pages 0 false fails; text-spacing 62/62; axe contrast 0 FP. Three independent detectors and chrome-devtools-mcp #86 converged on the same computed-style approach. | Confirmed |
-| The flow claim | The gap is real: axe has no rules for 3.3.4 / 3.3.7 / 3.2.3; Evinced and Lighthouse aggregate per page. No flow benchmark has run yet. | Unmeasured |
+| Method | focus-visible 7/7 W3C ACT, 22 GOV.UK pages 0 false fails; text-spacing 62/62; axe contrast 0 FP. Definitions frozen and hashed, then 20 unseen pages on 5 sites: 0 false fails. Three independent detectors and chrome-devtools-mcp #86 converged on the same computed-style approach. | Confirmed |
+| The flow claim | The gap is real: axe has no rules for 3.3.4 / 3.3.7 / 3.2.3; Evinced and Lighthouse aggregate per page. Three flow probes written from the WCAG text before any fixture existed. Seeded fixture: 3/3 caught, silent on the clean twin. 10 flows on 4 real apps the probes had never seen, definitions frozen: 0 false fails; one real 3.3.7 defect found by hand that the probe did not see. | Measured on fixtures. Unproven at scale. |
 | Adoption | The strongest community pain is agents that report success with proof of failure in hand. No verdict format yet resists that. | At risk |
 
-Next, in order: zero false positives on 20 unseen pages with frozen definitions; one seeded flow fixture, caught when present and silent when absent; a verdict format measured by how often the agent fixes the right element.
+Next, in order: process boundaries the probe measures instead of a human ruling on them; every verdict shipped with a verification card a second reader can answer in two minutes; 20 flows on apps the probes have never seen; a verdict format measured by how often the agent fixes the right element.
 
 **The part worth building is the part not yet proven.**
 

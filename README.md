@@ -25,6 +25,8 @@ Two inputs the machine cannot derive are written by a human, before the build, t
 | | `diff a b --gate` drift between builds, blocks merge |
 | | `why <rule>` threshold origin and known blind spots |
 
+Every probe ships with a pair of fixtures: one where it must fail, one where it must stay silent. A probe without that pair cannot say `fail`.
+
 ## Rules of output
 
 - Every finding carries a provenance: `spec`, `project`, or `opinion`.
