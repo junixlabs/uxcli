@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order placed – Fixture Shop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="home.html">Fixture Shop</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="cart.html">Cart <span class="badge">2<span class="sr"> items</span></span></a></li>
+        <li><a href="account.html">Account</a></li>
+        <li><a href="help.html">Help</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <h1>Order placed</h1>
+  <p>Thank you, <span id="out-name"></span>. Your order number is <strong>FS-10042</strong>.</p>
+  <p>We have sent a receipt to <span id="out-email"></span>.</p>
+  <a class="btn" href="cart.html">Back to shop</a>
+  <script>
+    (function () {
+      var saved = {};
+      try { saved = JSON.parse(sessionStorage.getItem('checkout') || '{}'); } catch (e) {}
+      document.getElementById('out-name').textContent = saved.name || '';
+      document.getElementById('out-email').textContent = saved.email || '';
+    })();
+  </script>
+</main>
+<footer>
+  <div class="wrap">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

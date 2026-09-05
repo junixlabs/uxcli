@@ -1,0 +1,10 @@
+{
+  "name": "checkout fixture",
+  "checkedPass": true,
+  "steps": [
+    { "url": "{{base}}cart.html", "click": "a[href='details.html']" },
+    { "url": "{{base}}details.html", "fill": { "#name": "Jane Doe", "#email": "jane@example.org", "#address": "12 High Street", "#postcode": "SW1A 1AA", "#country": "Ireland" }, "submit": "#details-form button" },
+    { "url": "{{base}}review.html", "commit": true, "submit": "button:has-text('Place order')" },
+    { "url": "{{base}}done.html" }
+  ]
+}

@@ -1,0 +1,28 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { color-scheme: light; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #1a1a1a; background: #ffffff; }
+header, footer { background: #f2f2f2; border-bottom: 1px solid #c8c8c8; }
+footer { border-bottom: 0; border-top: 1px solid #c8c8c8; margin-top: 3rem; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0.75rem 1rem; }
+header .wrap, footer .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.brand { font-weight: 700; margin-right: auto; color: #1a1a1a; text-decoration: none; }
+nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 1rem; }
+nav a, footer a { color: #0b4fa8; }
+.badge { display: inline-block; min-width: 1.4em; padding: 0 0.35em; border-radius: 1em; background: #0b4fa8; color: #ffffff; font-size: 0.8em; text-align: center; }
+main { padding: 1.5rem 1rem; }
+h1 { font-size: 1.6rem; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem; }
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #c8c8c8; }
+td.num, th.num { text-align: right; }
+label { display: block; font-weight: 600; margin-top: 1rem; }
+input, select { display: block; width: 100%; max-width: 28rem; margin-top: 0.25rem; padding: 0.5rem; font: inherit; border: 1px solid #6b6b6b; border-radius: 4px; background: #ffffff; color: #1a1a1a; }
+input:focus, select:focus, a:focus, button:focus { outline: 3px solid #0b4fa8; outline-offset: 2px; }
+button, .btn { display: inline-block; margin-top: 1.5rem; padding: 0.6rem 1.2rem; font: inherit; font-weight: 600; color: #ffffff; background: #0b4fa8; border: 0; border-radius: 4px; cursor: pointer; text-decoration: none; }
+dl { margin: 0; }
+dl div { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; padding: 0.5rem 0; border-bottom: 1px solid #c8c8c8; }
+dt { font-weight: 600; flex: 0 0 8rem; }
+dd { margin: 0; flex: 1 1 12rem; }
+dd a { color: #0b4fa8; margin-left: 0.5rem; }
+.total { font-weight: 700; font-size: 1.15rem; margin-top: 1rem; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

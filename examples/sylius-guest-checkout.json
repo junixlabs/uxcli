@@ -1,0 +1,11 @@
+{
+  "name": "Sylius v2 demo guest checkout (B1 round 2)",
+  "checkedPass": true,
+  "steps": [
+    { "url": "https://v2.demo.sylius.com/en_US/products/denim-daydream", "click": "#add-to-cart-button" },
+    { "url": "https://v2.demo.sylius.com/en_US/checkout/address", "fill": { "#sylius_shop_checkout_address_customer_email": "uxcli1788625992@example.org", "#sylius_shop_checkout_address_billingAddress_firstName": "Jane", "#sylius_shop_checkout_address_billingAddress_lastName": "Doe", "#sylius_shop_checkout_address_billingAddress_street": "12 High Street", "#sylius_shop_checkout_address_billingAddress_countryCode": "United States", "#sylius_shop_checkout_address_billingAddress_city": "New York", "#sylius_shop_checkout_address_billingAddress_postcode": "10001" }, "submit": "form[name=sylius_shop_checkout_address] button[type=submit]" },
+    { "url": "https://v2.demo.sylius.com/en_US/checkout/select-shipping", "submit": "form[name=sylius_shop_checkout_select_shipping] button[type=submit]" },
+    { "url": "https://v2.demo.sylius.com/en_US/checkout/select-payment", "submit": "form[name=sylius_shop_checkout_select_payment] button[type=submit]" },
+    { "url": "https://v2.demo.sylius.com/en_US/checkout/complete", "commit": true, "submit": "form button[type=submit]:has-text('Place order')" }
+  ]
+}

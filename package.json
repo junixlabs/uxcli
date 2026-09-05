@@ -1,0 +1,12 @@
+{
+  "name": "uxcli",
+  "version": "0.1.0",
+  "description": "UI/UX review for coding agents. No commitment, no verdict.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "uxcli": "bin/uxcli.js" },
+  "files": ["bin", "src", "README.md", "VISION.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node bin/uxcli.js gate" },
+  "dependencies": { "playwright-core": "^1.58.0" }
+}

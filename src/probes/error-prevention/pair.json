@@ -1,0 +1,23 @@
+{
+ "journey": "test/journeys/checkout.json",
+ "operator": "review.html: the \"Your details\" summary and its Change links are removed; the entry form has no client-side validation, so no branch of 3.3.4 can hold",
+ "hashes": {
+  "site": {
+   "account.html": "3972383a0e127789055e87f517e5812e7d0aadf98a979748b9468cbf5cdcef29",
+   "cart.html": "c40a826acc5df143e6c8bdb8b2ad95b6c236a1bf24315ef4a729902209fa3125",
+   "contact.html": "fe0b4f737714599aea8ffc61a0e3e66e66eb2ef900f97f29970d90085bdfb457",
+   "details.html": "866dedf0b0ff5baea57490907b07d2f726f00c69add81128e7938438e8f4d987",
+   "done.html": "714bfde7c1ba4e24d162f1faf9ab781ac0d06f44b149441c4845e740dcc32102",
+   "help.html": "e457b0e9a716019065de458d89114c37fbd14e67ada1ec69c8a2f65efbd1acbf",
+   "home.html": "287874d84b918ed8d6c16ce73d9ab631a489a5f9263933811e8ea960702126b2",
+   "privacy.html": "24d287f9a4e59218d69eb38360f674a92ada08860f2b194f71b7be2b9dbbdeff",
+   "review.html": "6a2191f30dc103062e986c7fada8f036f0931bc2247a70ed599c8b7d50b361b4",
+   "shop.html": "56a4d04abc3ca851bc29aff43be027c7f6406aeb0eb90d5dccc39c6088a1e679",
+   "style.css": "7f85da7845e02428fb480f86b8bcc3e32ae491882f27bcf35c10caef88999586",
+   "terms.html": "bd6a5c83a4e786574107a3aa02dc18e5b327624ebc14739fd0ae1785d180c187"
+  },
+  "mustFail": {
+   "review.html": "b223ad7ac8884c95b04e29fa5e6adef45194919f8360e07153907eb8c6ae74bd"
+  }
+ }
+}
