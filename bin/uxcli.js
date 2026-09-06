@@ -10,18 +10,20 @@ const usage = `usage:
   uxcli run <journey.json> [--json] [--out=DIR] [--refute] [--var=k=v ...]
       measure one flow; card by default, --json for the evidence packet; screenshots for fails in DIR (default .uxcli/<journey>);
       --var substitutes {{k}} in the journey; --refute asks a fresh second reader (UXCLI_REFUTER, default claude -p) to confirm or dispute each fail from the images alone
-  uxcli run <url> [--json] [--state=FILE]
+  uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE]
       measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7)
-exit: 0 no fail · 2 at least one fail · 1 the run could not be carried out
+exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 const isUrl = s => /^https?:\/\//i.test(s) || /\.html?$/i.test(s) || s.startsWith('file:');
 try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
     const url = /^(https?|file):/i.test(args[0]) ? args[0] : pathToFileURL(path.resolve(args[0])).href;
-    const result = await runPage(url, { state: opt('state') });
+    const outDir = opt('out') || path.join('.uxcli', new URL(url).hostname || 'page');
+    const result = await runPage(url, { state: opt('state'), outDir });
+    if (flags.has('--refute')) { const { refute } = await import('../src/refute.js'); for (const p of result.probes) if (p.verdict === 'fail' && p.proof?.length) p.refute = refute(p); }
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     process.exit(result.error ? 1 : result.probes.some(p => p.verdict === 'fail') ? 2 : 0);
   } else if (cmd === 'run' && args[0]) {

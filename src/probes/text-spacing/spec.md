@@ -13,3 +13,7 @@ v1 frozen 2026-09-05 (P0-A, sha256 `375832c3…da11bc`). ACT 62/62 with v1.
 
 - 2026-09-06 **third-party subtrees excluded** from targets: on ad-carrying pages every `!important` spacing lock sat inside AdSense containers (P0-A finding).
 - 2026-09-06 verdict names mapped to the repo's list; override breakage attached as `finding`.
+
+## Method status
+
+`method-unproven`. Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Until then a would-be `fail` is reported as `finding`. Record so far: ACT 24afc2/9e45ec/78fd32 62/62 with the packaged code; the unseen-page run is pending.
