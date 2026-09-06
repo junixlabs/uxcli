@@ -54,24 +54,6 @@ What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 - Every exception ships with a coverage test.
 - No score, no summary line, no conformance claim.
 
-## Evidence so far
-
-Method checked against public test suites and unseen sites before product code; the flow probes checked on a seeded fixture, on real apps, and on agents.
-
-| Probe | Suite | Result |
-|---|---|---|
-| focus-visible | W3C ACT, 7 cases | 7/7 |
-| focus-visible | GOV.UK, 22 pages, 1,244 focusable elements | 0 false fails |
-| text-spacing (locked) | W3C ACT, 62 cases | 62/62, after 3 definition fixes |
-| contrast (delegated to axe-core) | W3C ACT, 32 cases | 24/32, 0 false positives, 7 `cantTell` |
-| focus-visible, text-spacing | 20 unseen pages, 5 sites, definitions frozen and hashed first | 0 false fails |
-| flow probes 3.3.4 / 3.3.7 / 3.2.3 | seeded checkout fixture, probe frozen before the fixture existed | 3/3 caught, silent on the clean twin |
-| flow probes | 11 flows on 5 real apps the probes had never seen | 0 false fails; one real 3.3.7 defect found by hand that the probe then missed, now caught; one nav pattern (buttons, no `href`) the 3.2.3 probe cannot see yet |
-| verdict card vs JSON packet | 40 fresh agent sessions fixing the seeded fixture | 0 reported done with a check failing; card sessions edited only the cited file 19/20, JSON 7/20 |
-| planted wrong `fail` | 20 agent sessions on the clean fixture | 2/10 rewrote the site to satisfy it without the tool; 0/10 with the tool in hand |
-
-Not yet shown: precision on more than 10 real flows; recall on defects seeded into real pages by someone who does not tune the probes; any of this on a second model.
-
 ## Non-goals
 
 Conformance certification. Visual regression. Scores. Design critique.
