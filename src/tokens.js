@@ -9,3 +9,9 @@ export function tokenIndex(root) {
 }
 const expand = h => { h = h.toLowerCase(); if (h.length === 4) return '#' + [...h.slice(1)].map(c => c + c).join(''); if (h.length === 7) return h; if (h.length === 9) return h.slice(0, 7); return null; };
 export const tokenFor = (idx, hex) => (idx[String(hex || '').toLowerCase()] || [])[0]?.token || null;
+// Aliases: `--fg-subtle: var(--ink-500)`. Same read-only scan; returns { alias: target }.
+export function tokenAliases(root) {
+  const out = {}; if (!root || !fs.existsSync(root)) return out;
+  const walk = d => { for (const f of fs.readdirSync(d, { withFileTypes: true })) { if (f.name === 'node_modules' || f.name.startsWith('.')) continue; const p = path.join(d, f.name); if (f.isDirectory()) walk(p); else if (EXT.has(path.extname(f.name))) for (const m of fs.readFileSync(p, 'utf8').matchAll(/(--[a-zA-Z0-9_-]+)\s*:\s*var\((--[a-zA-Z0-9_-]+)\)/g)) out[m[1]] = m[2]; } };
+  walk(root); return out;
+}

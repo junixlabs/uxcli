@@ -1,7 +1,7 @@
 // uxcli sheet: the project's own commitments on its design tokens, read from uxcli.commitments.json. Provenance `project`.
 // Today one kind: `contrast` (two token names, a minimum ratio). No commitments file → nothing to say.
 import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto';
-import { tokenIndex } from './tokens.js';
+import { tokenIndex, tokenAliases } from './tokens.js';
 
 export const FILE = 'uxcli.commitments.json';
 export function findCommitments(root) { const p = path.join(root || '.', FILE); return fs.existsSync(p) ? p : null; }
@@ -10,7 +10,11 @@ const lum = hex => { const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 
 export const ratio = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) => y - x); return Math.round(((l1 + 0.05) / (l2 + 0.05)) * 100) / 100; };
 
 // token → hex: the reverse of tokenIndex. The last declaration wins, as in a stylesheet read top to bottom; a token declared with two colours is ambiguous and reported.
-export function tokenValues(root) { const idx = tokenIndex(root); const out = {}; for (const [hex, decls] of Object.entries(idx)) for (const d of decls) (out[d.token] ||= new Set()).add(hex); return out; }
+export function tokenValues(root) {
+  const idx = tokenIndex(root), aliases = tokenAliases(root); const out = {}; for (const [hex, decls] of Object.entries(idx)) for (const d of decls) (out[d.token] ||= new Set()).add(hex);
+  for (const a of Object.keys(aliases)) { let t = a, n = 0; while (aliases[t] && n++ < 8) t = aliases[t]; if (out[t] && !out[a]) out[a] = out[t]; }
+  return out;
+}
 
 export function evaluate(file, root) {
   const text = fs.readFileSync(file, 'utf8'); const doc = JSON.parse(text); const sha256 = crypto.createHash('sha256').update(text).digest('hex');
