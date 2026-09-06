@@ -12,7 +12,9 @@ export const ratio = (a, b) => { const [l1, l2] = [lum(a), lum(b)].sort((x, y) =
 // token → hex: the reverse of tokenIndex. The last declaration wins, as in a stylesheet read top to bottom; a token declared with two colours is ambiguous and reported.
 export function tokenValues(root) {
   const idx = tokenIndex(root), aliases = tokenAliases(root); const out = {}; for (const [hex, decls] of Object.entries(idx)) for (const d of decls) (out[d.token] ||= new Set()).add(hex);
-  for (const a of Object.keys(aliases)) { let t = a, n = 0; while (aliases[t] && n++ < 8) t = aliases[t]; if (out[t] && !out[a]) out[a] = out[t]; }
+  const resolve = (t, depth) => { const own = out[t] ? [...out[t]] : []; if (!aliases[t] || depth > 8) return own; return [...own, ...[...aliases[t]].flatMap(x => resolve(x, depth + 1))]; };
+  // An alias keeps every colour it can resolve to, plus any direct colour a theme block gives it: two colours make the token ambiguous, reported as such.
+  for (const a of Object.keys(aliases)) { const hexes = resolve(a, 0); if (hexes.length) { out[a] ||= new Set(); for (const h of hexes) out[a].add(h); } }
   return out;
 }
 
@@ -26,7 +28,7 @@ export function evaluate(file, root) {
     if (e.kind !== 'contrast') { results.push({ ...base, verdict: 'unmeasurable', reason: `kind ${e.kind} is not measured yet` }); continue; }
     const fg = values[e.fg], bg = values[e.bg];
     if (!fg || !bg) { results.push({ ...base, verdict: 'unmeasurable', reason: `${!fg ? e.fg : e.bg} is not declared as a colour under ${root || path.dirname(file)}` }); continue; }
-    if (fg.size > 1 || bg.size > 1) { results.push({ ...base, verdict: 'unmeasurable', reason: `${fg.size > 1 ? e.fg : e.bg} is declared with more than one colour (${[...(fg.size > 1 ? fg : bg)].join(', ')})` }); continue; }
+    if (fg.size > 1 || bg.size > 1) { results.push({ ...base, verdict: 'unmeasurable', reason: `${fg.size > 1 ? e.fg : e.bg} is declared with more than one colour (${[...(fg.size > 1 ? fg : bg)].join(', ')}; a theme block or an alias re-pointed it; commit the base token instead)` }); continue; }
     const [f] = fg, [b] = bg; const r = ratio(f, b); const min = Number(e.min);
     if (!(min > 0)) { results.push({ ...base, verdict: 'not-committed', reason: 'no minimum ratio' }); continue; }
     results.push({ ...base, verdict: r >= min ? 'pass' : 'fail', fg: e.fg, bg: e.bg, fgHex: f, bgHex: b, ratio: r, min, reason: `${e.fg} ${f} on ${e.bg} ${b} is ${r}:1, committed minimum ${min}:1` });

@@ -40,10 +40,20 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 |---|---|
 | `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | `principles` skill: what the product commits to, as thresholds |
 | `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute` | `diff a b --gate` drift between builds |
+| `sheet [--src=DIR]` the project's own commitments on its design tokens (`uxcli.commitments.json`), no browser | |
+| `diff a.json b.json [--gate]` drift between two saved runs: same, regressed, improved, new, gone | |
 | `gate` run every probe's falsification pair | |
 | `why <rule>` the probe's definition | |
 
 Every probe ships with a pair of fixtures: one where it must fail, one where it must reach `pass` through its satisfied branch. Silence (`not-applicable`) on the clean twin does not count. A probe without that pair cannot say `fail`. `gate` enforces it. Exit codes: 0 no fail, 2 at least one fail, 1 the run could not be carried out.
+
+## Commitments
+
+`uxcli.commitments.json` in the project root is where the project commits to its own thresholds. Each entry carries `id`, `kind`, `why`, an `owner` and a `source` (the statement it cites); an entry without owner and source is `not-committed`, an entry with `"suppressed": "<reason>"` is reported as `suppressed`, never silently skipped. Today one kind is measured: `contrast`, two token names and a minimum ratio, read from the declared token values by `uxcli sheet --src=DIR`. A token that a theme block or an alias points at two colours is `unmeasurable`; commit the base token. Provenance of these verdicts is `project`; `fail` exits 2.
+
+The `principles` skill (`skills/principles/SKILL.md`) helps an agent draft the file as `uxcli.commitments.proposed.json` with the trade-offs; a human fills owner and source and renames it. The agent may propose, it may not commit.
+
+`uxcli diff a.json b.json --gate` compares two saved runs of `run` or `sheet` and exits 2 when the newer one carries a `fail`.
 
 What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 

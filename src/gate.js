@@ -55,6 +55,18 @@ export async function gate({ log = console.log } = {}) {
     log(`sheet  project.contrast            must-fail: ${(vf.find(r => r.verdict === 'fail') ? 'fail' : 'none').padEnd(6)} must-pass: ${(vp.every(r => r.verdict === 'pass') ? 'pass' : 'mixed').padEnd(14)} ${'arithmetic'.padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
     log(`       operator: ${pair.operator}`);
   }
+  // diff: the two sheet evaluations above, saved, must show the regression and block with --gate; the same run twice must be all `same`.
+  {
+    const { evaluate } = await import('./sheet.js'); const { diff, gateExit } = await import('./diff.js'); const dir = path.join(ROOT, 'test/fixtures/sheet'); const problems = [];
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'uxcli-diff-')); const save = (name, sub) => { const f = path.join(tmp, name); fs.writeFileSync(f, JSON.stringify(evaluate(path.join(dir, sub), dir))); return f; };
+    const a = save('a.json', 'must-pass.commitments.json'), b = save('b.json', 'must-fail.commitments.json');
+    const reg = diff(a, b), same = diff(a, a);
+    if (!reg.rows.some(r => r.delta === 'regressed' && r.b === 'fail') || gateExit(reg) !== 2) problems.push('must-fail: pass → fail not reported as regressed with exit 2');
+    if (!same.rows.every(r => r.delta === 'same') || gateExit(same) !== 0) problems.push('must-pass: identical runs not all same with exit 0');
+    fs.rmSync(tmp, { recursive: true, force: true }); if (problems.length) ok = false;
+    log(`diff   drift between two runs        must-fail: ${(gateExit(reg) === 2 ? 'exit 2' : 'exit ' + gateExit(reg)).padEnd(6)} must-pass: ${(same.rows.every(r => r.delta === 'same') ? 'all same' : 'mixed').padEnd(14)} ${'arithmetic'.padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
+    log('       operator: the sheet pair saved as two runs; a regressed commitment must block, an unchanged run must not');
+  }
   log(ok ? 'GATE PASS' : 'GATE FAIL');
   return ok;
 }

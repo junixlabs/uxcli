@@ -13,6 +13,8 @@ const usage = `usage:
   uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE] [--src=DIR]
       measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour
   uxcli sheet [--src=DIR] [--json]    the project's own commitments on its design tokens (uxcli.commitments.json in DIR, default .); provenance project; exit 2 on a broken commitment
+  uxcli diff <a.json> <b.json> [--gate] [--json]
+      drift between two saved runs (run --json, sheet --json): same / regressed / improved / new / gone per probe or commitment; with --gate exit 2 when b carries a fail
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
@@ -40,6 +42,9 @@ try {
     const file = findCommitments(root); if (!file) { console.log(`no ${FILE} under ${root}: nothing committed, nothing to say`); process.exit(0); }
     const s = evaluate(file, root); console.log(flags.has('--json') ? JSON.stringify(s, null, 1) : sheetCard(s));
     process.exit(s.results.some(r => r.verdict === 'fail') ? 2 : 0);
+  } else if (cmd === 'diff' && args[0] && args[1]) {
+    const { diff, diffCard, gateExit } = await import('../src/diff.js'); const d = diff(path.resolve(args[0]), path.resolve(args[1]));
+    console.log(flags.has('--json') ? JSON.stringify(d, null, 1) : diffCard(d)); process.exit(flags.has('--gate') ? gateExit(d) : 0);
   } else if (cmd === 'gate') {
     const { gate } = await import('../src/gate.js'); process.exit((await gate()) ? 0 : 1);
   } else if (cmd === 'why' && args[0]) {
