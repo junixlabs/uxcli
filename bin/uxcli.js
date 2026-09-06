@@ -17,6 +17,7 @@ const usage = `usage:
       drift between two saved runs (run --json, sheet --json): same / regressed / improved / new / gone per probe or commitment; with --gate exit 2 when b carries a fail
   uxcli discover <repo-dir|url> [--out=DIR] [--json]
       journey candidates as proposals: routes and forms from a Next.js source tree, or forms from a same-origin crawl; written to DIR (default uxcli-proposals/); run refuses a journey whose provenance is proposal until a human sets confirmedBy
+  uxcli init [dir]                    copy the shipped skills into dir/.claude/skills/ (existing files kept), create dir/.uxcli/, print the CI step; writes nothing else
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
@@ -53,6 +54,8 @@ try {
     const props = proposals(d); const outDir = opt('out') || 'uxcli-proposals'; fs.mkdirSync(outDir, { recursive: true });
     props.forEach((j, i) => fs.writeFileSync(path.join(outDir, `${String(i + 1).padStart(2, '0')}-${j.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 50)}.json`), JSON.stringify(j, null, 1) + '\n'));
     console.log(flags.has('--json') ? JSON.stringify({ ...d, proposals: props }, null, 1) : discoverCard(d, props));
+  } else if (cmd === 'init') {
+    const { init, initCard } = await import('../src/init.js'); const r = init(path.resolve(args[0] || '.')); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : initCard(r));
   } else if (cmd === 'gate') {
     const { gate } = await import('../src/gate.js'); process.exit((await gate()) ? 0 : 1);
   } else if (cmd === 'why' && args[0]) {

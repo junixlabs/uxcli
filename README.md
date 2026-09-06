@@ -2,7 +2,7 @@
 
 `uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
 
-**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. The three single-screen probes are `method-validated` (focus-visible: 20 unseen pages after eight recorded revisions; text-spacing and contrast: 80 unseen pages; 0 false fails each). The three flow probes are `method-unproven` and report `finding` instead of `fail` until their unseen-flow run is recorded. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
+**Status:** early. Four flow probes (WCAG 3.3.4, 3.3.1, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. The three single-screen probes are `method-validated` (focus-visible: 20 unseen pages after eight recorded revisions; text-spacing and contrast: 80 unseen pages; 0 false fails each). The three flow probes are `method-unproven` and report `finding` instead of `fail` until their unseen-flow run is recorded. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
 
 **Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
 
@@ -44,6 +44,9 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 | `diff a.json b.json [--gate]` drift between two saved runs: same, regressed, improved, new, gone | |
 | `discover <repo\|url> [--out=DIR]` journey candidates as proposals (Next.js routes and forms, or a same-origin crawl); `run` refuses a proposal until a human sets `confirmedBy` | |
 | `principles` skill drafts `uxcli.commitments.proposed.json` with trade-offs; a human fills owner and source | |
+| `journey` skill turns `discover` output into `<name>.proposed.json` plus the questions only the owner can answer; never sets `confirmedBy` | |
+| `before-done` skill: what an agent does before saying UI work is finished: run, act on every fail, say done only at exit 0 | |
+| `init [dir]` copy the shipped skills into `.claude/skills/`, create `.uxcli/`, print the CI step; writes nothing else | |
 | `gate` run every probe's falsification pair | |
 | `why <rule>` the probe's definition | |
 
@@ -52,6 +55,8 @@ Every probe ships with a pair of fixtures: one where it must fail, one where it 
 ## Commitments
 
 `uxcli.commitments.json` in the project root is where the project commits to its own thresholds. Each entry carries `id`, `kind`, `why`, an `owner` and a `source` (the statement it cites); an entry without owner and source is `not-committed`, an entry with `"suppressed": "<reason>"` is reported as `suppressed`, never silently skipped. Today one kind is measured: `contrast`, two token names and a minimum ratio, read from the declared token values by `uxcli sheet --src=DIR`. A token that a theme block or an alias points at two colours is `unmeasurable`; commit the base token. Provenance of these verdicts is `project`; `fail` exits 2.
+
+Three skills ship in `skills/` and `uxcli init` copies them into a project's `.claude/skills/`. Each carries a load-bearing paragraph the gate checks by hash; whether that paragraph changes a fresh agent's behaviour is measured on fresh sessions and recorded in `skills/pair.json` (see the record field; `null` means not yet shown).
 
 The `principles` skill (`skills/principles/SKILL.md`) helps an agent draft the file as `uxcli.commitments.proposed.json` with the trade-offs; a human fills owner and source and renames it. The agent may propose, it may not commit.
 
