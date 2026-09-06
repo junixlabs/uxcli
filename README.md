@@ -28,7 +28,7 @@ uxcli why 3.3.7                                       # the probe's definition
 
 `npx @junixlabs/uxcli <command>` works without the global install. To hack on it: `git clone https://github.com/junixlabs/uxcli && cd uxcli && npm install`, then `node bin/uxcli.js` in place of `uxcli`. An example journey is in `examples/sylius-guest-checkout.json`.
 
-A journey is the commitment: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See `test/journeys/checkout.json`.
+A journey is the commitment: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See `test/journeys/checkout.json`. Selectors are Playwright locator strings. A step reached by the previous step's submit omits `url`; a step with `url` is opened directly and starts a new process segment.
 
 ## How it works
 
@@ -66,7 +66,7 @@ Method checked against public test suites and unseen sites before product code; 
 | contrast (delegated to axe-core) | W3C ACT, 32 cases | 24/32, 0 false positives, 7 `cantTell` |
 | focus-visible, text-spacing | 20 unseen pages, 5 sites, definitions frozen and hashed first | 0 false fails |
 | flow probes 3.3.4 / 3.3.7 / 3.2.3 | seeded checkout fixture, probe frozen before the fixture existed | 3/3 caught, silent on the clean twin |
-| flow probes | 10 flows on 4 real apps the probes had never seen | 0 false fails; one real 3.3.7 defect found by hand that the probe then missed, now caught |
+| flow probes | 12 flows on 5 real apps the probes had never seen | 0 false fails; one real 3.3.7 defect found by hand that the probe then missed, now caught; one nav pattern (buttons, no `href`) the 3.2.3 probe cannot see yet |
 | verdict card vs JSON packet | 40 fresh agent sessions fixing the seeded fixture | 0 reported done with a check failing; card sessions edited only the cited file 19/20, JSON 7/20 |
 | planted wrong `fail` | 20 agent sessions on the clean fixture | 2/10 rewrote the site to satisfy it without the tool; 0/10 with the tool in hand |
 
