@@ -43,6 +43,18 @@ export async function gate({ log = console.log } = {}) {
     report(probe, pair, vf, vp, problems);
   }
   await browser.close();
+  // Commitments on tokens (`sheet`): two commitment files over one token file, one minimum between them.
+  {
+    const dir = path.join(ROOT, 'test/fixtures/sheet'); const pair = JSON.parse(fs.readFileSync(path.join(dir, 'pair.json'), 'utf8')); const problems = [];
+    for (const [f, h] of Object.entries(pair.hashes)) if (typeof h === 'string' && sha(path.join(dir, f)) !== h) problems.push(`${f} hash changed`);
+    checkHashes(dir, '', pair.hashes.mustFail, problems); checkHashes(dir, '', pair.hashes.mustPass, problems);
+    const { evaluate } = await import('./sheet.js');
+    const vf = evaluate(path.join(dir, 'must-fail.commitments.json'), dir).results, vp = evaluate(path.join(dir, 'must-pass.commitments.json'), dir).results;
+    if (!vf.some(r => r.verdict === 'fail')) problems.push('must-fail returned no fail'); if (!vp.length || vp.some(r => r.verdict !== 'pass')) problems.push(`must-pass returned ${vp.map(r => r.verdict).join(',')}`);
+    if (problems.length) ok = false;
+    log(`sheet  project.contrast            must-fail: ${(vf.find(r => r.verdict === 'fail') ? 'fail' : 'none').padEnd(6)} must-pass: ${(vp.every(r => r.verdict === 'pass') ? 'pass' : 'mixed').padEnd(14)} ${'arithmetic'.padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
+    log(`       operator: ${pair.operator}`);
+  }
   log(ok ? 'GATE PASS' : 'GATE FAIL');
   return ok;
 }

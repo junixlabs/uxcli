@@ -12,6 +12,7 @@ const usage = `usage:
       --var substitutes {{k}} in the journey; --refute asks a fresh second reader (UXCLI_REFUTER, default claude -p) to confirm or dispute each fail from the images alone
   uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE] [--src=DIR]
       measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour
+  uxcli sheet [--src=DIR] [--json]    the project's own commitments on its design tokens (uxcli.commitments.json in DIR, default .); provenance project; exit 2 on a broken commitment
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
@@ -34,6 +35,11 @@ try {
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     const couldNotRun = result.steps.some(s => s.error) || result.steps.length < result.stepCount;
     process.exit(result.probes.some(p => p.verdict === 'fail') ? 2 : couldNotRun ? 1 : 0);
+  } else if (cmd === 'sheet') {
+    const { findCommitments, evaluate, sheetCard, FILE } = await import('../src/sheet.js'); const root = path.resolve(opt('src') || '.');
+    const file = findCommitments(root); if (!file) { console.log(`no ${FILE} under ${root}: nothing committed, nothing to say`); process.exit(0); }
+    const s = evaluate(file, root); console.log(flags.has('--json') ? JSON.stringify(s, null, 1) : sheetCard(s));
+    process.exit(s.results.some(r => r.verdict === 'fail') ? 2 : 0);
   } else if (cmd === 'gate') {
     const { gate } = await import('../src/gate.js'); process.exit((await gate()) ? 0 : 1);
   } else if (cmd === 'why' && args[0]) {

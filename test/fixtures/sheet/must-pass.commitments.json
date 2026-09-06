@@ -1,0 +1,8 @@
+{
+  "owner": "fixture team",
+  "source": "test/fixtures/sheet/principles.md",
+  "entries": [
+    { "id": "contrast.body-text", "kind": "contrast", "fg": "--ink-900", "bg": "--paper-0", "min": 4.5, "why": "body text on paper" },
+    { "id": "contrast.muted-text", "kind": "contrast", "fg": "--ink-500", "bg": "--paper-0", "min": 3, "why": "muted text is large-text only; 3:1 is the committed floor" }
+  ]
+}

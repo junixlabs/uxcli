@@ -1,0 +1,14 @@
+{
+ "kind": "sheet",
+ "operator": "must-fail.commitments.json commits --ink-500 on --paper-0 (4.14:1 in tokens.css) at a 4.5:1 minimum; must-pass commits the same pair at 3:1 with the reason written in principles.md. tokens.css and the body-text entry are identical in both.",
+ "hashes": {
+  "tokens.css": "a2b6283a280fe115f8bbdf5b8b03c2b235d8a0ac92ccd143c0741ff0ba7cef5d",
+  "principles.md": "4f158f947295e2c14dbdec83be6a752928977caa38eec257fccff6a2def0812e",
+  "mustFail": {
+   "must-fail.commitments.json": "f602f912a5f5f870876d8c0fa1ce3a214ce8e4ae887edb668165e1b5c28528e0"
+  },
+  "mustPass": {
+   "must-pass.commitments.json": "f8a97e0516e056db52f57071960f844dc590f877c1da9bd3070a1616d5ce2620"
+  }
+ }
+}
