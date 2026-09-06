@@ -14,8 +14,22 @@ Phases end when their exit criteria pass. No dates. Order reflects what the evid
 ### Flow, second cut
 - Done in part: recall on defects seeded blind by two independent agents (a multi-page checkout, 12 mutants; a same-URL wizard, 8 mutants): every in-scope defect caught after two recorded revisions, 0 false fails, no-verdict counted separately; the key for one wizard mutant is contested and recorded as such. Still open: precision on 20 flows the probes have never seen.
 - Done: same-URL wizards (journey `expect`, or the submitted form gone / heading changed); navigation built from buttons and roles; footer and header landmarks as mechanisms; login identity on a password step as the security exception; `back` only as a whole label; reformatted values as a finding. Still open: change controls matched by observed URLs; disabled submit as a checking mechanism; forced clicks for overlay widgets; unlandmarked menus as a lower-provenance fallback.
-- One more flow probe only if it has a falsification pair on day one (candidate: 2.2.1 timing).
+- One more flow probe only if it has a falsification pair on day one. Candidate changed 2026-09-07 from 2.2.1 timing to **3.3.1 error identification**: every page with a form needs it, and the first outside run (a landing page with one form) had nothing else to measure. It plants one error (a required field left empty, submit) so it runs only where the journey opts in, never on a bare URL; `method-unproven` at birth.
 - Exit: three numbers published separately: precision, recall, no-verdict rate.
+
+### Skills
+The instrument is used by an agent; the skills are how the agent is told to use it. A skill is a set of obligations on a fresh agent, and it is correct only when its transcript shows the obligations met and its mutant shows them broken.
+- `principles` shipped in 0.4.0 without a twin; it gets one here.
+- `journey`: from `discover` output to `*.proposed.json` with the questions only the owner can answer (which step commits, `expect` on a same-URL step, values, a test endpoint). Must not set `confirmedBy`, must not place the file among the project's journeys, must not fill hidden or invisible inputs.
+- `before-done`: what an agent must do before it may say the UI work is finished: run `uxcli run` on the screens it touched and the journeys it affected, fix or report every `fail`, call a `finding` unverified rather than a pass, say "done" only at exit 0. Named after its trigger, not after a verdict it does not give.
+- Each skill has a must-fail twin: the same file with one load-bearing paragraph removed. If the twin does not produce the forbidden behaviour, that paragraph measures nothing.
+- Exit: a fresh agent given only the shipped skills and a project it has not seen writes the proposal and refuses to say done while a fail remains, N ≥ 5 sessions per skill, and each twin produces the forbidden behaviour; recorded with the skill file hash. VISION "Shape" names two skills; a third is the owner's change to make.
+
+### Falsify on the target
+A falsification pair proves a probe can fail on a fixture. Nothing proves it can fail on this project. An all-green run must be able to show its counterfactual.
+- `run --prove`: for each probe that passed, plant one defect that reaches the very controls it measured (a focus rule that changes their computed style, a colour override on the cited text group, a locked `letter-spacing`; for a journey, a dropped review value or a reordered navigation item), re-measure the same controls, print `pass · would fail on <mutation>` or `pass · could not be made to fail`, which is a warning.
+- Definition first: what "the mutation reaches the measured element" means is written and committed before any code.
+- Exit: on the twins and on one real project every pass carries its counterfactual line.
 
 ### Commit
 The project's own commitments become thresholds.
@@ -23,7 +37,8 @@ The project's own commitments become thresholds.
 - Done: `principles`, a skill that drafts the file as a proposal with trade-offs; the human fills owner and source and commits it. The agent may propose, it may not commit.
 - Done: `discover <repo|url>` writes journey candidates as proposals; `run` refuses a proposal until a human sets `confirmedBy`.
 - Done: `diff a b --gate` over two saved runs; only `fail` blocks.
-- Journey authoring beyond proposals: the agent may draft, a human commits, the file is versioned before the build.
+- Journey authoring beyond proposals: the `journey` skill (see Skills).
+- `init`: copy the shipped skills into the project's `.claude/skills/`, create `.uxcli/`, print the CI step. Nothing else: no commitments file, no journey, no edits to existing files.
 - Exit: one real project runs `sheet` or `diff --gate` in CI on its own commitments. Not yet: the first project's commitments file has to be written by its owner.
 
 ### Release
