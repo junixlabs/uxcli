@@ -4,6 +4,7 @@ import { screen, arrive, fillStep, act, evalIn, shot } from '../../browser.js';
 
 export default {
   id: 'flow.error-prevention', sc: '3.3.4',
+  method: { status: 'method-unproven', record: 'P0-B ran pre-package code on 20 flows with two contested fails; no unseen-flow run with the packaged code yet' },
   async onStep(page, rec, ctx) {
     const i = rec.i, step = ctx.J.steps[i];
     if (i === ctx.commitIdx - 1 && !step.fill) ctx.reviewScreen = await screen(page, i, rec);

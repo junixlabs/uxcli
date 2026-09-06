@@ -8,6 +8,13 @@ import consistentNavigation from './probes/consistent-navigation/probe.js';
 
 export const PROBES = [errorPrevention, redundantEntry, consistentNavigation];
 
+// README rule: an unproven method reports `finding` where it would say `fail`. The probe's own verdict is kept as rawVerdict.
+export function withMethod(probe, out) {
+  const r = { probe: probe.id, sc: probe.sc, provenance: 'spec', method: probe.method?.status || 'method-unproven', ...out };
+  if (r.verdict === 'fail' && r.method !== 'method-validated') { r.rawVerdict = 'fail'; r.verdict = 'finding'; }
+  return r;
+}
+
 export async function runJourney(J, { browser, outDir } = {}) {
   const own = !browser; if (own) browser = await launch();
   const ctx = { J, steps: [], recorded: [], authSteps: new Set(), commitIdx: J.steps.findIndex(s => s.commit), blocked: false, browser };
@@ -28,7 +35,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
   await bctx.close();
   segment(ctx);
   const probes = [];
-  for (const p of PROBES) probes.push({ probe: p.id, sc: p.sc, provenance: 'spec', ...(await p.evaluate(ctx)) });
+  for (const p of PROBES) probes.push(withMethod(p, await p.evaluate(ctx)));
   if (own) await browser.close();
   if (outDir) writeEvidence(ctx, probes, outDir);
   for (const s of ctx.steps) delete s.evidence;

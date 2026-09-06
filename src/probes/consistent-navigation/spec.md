@@ -22,3 +22,7 @@ A journey is an ordered list of steps in one process. Each step: `url` (or an ac
 ## Falsification pair
 
 See `pair.json`: one fixture where this probe must return `fail` for the stated operator, one where it must stay silent. `uxcli gate` runs both and checks the hashes. Written from the WCAG 2.2 Understanding text before any fixture or site was opened; revision history is kept outside the package.
+
+## Method status
+
+`method-unproven`. Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Until then a would-be `fail` is reported as `finding`. Record so far: P0-B ran pre-package code on 20 flows; no unseen-flow run with the packaged code yet.

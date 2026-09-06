@@ -23,6 +23,7 @@ function match(inputs, recorded, idx) {
 
 export default {
   id: 'flow.redundant-entry', sc: '3.3.7',
+  method: { status: 'method-unproven', record: 'P0-B ran pre-package code on 20 flows; no unseen-flow run with the packaged code yet' },
   async onStep(page, rec, ctx) {
     if (rec.i === 0 || !ctx.recorded.length) return;
     const details = [];

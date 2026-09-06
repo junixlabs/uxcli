@@ -4,6 +4,7 @@ import { evalIn } from '../../browser.js';
 
 export default {
   id: 'flow.consistent-navigation', sc: '3.2.3',
+  method: { status: 'method-unproven', record: 'P0-B ran pre-package code on 20 flows; no unseen-flow run with the packaged code yet' },
   async onStep(page, rec, ctx) {
     const navs = await evalIn(page, '() => navs()');
     (ctx.navsByStep ||= []).push({ i: rec.i, origin: new URL(rec.url).origin, userReorder: !!ctx.J.steps[rec.i].userReorder, navs });
