@@ -1,0 +1,12 @@
+{
+ "kind": "page",
+ "operator": "index.html: .hint text is #9a9a9a on #ffffff (2.81:1); the must-pass twin uses #595959 (7:1).",
+ "hashes": {
+  "mustFail": {
+   "index.html": "e2102560feb1edeafdc0b2cb4fbc75e375b43be9cf5d2729287c04efdb638558"
+  },
+  "mustPass": {
+   "index.html": "cd2dfaf536a3d6ef92e2a77e0a191c408e363468bcf12dbc8f6c5a2bc9b4f7b7"
+  }
+ }
+}

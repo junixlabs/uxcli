@@ -1,0 +1,12 @@
+{
+ "kind": "page",
+ "operator": "index.html: a stylesheet rule *:focus,*:focus-visible{outline:none} removes the default focus ring from every control; the must-pass twin is identical without that rule. Both carry an autofocus input whose focus ring transitions over 300 ms and an infinitely pulsing status dot.",
+ "hashes": {
+  "mustFail": {
+   "index.html": "331ed671dfa5ab5a23cc39bbf6a99973017a9f7719a3afcf3d591b42346d823e"
+  },
+  "mustPass": {
+   "index.html": "6ab04dd5a3dad058ca4743bcb1f1f6d1c257c60e3ffc921bf2ef81122659e4f7"
+  }
+ }
+}

@@ -1,0 +1,12 @@
+{
+ "kind": "page",
+ "operator": "index.html: the second paragraph locks letter-spacing at 0 with an !important style attribute; the must-pass twin locks it at 0.15em. Both lock line-height at 1.6 on a wrapped paragraph.",
+ "hashes": {
+  "mustFail": {
+   "index.html": "eab117b6dd089909104dd1f71ff6a10d7d02e595f35bd42fd7291e7bb6f7ceee"
+  },
+  "mustPass": {
+   "index.html": "46ff4433e7c20347cdf9c4fbb7c4d50f4e2ed408e0645b803e3081f7e08f3e9d"
+  }
+ }
+}
