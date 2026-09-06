@@ -5,7 +5,7 @@ const PAD = 48, VW = 1280, VH = 800;
 
 export default {
   id: 'page.focus-visible', sc: '2.4.7', kind: 'page',
-  method: { status: 'method-unproven', record: 'v3 (pixel measurement) has ACT oj04fd 7/7; the unseen-page run with the packaged code is pending' },
+  method: { status: 'method-unproven', record: 'v3.6 (pixel measurement after one real Tab press) has ACT oj04fd 7/7; the unseen-page run with the packaged code is pending' },
   async measure(page) {
     const n = await page.evaluate(THIRD => {
       window.__uxfv = [...document.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex],[contenteditable]')]
@@ -15,6 +15,8 @@ export default {
       return window.__uxfv.length;
     }, THIRD);
     if (n === 0) return { verdict: 'not-applicable', why: 'no focusable element', candidates: 0 };
+    // One real Tab key press first: pages that draw rings only after keyboard use (a `no-focus-outline` class removed on keydown) are measured in the state a keyboard user is in.
+    await page.keyboard.press('Tab'); await page.evaluate(() => { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); });
     const shot = clip => page.screenshot({ clip, animations: 'disabled', caret: 'hide', timeout: 5000 });
     const items = [];
     for (let i = 0; i < n; i++) {
