@@ -40,7 +40,8 @@ export default {
         else missing.push({ value: r.value, field: r.name || r.label || r.selector, step: r.step });
       }
       const changeCtl = scr.links.find(l => (l.href && earlierUrls.has(normUrl(l.href))) || /\b(change|edit|modify)\b/.test(l.text) || /^(go |« |< )?back$/.test(l.text));
-      const editableHere = scr.ro.some(f => f.editable && priorVals.some(r => norm(f.value) === norm(r.value)));
+      // every recorded value must be correctable on this screen for 'editable here' to be a correction mechanism; one editable copy of one value is not
+      const editableHere = priorVals.length > 0 && priorVals.every(r => scr.ro.some(f => f.editable && [r.value, r.display].map(norm).includes(norm(f.value))));
       return { holds: missing.length === 0 && (!!changeCtl || editableHere), screen: scr.step, present, reformatted, missing, changeMechanism: changeCtl || (editableHere ? 'values editable on this screen' : null) };
     };
     let conf = evalConfirmed(commitScreen);
