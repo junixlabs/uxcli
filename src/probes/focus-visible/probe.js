@@ -19,9 +19,13 @@ export default {
     const items = [];
     for (let i = 0; i < n; i++) {
       const t = await page.evaluate(async i => {
-        const el = window.__uxfv[i]; el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); await new Promise(r => requestAnimationFrame(r)); const r = el.getBoundingClientRect();
+        const el = window.__uxfv[i]; el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); await new Promise(r => requestAnimationFrame(r));
+        // The box is the union of the control's own box and its content's box: an inline link wrapping an image has a one-line box while its ring is drawn around the image.
+        const r0 = el.getBoundingClientRect(); const rg = document.createRange(); rg.selectNodeContents(el); const rc = rg.getBoundingClientRect();
+        const x1 = Math.min(r0.left, rc.width ? rc.left : r0.left), y1 = Math.min(r0.top, rc.height ? rc.top : r0.top), x2 = Math.max(r0.right, rc.width ? rc.right : r0.right), y2 = Math.max(r0.bottom, rc.height ? rc.bottom : r0.bottom);
+        const r = { x: x1, y: y1, width: x2 - x1, height: y2 - y1 };
         const sel = el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '');
-        const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+        const hit = document.elementFromPoint(Math.min(innerWidth - 1, Math.max(0, r.x + r.width / 2)), Math.min(innerHeight - 1, Math.max(0, r.y + r.height / 2)));
         return { sel, text: (el.textContent || el.value || el.getAttribute('aria-label') || '').trim().slice(0, 40), x: r.x, y: r.y, w: r.width, h: r.height, occluded: !(hit && (hit === el || el.contains(hit) || hit.contains(el))) };
       }, i);
       const x0 = Math.max(0, t.x - PAD), y0 = Math.max(0, t.y - PAD);
