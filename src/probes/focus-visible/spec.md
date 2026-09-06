@@ -17,7 +17,7 @@ v3 2026-09-06: **the measurement is pixels, not computed style.** An independent
 
 ## Method status
 
-`method-unproven`. Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Until then a would-be `fail` is reported as `finding`. Record so far: v3.8 (pixels, focus by a real Tab press, unpainted controls excluded, late indicators re-read) has ACT oj04fd 7/7; the unseen-page run with the packaged code is pending.
+`method-validated` (2026-09-06). Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Record: 20 unseen pages (list 4, 2026-09-06, drawn after the v3.8 definition was committed): 62 failing controls on 7 pages, each re-measured by a real Tab press and a whole-viewport diff, 0 false fails, 2 pages no verdict; 60 earlier unseen pages found and fixed seven false-fail classes (spec Revisions); ACT oj04fd 7/7 with the packaged code. The lists, their hashes and the per-page output are in the working notes, not in this repository.
 
 v3.1 2026-09-06: **instant scroll.** On pages with `scroll-behavior: smooth` the control was still in flight when its box was read, so the crop covered the wrong region and a real ring fell outside it: one false fail (Wikipedia home) and 66 of 80 controls reported off-viewport on MDN. Scrolling is instant and one frame is waited before the box is read.
 

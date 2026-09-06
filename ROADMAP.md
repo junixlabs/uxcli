@@ -9,13 +9,13 @@ Phases end when their exit criteria pass. No dates. Order reflects what the evid
 
 ## Next
 
-### Instrument
+### Instrument (done 2026-09-06; kept here for the record until the next release moves it up)
 Single-screen probes into the package with the same contract as the flow probes: spec, code, hashed must-fail and must-pass fixtures.
 - Done: `run <url>` with focus-visible (2.4.7) and text-spacing (1.4.12, ACT 24afc2/9e45ec/78fd32), both carried from Prove with recorded revisions, and contrast (1.4.3) delegated to a pinned axe-core; `--state` for signed-in pages; third-party subtrees excluded; bot challenges and load errors reported as `unmeasurable` with the reason.
 - Done: `gate` covers every probe; the must-pass twin of each page probe has to reach `pass`, never `not-applicable`; non-pass card lines carry the reason.
 - Done: every twin, flow and page, must reach `pass`; method status per probe (`method-validated` needs a recorded unseen run with the packaged code, 0 false fails, and a recall record); unproven probes report `finding`.
 - Done: focus-visible measures rendered pixels per control after one real Tab press; what a crop cannot show (off-viewport, covered, self-changing, ring drawn elsewhere) is reported per control as not measured, never as fail. Each false-fail class found on unseen pages is a recorded revision in the spec.
-- Exit: 20 pages the probes have never seen, 0 false fails, re-run with the packaged code. Pages seen during Prove or the first real-project run do not count.
+- Exit met 2026-09-06: 20 pages the probes had never seen (Tranco order, list hashed, definitions committed at `8dde0e1` before the draw), re-run with the packaged code: focus-visible 62 failing controls on 7 pages, each re-measured by a real Tab press and a whole-viewport diff, 0 false fails; text-spacing and contrast 0 false fails over 80 unseen pages. It took four lists: the first three each found a false-fail class the probe's own measurement could not see (eight recorded revisions, v3.1 to v3.8). All three page probes are `method-validated`.
 
 ### Flow, second cut
 - Done in part: recall on defects seeded blind by two independent agents (a multi-page checkout, 12 mutants; a same-URL wizard, 8 mutants): every in-scope defect caught after two recorded revisions, 0 false fails, no-verdict counted separately; the key for one wizard mutant is contested and recorded as such. Still open: precision on 20 flows the probes have never seen.

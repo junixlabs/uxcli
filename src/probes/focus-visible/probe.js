@@ -5,7 +5,7 @@ const PAD = 48, VW = 1280, VH = 800;
 
 export default {
   id: 'page.focus-visible', sc: '2.4.7', kind: 'page',
-  method: { status: 'method-unproven', record: 'v3.8 (pixels, focus by a real Tab press, unpainted controls excluded, late indicators re-read) has ACT oj04fd 7/7; the unseen-page run with the packaged code is pending' },
+  method: { status: 'method-validated', record: '20 unseen pages (list 4, 2026-09-06, drawn after the v3.8 definition was committed): 62 failing controls on 7 pages, each re-measured by a real Tab press and a whole-viewport diff, 0 false fails, 2 pages no verdict; 60 earlier unseen pages found and fixed seven false-fail classes (spec Revisions); ACT oj04fd 7/7 with the packaged code' },
   async measure(page) {
     const n = await page.evaluate(THIRD => {
       window.__uxfv = [...document.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex],[contenteditable]')]

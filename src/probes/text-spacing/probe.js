@@ -4,7 +4,7 @@ const RULES = [['letter-spacing', 0.12, '24afc2'], ['word-spacing', 0.16, '9e45e
 
 export default {
   id: 'page.text-spacing', sc: '1.4.12', kind: 'page',
-  method: { status: 'method-validated', record: '40 unseen pages (lists 1 and 2, 2026-09-06, definitions unchanged since 65ded6c, drawn before both lists): 1 fail (reproduced), 0 false fails; ACT 24afc2/9e45ec/78fd32 62/62 with the packaged code' },
+  method: { status: 'method-validated', record: '80 unseen pages (lists 1 to 4, 2026-09-06, definitions unchanged since 65ded6c, drawn before every list): 1 fail (reproduced), 0 false fails; ACT 24afc2/9e45ec/78fd32 62/62 with the packaged code' },
   async measure(page) {
     const act = await page.evaluate(([THIRD, RULES]) => {
       const sheetDeclares = (a, prop) => { try { for (const ss of document.styleSheets) for (const r of ss.cssRules || []) if (r.style && r.style.getPropertyValue(prop) && a.matches(r.selectorText)) return r.style.getPropertyPriority(prop) || 'normal'; } catch { } return null; };
