@@ -1,7 +1,7 @@
 // page.focus-visible · WCAG 2.4.7. Spec in spec.md; falsification pair in pair.json.
 import { THIRD } from '../../util.js';
 import { PNG } from '../../png.js';
-const PAD = 12, VW = 1280, VH = 800;
+const PAD = 48, VW = 1280, VH = 800;
 
 export default {
   id: 'page.focus-visible', sc: '2.4.7', kind: 'page',
