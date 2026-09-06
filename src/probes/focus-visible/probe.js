@@ -20,6 +20,8 @@ export default {
     for (let i = 0; i < n; i++) {
       const t = await page.evaluate(async i => {
         const el = window.__uxfv[i]; el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); await new Promise(r => requestAnimationFrame(r));
+        // Finish finite animations (scroll-reveal transforms) so the box is read in the state the screenshots freeze to.
+        for (const a of document.getAnimations()) { try { const tm = a.effect?.getTiming?.(); if (tm && tm.iterations !== Infinity) a.finish(); } catch {} } await new Promise(r => requestAnimationFrame(r));
         // The box is the union of the control's own box and its content's box: an inline link wrapping an image has a one-line box while its ring is drawn around the image.
         const r0 = el.getBoundingClientRect(); const rg = document.createRange(); rg.selectNodeContents(el); const rc = rg.getBoundingClientRect();
         const x1 = Math.min(r0.left, rc.width ? rc.left : r0.left), y1 = Math.min(r0.top, rc.height ? rc.top : r0.top), x2 = Math.max(r0.right, rc.width ? rc.right : r0.right), y2 = Math.max(r0.bottom, rc.height ? rc.bottom : r0.bottom);
@@ -42,6 +44,18 @@ export default {
       let b; try { b = await shot(clip); } catch { await page.evaluate(i => window.__uxfv[i].blur(), i).catch(() => {}); items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
       await page.evaluate(i => window.__uxfv[i].blur(), i);
       const changed = PNG.diff(a1, b);
+      if (changed === 0) {
+        // Nothing changed near the control. Before calling that a fail, look at the whole viewport: a change away from the control
+        // (a card highlighted, a heading underlined, a menu opening) may be the indicator, or may be unrelated; either way it is not a measured absence.
+        let v1, v2, vb; try { v1 = await page.screenshot({ animations: 'disabled', caret: 'hide', timeout: 8000 }); v2 = await page.screenshot({ animations: 'disabled', caret: 'hide', timeout: 8000 }); } catch { items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
+        if (PNG.diff(v1, v2) > 0) { items.push({ ...item, unmeasured: 'changes with no interaction' }); continue; }
+        const refocused = await page.evaluate(i => { const el = window.__uxfv[i]; el.focus({ focusVisible: true, preventScroll: true }); return document.activeElement === el; }, i);
+        await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+        try { vb = await page.screenshot({ animations: 'disabled', caret: 'hide', timeout: 8000 }); } catch { await page.evaluate(i => window.__uxfv[i].blur(), i).catch(() => {}); items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
+        await page.evaluate(i => window.__uxfv[i].blur(), i);
+        const away = refocused ? PNG.diff(v1, vb) : 0;
+        if (away > 0) { items.push({ ...item, unmeasured: 'changes away from the control', awayPixels: away }); continue; }
+      }
       items.push({ ...item, changedPixels: changed, crop: clip, before: a1, after: b });
     }
     const measured = items.filter(i => i.changedPixels !== undefined), unmeasured = items.filter(i => i.unmeasured);
