@@ -7,7 +7,7 @@ const AXE_PATH = path.join(path.dirname(require.resolve('axe-core/package.json')
 
 export default {
   id: 'page.contrast', sc: '1.4.3', kind: 'page',
-  method: { status: 'method-unproven', record: 'ACT afw4f7 25/34, 0 false fails, identical to axe-core alone; the unseen-page run is pending' },
+  method: { status: 'method-validated', record: '40 unseen pages (lists 1 and 2, 2026-09-06, definitions unchanged since 65ded6c, drawn before both lists): 9 fails, 18 cited colour pairs checked against the rendered page, 0 contradict axe-core, 0 false fails; ACT afw4f7 25/34, identical to axe-core alone' },
   async measure(page) {
     await page.addScriptTag({ path: AXE_PATH });
     const r = await page.evaluate(async ([THIRD]) => {

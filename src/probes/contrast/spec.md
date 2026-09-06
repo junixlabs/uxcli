@@ -14,4 +14,4 @@
 
 ## Method status
 
-`method-unproven`. Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Until then a would-be `fail` is reported as `finding`. Record so far: ACT afw4f7 25/34, 0 false fails, identical to axe-core alone; the unseen-page run is pending.
+`method-validated` (2026-09-06). Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Record: 40 unseen pages (lists 1 and 2, 2026-09-06, definitions unchanged since 65ded6c, drawn before both lists): 9 fails, 18 cited colour pairs checked against the rendered page, 0 contradict axe-core, 0 false fails; ACT afw4f7 25/34, identical to axe-core alone. The lists, their hashes and the per-page output are in the working notes, not in this repository.
