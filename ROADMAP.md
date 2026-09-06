@@ -46,7 +46,8 @@ The project's own commitments become thresholds.
 ### Release
 - Done: on npm as `@junixlabs/uxcli`; CI runs `gate` on every push; `publish.yml` publishes tags `v*` through npm trusted publishing, with provenance.
 - Done: 0.3.0 = Instrument exit (three page probes `method-validated`); 0.4.0 = Commit tooling (`sheet`, `diff --gate`, `discover`, `principles`). The Commit exit itself is still open above.
-- 0.5.0 when the flow probes flip to `method-validated` (20 unseen flows, the Gate 0 ruling); 0.5.x for the Commit exit and a fourth flow probe if one earns its pair.
+- Done: 0.5.0 = the `journey` and `before-done` skills with their records, `init`, flow probe 3.3.1 with its pair, `run --prove` for the page probes, the `discover` dedup fix.
+- 0.6.0 when the flow probes flip to `method-validated` (20 unseen flows, the Gate 0 ruling); 0.5.x for the Commit exit and `--prove` on flow probes.
 - CI action running `run` against a live fixture; the planted-verdict test repeated on a second model.
 - Exit: a stranger installs it and gets a first verdict in ten minutes without reading the source.
 
