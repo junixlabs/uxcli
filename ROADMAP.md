@@ -19,10 +19,12 @@ Phases end when their exit criteria pass. No dates. Order reflects what the evid
 
 ### Commit
 The project's own commitments become thresholds.
-- `principles`: a skill that helps a human write what the product commits to, with trade-offs; each project-tier rule cites one statement or is `suppressed`.
-- Journey authoring: the agent may draft, a human commits, the file is versioned before the build.
-- `diff a b --gate`: drift between two builds against the committed thresholds; only `fail` blocks a merge.
-- Exit: one real project runs `diff --gate` in CI on its own commitments.
+- Done: `uxcli.commitments.json` with owner and source per entry; `sheet` measures `contrast` commitments on declared tokens (aliases resolved, theme-ambiguous tokens `unmeasurable`); falsification pair in the gate.
+- Done: `principles`, a skill that drafts the file as a proposal with trade-offs; the human fills owner and source and commits it. The agent may propose, it may not commit.
+- Done: `discover <repo|url>` writes journey candidates as proposals; `run` refuses a proposal until a human sets `confirmedBy`.
+- Done: `diff a b --gate` over two saved runs; only `fail` blocks.
+- Journey authoring beyond proposals: the agent may draft, a human commits, the file is versioned before the build.
+- Exit: one real project runs `sheet` or `diff --gate` in CI on its own commitments. Not yet: the first project's commitments file has to be written by its owner.
 
 ### Release
 - Done: on npm as `@junixlabs/uxcli`; CI runs `gate` on every push; `publish.yml` publishes tags `v*` through npm trusted publishing, with provenance.
