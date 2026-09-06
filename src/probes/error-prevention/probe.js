@@ -55,7 +55,7 @@ export default {
     if (branches.checked.holds) return { ...ep, verdict: 'pass', branch: 'checked' };
     if (J.reversible) return { ...ep, verdict: 'pass', branch: 'reversible (project)' };
     if (branches.checked.tested) return { ...ep, verdict: 'fail', why: 'no branch holds', missing: conf.missing };
-    return { ...ep, verdict: 'unmeasurable', why: 'confirmed false; checked untested; reversible not declared' };
+    return { ...ep, verdict: 'unmeasurable', why: 'confirmed false; checked untested (the journey does not declare checkedPass: true, so no error was planted); reversible not declared' };
   }
 };
 
