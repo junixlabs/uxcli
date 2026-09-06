@@ -12,10 +12,10 @@ export async function gate({ log = console.log } = {}) {
   const browser = await launch(); let ok = true;
   const report = (probe, pair, vf, vp, problems) => {
     if (problems.length) ok = false;
-    log(`${probe.sc.padEnd(6)} ${probe.id.padEnd(28)} must-fail: ${vf.verdict.padEnd(6)} must-pass: ${vp.verdict.padEnd(14)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
+    log(`${probe.sc.padEnd(6)} ${probe.id.padEnd(28)} must-fail: ${(vf.rawVerdict || vf.verdict).padEnd(6)} must-pass: ${vp.verdict.padEnd(14)} ${(probe.method?.status || 'method-unproven').padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
     log(`       operator: ${pair.operator}`);
   };
-  // Flow probes: one shared fixture site, the must-fail overlay replaces one file. Must-pass may be silent (not-applicable) until each probe has a twin that reaches its satisfied branch.
+  // Flow probes: one shared fixture site, the must-fail overlay replaces one file. The clean site must reach every probe's satisfied branch: `pass`, never `not-applicable`.
   const site = path.join(ROOT, 'test/fixtures/checkout'); const siteHashes = hashTree(site);
   for (const probe of PROBES) {
     const dir = probeDir(probe); const pair = JSON.parse(fs.readFileSync(path.join(dir, 'pair.json'), 'utf8')); const problems = [];
@@ -27,7 +27,7 @@ export async function gate({ log = console.log } = {}) {
     const vf = (await runJourney(loadJourney(jPath, { base: build(path.join(dir, 'must-fail')) }), { browser })).probes.find(p => p.sc === probe.sc);
     const vp = (await runJourney(loadJourney(jPath, { base: build(null) }), { browser })).probes.find(p => p.sc === probe.sc);
     fs.rmSync(tmp, { recursive: true, force: true });
-    if (vf.verdict !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (!['pass', 'not-applicable'].includes(vp.verdict)) problems.push(`must-pass returned ${vp.verdict}`);
+    if ((vf.rawVerdict || vf.verdict) !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
     report(probe, pair, vf, vp, problems);
   }
   // Page probes: two complete pages, one mutation between them. Must-pass has to reach the satisfied branch: `pass`, never `not-applicable`.
@@ -36,7 +36,7 @@ export async function gate({ log = console.log } = {}) {
     checkHashes(dir, 'must-fail', pair.hashes.mustFail, problems); checkHashes(dir, 'must-pass', pair.hashes.mustPass, problems);
     const one = async sub => (await runPage(pathToFileURL(path.join(dir, sub, 'index.html')).href, { browser, only: [probe.id] })).probes[0];
     const vf = await one('must-fail'), vp = await one('must-pass');
-    if (vf.verdict !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
+    if ((vf.rawVerdict || vf.verdict) !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
     report(probe, pair, vf, vp, problems);
   }
   await browser.close();

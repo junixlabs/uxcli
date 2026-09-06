@@ -13,7 +13,7 @@ Phases end when their exit criteria pass. No dates. Order reflects what the evid
 Single-screen probes into the package with the same contract as the flow probes: spec, code, hashed must-fail and must-pass fixtures.
 - Done: `run <url>` with focus-visible (2.4.7) and text-spacing (1.4.12, ACT 24afc2/9e45ec/78fd32), both carried from Prove with recorded revisions, and contrast (1.4.3) delegated to a pinned axe-core; `--state` for signed-in pages; third-party subtrees excluded; bot challenges and load errors reported as `unmeasurable` with the reason.
 - Done: `gate` covers every probe; the must-pass twin of each page probe has to reach `pass`, never `not-applicable`; non-pass card lines carry the reason.
-- Flow probes still accept a silent must-pass twin. Each needs a twin that reaches its satisfied branch, then the gate rule flips for all probes.
+- Done: every twin, flow and page, must reach `pass`; method status per probe (`method-validated` needs a recorded unseen run with the packaged code, 0 false fails, and a recall record); unproven probes report `finding`.
 - Quiesce detection for pages that never settle (today: `unmeasurable · document changes with no interaction`).
 - Exit: 20 pages the probes have never seen, 0 false fails, re-run with the packaged code. Pages seen during Prove or the first real-project run do not count.
 
