@@ -1,8 +1,8 @@
 # flow.consistent-navigation · WCAG 3.2.3 · provenance spec
 
 - **why:** SC text: navigational mechanisms repeated across a set of web pages occur in the same relative order unless the user initiated a change. Insertions and removals are allowed (Understanding); only inversions fail (F66).
-- **applies-when:** at least two steps on the same origin (proxy for "set of web pages"); a navigational mechanism = `nav` element or `[role=navigation]`, identified across pages by accessible name (`aria-label` / `aria-labelledby`), or when unnamed, by its index among unnamed navs. Repeated = the same mechanism appears on ≥ 2 steps and shares ≥ 2 links.
-- **correct-when:** for each repeated mechanism, take the links common to two pages. A link's identity is its normalized `href` when that href is unique within the mechanism on both pages; otherwise its normalized text (a logo and Home sharing `/` must not collapse into one link). The common links appear in the same relative order on both pages: the sequence on page B, restricted to common links, is order-identical to the sequence on page A. Any inversion is a failure.
+- **applies-when:** at least two steps on the same origin (proxy for "set of web pages"); a navigational mechanism = `nav` element or `[role=navigation]`, identified across pages by accessible name (`aria-label` / `aria-labelledby`), or when unnamed, by its index among unnamed navs. Items of a mechanism are its visible `a[href]`, `button`, `[role=link]`, `[role=menuitem]` and `[role=tab]` descendants (SPA shells build menus from buttons). Repeated = the same mechanism appears on ≥ 2 steps and shares ≥ 2 items.
+- **correct-when:** for each repeated mechanism, take the links common to two pages. An item's identity is its normalized `href` when it has one that is unique within the mechanism on both pages; otherwise its normalized text (all non-link items) (a logo and Home sharing `/` must not collapse into one link). The common links appear in the same relative order on both pages: the sequence on page B, restricted to common links, is order-identical to the sequence on page A. Any inversion is a failure.
 - **verdict:** `pass`; `fail` listing the mechanism, the two steps, and the first inverted pair; `not-applicable` if no repeated mechanism; `unmeasurable` if a step is on another origin or failed to load.
 - **invalid-if:** the journey marks a step as user-initiated reorder (e.g. sort preference) — skipped for that step; a mechanism with fewer than 2 common links — not compared.
 - **known-infidelity:** same-origin is a proxy for the WCAG "set of web pages"; matching by text may miss links whose text is icon-only (matched by `aria-label` if present, else ignored); a mechanism that changes accessible name between pages is treated as two mechanisms.
@@ -26,3 +26,7 @@ See `pair.json`: one fixture where this probe must return `fail` for the stated 
 ## Method status
 
 `method-unproven`. Validated means: a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Until then a would-be `fail` is reported as `finding`. Record so far: P0-B ran pre-package code on 20 flows; no unseen-flow run with the packaged code yet.
+
+## Revisions
+
+- 2026-09-06 items extended from `a[href]` to buttons and link/menuitem/tab roles inside the mechanism, identified by text. Reason: on the first real project every navigation mechanism was built from buttons and the probe saw 0 links on every page. Guarded by the `must-fail-buttons` variant.

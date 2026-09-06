@@ -23,7 +23,7 @@ export default {
     if (!commitScreen) return { ...ep, verdict: 'unmeasurable', why: 'commit screen not reached' };
     if (!priorVals.length && priorOutside.length) return { ...ep, verdict: 'unmeasurable', why: 'premise broken at step ' + breakAfter(priorOutside[priorOutside.length - 1].step, commitIdx) + ': recorded values belong to another process segment (direct navigation or a submit that did not navigate); declare sameProcess to override' };
     if (!priorVals.length) return { ...ep, verdict: 'not-applicable', why: 'no non-credential value recorded before the commit step (single-screen commit); probe measures cross-screen review only' };
-    if (commitScreen.flowBreak) return { ...ep, verdict: 'unmeasurable', why: 'flow break: previous submit did not change the page and the commit screen was reached by direct navigation' };
+    if (commitScreen.flowBreak && segOf[commitIdx - 1] !== segOf[commitIdx]) return { ...ep, verdict: 'unmeasurable', why: 'flow break: previous submit did not change the page and the commit screen was reached by direct navigation; declare sameProcess to override' };
     if (commitScreen.noise) return { ...ep, verdict: 'unmeasurable', why: 'commit screen text mutating with no interaction (600 ms)' };
     if (new URL(commitScreen.url).origin !== new URL(J.steps[0].url).origin) return { ...ep, verdict: 'unmeasurable', why: 'commit screen on another origin' };
 
@@ -36,9 +36,10 @@ export default {
         const inText = cands.some(v => T.includes(v)), inField = scr.ro.some(f => cands.includes(norm(f.value)));
         if (inText || inField) present.push({ value: r.value, where: inText ? 'text' : 'field' });
         else if (cands.some(v => alnum(v).length >= 3 && TA.includes(alnum(v)))) reformatted.push({ value: r.value, note: 'present after stripping punctuation/whitespace: reformatted by site (invalid-if), reported as finding' });
+        else if (cands.some(v => { const toks = v.split(/[^a-z0-9]+/).filter(t => t.length >= 2); return toks.length >= 2 && toks.every(t => T.includes(t)); })) reformatted.push({ value: r.value, note: 'every word present but in another order or format (e.g. "Doe, Jane"): reformatted by site (invalid-if), reported as finding' });
         else missing.push({ value: r.value, field: r.name || r.label || r.selector, step: r.step });
       }
-      const changeCtl = scr.links.find(l => (l.href && earlierUrls.has(normUrl(l.href))) || /\b(change|edit|back|modify)\b/.test(l.text));
+      const changeCtl = scr.links.find(l => (l.href && earlierUrls.has(normUrl(l.href))) || /\b(change|edit|modify)\b/.test(l.text) || /^(go |« |< )?back$/.test(l.text));
       const editableHere = scr.ro.some(f => f.editable && priorVals.some(r => norm(f.value) === norm(r.value)));
       return { holds: missing.length === 0 && (!!changeCtl || editableHere), screen: scr.step, present, reformatted, missing, changeMechanism: changeCtl || (editableHere ? 'values editable on this screen' : null) };
     };
@@ -48,6 +49,7 @@ export default {
     branches.checked = (!conf.holds && J.checkedPass) ? await checkedPass(ctx) : { holds: null, tested: false, why: conf.holds ? 'not needed' : 'journey does not allow the mutating checked pass' };
     branches.reversible = { holds: !!J.reversible, provenance: 'project', declared: J.reversible || null };
     ep.branches = branches;
+    if (conf.reformatted?.length) ep.finding = { kind: 'reformatted', why: `${conf.reformatted.length} value${conf.reformatted.length > 1 ? 's' : ''} shown in another format (${conf.reformatted.slice(0, 2).map(x => JSON.stringify(x.value)).join(', ')}); not counted as missing` };
     if (conf.holds) return { ...ep, verdict: 'pass', branch: conf.note ? 'confirmed (review on preceding step)' : 'confirmed' };
     if (branches.checked.holds) return { ...ep, verdict: 'pass', branch: 'checked' };
     if (J.reversible) return { ...ep, verdict: 'pass', branch: 'reversible (project)' };

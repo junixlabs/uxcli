@@ -20,15 +20,18 @@ export async function gate({ log = console.log } = {}) {
   for (const probe of PROBES) {
     const dir = probeDir(probe); const pair = JSON.parse(fs.readFileSync(path.join(dir, 'pair.json'), 'utf8')); const problems = [];
     for (const [f, h] of Object.entries(pair.hashes.site)) if (siteHashes[f] !== h) problems.push(`site/${f} hash changed`);
-    checkHashes(dir, 'must-fail', pair.hashes.mustFail, problems);
+    const variants = fs.readdirSync(dir).filter(f => /^must-fail(-|$)/.test(f)).sort();
+    for (const v of variants) checkHashes(dir, v, v === 'must-fail' ? pair.hashes.mustFail : pair.variants?.[v]?.hashes, problems);
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'uxcli-gate-'));
     const build = (overlay) => { const d = fs.mkdtempSync(path.join(tmp, 'v-')); fs.cpSync(site, d, { recursive: true }); if (overlay) fs.cpSync(overlay, d, { recursive: true }); return pathToFileURL(d + '/').href; };
     const jPath = path.join(ROOT, pair.journey);
-    const vf = (await runJourney(loadJourney(jPath, { base: build(path.join(dir, 'must-fail')) }), { browser })).probes.find(p => p.sc === probe.sc);
+    let vf;
+    for (const v of variants) { const r = (await runJourney(loadJourney(jPath, { base: build(path.join(dir, v)) }), { browser })).probes.find(p => p.sc === probe.sc); if (v === 'must-fail') vf = r; if ((r.rawVerdict || r.verdict) !== 'fail') problems.push(`${v} returned ${r.verdict}`); }
     const vp = (await runJourney(loadJourney(jPath, { base: build(null) }), { browser })).probes.find(p => p.sc === probe.sc);
     fs.rmSync(tmp, { recursive: true, force: true });
-    if ((vf.rawVerdict || vf.verdict) !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
+    if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
     report(probe, pair, vf, vp, problems);
+    for (const v of variants.filter(v => v !== 'must-fail')) log(`       ${v}: ${pair.variants?.[v]?.operator || '(no operator recorded)'}`);
   }
   // Page probes: two complete pages, one mutation between them. Must-pass has to reach the satisfied branch: `pass`, never `not-applicable`.
   for (const probe of PAGE_PROBES) {

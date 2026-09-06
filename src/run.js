@@ -45,7 +45,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
 // Process segments: a goto or a submit that did not navigate starts a new segment; sameProcess joins ranges (provenance project).
 function segment(ctx) {
   const { steps, J } = ctx; const segOf = []; let seg = 0;
-  for (let i = 0; i < steps.length; i++) { if (i > 0 && (steps[i].arrivedBy === 'goto' || steps[i - 1].flowBreak)) seg++; segOf[i] = seg; }
+  for (let i = 0; i < steps.length; i++) { if (i > 0 && (steps[i].arrivedBy === 'goto' || steps[i - 1].flowBreak === 'submitDidNotNavigate')) seg++; segOf[i] = seg; }
   for (const [from, to] of J.sameProcess || []) { const target = segOf[from]; for (let i = from; i <= to && i < segOf.length; i++) { const s0 = segOf[i]; for (let k = 0; k < segOf.length; k++) if (segOf[k] === s0) segOf[k] = target; } }
   steps.forEach((s, i) => { s.segment = segOf[i]; });
   ctx.segOf = segOf;

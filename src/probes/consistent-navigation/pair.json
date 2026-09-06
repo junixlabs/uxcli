@@ -19,5 +19,13 @@
   "mustFail": {
    "review.html": "0fcc81bfb34841552284d06c691824e6e2461e0ec178940dbd6c961d1097946c"
   }
+ },
+ "variants": {
+  "must-fail-buttons": {
+   "operator": "review.html: Orders and Addresses are swapped in the button-based nav[aria-label=Account]; the link nav is untouched. Items that are not links must be compared by text.",
+   "hashes": {
+    "review.html": "c95b02796a7f3f21f377f1b9e03e4455bcb35711bbeef59db35f3e77db89182f"
+   }
+  }
  }
 }

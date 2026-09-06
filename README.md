@@ -29,7 +29,7 @@ uxcli why 3.3.7                                       # the probe's definition (
 
 `npx @junixlabs/uxcli <command>` works without the global install. To hack on it: `git clone https://github.com/junixlabs/uxcli && cd uxcli && npm install`, then `node bin/uxcli.js` in place of `uxcli`. An example journey is in `examples/sylius-guest-checkout.json`.
 
-A journey is the commitment: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See `test/journeys/checkout.json`. Selectors are Playwright locator strings. Omit `url` for a page reached by the previous step's submit. A step whose `url` differs from the page the previous step left is opened directly and starts a new process segment.
+A journey is the commitment: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See `test/journeys/checkout.json`. Selectors are Playwright locator strings. Omit `url` for a page reached by the previous step's submit. A wizard step that keeps the URL may declare `expect`, a selector that is visible once the step has advanced. A step whose `url` differs from the page the previous step left is opened directly and starts a new process segment.
 
 ## How it works
 

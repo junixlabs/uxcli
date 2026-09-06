@@ -27,7 +27,10 @@ export default {
   async onStep(page, rec, ctx) {
     if (rec.i === 0 || !ctx.recorded.length) return;
     const details = [];
+    const step = ctx.J.steps[rec.i]; let passwordStep = false;
+    for (const sel of Object.keys(step.fill || {})) { try { if (await page.locator(sel).first().evaluate(el => el.type === 'password')) { passwordStep = true; break; } } catch {} }
     for (const m of match(rec.inputsOnArrival, ctx.recorded, rec.i)) {
+      if (passwordStep && (m.field.type === 'email' || /^(username|email)$/.test(m.field.autocomplete) || /user|login|email/i.test(m.field.name + ' ' + m.field.id + ' ' + m.field.label))) { details.push({ field: { name: m.field.name, id: m.field.id, type: m.field.type, label: m.field.label, autocomplete: m.field.autocomplete }, matchedBy: m.by, firstEnteredStep: m.prior.step, currentValue: m.field.value, mechanism: 'security: login identity on a step that enters a password (spec)' }); continue; }
       const f = m.field, p = m.prior; let mechanism = null;
       if (norm(f.value) === norm(p.value) || norm(f.value) === norm(p.display)) mechanism = 'auto-populated';
       else if (p.essential) mechanism = 'essential (project)'; else if (p.security) mechanism = 'security (project)';

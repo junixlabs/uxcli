@@ -34,7 +34,7 @@ export const PAGE_FNS = `
   const readTexts = () => (document.querySelector('main') || document.body).textContent + '\\u0000' + [...document.querySelectorAll('input, textarea, select')].map(e => e.value).join('\\u0001');
   const fields = () => [...document.querySelectorAll('input, textarea, select')].filter(e => vis(e) && !third(e)).map(e => ({ value: e.tagName === 'SELECT' ? (e.selectedOptions[0]?.textContent || e.value) : e.value, ro: e.readOnly || e.disabled, editable: editable(e) }));
   const controls = () => [...document.querySelectorAll('a[href], button, [role=button], input[type=submit], input[type=button]')].filter(e => vis(e) && !third(e) && !e.closest(CHROME)).map(e => ({ href: e.href || '', text: norm(e.textContent || e.value || e.getAttribute('aria-label')) }));
-  const navs = () => { const all = [...document.querySelectorAll('nav, [role="navigation"]')].filter(n => !third(n)); let un = 0; return all.map(n => { const al = n.getAttribute('aria-label'); const lb = n.getAttribute('aria-labelledby'); let name = al || (lb ? lb.split(/\\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : ''); name = norm(name); const key = name ? 'name:' + name : 'unnamed:' + (un++); const links = [...n.querySelectorAll('a[href]')].filter(a => !third(a)).map(a => ({ href: a.href, text: norm(a.textContent) || norm(a.getAttribute('aria-label')) || '' })); return { key, links }; }); };
+  const navs = () => { const all = [...document.querySelectorAll('nav, [role="navigation"]')].filter(n => !third(n)); let un = 0; return all.map(n => { const al = n.getAttribute('aria-label'); const lb = n.getAttribute('aria-labelledby'); let name = al || (lb ? lb.split(/\\s+/).map(id => document.getElementById(id)?.textContent || '').join(' ') : ''); name = norm(name); const key = name ? 'name:' + name : 'unnamed:' + (un++); const links = [...n.querySelectorAll('a[href], button, [role="link"], [role="menuitem"], [role="tab"]')].filter(a => !third(a) && vis(a) && !a.closest('a[href] *, button *')).map(a => ({ href: a.href || '', text: norm(a.textContent) || norm(a.getAttribute('aria-label')) || '', kind: a.tagName === 'A' ? 'link' : 'control' })); return { key, links }; }); };
 `;
 export const evalIn = (page, body) => page.evaluate(new Function(PAGE_FNS + ' return (' + body + ')();'));
 export const evalEl = (locator, body) => locator.evaluate(new Function('el', PAGE_FNS + ' return (' + body + ')(el);'));
@@ -80,10 +80,17 @@ export async function fillStep(page, step, idx, recorded) {
 export async function act(page, step) {
   const sel = step.submit || step.click; if (!sel) return null;
   const before = page.url();
+  const mark = await page.evaluate(() => { const f = document.querySelector('[data-uxcli-scope]'); if (f) f.setAttribute('data-uxcli-scope-before', '1'); const h = document.querySelector('main h1, h1, main h2, h2'); return h ? h.textContent.trim() : ''; });
   await page.locator(sel).first().click({ timeout: 15000 });
   await page.waitForFunction(u => location.href !== u, before, { timeout: 5000 }).catch(() => {});
+  if (step.expect) await page.locator(step.expect).first().waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
   await settle(page);
-  return step.submit && normUrl(page.url()) === normUrl(before) ? 'submitDidNotNavigate' : null;
+  if (!step.submit || normUrl(page.url()) !== normUrl(before)) return null;
+  // Same URL after a submit: the step still advanced when the journey's `expect` is visible (project), or the submitted form is gone / the heading changed (spec).
+  if (step.expect && await page.locator(step.expect).first().isVisible().catch(() => false)) return 'advancedWithoutNavigation (expect, project)';
+  const adv = await page.evaluate(h0 => { const f = document.querySelector('[data-uxcli-scope-before]'); const gone = !f || !f.isConnected || getComputedStyle(f).display === 'none'; const h = document.querySelector('main h1, h1, main h2, h2'); const h1 = h ? h.textContent.trim() : ''; return { gone, heading: h1 !== h0 }; }, mark);
+  if (adv.gone || adv.heading) return `advancedWithoutNavigation (${adv.gone ? 'submitted form gone' : 'heading changed'})`;
+  return 'submitDidNotNavigate';
 }
 export async function screen(page, i, rec) {
   return { step: i, url: rec.url, noise: rec.noise, text: await evalIn(page, '() => visibleText()'), ro: await evalIn(page, '() => fields()'), links: await evalIn(page, '() => controls()') };
