@@ -2,7 +2,7 @@
 
 `uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
 
-**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
+**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. Two probes are `method-validated` (text-spacing, contrast: 60 unseen pages, 0 false fails); the other four are `method-unproven` and report `finding` instead of `fail` until their unseen run is recorded. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
 
 **Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
 
@@ -52,6 +52,8 @@ What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 - Every finding carries a provenance: `spec`, `project`, or `opinion`.
 - Every probe carries a method status: `method-validated` or `method-unproven`. Validated means a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Unproven probes report `finding`, never `fail`. `uxcli why <rule>` prints the status and its record.
 - Nine verdicts: `pass`, `fail`, `finding`, `not-applicable`, `not-committed`, `unmeasurable`, `suppressed`, `stale`, `untested`. Only `fail` blocks a merge.
+- `finding` is also used for what a probe saw but does not assert under its rule: a value shown in another format (3.3.4), text that clips under user spacing (1.4.12), a control in the tab order that is never painted (2.4.7, `hidden-focusable`). Findings never change the exit code.
+- What the exit code means today: a validated probe's `fail` exits 2 (text-spacing, contrast, so a project's low-contrast token pairs block); an unproven probe's would-be fail prints `FINDING`, keeps `rawVerdict: fail` in `--json`, and exits 0. `uxcli why <rule>` prints each probe's status and what its validation still needs.
 - No threshold set means `not-committed`, not `fail`.
 - Cannot measure means `unmeasurable`, never `pass`.
 - Every exception ships with a coverage test.
