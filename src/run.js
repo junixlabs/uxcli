@@ -32,7 +32,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
   if (own) await browser.close();
   if (outDir) writeEvidence(ctx, probes, outDir);
   for (const s of ctx.steps) delete s.evidence;
-  return { journey: J.name, ranAt: new Date().toISOString(), steps: ctx.steps, recorded: ctx.recorded, probes };
+  return { journey: J.name, ranAt: new Date().toISOString(), stepCount: J.steps.length, steps: ctx.steps, recorded: ctx.recorded, probes };
 }
 
 // Process segments: a goto or a submit that did not navigate starts a new segment; sameProcess joins ranges (provenance project).

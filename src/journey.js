@@ -3,6 +3,7 @@ import fs from 'node:fs';
 export function loadJourney(file, vars = {}) {
   let text = fs.readFileSync(file, 'utf8');
   for (const [k, v] of Object.entries(vars)) text = text.split('{{' + k + '}}').join(v);
+  const left = [...new Set([...text.matchAll(/{{([a-zA-Z0-9_-]+)}}/g)].map(m => m[1]))]; if (left.length) throw new Error('journey has unsubstituted variables: ' + left.join(', ') + ' (pass --var=' + left[0] + '=...)');
   const J = JSON.parse(text);
   if (!Array.isArray(J.steps) || !J.steps.length) throw new Error('journey needs steps[]');
   if (!J.steps[0].url) throw new Error('first step needs a url');
