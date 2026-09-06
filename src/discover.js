@@ -1,6 +1,7 @@
 // uxcli discover <repo|url>: journey candidates as proposals. The agent may propose a journey; a human confirms it before `run` accepts it.
 // Repo mode reads a Next.js app router tree (app/**/page.tsx → route) and files containing <form>. URL mode crawls same-origin pages two levels deep for forms.
-import fs from 'node:fs'; import path from 'node:path';
+import fs from 'node:fs';
+import { normUrl } from './util.js'; import path from 'node:path';
 
 const FORM_RE = /<form\b[^>]*>([\s\S]*?)<\/form>/gi;
 const attr = (tag, name) => (tag.match(new RegExp(`\\b${name}\\s*=\\s*["'{]([^"'}]*)`, 'i')) || [])[1] || '';
@@ -18,15 +19,15 @@ export function discoverRepo(root) {
 }
 
 export async function discoverUrl(start, { browser, limit = 30 } = {}) {
-  const origin = new URL(start).origin; const seen = new Set([start]); const queue = [{ url: start, depth: 0 }]; const pages = [];
+  const origin = new URL(start).origin; const seen = new Set([normUrl(start)]); const queue = [{ url: start, depth: 0 }]; const pages = [];
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   while (queue.length && pages.length < limit) {
     const { url, depth } = queue.shift(); const page = await ctx.newPage();
     try {
       await page.goto(url, { waitUntil: 'load', timeout: 30000 });
-      const info = await page.evaluate(() => ({ title: document.title, forms: [...document.querySelectorAll('form')].map(f => ({ action: f.getAttribute('action') || '', fields: [...f.querySelectorAll('input,select,textarea')].filter(i => !['hidden', 'submit', 'button'].includes(i.type)).map(i => ({ type: i.type, name: i.name || i.id, autocomplete: i.getAttribute('autocomplete') || '' })), submit: [...f.querySelectorAll('button:not([type=button]),input[type=submit]')].map(b => (b.textContent || b.value || '').trim().slice(0, 40)).filter(Boolean), auth: !!f.querySelector('input[type=password]') })), links: [...document.querySelectorAll('a[href]')].map(a => a.href) }));
+      const info = await page.evaluate(() => ({ title: document.title, forms: [...document.querySelectorAll('form')].map(f => ({ action: f.getAttribute('action') || '', fields: [...f.querySelectorAll('input,select,textarea')].filter(i => !['hidden', 'submit', 'button'].includes(i.type) && i.getClientRects().length > 0 && !i.closest('[aria-hidden=true]') && (() => { for (let a = i; a; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.visibility === 'hidden' || cs.display === 'none' || parseFloat(cs.opacity) === 0) return false; } return true; })()).map(i => ({ type: i.type, name: i.name || i.id, autocomplete: i.getAttribute('autocomplete') || '' })), submit: [...f.querySelectorAll('button:not([type=button]),input[type=submit]')].map(b => (b.textContent || b.value || '').trim().slice(0, 40)).filter(Boolean), auth: !!f.querySelector('input[type=password]') })), links: [...document.querySelectorAll('a[href]')].map(a => a.href) }));
       pages.push({ url, title: info.title, forms: info.forms });
-      if (depth < 2) for (const l of info.links) { try { const u = new URL(l); u.hash = ''; if (u.origin === origin && !seen.has(u.href) && !/\.(pdf|zip|png|jpg|svg)$/i.test(u.pathname)) { seen.add(u.href); queue.push({ url: u.href, depth: depth + 1 }); } } catch {} }
+      if (depth < 2) for (const l of info.links) { try { const u = new URL(l); u.hash = ''; if (u.origin === origin && !seen.has(normUrl(u.href)) && !/\.(pdf|zip|png|jpg|svg)$/i.test(u.pathname)) { seen.add(normUrl(u.href)); queue.push({ url: u.href, depth: depth + 1 }); } } catch {} }
     } catch (e) { pages.push({ url, error: String(e.message || e).slice(0, 100) }); }
     await page.close();
   }
@@ -38,10 +39,15 @@ export async function discoverUrl(start, { browser, limit = 30 } = {}) {
 export function proposals(d) {
   const out = [];
   const forms = d.mode === 'repo' ? d.forms.map(f => ({ where: f.file, url: null, ...f })) : d.pages.flatMap(p => (p.forms || []).map(f => ({ where: p.url, url: p.url, ...f })));
+  const seen = new Map();
   for (const f of forms) {
     if (!f.fields.length && !f.submit.length) continue;
+    // The same form served at several URLs (locales, trailing slashes) is one proposal; the other URLs are listed on it.
+    const sig = (f.action || '') + '|' + f.fields.map(i => i.name).join(',');
+    if (seen.has(sig)) { const p = seen.get(sig); if (f.where !== p.from) (p.alsoAt ||= []).push(f.where); continue; }
     const fill = Object.fromEntries(f.fields.map(i => [i.name ? `[name="${i.name}"]` : `[type="${i.type}"]`, i.type === 'password' ? '{{password}}' : i.autocomplete === 'email' || i.type === 'email' ? '{{email}}' : `{{${(i.name || i.type).replace(/[^a-z0-9]/gi, '_')}}}`]));
-    out.push({ name: `${f.auth ? 'sign-in' : 'form'} · ${f.where}`, provenance: 'proposal', confirmedBy: null, from: f.where, steps: [{ url: f.url || '{{base}}<route of ' + f.where + '>', fill, submit: f.submit[0] ? `button:has-text("${f.submit[0]}")` : 'button[type=submit]', commit: !f.auth }] });
+    const prop = { name: `${f.auth ? 'sign-in' : 'form'} · ${f.where}`, provenance: 'proposal', confirmedBy: null, from: f.where, steps: [{ url: f.url || '{{base}}<route of ' + f.where + '>', fill, submit: f.submit[0] ? `button:has-text("${f.submit[0]}")` : 'button[type=submit]', commit: !f.auth }] };
+    seen.set(sig, prop); out.push(prop);
   }
   return out;
 }
