@@ -22,6 +22,7 @@ npx playwright-core install chromium-headless-shell   # once; or set UXCLI_CHROM
 uxcli run journey.json                                # verdict card for a flow
 uxcli run journey.json --json                         # full evidence packet
 uxcli run https://example.org/login                   # verdict card for one screen; --state=FILE for a signed-in page (Playwright storageState)
+uxcli run https://example.org/ --src=./web/src         # name the design token behind each failing colour pair
 uxcli run journey.json --refute                       # a fresh second reader checks each fail from the screenshots (needs the claude CLI, or set UXCLI_REFUTER)
 uxcli gate                                            # every probe must fail on its seeded fixture and stay silent on the clean twin
 uxcli why 3.3.7                                       # the probe's definition (also why 2.4.7, why contrast)
@@ -38,7 +39,7 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 | Available | Planned |
 |---|---|
 | `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | `principles` skill: what the product commits to, as thresholds |
-| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state` | `diff a b --gate` drift between builds |
+| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute` | `diff a b --gate` drift between builds |
 | `gate` run every probe's falsification pair | |
 | `why <rule>` the probe's definition | |
 

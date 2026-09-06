@@ -15,6 +15,7 @@ export function refute(p, { cmd = process.env.UXCLI_REFUTER || 'claude -p --mode
   const prompt = `You are an independent second reader checking one claim made by an automated UI checker. You have not seen the checker. Do not trust the claim.\nOpen each image with the Read tool: ${p.proof.join(' , ')}\nQuestion: ${q}\nReply with JSON only, on one line: {"supported": true|false, "reason": "<one sentence, what you saw>"}`;
   const [bin, ...args] = cmd.split(/\s+/);
   const r = spawnSync(bin, [...args, prompt], { encoding: 'utf8', timeout: 180000, stdio: ['ignore', 'pipe', 'pipe'] });
+  if (r.error) return { tested: false, why: `refuter command not found: ${bin} (set UXCLI_REFUTER)` };
   if (r.status !== 0) return { tested: false, why: 'refuter exit ' + r.status + ': ' + (r.stderr || '').slice(0, 200) };
   let text = r.stdout;
   try { const j = JSON.parse(text); text = j.result ?? j.content ?? text; } catch {}

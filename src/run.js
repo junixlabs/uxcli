@@ -19,6 +19,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
   const own = !browser; if (own) browser = await launch();
   const ctx = { J, steps: [], recorded: [], authSteps: new Set(), commitIdx: J.steps.findIndex(s => s.commit), blocked: false, browser };
   const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  bctx.setDefaultTimeout(10000); // a selector that is not on the page fails in 10 s, not 30
   const page = await bctx.newPage();
   for (let i = 0; i < J.steps.length; i++) {
     const step = J.steps[i]; const rec = { i, url: null, arrivedBy: null, title: null, noise: null, inputsOnArrival: [] };

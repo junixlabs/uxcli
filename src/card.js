@@ -59,7 +59,8 @@ function pageCard(result) {
       L.push(head, `  what   ${t.length} locked value${t.length > 1 ? 's' : ''} below the minimum: ${t.slice(0, 3).map(x => `${x.sel} ${x.property} ${x.value}px < ${x.threshold}px (ACT ${x.rule})`).join('; ')}${t.length > 3 ? '; …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, `  check  Does the style attribute on ${t[0].lockedOn === 'self' ? t[0].sel : t[0].lockedOn} set ${t[0].property} with !important?`);
     } else if (failLike(p) && p.sc === '1.4.3') {
       const g = p.groups;
-      L.push(head, `  what   ${g.reduce((n, x) => n + x.count, 0)} text nodes in ${g.length} colour pair${g.length > 1 ? 's' : ''}: ${g.slice(0, 4).map(x => `${x.fg} on ${x.bg} ${x.ratio}:1 ×${x.count} (e.g. ${x.example})`).join('; ')}${g.length > 4 ? '; …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, `  check  Is ${g[0].fg} on ${g[0].bg} a design token? One change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}.`);
+      const col = (hex, tok) => tok ? `${hex} (${tok})` : hex;
+      L.push(head, `  what   ${g.reduce((n, x) => n + x.count, 0)} text nodes in ${g.length} colour pair${g.length > 1 ? 's' : ''}: ${g.slice(0, 4).map(x => `${col(x.fg, x.fgToken)} on ${col(x.bg, x.bgToken)} ${x.ratio}:1 ×${x.count} (e.g. ${x.example})`).join('; ')}${g.length > 4 ? '; …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, g[0].fgToken || g[0].bgToken ? `  check  ${[g[0].fgToken, g[0].bgToken].filter(Boolean).join(' and ')} declared in ${result.src}; one change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}.` : `  check  Is ${g[0].fg} on ${g[0].bg} a design token? One change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}. Pass --src=DIR to name it.`);
     } else L.push(`${head} ${reason(p)}`);
     if (p.finding) L.push(`  finding ${p.finding.why}`);
     if (methodLine(p)) L.push(methodLine(p));

@@ -1,6 +1,6 @@
 // Loads one URL once and gives every page probe the settled document. Returns the verdicts.
 import fs from 'node:fs'; import path from 'node:path';
-import { launch, settle } from './browser.js';
+import { launch, settle } from './browser.js'; import { tokenIndex, tokenFor } from './tokens.js';
 import { BOT } from './util.js'; import { withMethod } from './run.js';
 import focusVisible from './probes/focus-visible/probe.js';
 import textSpacing from './probes/text-spacing/probe.js';
@@ -8,7 +8,7 @@ import contrast from './probes/contrast/probe.js';
 
 export const PAGE_PROBES = [focusVisible, textSpacing, contrast];
 
-export async function runPage(url, { browser, state, only, outDir } = {}) {
+export async function runPage(url, { browser, state, only, outDir, src } = {}) {
   const own = !browser; if (own) browser = await launch();
   // bypassCSP: the contrast probe injects axe-core; a page's Content-Security-Policy would otherwise block it (instrument setting, recorded in contrast/spec.md).
   const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, storageState: state || undefined, bypassCSP: true });
@@ -26,6 +26,7 @@ export async function runPage(url, { browser, state, only, outDir } = {}) {
   } catch (e) { result.error = 'load: ' + String(e.message || e).slice(0, 160); for (const p of probes) result.probes.push({ probe: p.id, sc: p.sc, provenance: 'spec', verdict: 'unmeasurable', why: result.error }); }
   await bctx.close(); if (own) await browser.close();
   writeEvidence(result, outDir);
+  if (src) { const idx = tokenIndex(src); for (const p of result.probes) for (const g of p.groups || []) { g.fgToken = tokenFor(idx, g.fg); g.bgToken = tokenFor(idx, g.bg); } result.src = src; }
   return result;
 }
 
