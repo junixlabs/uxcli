@@ -1,12 +1,12 @@
 {
  "kind": "page",
- "operator": "index.html: a stylesheet rule *:focus,*:focus-visible{outline:none} removes the default focus ring from every control; the must-pass twin is identical without that rule. Both carry an autofocus input whose focus ring transitions over 300 ms and an infinitely pulsing status dot.",
+ "operator": "index.html: a stylesheet rule *:focus,*:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,0,0,0)} replaces the focus ring with a fully transparent shadow: the computed style changes, no pixel does. The must-pass twin keeps the default ring. Both carry an autofocus input with a 300 ms box-shadow transition and an infinitely pulsing status dot. Both twins carry an ins.adsbygoogle block with a focus-less link, a zero letter-spacing lock and low-contrast text: the third-party exclusion must keep all three probes silent on it.",
  "hashes": {
   "mustFail": {
-   "index.html": "331ed671dfa5ab5a23cc39bbf6a99973017a9f7719a3afcf3d591b42346d823e"
+   "index.html": "72ce2bfb58e9af70bf8cabe09659f5bf01083faeffbae94ac4dc346c46507d0d"
   },
   "mustPass": {
-   "index.html": "6ab04dd5a3dad058ca4743bcb1f1f6d1c257c60e3ffc921bf2ef81122659e4f7"
+   "index.html": "7b2d07818e4eefde9670b691757132afe20cc19f9bd5c97051f981e6fc069d1c"
   }
  }
 }

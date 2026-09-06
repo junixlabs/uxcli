@@ -47,6 +47,8 @@
   </dl>
 
   <form id="order-form" action="done.html" method="get">
+    <label for="receipt-email">Email for the receipt</label>
+    <input id="receipt-email" name="receipt-email" type="email" autocomplete="email">
     <button type="submit">Place order</button>
   </form>
   <script>
@@ -57,6 +59,7 @@
       fields.forEach(function (f) {
         document.getElementById('out-' + f).textContent = saved[f] || '';
       });
+      document.getElementById('receipt-email').value = saved.email || '';
       document.getElementById('order-form').addEventListener('submit', function (ev) {
         ev.preventDefault();
         sessionStorage.setItem('orderPlaced', '1');
