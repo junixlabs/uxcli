@@ -42,7 +42,11 @@ export async function gate({ log = console.log } = {}) {
     const one = async sub => (await runPage(pathToFileURL(path.join(dir, sub, 'index.html')).href, { browser, only: [probe.id] })).probes[0];
     const vf = await one('must-fail'), vp = await one('must-pass');
     if ((vf.rawVerdict || vf.verdict) !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
+    // --prove on the must-pass twin: the probe's own planted defect must reach the measured elements and turn the pass into a fail.
+    const pv = (await runPage(pathToFileURL(path.join(dir, 'must-pass', 'index.html')).href, { browser, only: [probe.id], prove: true })).probes[0];
+    if (!pv.prove?.wouldFail) problems.push(`--prove on must-pass: ${pv.prove?.why || 'no counterfactual'}`);
     report(probe, pair, vf, vp, problems);
+    log(`       prove: ${pv.prove?.wouldFail ? 'would fail on ' + pv.prove.mutation : 'could not be made to fail: ' + (pv.prove?.why || '')}`);
   }
   await browser.close();
   // Skills: frontmatter, and the load-bearing paragraph still present by hash. Load-bearing was shown on fresh agents; the record is printed, not re-run.

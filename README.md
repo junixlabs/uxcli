@@ -39,7 +39,7 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 | Available | Planned |
 |---|---|
 | `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | flow probes `method-validated` on 20 unseen flows |
-| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute` | one more flow probe, only with a falsification pair on day one |
+| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute`; `--prove` plants each passing probe's own defect and re-measures, so a pass reads `would fail on …` or warns that it could not be made to fail | one more flow probe, only with a falsification pair on day one |
 | `sheet [--src=DIR]` the project's own commitments on its design tokens (`uxcli.commitments.json`), no browser | |
 | `diff a.json b.json [--gate]` drift between two saved runs: same, regressed, improved, new, gone | |
 | `discover <repo\|url> [--out=DIR]` journey candidates as proposals (Next.js routes and forms, or a same-origin crawl); `run` refuses a proposal until a human sets `confirmedBy` | |
@@ -69,6 +69,7 @@ What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 ## Rules of output
 
 - Every finding carries a provenance: `spec`, `project`, or `opinion`.
+- A pass is only as good as its counterfactual. `run <url> --prove` plants, for each probe that passed, the defect that probe exists to catch (focus styles made equal to the unfocused ones, text blended into its background, a spacing lock below the minimum), checks by computed style that the defect reached the very elements the probe measured, re-measures, and prints `would fail on …` on the pass line, or `could not be made to fail: …` as a warning. The gate requires `would fail` on every page probe's must-pass twin.
 - Every probe carries a method status: `method-validated` or `method-unproven`. Validated means a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Unproven probes report `finding`, never `fail`. `uxcli why <rule>` prints the status and its record.
 - Nine verdicts: `pass`, `fail`, `finding`, `not-applicable`, `not-committed`, `unmeasurable`, `suppressed`, `stale`, `untested`. Only `fail` blocks a merge.
 - `finding` is also used for what a probe saw but does not assert under its rule: a value shown in another format (3.3.4), text that clips under user spacing (1.4.12), a control in the tab order that is never painted (2.4.7, `hidden-focusable`). Findings never change the exit code.

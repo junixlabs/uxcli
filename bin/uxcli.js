@@ -10,8 +10,8 @@ const usage = `usage:
   uxcli run <journey.json> [--json] [--out=DIR] [--refute] [--var=k=v ...]
       measure one flow; card by default, --json for the evidence packet; screenshots for fails in DIR (default .uxcli/<journey>);
       --var substitutes {{k}} in the journey; --refute asks a fresh second reader (UXCLI_REFUTER, default claude -p) to confirm or dispute each fail from the images alone
-  uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE] [--src=DIR]
-      measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour
+  uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE] [--src=DIR] [--prove]
+      measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour; --prove plants each passing probe's own defect on the page and re-measures, so every pass carries "would fail on …" or a warning that it could not be made to fail
   uxcli sheet [--src=DIR] [--json]    the project's own commitments on its design tokens (uxcli.commitments.json in DIR, default .); provenance project; exit 2 on a broken commitment
   uxcli diff <a.json> <b.json> [--gate] [--json]
       drift between two saved runs (run --json, sheet --json): same / regressed / improved / new / gone per probe or commitment; with --gate exit 2 when b carries a fail
@@ -28,7 +28,7 @@ try {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
     const url = /^(https?|file):/i.test(args[0]) ? args[0] : pathToFileURL(path.resolve(args[0])).href;
     const outDir = opt('out') || path.join('.uxcli', new URL(url).hostname || 'page');
-    const result = await runPage(url, { state: opt('state'), outDir, src: opt('src') });
+    const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refute } = await import('../src/refute.js'); for (const p of result.probes) if (p.verdict === 'fail' && p.proof?.length) p.refute = refute(p); }
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     process.exit(result.error ? 1 : result.probes.some(p => p.verdict === 'fail') ? 2 : 0);

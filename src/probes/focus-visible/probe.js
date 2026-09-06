@@ -3,17 +3,20 @@ import { THIRD } from '../../util.js';
 import { PNG } from '../../png.js';
 const PAD = 48, VW = 1280, VH = 800;
 
+// Tabbable candidates, first 80, third-party subtrees excluded; shared by measure and prove.
+const CANDIDATES = THIRD => {
+  window.__uxfv = [...document.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex],[contenteditable]')]
+    .filter(e => { const ti = e.getAttribute('tabindex'); if (ti !== null && parseInt(ti) < 0) return false; if (e.disabled) return false; if (e.closest(THIRD)) return false; const cs = getComputedStyle(e); if (cs.visibility === 'hidden' || cs.display === 'none') return false; return e.getClientRects().length > 0; })
+    .slice(0, 80);
+  if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+  return window.__uxfv.length;
+};
+
 export default {
   id: 'page.focus-visible', sc: '2.4.7', kind: 'page',
   method: { status: 'method-validated', record: '20 unseen pages (list 4, 2026-09-06, drawn after the v3.8 definition was committed): 62 failing controls on 7 pages, 58 re-measured by a real Tab press and a whole-viewport diff, 4 by the viewport diff alone (the check could not land Tab on them), 0 false fails, 2 pages no verdict; 60 earlier unseen pages found and fixed seven false-fail classes (spec Revisions); ACT oj04fd 7/7 with the packaged code' },
   async measure(page) {
-    const n = await page.evaluate(THIRD => {
-      window.__uxfv = [...document.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex],[contenteditable]')]
-        .filter(e => { const ti = e.getAttribute('tabindex'); if (ti !== null && parseInt(ti) < 0) return false; if (e.disabled) return false; if (e.closest(THIRD)) return false; const cs = getComputedStyle(e); if (cs.visibility === 'hidden' || cs.display === 'none') return false; return e.getClientRects().length > 0; })
-        .slice(0, 80);
-      if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
-      return window.__uxfv.length;
-    }, THIRD);
+    const n = await page.evaluate(CANDIDATES, THIRD);
     if (n === 0) return { verdict: 'not-applicable', why: 'no focusable element', candidates: 0 };
     const shot = clip => page.screenshot({ clip, animations: 'disabled', caret: 'hide', timeout: 5000 });
     const full = () => page.screenshot({ animations: 'disabled', caret: 'hide', timeout: 8000 });
@@ -41,7 +44,7 @@ export default {
       const cropOf = t => { const x0 = Math.max(0, t.x - PAD), y0 = Math.max(0, t.y - PAD); return { x: x0, y: y0, width: Math.min(VW - x0, t.x + t.w + PAD - x0), height: Math.min(VH - y0, t.y + t.h + PAD - y0) }; };
       const offscreen = (t, clip) => clip.width < 1 || clip.height < 1 || t.x + t.w < 0 || t.y + t.h < 0 || t.x > VW || t.y > VH;
       const t = await readBox(i, true); let clip = cropOf(t);
-      const item = { sel: t.sel, text: t.text };
+      const item = { i, sel: t.sel, text: t.text };
       if (t.w === 0 || t.h === 0) { items.push({ ...item, unmeasured: 'zero-size' }); continue; }
       if (offscreen(t, clip)) { items.push({ ...item, unmeasured: 'outside the viewport after scrolling' }); continue; }
       if (t.opacity === 0 || t.clipped || (!t.own && !t.covered)) { hidden.push({ ...item, how: t.opacity === 0 ? 'opacity 0 on the control or an ancestor' : t.clipped ? 'clipped by an overflow-hidden ancestor it lies outside of' : 'not painted at its own box' }); items.push({ ...item, unmeasured: 'not painted' }); continue; }
@@ -90,11 +93,28 @@ export default {
     const measured = items.filter(i => i.changedPixels !== undefined), unmeasured = items.filter(i => i.unmeasured);
     const fails = measured.filter(i => i.changedPixels === 0);
     const reasons = {}; for (const u of unmeasured) reasons[u.unmeasured] = (reasons[u.unmeasured] || 0) + 1;
-    const pub = i => ({ sel: i.sel, text: i.text, changedPixels: i.changedPixels });
-    const base = { candidates: n, measured: measured.length, unmeasured: reasons };
+    const pub = i => ({ i: i.i, sel: i.sel, text: i.text, changedPixels: i.changedPixels });
+    const base = { candidates: n, measured: measured.length, unmeasured: reasons, controls: measured.map(pub) };
     if (hidden.length) base.finding = { kind: 'hidden-focusable', why: `${hidden.length} control${hidden.length > 1 ? 's are' : ' is'} in the tab order but not painted (${[...new Set(hidden.map(h => h.how))].join('; ')}); not measured for 2.4.7`, targets: hidden.slice(0, 5) };
     if (fails.length) return { verdict: 'fail', why: `${fails.length} of ${measured.length} measured controls show no pixel change on focus`, targets: fails.map(pub), evidence: fails.map(i => ({ sel: i.sel, before: i.before, after: i.after })), ...base };
     if (measured.length < Math.max(1, (n - hidden.length) / 2)) return { verdict: 'unmeasurable', why: `only ${measured.length} of ${n - hidden.length} controls could be measured (${Object.entries(reasons).map(([k, v]) => `${v} ${k}`).join(', ')})`, ...base };
     return { verdict: 'pass', why: `${measured.length} controls each change visibly on focus${unmeasured.length ? `, ${unmeasured.length} not measured` : ''}`, ...base };
+  },
+  // --prove: make each measured control's focused style equal to its unfocused style, then check that it did (reached = computed equality on every measured control).
+  async prove(page, prior) {
+    const idx = (prior.controls || []).map(c => c.i); if (!idx.length) return { mutation: null, reached: false, why: 'no measured controls recorded' };
+    await page.evaluate(CANDIDATES, THIRD);
+    const r = await page.evaluate(idx => {
+      const PROPS = ['outline-style', 'outline-width', 'outline-color', 'outline-offset', 'box-shadow', 'background-color', 'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color', 'color', 'text-decoration-line', 'filter', 'transform'];
+      const read = el => { const cs = getComputedStyle(el); return Object.fromEntries(PROPS.map(p => [p, cs.getPropertyValue(p)])); };
+      let css = ''; const unfocused = [];
+      idx.forEach((i, k) => { const el = window.__uxfv[i]; if (!el) return; el.setAttribute('data-uxcli-prove', String(k)); const u = read(el); unfocused[k] = u; css += `[data-uxcli-prove="${k}"]:focus,[data-uxcli-prove="${k}"]:focus-visible,[data-uxcli-prove="${k}"]:focus-within{${PROPS.map(p => `${p}:${u[p]} !important`).join(';')}}\n`; });
+      const st = document.createElement('style'); st.setAttribute('data-uxcli-prove-style', '1'); st.textContent = css; document.documentElement.appendChild(st);
+      let same = 0, checked = 0;
+      idx.forEach((i, k) => { const el = window.__uxfv[i]; if (!el || !unfocused[k]) return; el.focus({ preventScroll: true }); if (document.activeElement !== el) return; checked++; const f = read(el); if (PROPS.every(p => f[p] === unfocused[k][p])) same++; el.blur(); });
+      return { checked, same };
+    }, idx);
+    const reached = r.checked > 0 && r.same === r.checked;
+    return { mutation: `focus styles of the ${idx.length} measured controls set equal to their unfocused styles`, reached, why: reached ? null : r.checked === 0 ? 'no measured control took programmatic focus' : `${r.checked - r.same} of ${r.checked} controls still change computed style on focus (indicator drawn by an ancestor, a script, or a pseudo-element)`, checked: r.checked, same: r.same };
   },
 };

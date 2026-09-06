@@ -16,7 +16,7 @@ export default {
           if (sheet) return { src: 'stylesheet', important: false }; }
         return { src: 'none', important: false }; };
       const sel = el => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '');
-      const out = { applicable: 0, fails: [] };
+      const out = { applicable: 0, locked: [], fails: [] };
       for (const el of document.querySelectorAll('body, body *')) {
         if (!(el instanceof HTMLElement) || el.closest(THIRD)) continue;
         if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) continue;
@@ -33,7 +33,7 @@ export default {
             const span = document.createElement('span'); span.textContent = 'X'; span.style.cssText = 'display:inline-block;padding:0;margin:0;border:0;vertical-align:top';
             el.appendChild(span); value = span.getBoundingClientRect().height; span.remove();
           } else { const v = cs.getPropertyValue(prop); value = v === 'normal' ? 0 : parseFloat(v); }
-          out.applicable++;
+          out.applicable++; out.locked.push({ sel: sel(el), property: prop, value: +value.toFixed(2) });
           if (!(value >= k * fs - 0.01)) out.fails.push({ sel: sel(el), lockedOn: o.on === el ? 'self' : sel(o.on), rule, property: prop, value: +value.toFixed(2), threshold: +(k * fs).toFixed(2), text: el.textContent.trim().slice(0, 40) });
         }
       }
@@ -51,9 +51,21 @@ export default {
       return { textEls: textEls.length, newlyClipped: after.filter((a, i) => a.clipped && !before[i].clipped).length, newOverlaps: Math.max(0, ovAfter - ovBefore) };
     }, [THIRD]);
     const finding = (over.newlyClipped || over.newOverlaps) ? { kind: 'override-breakage', why: `with 1.4.12 user styles applied, ${over.newlyClipped} text containers clip and ${over.newOverlaps} new overlaps appear (not asserted by the ACT rules)` } : null;
-    const base = { applicable: act.applicable, override: over, ...(finding ? { finding } : {}) };
+    const base = { applicable: act.applicable, locked: act.locked.slice(0, 30), override: over, ...(finding ? { finding } : {}) };
     if (act.applicable === 0) return { verdict: 'not-applicable', why: 'no text whose spacing is locked by an !important style attribute', ...base };
     if (act.fails.length) return { verdict: 'fail', why: `${act.fails.length} locked spacing values below the 1.4.12 minimum`, targets: act.fails, ...base };
     return { verdict: 'pass', why: `${act.applicable} locked spacing values, all at or above the minimum`, ...base };
+  },
+  // --prove: the first locked element gets its own locked property set below the 1.4.12 minimum (line-height 1, spacing 0.01em) with !important on the style attribute; reached when its computed value changed.
+  async prove(page, prior) {
+    const t = (prior.locked || [])[0]; if (!t) return { mutation: null, reached: false, why: 'no locked element recorded' };
+    const r = await page.evaluate(([THIRD, t]) => {
+      const sel = el => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '');
+      const el = [...document.querySelectorAll('body, body *')].find(e => !e.closest(THIRD) && sel(e) === t.sel); if (!el) return { found: false };
+      const before = getComputedStyle(el).getPropertyValue(t.property); el.style.setProperty(t.property, t.property === 'line-height' ? '1' : '0.01em', 'important'); const after = getComputedStyle(el).getPropertyValue(t.property);
+      return { found: true, before, after };
+    }, [THIRD, t]);
+    if (!r.found) return { mutation: null, reached: false, why: `locked element ${t.sel} not found on reload` };
+    return { mutation: `${t.property} on ${t.sel} locked below the minimum`, reached: r.before !== r.after, why: r.before !== r.after ? null : `computed ${t.property} unchanged (${r.before})` };
   },
 };

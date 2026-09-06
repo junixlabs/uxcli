@@ -65,7 +65,7 @@ function pageCard(result) {
       const g = p.groups;
       const col = (hex, tok) => tok ? `${hex} (${tok})` : hex;
       L.push(head, `  what   ${g.reduce((n, x) => n + x.count, 0)} text nodes in ${g.length} colour pair${g.length > 1 ? 's' : ''}: ${g.slice(0, 4).map(x => `${col(x.fg, x.fgToken)} on ${col(x.bg, x.bgToken)} ${x.ratio}:1 ×${x.count} (e.g. ${x.example})`).join('; ')}${g.length > 4 ? '; …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, g[0].fgToken || g[0].bgToken ? `  check  ${[g[0].fgToken, g[0].bgToken].filter(Boolean).join(' and ')} declared in ${result.src}; one change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}.` : `  check  Is ${g[0].fg} on ${g[0].bg} a design token? One change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}. Pass --src=DIR to name it.`);
-    } else L.push(`${head} ${reason(p)}`);
+    } else L.push(`${head} ${reason(p)}${p.prove ? (p.prove.wouldFail ? ` · would fail on ${p.prove.mutation}` : ` · could not be made to fail: ${p.prove.why}`) : ''}`);
     if (p.finding) L.push(`  finding ${p.finding.why}`);
     if (methodLine(p)) L.push(methodLine(p));
   }

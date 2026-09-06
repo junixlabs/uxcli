@@ -27,6 +27,7 @@ The instrument is used by an agent; the skills are how the agent is told to use 
 
 ### Falsify on the target
 A falsification pair proves a probe can fail on a fixture. Nothing proves it can fail on this project. An all-green run must be able to show its counterfactual.
+- Done 2026-09-07 for the three page probes: `run <url> --prove`, reached decided by computed style before the re-measure, gate requires `would fail` on every must-pass twin; the first real page gave `would fail` on focus-visible. Flow probes not yet (they need the overlay mechanism, not a live-page mutation).
 - `run --prove`: for each probe that passed, plant one defect that reaches the very controls it measured (a focus rule that changes their computed style, a colour override on the cited text group, a locked `letter-spacing`; for a journey, a dropped review value or a reordered navigation item), re-measure the same controls, print `pass · would fail on <mutation>` or `pass · could not be made to fail`, which is a warning.
 - Definition first: what "the mutation reaches the measured element" means is written and committed before any code.
 - Exit: on the twins and on one real project every pass carries its counterfactual line.
