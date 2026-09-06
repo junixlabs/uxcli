@@ -9,7 +9,8 @@ export const PAGE_PROBES = [focusVisible, textSpacing, contrast];
 
 export async function runPage(url, { browser, state, only } = {}) {
   const own = !browser; if (own) browser = await launch();
-  const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, storageState: state || undefined });
+  // bypassCSP: the contrast probe injects axe-core; a page's Content-Security-Policy would otherwise block it (instrument setting, recorded in contrast/spec.md).
+  const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, storageState: state || undefined, bypassCSP: true });
   const page = await bctx.newPage();
   const result = { url, ranAt: new Date().toISOString(), title: null, probes: [] };
   const probes = only ? PAGE_PROBES.filter(p => only.includes(p.id) || only.includes(p.sc)) : PAGE_PROBES;

@@ -9,4 +9,5 @@
 
 ## Revisions
 
+- 2026-09-06 **page context bypasses Content-Security-Policy.** GOV.UK's `script-src` blocked the axe-core injection and the probe returned `unmeasurable · probe error`; the context is now created with `bypassCSP: true`, an instrument setting that does not change what is measured.
 - 2026-09-06 first version. Bench: ACT afw4f7 cases (34) with axe-core 4.13.0, recorded in the working notes.
