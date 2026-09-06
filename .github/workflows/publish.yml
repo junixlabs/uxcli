@@ -1,0 +1,20 @@
+name: publish
+on:
+  push:
+    tags: ['v*']
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npx playwright-core install --with-deps chromium-headless-shell
+      - run: node bin/uxcli.js gate
+      - name: tag must match package version
+        run: test "${GITHUB_REF_NAME#v}" = "$(node -p "require('./package.json').version")"
+      - run: npm publish --access public
