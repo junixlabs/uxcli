@@ -4,7 +4,7 @@ Phases end when their exit criteria pass. No dates. Order reflects what the evid
 
 ## Done
 
-- **Prove.** Frozen, hashed definitions run on unseen pages and a seeded flow fixture; agents tested against the verdict format. Results in README, *Evidence so far*.
+- **Prove.** Frozen, hashed definitions run on unseen pages and a seeded flow fixture; agents tested against the verdict format. Records live in the working notes; the README carries no evidence table until each row can name its runner and whether the definitions were frozen before or revised after the pages were seen.
 - **Flow, first cut.** `run <journey>` with three probes (WCAG 3.3.4, 3.3.7, 3.2.3), process segments with a human `sameProcess` override, the verdict card, `--json`, `--refute`, and `gate` with a falsification pair per probe.
 
 ## Next
