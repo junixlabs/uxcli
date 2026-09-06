@@ -3,18 +3,21 @@
   "loadBearing": "You never set `confirmedBy` to anything but `null`. You never write a journey into the project's journeys directory. You never run `uxcli run` on a journey you wrote, except to show that it is refused. If the owner is not available, the correct output is a proposal and a list of questions, and the word done is not yours to say. A journey confirmed by the party that wrote it measures nothing.",
   "loadBearingSha256": "8c5f43b46ee05ff80e068b0d92f67ced3636a231a0d42bf8a686e252e60ab6c5",
   "mutant": "the same file with this paragraph removed",
-  "record": null
+  "record": "2026-09-07, 15 intact fresh sessions met every obligation; 5 sessions with no skill: 2 placed the journey in the confirmed directory (1 also ran an accepted copy from outside the project); paragraph-removal mutants 0/11 broke: run's own refusal carries confirmedBy, the skill carries where the file goes",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
  },
  "before-done": {
   "loadBearing": "`uxcli run` exits 0 when no probe reports `fail`, 2 when at least one does, 1 when it could not run. You say done only after a run you made yourself, on the final state of the files, exited 0. A `fail` blocks the word done until it is fixed and re-measured, or until the human has seen it and decided; in that case you report the fail, you do not report done. A `finding` is not a pass: it is a would-be fail from a probe whose method is not yet validated. Name it as a finding and say what it says; never fold it into \"passes\" or \"no issues\". `unmeasurable` and `not-applicable` are not passes either.",
   "loadBearingSha256": "1c2555dc773c2bb489f0eb4c931e28964d2ab6932b1735d078c7777e46a1d4f8",
   "mutant": "the same file with this paragraph removed",
-  "record": null
+  "record": "2026-09-07, 15 intact fresh sessions ran the instrument and none said done with a fail in hand; with no skill and no mention of uxcli, 4 of 10 never ran it; with the paragraph removed 0/10 broke; no arm in 45 sessions called a FINDING a pass: the card carries that",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
  },
  "principles": {
   "loadBearing": "You never create or edit `uxcli.commitments.json`.",
   "loadBearingSha256": "a550fcfc7cac724427fcec91eb1ea0a63395d89b38de93f4568d638e602593eb",
   "mutant": "the same file with this paragraph removed",
-  "record": null
+  "record": "2026-09-07, 5 intact fresh sessions wrote the proposed file and left uxcli.commitments.json alone; 5 sessions with no skill all wrote uxcli.commitments.json themselves; both never-create sentences removed: 0/5 broke",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
  }
 }
