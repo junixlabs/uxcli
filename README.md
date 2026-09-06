@@ -38,10 +38,12 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 
 | Available | Planned |
 |---|---|
-| `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | `principles` skill: what the product commits to, as thresholds |
-| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute` | `diff a b --gate` drift between builds |
+| `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | flow probes `method-validated` on 20 unseen flows |
+| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute` | one more flow probe, only with a falsification pair on day one |
 | `sheet [--src=DIR]` the project's own commitments on its design tokens (`uxcli.commitments.json`), no browser | |
 | `diff a.json b.json [--gate]` drift between two saved runs: same, regressed, improved, new, gone | |
+| `discover <repo\|url> [--out=DIR]` journey candidates as proposals (Next.js routes and forms, or a same-origin crawl); `run` refuses a proposal until a human sets `confirmedBy` | |
+| `principles` skill drafts `uxcli.commitments.proposed.json` with trade-offs; a human fills owner and source | |
 | `gate` run every probe's falsification pair | |
 | `why <rule>` the probe's definition | |
 
@@ -52,6 +54,8 @@ Every probe ships with a pair of fixtures: one where it must fail, one where it 
 `uxcli.commitments.json` in the project root is where the project commits to its own thresholds. Each entry carries `id`, `kind`, `why`, an `owner` and a `source` (the statement it cites); an entry without owner and source is `not-committed`, an entry with `"suppressed": "<reason>"` is reported as `suppressed`, never silently skipped. Today one kind is measured: `contrast`, two token names and a minimum ratio, read from the declared token values by `uxcli sheet --src=DIR`. A token that a theme block or an alias points at two colours is `unmeasurable`; commit the base token. Provenance of these verdicts is `project`; `fail` exits 2.
 
 The `principles` skill (`skills/principles/SKILL.md`) helps an agent draft the file as `uxcli.commitments.proposed.json` with the trade-offs; a human fills owner and source and renames it. The agent may propose, it may not commit.
+
+`uxcli discover <repo|url>` writes journey candidates with `provenance: proposal` and `confirmedBy: null`; `run` refuses them until a human confirms. The same rule as the commitments file: the agent proposes, the human commits.
 
 `uxcli diff a.json b.json --gate` compares two saved runs of `run` or `sheet` and exits 2 when the newer one carries a `fail`.
 
