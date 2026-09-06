@@ -39,6 +39,8 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 
 Every probe ships with a pair of fixtures: one where it must fail, one where it must stay silent. A probe without that pair cannot say `fail`. `gate` enforces it.
 
+What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
+
 ## Rules of output
 
 - Every finding carries a provenance: `spec`, `project`, or `opinion`.
