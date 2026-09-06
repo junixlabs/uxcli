@@ -1,12 +1,12 @@
 {
  "kind": "page",
- "operator": "index.html: a stylesheet rule *:focus,*:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,0,0,0)} replaces the focus ring with a fully transparent shadow: the computed style changes, no pixel does. The must-pass twin keeps the default ring. Both start in a `no-focus-outline` mode that hides every ring until the first keydown, as keyboard-mode detectors do. Both carry an autofocus input with a 300 ms box-shadow transition and an infinitely pulsing status dot. Both twins carry an ins.adsbygoogle block with a focus-less link, a zero letter-spacing lock and low-contrast text: the third-party exclusion must keep all three probes silent on it.",
+ "operator": "index.html: a stylesheet rule *:focus,*:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,0,0,0)} replaces the focus ring with a fully transparent shadow: the computed style changes, no pixel does. The must-fail twin's detector class is a transparent outline too. The must-pass twin draws its ring through a keyboard-mode detector: a class added on focusin only when a keydown happened within 100 ms, as focus-visible polyfills do, so focus that does not arrive by a key press shows nothing. Both twins carry an autofocus input with a 300 ms box-shadow transition, an infinitely pulsing status dot, a button inside a zero-height overflow:hidden container and a link inside an opacity:0 paragraph (in the tab order, never painted: reported as a finding, not measured), and an ins.adsbygoogle block with a focus-less link, a zero letter-spacing lock and low-contrast text: the third-party exclusion must keep all three probes silent on it.",
  "hashes": {
   "mustFail": {
-   "index.html": "c932a323191f1ceb403f55ad3e32cbb67c07a1ae34767fc8edc20a82bcd6dd3a"
+   "index.html": "06a313e6c75f1f86f0f8c23f8c5decab2b3bff245423f7f7ea160652d0e5d002"
   },
   "mustPass": {
-   "index.html": "6d19743b8c8e8b288cbf77bdab1303987a8da69795a30c98162d1b4c75cae3bd"
+   "index.html": "8b697b06b42baed3a823862470dee23ea39fa11281148a1744e8151a3db16512"
   }
  }
 }
