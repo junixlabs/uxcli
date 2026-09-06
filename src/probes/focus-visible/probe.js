@@ -5,7 +5,7 @@ const PAD = 48, VW = 1280, VH = 800;
 
 export default {
   id: 'page.focus-visible', sc: '2.4.7', kind: 'page',
-  method: { status: 'method-unproven', record: 'v3.7 (pixels, focus by a real Tab press, unpainted controls excluded) has ACT oj04fd 7/7; the unseen-page run with the packaged code is pending' },
+  method: { status: 'method-unproven', record: 'v3.8 (pixels, focus by a real Tab press, unpainted controls excluded, late indicators re-read) has ACT oj04fd 7/7; the unseen-page run with the packaged code is pending' },
   async measure(page) {
     const n = await page.evaluate(THIRD => {
       window.__uxfv = [...document.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex],[contenteditable]')]
@@ -21,8 +21,8 @@ export default {
     const blur = () => page.evaluate(() => { if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur(); }).catch(() => {});
     const items = [], hidden = [];
     for (let i = 0; i < n; i++) {
-      const t = await page.evaluate(async i => {
-        const el = window.__uxfv[i]; el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); await new Promise(r => requestAnimationFrame(r));
+      const readBox = (i, scroll) => page.evaluate(async ([i, scroll]) => {
+        const el = window.__uxfv[i]; if (scroll) { el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'instant' }); await new Promise(r => requestAnimationFrame(r)); }
         // Finish finite animations (scroll-reveal transforms) so the box is read in the state the screenshots freeze to.
         for (const a of document.getAnimations()) { try { const tm = a.effect?.getTiming?.(); if (tm && tm.iterations !== Infinity) a.finish(); } catch {} } await new Promise(r => requestAnimationFrame(r));
         // The box is the union of the control's own box and its content's box: an inline link wrapping an image has a one-line box while its ring is drawn around the image.
@@ -37,33 +37,53 @@ export default {
         const hits = pts.map(([x, y]) => document.elementFromPoint(x, y)); const own = hits.some(h => h && (h === el || el.contains(h)));
         const covered = !own && hits.some(h => h && !h.contains(el));
         return { sel, text: (el.textContent || el.value || el.getAttribute('aria-label') || '').trim().slice(0, 40), x: r.x, y: r.y, w: r.width, h: r.height, opacity, clipped, own, covered };
-      }, i);
-      const x0 = Math.max(0, t.x - PAD), y0 = Math.max(0, t.y - PAD);
-      const clip = { x: x0, y: y0, width: Math.min(VW - x0, t.x + t.w + PAD - x0), height: Math.min(VH - y0, t.y + t.h + PAD - y0) };
+      }, [i, scroll]);
+      const cropOf = t => { const x0 = Math.max(0, t.x - PAD), y0 = Math.max(0, t.y - PAD); return { x: x0, y: y0, width: Math.min(VW - x0, t.x + t.w + PAD - x0), height: Math.min(VH - y0, t.y + t.h + PAD - y0) }; };
+      const offscreen = (t, clip) => clip.width < 1 || clip.height < 1 || t.x + t.w < 0 || t.y + t.h < 0 || t.x > VW || t.y > VH;
+      const t = await readBox(i, true); let clip = cropOf(t);
       const item = { sel: t.sel, text: t.text };
       if (t.w === 0 || t.h === 0) { items.push({ ...item, unmeasured: 'zero-size' }); continue; }
-      if (clip.width < 1 || clip.height < 1 || t.x + t.w < 0 || t.y + t.h < 0 || t.x > VW || t.y > VH) { items.push({ ...item, unmeasured: 'outside the viewport after scrolling' }); continue; }
+      if (offscreen(t, clip)) { items.push({ ...item, unmeasured: 'outside the viewport after scrolling' }); continue; }
       if (t.opacity === 0 || t.clipped || (!t.own && !t.covered)) { hidden.push({ ...item, how: t.opacity === 0 ? 'opacity 0 on the control or an ancestor' : t.clipped ? 'clipped by an overflow-hidden ancestor it lies outside of' : 'not painted at its own box' }); items.push({ ...item, unmeasured: 'not painted' }); continue; }
       if (t.covered) { items.push({ ...item, unmeasured: 'covered by another element' }); continue; }
       // Focus arrives by a real Tab key press: focus the control, Shift+Tab to whatever precedes it, Tab back. Pages that draw rings only when
       // focus follows a key event are measured as a keyboard user meets them.
-      const landed = await page.evaluate(i => { const el = window.__uxfv[i]; el.focus({ preventScroll: true }); return document.activeElement === el; }, i);
-      if (!landed) { items.push({ ...item, unmeasured: 'did not take focus' }); continue; }
-      await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
-      const reached = await page.evaluate(i => document.activeElement === window.__uxfv[i], i);
-      if (!reached) { await blur(); items.push({ ...item, unmeasured: 'Tab did not reach the control' }); continue; }
+      const tabTo = async i => {
+        const landed = await page.evaluate(i => { const el = window.__uxfv[i]; el.focus({ preventScroll: true }); return document.activeElement === el; }, i);
+        if (!landed) return 'did not take focus';
+        await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+        return (await page.evaluate(i => document.activeElement === window.__uxfv[i], i)) ? null : 'Tab did not reach the control';
+      };
+      const notReached = await tabTo(i); if (notReached) { await blur(); items.push({ ...item, unmeasured: notReached }); continue; }
       await frames();
+      // The predecessor's focus may have opened something or scrolled the page: read the box again in the focused state.
+      const t2 = await readBox(i, false); clip = cropOf(t2);
+      if (t2.w === 0 || t2.h === 0 || offscreen(t2, clip)) { await blur(); items.push({ ...item, unmeasured: 'outside the viewport after Tab' }); continue; }
+      if (t2.opacity === 0 || t2.clipped || (!t2.own && !t2.covered)) { await blur(); items.push({ ...item, unmeasured: 'not painted after Tab' }); continue; }
+      if (t2.covered) { await blur(); items.push({ ...item, unmeasured: 'covered after Tab' }); continue; }
       let b, bv; try { b = await shot(clip); bv = await full(); } catch { await blur(); items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
       await blur(); await frames();
+      // A focus trap that takes focus back on blur would put the ring into the "unfocused" shots.
+      const stillFocused = await page.evaluate(() => document.activeElement && document.activeElement !== document.body && document.activeElement !== document.documentElement);
+      if (stillFocused) { items.push({ ...item, unmeasured: 'focus returned on blur' }); continue; }
       let a1, a2; try { a1 = await shot(clip); a2 = await shot(clip); } catch { items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
       if (PNG.diff(a1, a2) > 0) { items.push({ ...item, unmeasured: 'changes with no interaction' }); continue; }
-      const changed = PNG.diff(a1, b);
+      let changed = PNG.diff(a1, b), av = null;
       if (changed === 0) {
         // Nothing changed near the control. Before calling that a fail, look at the whole viewport: a change away from the control
         // (a card highlighted, a heading underlined, a menu opening) may be the indicator, or may be unrelated; either way it is not a measured absence.
-        let av; try { av = await full(); } catch { items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
+        try { av = await full(); } catch { items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
         const away = PNG.diff(av, bv);
         if (away > 0) { items.push({ ...item, unmeasured: 'changes away from the control', awayPixels: away }); continue; }
+      }
+      if (changed === 0) {
+        // Still nothing. An indicator drawn by script on a timer would be missed two frames after focus: Tab again, wait 250 ms, look once more.
+        const again = await tabTo(i); if (again) { await blur(); items.push({ ...item, unmeasured: again }); continue; }
+        await page.waitForTimeout(250);
+        let b2, bv2; try { b2 = await shot(clip); bv2 = await full(); } catch { await blur(); items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
+        await blur(); await frames();
+        changed = PNG.diff(a1, b2); if (changed > 0) b = b2;
+        else if (PNG.diff(av, bv2) > 0) { items.push({ ...item, unmeasured: 'changes away from the control', awayPixels: PNG.diff(av, bv2) }); continue; }
       }
       items.push({ ...item, changedPixels: changed, crop: clip, before: a1, after: b });
     }
