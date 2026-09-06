@@ -34,12 +34,12 @@ export default {
       if (t.w === 0 || t.h === 0) { items.push({ ...item, unmeasured: 'zero-size' }); continue; }
       if (clip.width < 1 || clip.height < 1 || t.x + t.w < 0 || t.y + t.h < 0 || t.x > VW || t.y > VH) { items.push({ ...item, unmeasured: 'outside the viewport after scrolling' }); continue; }
       if (t.occluded) { items.push({ ...item, unmeasured: 'covered by another element' }); continue; }
-      const a1 = await shot(clip); const a2 = await shot(clip);
+      let a1, a2; try { a1 = await shot(clip); a2 = await shot(clip); } catch { items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
       if (PNG.diff(a1, a2) > 0) { items.push({ ...item, unmeasured: 'changes with no interaction' }); continue; }
       const focused = await page.evaluate(i => { const el = window.__uxfv[i]; el.focus({ focusVisible: true, preventScroll: true }); return document.activeElement === el; }, i);
       if (!focused) { items.push({ ...item, unmeasured: 'did not take focus' }); continue; }
       await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
-      const b = await shot(clip);
+      let b; try { b = await shot(clip); } catch { await page.evaluate(i => window.__uxfv[i].blur(), i).catch(() => {}); items.push({ ...item, unmeasured: 'screenshot timed out' }); continue; }
       await page.evaluate(i => window.__uxfv[i].blur(), i);
       const changed = PNG.diff(a1, b);
       items.push({ ...item, changedPixels: changed, crop: clip, before: a1, after: b });
