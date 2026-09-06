@@ -1,6 +1,6 @@
 # Roadmap
 
-Phases end when their exit criteria pass. No dates. Order reflects what the evidence so far supports, not the original plan: flow probes came first because they are the part no other tool has.
+Phases end when their exit criteria pass. No dates. Order reflects what the evidence so far supports, not the original plan: flow probes came first because they are the part no other tool has; the single-screen probes moved ahead of the second flow cut after the first real-project run, where the flow probes were mostly not applicable and the single-screen probes found the defects.
 
 ## Done
 
@@ -11,9 +11,11 @@ Phases end when their exit criteria pass. No dates. Order reflects what the evid
 
 ### Instrument
 Single-screen probes into the package with the same contract as the flow probes: spec, code, hashed must-fail and must-pass fixtures.
-- `run <url>` with focus-visible and text-spacing (validated in Prove), contrast delegated to axe-core.
-- Third-party subtrees excluded with a coverage test; quiesce detection for pages that never settle; `blocked` for bot challenges and error pages.
-- Exit: `gate` covers every probe; 20 unseen pages, 0 false fails, re-run with the packaged code.
+- Done: `run <url>` with focus-visible (2.4.7) and text-spacing (1.4.12, ACT 24afc2/9e45ec/78fd32), both carried from Prove with recorded revisions, and contrast (1.4.3) delegated to a pinned axe-core; `--state` for signed-in pages; third-party subtrees excluded; bot challenges and load errors reported as `unmeasurable` with the reason.
+- Done: `gate` covers every probe; the must-pass twin of each page probe has to reach `pass`, never `not-applicable`; non-pass card lines carry the reason.
+- Flow probes still accept a silent must-pass twin. Each needs a twin that reaches its satisfied branch, then the gate rule flips for all probes.
+- Quiesce detection for pages that never settle (today: `unmeasurable · document changes with no interaction`).
+- Exit: 20 pages the probes have never seen, 0 false fails, re-run with the packaged code. Pages seen during Prove or the first real-project run do not count.
 
 ### Flow, second cut
 - Recall measured on defects seeded into real pages by someone who does not tune the probes; precision on 20 flows the probes have never seen.

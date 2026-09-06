@@ -2,7 +2,7 @@
 
 `uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
 
-**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), a gate that proves each probe can fail, a verdict card, and a second reader. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
+**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe can fail and can pass, a verdict card, and a second reader. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
 
 **Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
 
@@ -19,11 +19,12 @@ Node 20+.
 ```
 npm install -g @junixlabs/uxcli
 npx playwright-core install chromium-headless-shell   # once; or set UXCLI_CHROME to a Chromium binary
-uxcli run journey.json                                # verdict card
+uxcli run journey.json                                # verdict card for a flow
 uxcli run journey.json --json                         # full evidence packet
+uxcli run https://example.org/login                   # verdict card for one screen; --state=FILE for a signed-in page (Playwright storageState)
 uxcli run journey.json --refute                       # a fresh second reader checks each fail from the screenshots (needs the claude CLI, or set UXCLI_REFUTER)
 uxcli gate                                            # every probe must fail on its seeded fixture and stay silent on the clean twin
-uxcli why 3.3.7                                       # the probe's definition
+uxcli why 3.3.7                                       # the probe's definition (also why 2.4.7, why contrast)
 ```
 
 `npx @junixlabs/uxcli <command>` works without the global install. To hack on it: `git clone https://github.com/junixlabs/uxcli && cd uxcli && npm install`, then `node bin/uxcli.js` in place of `uxcli`. An example journey is in `examples/sylius-guest-checkout.json`.
@@ -36,11 +37,12 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 
 | Available | Planned |
 |---|---|
-| `run <journey>` measure a flow; card by default, `--json`, `--refute` | `run <url>` single-screen probes (focus-visible, text-spacing, contrast) |
-| `gate` run every probe's falsification pair | `principles` skill: what the product commits to, as thresholds |
-| `why <rule>` the probe's definition | `diff a b --gate` drift between builds |
+| `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | `principles` skill: what the product commits to, as thresholds |
+| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state` | `diff a b --gate` drift between builds |
+| `gate` run every probe's falsification pair | |
+| `why <rule>` the probe's definition | |
 
-Every probe ships with a pair of fixtures: one where it must fail, one where it must stay silent. A probe without that pair cannot say `fail`. `gate` enforces it.
+Every probe ships with a pair of fixtures: one where it must fail, one where it must pass. A probe without that pair cannot say `fail`. `gate` enforces it. Exit codes: 0 no fail, 2 at least one fail, 1 the run could not be carried out.
 
 What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 
