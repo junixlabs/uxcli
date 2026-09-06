@@ -4,7 +4,8 @@ import { THIRD, CHROME, normUrl } from './util.js';
 
 export async function launch() {
   const executablePath = process.env.UXCLI_CHROME || process.env.CHROME_EXE || undefined;
-  return chromium.launch({ executablePath, headless: true });
+  try { return await chromium.launch({ executablePath, headless: true }); }
+  catch (e) { if (/executable doesn't exist|install/i.test(String(e))) throw new Error('no Chromium for playwright-core. Run: npx playwright-core install chromium-headless-shell   (or set UXCLI_CHROME to a Chromium binary)'); throw e; }
 }
 
 // In-page collectors. Injected as source so every probe reads the DOM the same way.

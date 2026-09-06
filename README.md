@@ -14,13 +14,14 @@
 
 ## Install and use
 
-Node 20+. Chromium via `playwright-core`; point `UXCLI_CHROME` at a Chromium binary if none is installed.
+Node 20+.
 
 ```
 git clone <this repo> && cd uxcli && npm install
+npx playwright-core install chromium-headless-shell                # once; or set UXCLI_CHROME to a Chromium binary
 node bin/uxcli.js run examples/sylius-guest-checkout.json          # verdict card
 node bin/uxcli.js run journey.json --json                          # full evidence packet
-node bin/uxcli.js run journey.json --refute                        # a fresh second reader checks each fail from the screenshots
+node bin/uxcli.js run journey.json --refute                        # a fresh second reader checks each fail from the screenshots (needs the claude CLI, or set UXCLI_REFUTER)
 node bin/uxcli.js gate                                             # every probe must fail on its seeded fixture and stay silent on the clean twin
 node bin/uxcli.js why 3.3.7                                        # the probe's definition
 ```
