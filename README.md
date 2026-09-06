@@ -2,7 +2,7 @@
 
 `uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
 
-**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe can fail and can pass, a verdict card, and a second reader. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
+**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe can fail on a seeded fixture and stays silent or passes on its clean twin, a verdict card, and a second reader. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
 
 **Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
 
@@ -42,7 +42,7 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 | `gate` run every probe's falsification pair | |
 | `why <rule>` the probe's definition | |
 
-Every probe ships with a pair of fixtures: one where it must fail, one where it must pass. A probe without that pair cannot say `fail`. `gate` enforces it. Exit codes: 0 no fail, 2 at least one fail, 1 the run could not be carried out.
+Every probe ships with a pair of fixtures: one where it must fail and a clean twin. The twin of a single-screen probe must reach `pass`; the twins of the flow probes may still be silent (`not-applicable`) until each has a twin on its satisfied branch, tracked in [ROADMAP.md](ROADMAP.md). A probe without that pair cannot say `fail`. `gate` enforces it. Exit codes: 0 no fail, 2 at least one fail, 1 the run could not be carried out.
 
 What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 
