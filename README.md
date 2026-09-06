@@ -2,7 +2,7 @@
 
 `uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
 
-**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), a gate that proves each probe can fail, a verdict card, and a second reader. On npm as `uxcli`.
+**Status:** early. Three flow probes (WCAG 3.3.4, 3.3.7, 3.2.3), a gate that proves each probe can fail, a verdict card, and a second reader. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
 
 **Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
 
@@ -17,7 +17,7 @@
 Node 20+.
 
 ```
-npm install -g uxcli
+npm install -g @junixlabs/uxcli
 npx playwright-core install chromium-headless-shell   # once; or set UXCLI_CHROME to a Chromium binary
 uxcli run journey.json                                # verdict card
 uxcli run journey.json --json                         # full evidence packet
@@ -26,7 +26,7 @@ uxcli gate                                            # every probe must fail on
 uxcli why 3.3.7                                       # the probe's definition
 ```
 
-`npx uxcli <command>` works without the global install. To hack on it: `git clone https://github.com/junixlabs/uxcli && cd uxcli && npm install`, then `node bin/uxcli.js` in place of `uxcli`. An example journey is in `examples/sylius-guest-checkout.json`.
+`npx @junixlabs/uxcli <command>` works without the global install. To hack on it: `git clone https://github.com/junixlabs/uxcli && cd uxcli && npm install`, then `node bin/uxcli.js` in place of `uxcli`. An example journey is in `examples/sylius-guest-checkout.json`.
 
 A journey is the commitment: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See `test/journeys/checkout.json`.
 

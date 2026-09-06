@@ -29,7 +29,7 @@ The project's own commitments become thresholds.
 - Exit: one real project runs `diff --gate` in CI on its own commitments.
 
 ### Release
-- Done: on npm as `uxcli`; CI runs `gate` on every push; `publish.yml` publishes tags `v*` through npm trusted publishing, with provenance.
+- Done: on npm as `@junixlabs/uxcli`; CI runs `gate` on every push; `publish.yml` publishes tags `v*` through npm trusted publishing, with provenance.
 - CI action running `run` against a live fixture; the planted-verdict test repeated on a second model.
 - Exit: a stranger installs it and gets a first verdict in ten minutes without reading the source.
 
