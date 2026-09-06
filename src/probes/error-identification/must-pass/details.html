@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your details – Fixture Shop</title>
+  <!-- must-pass (3.3.1): an invalid email is rejected with a text message tied to the field by aria-describedby and aria-invalid -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="brand" href="home.html">Fixture Shop</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="cart.html">Cart <span class="badge">2<span class="sr"> items</span></span></a></li>
+        <li><a href="account.html">Account</a></li>
+        <li><a href="help.html">Help</a></li>
+      </ul>
+    </nav>
+  </div>
+  <nav aria-label="Account" class="account-nav"><button type="button" data-go="account.html#orders">Orders</button><button type="button" data-go="account.html#addresses">Addresses</button><button type="button" data-go="account.html#payment">Payment</button></nav>
+</header>
+<main class="wrap">
+  <h1>Your details</h1>
+  <form id="details-form" action="review.html" method="get" novalidate>
+    <label for="name">Full name</label>
+    <input id="name" name="name" type="text" autocomplete="name">
+
+    <label for="email">Email address</label>
+    <input id="email" name="email" type="email" autocomplete="email">
+    <p id="email-error" class="error" role="alert" hidden></p>
+
+    <label for="address">Street address</label>
+    <input id="address" name="address" type="text" autocomplete="street-address">
+
+    <label for="postcode">Postcode</label>
+    <input id="postcode" name="postcode" type="text" autocomplete="postal-code">
+
+    <label for="country">Country</label>
+    <select id="country" name="country" autocomplete="country-name">
+      <option value="">Choose a country</option>
+      <option>United Kingdom</option>
+      <option>Ireland</option>
+      <option>France</option>
+      <option>Germany</option>
+    </select>
+
+    <button type="submit">Continue</button>
+  </form>
+  <script>
+    (function () {
+      var form = document.getElementById('details-form');
+      var fields = ['name', 'email', 'address', 'postcode', 'country'];
+      var saved = {};
+      try { saved = JSON.parse(sessionStorage.getItem('checkout') || '{}'); } catch (e) {}
+      fields.forEach(function (f) {
+        if (saved[f]) { document.getElementById(f).value = saved[f]; }
+      });
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var email = document.getElementById('email');
+        var err = document.getElementById('email-error');
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value)) {
+          err.textContent = 'Enter an email address in the format name@example.com';
+          err.hidden = false;
+          email.setAttribute('aria-invalid', 'true');
+          email.setAttribute('aria-describedby', 'email-error');
+          email.focus();
+          return;
+        }
+        err.hidden = true; email.removeAttribute('aria-invalid'); email.removeAttribute('aria-describedby');
+        var data = {};
+        fields.forEach(function (f) { data[f] = document.getElementById(f).value; });
+        sessionStorage.setItem('checkout', JSON.stringify(data));
+        location.href = 'review.html';
+      });
+    })();
+  </script>
+</main>
+<footer>
+  <div class="wrap">
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+</body>
+</html>

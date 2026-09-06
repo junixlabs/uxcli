@@ -1,6 +1,7 @@
 // flow.error-prevention · WCAG 3.3.4. Spec in spec.md; falsification pair in pair.json.
 import { norm, alnum, normUrl } from '../../util.js';
-import { screen, arrive, fillStep, act, evalIn, shot } from '../../browser.js';
+import { screen, shot } from '../../browser.js';
+import { plantError } from '../../plant.js';
 
 export default {
   id: 'flow.error-prevention', sc: '3.3.4',
@@ -47,7 +48,7 @@ export default {
     let conf = evalConfirmed(commitScreen);
     if (!conf.holds && reviewScreen) { const c2 = evalConfirmed(reviewScreen); if (c2.holds) conf = { ...c2, note: 'review on the step before the commit screen' }; else conf.reviewStepAlso = { screen: c2.screen, missing: c2.missing, changeMechanism: c2.changeMechanism }; }
     const branches = { confirmed: conf };
-    branches.checked = (!conf.holds && J.checkedPass) ? await checkedPass(ctx) : { holds: null, tested: false, why: conf.holds ? 'not needed' : 'journey does not allow the mutating checked pass' };
+    branches.checked = (!conf.holds && J.checkedPass) ? await plantError(ctx) : { holds: null, tested: false, why: conf.holds ? 'not needed' : 'journey does not allow the mutating checked pass' };
     branches.reversible = { holds: !!J.reversible, provenance: 'project', declared: J.reversible || null };
     ep.branches = branches;
     if (conf.reformatted?.length) ep.finding = { kind: 'reformatted', why: `${conf.reformatted.length} value${conf.reformatted.length > 1 ? 's' : ''} shown in another format (${conf.reformatted.slice(0, 2).map(x => JSON.stringify(x.value)).join(', ')}); not counted as missing` };
@@ -58,37 +59,3 @@ export default {
     return { ...ep, verdict: 'unmeasurable', why: 'confirmed false; checked untested (the journey does not declare checkedPass: true, so no error was planted); reversible not declared' };
   }
 };
-
-// Separate pass: replay to the entry step, plant one input error, submit, read the outcome (definitions v8 rule 16).
-async function checkedPass(ctx) {
-  const { J, recorded, commitIdx, browser } = ctx;
-  const pre = recorded.filter(r => r.step < commitIdx).sort((a, b) => b.step - a.step);
-  if (!pre.length) return { holds: null, tested: false, why: 'no entry step with recorded values' };
-  const onStep = pre.filter(r => r.step === pre[0].step);
-  let entry = onStep.find(r => r.required), probeValue = '', probeKind = 'required field emptied';
-  if (!entry) { entry = onStep.find(r => r.type === 'email'); probeValue = 'not-an-email'; probeKind = 'type=email given an invalid value'; }
-  if (!entry) { entry = onStep.find(r => r.type === 'url'); probeValue = 'not-a-url'; probeKind = 'type=url given an invalid value'; }
-  if (!entry) { entry = onStep.find(r => r.minlength > 1); probeValue = 'a'; probeKind = 'minlength field given one character'; }
-  const declared = !!entry;
-  if (!entry) { entry = onStep[0]; probeValue = ''; probeKind = 'undeclared field emptied (may be optional)'; }
-  const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 } }); const page = await bctx.newPage();
-  const res = { tested: true, entryStep: entry.step, probedField: entry.name || entry.label || entry.selector, probeKind, probeValue, declaredConstraint: declared };
-  try {
-    for (let i = 0; i < entry.step; i++) { await arrive(page, J.steps[i]); await fillStep(page, J.steps[i], i, []); await act(page, J.steps[i]); }
-    const step = J.steps[entry.step]; await arrive(page, step);
-    await fillStep(page, { ...step, fill: Object.fromEntries(Object.entries(step.fill).map(([k, v]) => [k, k === entry.selector ? probeValue : v])) }, entry.step, []);
-    const urlBefore = page.url(), textBefore = await evalIn(page, '() => visibleText()');
-    await act(page, step);
-    const urlAfter = page.url(), textAfter = await evalIn(page, '() => visibleText()');
-    const formStill = await page.locator(entry.selector).count() > 0;
-    res.nativeValidation = await page.evaluate(() => { const e = [...document.querySelectorAll(':invalid')].find(x => x.validationMessage); return e ? { field: e.name || e.id, message: e.validationMessage } : null; });
-    const before = new Set(textBefore.split('\n').map(norm).filter(Boolean));
-    const newText = textAfter.split('\n').map(norm).filter(l => l && !before.has(l));
-    res.notAdvanced = normUrl(urlAfter) === normUrl(urlBefore) || formStill; res.urlBefore = urlBefore; res.urlAfter = urlAfter; res.newText = newText.slice(0, 5);
-    const blockedWithMessage = res.notAdvanced && (newText.length > 0 || !!res.nativeValidation);
-    if (blockedWithMessage) { res.holds = true; res.evidence = newText.length ? 'new visible text' : 'native constraint validation'; }
-    else if (declared) { res.holds = false; res.evidence = res.notAdvanced ? 'did not advance but no message' : 'advanced with an input error in a declared-constrained field'; }
-    else { res.holds = null; res.tested = false; res.why = 'probed field has no declared constraint and the step advanced; the field may be optional, nothing proven'; }
-  } catch (e) { res.holds = null; res.tested = false; res.why = 'checked pass error: ' + String(e).slice(0, 160); }
-  await bctx.close(); return res;
-}

@@ -25,12 +25,16 @@ function flowCard(result) {
     } else if (failLike(p) && p.sc === '3.3.4') {
       const c = p.branches.confirmed, ck = p.branches.checked; const cm = c.changeMechanism;
       L.push(head, `  what   ${c.missing.length} of ${c.missing.length + c.present.length} entered values are not shown on the commit screen; ${cm ? `change control "${typeof cm === 'string' ? cm : cm.text}"` : 'no change control'}; validation ${ck.tested ? 'tested: ' + ck.evidence : 'untested'}`, `  where  ${result.steps.find(s => s.i === c.screen)?.url}`, rule, `  check  On this screen, can you see ${c.missing.slice(0, 3).map(m => JSON.stringify(m.value)).join(', ')} and a way to change them before committing?`); if (proof) L.push(proof);
+    } else if (failLike(p) && p.sc === '3.3.1') {
+      const pl = p.planted;
+      L.push(head, `  what   ${p.form === 'silent' ? 'submission rejected, nothing said' : 'submission rejected, message not tied to the field'}: ${pl.probeKind} on "${pl.probedField}" (step ${pl.entryStep + 1}); ${p.form === 'silent' ? 'no new text, no native validation' : 'new text: ' + pl.newText.slice(0, 2).map(t => JSON.stringify(t.slice(0, 50))).join(', ')}`, `  where  ${pl.urlBefore}  ${pl.probedField}`, rule, `  check  Submit this form with "${pl.probedField}" ${pl.probeValue ? 'set to ' + JSON.stringify(pl.probeValue) : 'empty'}. Does a text message appear that names that field?`); if (proof) L.push(proof);
     } else if (failLike(p) && p.sc === '3.2.3') {
       const x = p.inversion;
       L.push(head, `  what   ${x.mechanism} order differs between steps ${x.stepA} and ${x.stepB}; first inverted pair ${x.firstInvertedPair.map(short).join(' / ')}`, rule, `  check  Compare the ${x.mechanism.replace(/^name:/, '')} menu on both pages; are those two items in swapped order?`); if (proof) L.push(proof);
     } else if (p.verdict === 'pass') {
       const why = p.sc === '3.3.4' ? `via ${p.branch}${p.branches?.confirmed?.changeMechanism ? ` · change control "${typeof p.branches.confirmed.changeMechanism === 'string' ? p.branches.confirmed.changeMechanism : p.branches.confirmed.changeMechanism.text}"` : ''}${p.branches?.checked?.evidence ? ` · ${p.branches.checked.evidence}` : ''}`
         : p.sc === '3.3.7' ? `${p.satisfied.length} matched field${p.satisfied.length > 1 ? 's' : ''}, ${[...new Set(p.satisfied.map(m => m.mechanism))].join('/')}`
+        : p.sc === '3.3.1' ? `${p.planted.probeKind} on "${p.planted.probedField}" rejected; ${p.signal}`
         : `${p.comparedPairs} pairs, ${Object.keys(p.mechanisms || {}).length} mechanisms, no inversion`;
       L.push(`${head} ${why}`);
     } else {

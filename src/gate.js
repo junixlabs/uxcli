@@ -27,7 +27,9 @@ export async function gate({ log = console.log } = {}) {
     const jPath = path.join(ROOT, pair.journey);
     let vf;
     for (const v of variants) { const r = (await runJourney(loadJourney(jPath, { base: build(path.join(dir, v)) }), { browser })).probes.find(p => p.sc === probe.sc); if (v === 'must-fail') vf = r; if ((r.rawVerdict || r.verdict) !== 'fail') problems.push(`${v} returned ${r.verdict}`); }
-    const vp = (await runJourney(loadJourney(jPath, { base: build(null) }), { browser })).probes.find(p => p.sc === probe.sc);
+    // A probe whose satisfied branch the clean site cannot reach ships a must-pass overlay, hashed like the must-fail one.
+    const mp = fs.existsSync(path.join(dir, 'must-pass')) ? 'must-pass' : null; if (mp) checkHashes(dir, mp, pair.hashes.mustPass, problems);
+    const vp = (await runJourney(loadJourney(jPath, { base: build(mp ? path.join(dir, mp) : null) }), { browser })).probes.find(p => p.sc === probe.sc);
     fs.rmSync(tmp, { recursive: true, force: true });
     if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
     report(probe, pair, vf, vp, problems);
@@ -43,6 +45,11 @@ export async function gate({ log = console.log } = {}) {
     report(probe, pair, vf, vp, problems);
   }
   await browser.close();
+  // Skills: frontmatter, and the load-bearing paragraph still present by hash. Load-bearing was shown on fresh agents; the record is printed, not re-run.
+  {
+    const { checkSkills } = await import('./skills.js');
+    for (const r of checkSkills()) { if (r.problems.length) ok = false; log(`skill  ${r.name.padEnd(28)} paragraph: ${(r.problems.length ? 'broken' : 'present').padEnd(6)} record: ${r.record.slice(0, 60).padEnd(60)} ${r.problems.length ? 'FAIL  ' + r.problems.join('; ') : 'ok'}`); }
+  }
   // Commitments on tokens (`sheet`): two commitment files over one token file, one minimum between them.
   {
     const dir = path.join(ROOT, 'test/fixtures/sheet'); const pair = JSON.parse(fs.readFileSync(path.join(dir, 'pair.json'), 'utf8')); const problems = [];

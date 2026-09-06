@@ -5,8 +5,9 @@ import fs from 'node:fs'; import path from 'node:path';
 import errorPrevention from './probes/error-prevention/probe.js';
 import redundantEntry from './probes/redundant-entry/probe.js';
 import consistentNavigation from './probes/consistent-navigation/probe.js';
+import errorIdentification from './probes/error-identification/probe.js';
 
-export const PROBES = [errorPrevention, redundantEntry, consistentNavigation];
+export const PROBES = [errorPrevention, errorIdentification, redundantEntry, consistentNavigation];
 
 // README rule: an unproven method reports `finding` where it would say `fail`. The probe's own verdict is kept as rawVerdict.
 export function withMethod(probe, out) {

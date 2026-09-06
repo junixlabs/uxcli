@@ -1,0 +1,26 @@
+{
+ "journey": "test/journeys/checkout.json",
+ "operator": "details.html: an invalid email is rejected by script with no message, no aria-invalid, no native validation (the form has novalidate); the must-pass overlay rejects it with a text message tied by aria-describedby and aria-invalid. The clean fixture advances on an invalid email, so the criterion does not apply there and the satisfied branch is reached through the must-pass overlay.",
+ "hashes": {
+  "site": {
+   "account.html": "3972383a0e127789055e87f517e5812e7d0aadf98a979748b9468cbf5cdcef29",
+   "cart.html": "a0fca9a16b3311361845c593b6000fd845112a9474e1dbd327166f985cd17db0",
+   "contact.html": "fe0b4f737714599aea8ffc61a0e3e66e66eb2ef900f97f29970d90085bdfb457",
+   "details.html": "2e26fd9639b1838cc3477b1c9063b36558fada4d9ffd4590d95131ed95eb5578",
+   "done.html": "edf53d01f5ecd357656926e96eb4c2f38cc692ddcc685bac82ad7af1938498a1",
+   "help.html": "e457b0e9a716019065de458d89114c37fbd14e67ada1ec69c8a2f65efbd1acbf",
+   "home.html": "287874d84b918ed8d6c16ce73d9ab631a489a5f9263933811e8ea960702126b2",
+   "privacy.html": "24d287f9a4e59218d69eb38360f674a92ada08860f2b194f71b7be2b9dbbdeff",
+   "review.html": "5b251489b736f55ae1fab7f91f196c32d65696ded0b4d16b26e40c71489a2c02",
+   "shop.html": "56a4d04abc3ca851bc29aff43be027c7f6406aeb0eb90d5dccc39c6088a1e679",
+   "style.css": "7f85da7845e02428fb480f86b8bcc3e32ae491882f27bcf35c10caef88999586",
+   "terms.html": "bd6a5c83a4e786574107a3aa02dc18e5b327624ebc14739fd0ae1785d180c187"
+  },
+  "mustFail": {
+   "details.html": "10c9e9837833c2956051558b4a61d099306c753f4ee97abd039b41c34e26e221"
+  },
+  "mustPass": {
+   "details.html": "e4177e7e8ab58bcc869115a57f40ee6eed1529125287d986121cb29b1bf87c51"
+  }
+ }
+}
