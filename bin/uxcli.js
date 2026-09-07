@@ -8,7 +8,7 @@ const opt = k => (rest.find(a => a.startsWith('--' + k + '=')) || '').split('=')
 const vars = Object.fromEntries(rest.filter(a => a.startsWith('--var=')).map(a => a.slice(6).split('=')).map(([k, ...v]) => [k, v.join('=')]));
 const usage = `usage:
   uxcli run <journey.json> [--json] [--out=DIR] [--refute] [--var=k=v ...]
-      measure one flow; card by default, --json for the evidence packet; screenshots for fails in DIR (default .uxcli/<journey>);
+      measure one flow; card by default, --json for the evidence packet; run.json and screenshots for fails in DIR (default .uxcli/<journey>);
       --var substitutes {{k}} in the journey; --refute spawns a fresh second reader per fail (UXCLI_REFUTER, default: claude -p, haiku, Read only) to confirm or dispute it from the images alone; the command, count and cost are printed on stderr before it runs, and on the card
   uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE] [--src=DIR] [--prove]
       measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour; --prove plants each passing probe's own defect on the page and re-measures, so every pass carries "would fail on …" or a warning that it could not be made to fail
@@ -23,6 +23,8 @@ const usage = `usage:
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 const isUrl = s => /^https?:\/\//i.test(s) || /\.html?$/i.test(s) || s.startsWith('file:');
+// Every run leaves run.json next to its screenshots: the packet to attach when disputing a verdict.
+const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); };
 try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
@@ -30,6 +32,7 @@ try {
     const outDir = opt('out') || path.join('.uxcli', new URL(url).hostname || 'page');
     const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
+    saveRun(result, outDir);
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     process.exit(result.error ? 1 : result.probes.some(p => p.verdict === 'fail') ? 2 : 0);
   } else if (cmd === 'run' && args[0]) {
@@ -37,6 +40,7 @@ try {
     const outDir = opt('out') || path.join('.uxcli', path.basename(args[0], '.json'));
     const result = await runJourney(loadJourney(path.resolve(args[0]), vars), { outDir });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
+    saveRun(result, outDir);
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     const couldNotRun = result.steps.some(s => s.error) || result.steps.length < result.stepCount;
     process.exit(result.probes.some(p => p.verdict === 'fail') ? 2 : couldNotRun ? 1 : 0);

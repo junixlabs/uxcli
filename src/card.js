@@ -8,7 +8,8 @@ const failLike = p => p.verdict === 'fail' || p.rawVerdict === 'fail';
 const methodLine = p => p.rawVerdict === 'fail' ? `  method ${p.method}: reported as finding, not fail; see \`uxcli why ${p.sc}\` for what validation needs` : null;
 
 export function card(result) {
-  return result.url ? pageCard(result) : flowCard(result);
+  const body = result.url ? pageCard(result) : flowCard(result);
+  return result.outDir ? body + `\n  files  ${result.outDir}/run.json and the screenshots. A verdict you can show is wrong, or a miss: https://github.com/junixlabs/uxcli/issues/new/choose` : body;
 }
 
 function flowCard(result) {

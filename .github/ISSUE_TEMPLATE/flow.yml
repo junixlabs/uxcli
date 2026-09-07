@@ -1,0 +1,32 @@
+name: Offer a flow for the unseen list
+description: A confirmed journey the flow probes have never seen. Twenty of these with 0 false fails flip a flow probe from finding to fail.
+title: "[flow] <site>: <journey name>"
+labels: [flow]
+body:
+  - type: textarea
+    id: journey
+    attributes:
+      label: The journey file
+      description: Paste the journey JSON with `confirmedBy` set by the owner. `checkedPass: true` if the runner may submit the entry step with a deliberate input error (needed for 3.3.4 and 3.3.1).
+      render: json
+    validations: { required: true }
+  - type: dropdown
+    id: access
+    attributes:
+      label: Can the runner reach it
+      options:
+        - public
+        - test account (say how to get one)
+        - private, I will run it myself and attach run.json
+    validations: { required: true }
+  - type: textarea
+    id: card
+    attributes:
+      label: The card you got, if you ran it
+      render: text
+  - type: textarea
+    id: truth
+    attributes:
+      label: What a person finds on the same flow
+      description: For each finding on the card, is it real? If the card is clean, is the flow clean? One line each; this is what the unseen list counts.
+    validations: { required: true }

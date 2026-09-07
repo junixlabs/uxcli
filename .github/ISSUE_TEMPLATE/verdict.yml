@@ -1,0 +1,50 @@
+name: A verdict is wrong, or something was missed
+description: A fail or finding you can show is not real, a defect the probe should have caught, or a run that could not be carried out.
+title: "[verdict] <probe> on <page or flow>: <one line>"
+labels: [verdict]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What happened
+      options:
+        - false fail (the card says FAIL, the screen is fine)
+        - false finding (the card says FINDING, the flow is fine)
+        - missed (a real defect, the card says PASS or N/A)
+        - could not run (exit 1, step error, unmeasurable you disagree with)
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes:
+      label: uxcli version and command
+      description: "`uxcli` field of run.json, and the exact command line."
+      placeholder: "0.5.1 · uxcli run https://… --prove"
+    validations: { required: true }
+  - type: textarea
+    id: card
+    attributes:
+      label: The card lines for that probe
+      description: Paste the probe block as printed (what / where / rule / check). Not a paraphrase.
+      render: text
+    validations: { required: true }
+  - type: textarea
+    id: seen
+    attributes:
+      label: What you can show instead
+      description: What a person sees on the same screen, in the same state (browser, viewport, signed in or not). A screenshot taken by you counts; "it looks fine" does not.
+    validations: { required: true }
+  - type: textarea
+    id: packet
+    attributes:
+      label: run.json and the screenshots
+      description: Drag in `run.json` and the PNGs from the run directory (default `.uxcli/<host or journey>/`). If the page is private and you cannot share them, say so and describe the markup of the cited element.
+    validations: { required: true }
+  - type: input
+    id: url
+    attributes:
+      label: Page or flow
+      description: URL, or "private" with a reduced fixture attached above.
+  - type: markdown
+    attributes:
+      value: |
+        What happens next: the claim is re-measured, not re-read. A confirmed false fail becomes a must-pass twin case and a spec revision naming this issue; a confirmed miss becomes a must-fail case; a case the probe cannot measure is recorded under known-infidelity in the probe's spec. Either way the outcome is written back here.

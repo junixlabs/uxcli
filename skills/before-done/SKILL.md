@@ -25,3 +25,4 @@ You changed an interface. Before you say the work is finished, you measure it. T
 - Call a `finding`, `unmeasurable`, or `not-applicable` a pass.
 - Edit the journey, the commitments file, or a probe to make a run pass. Those belong to the human.
 - Skip a screen because "it looked right in the browser". The browser shows you one state; the probe presses Tab.
+- Argue a verdict down. If you can show the card is wrong, say so to the owner with the run directory (`run.json` and the screenshots); the owner disputes it where the card says. Until then the verdict stands.

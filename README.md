@@ -79,6 +79,15 @@ What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
 - Every exception ships with a coverage test.
 - No score, no summary line, no conformance claim.
 
+## Feedback from projects
+
+Every `run` leaves `run.json` and the screenshots in its output directory (default `.uxcli/<host or journey>/`), and the card ends with where to send them. Two forms at [issues/new/choose](https://github.com/junixlabs/uxcli/issues/new/choose):
+
+- **A verdict is wrong, or something was missed**: a fail or finding you can show is not real, a defect the probe let through, a run that could not be carried out. Attach the packet; "it looks fine" is not evidence, a screenshot of the same state is.
+- **Offer a flow for the unseen list**: a confirmed journey the flow probes have not seen. Twenty such flows with 0 false fails flip a flow probe from `finding` to `fail`; this is the only way they flip.
+
+A report is re-measured, not re-read. A confirmed false fail becomes a must-pass case in the probe's pair and a spec revision that names the issue; a confirmed miss becomes a must-fail case; what the probe cannot measure goes under known-infidelity in its spec. The outcome is written back on the issue.
+
 ## Non-goals
 
 Conformance certification. Visual regression. Scores. Design critique.
