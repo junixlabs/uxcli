@@ -9,7 +9,7 @@ const methodLine = p => p.rawVerdict === 'fail' ? `  method ${p.method}: reporte
 
 export function card(result) {
   const body = result.url ? pageCard(result) : flowCard(result);
-  return result.outDir ? body + `\n  files  ${result.outDir}/run.json and the screenshots. A verdict you can show is wrong, or a miss: https://github.com/junixlabs/uxcli/issues/new/choose` : body;
+  return result.outDir ? body + `\n  files  ${result.outDir}/run.json${result.screenshots ? ` and ${result.screenshots} screenshot${result.screenshots > 1 ? 's' : ''}` : ''}. A verdict you can show is wrong, or a miss: https://github.com/junixlabs/uxcli/issues/new/choose` : body;
 }
 
 function flowCard(result) {

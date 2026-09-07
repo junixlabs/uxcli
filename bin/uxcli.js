@@ -24,7 +24,7 @@ exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could no
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 const isUrl = s => /^https?:\/\//i.test(s) || /\.html?$/i.test(s) || s.startsWith('file:');
 // Every run leaves run.json next to its screenshots: the packet to attach when disputing a verdict.
-const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); };
+const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; result.screenshots = fs.readdirSync(outDir).filter(f => f.endsWith('.png')).length; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); };
 try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
