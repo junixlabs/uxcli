@@ -30,6 +30,7 @@ try {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
     const url = /^(https?|file):/i.test(args[0]) ? args[0] : pathToFileURL(path.resolve(args[0])).href;
     const outDir = opt('out') || path.join('.uxcli', new URL(url).hostname || 'page');
+    if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
     const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     saveRun(result, outDir);
