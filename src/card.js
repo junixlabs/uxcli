@@ -1,4 +1,5 @@
 // The verdict card: what the working agent reads. Low hundreds of tokens; --json carries the evidence.
+import { readerLine } from './refute.js';
 const V = v => ({ pass: 'PASS', fail: 'FAIL', finding: 'FINDING', unmeasurable: 'UNMEASURABLE', 'not-applicable': 'N/A', 'not-committed': 'NOT-COMMITTED' }[v] || String(v).toUpperCase());
 const short = s => { s = String(s); if (s.startsWith('t:')) return s.slice(2); s = s.slice(2); const i = s.lastIndexOf('/'); return (i >= 0 ? s.slice(i + 1) : s).slice(0, 60) || s.slice(0, 60); };
 const name = p => p.probe.replace(/^(flow|page)\./, '');
@@ -16,7 +17,7 @@ function flowCard(result) {
   if (result.stepCount && result.steps.length < result.stepCount) L.push(`  ${result.stepCount - result.steps.length} of ${result.stepCount} steps did not run`);
   if (result.steps.some(s => s.error)) L.push('');
   for (const p of result.probes) {
-    const proof = p.proof?.length ? `  proof  ${p.proof.join('  ')}` + (p.refute ? `\n  reader ${p.refute.tested ? (p.refute.parsed ? (p.refute.agrees ? 'agrees' : 'DISPUTES') + ' — ' + p.refute.reason : 'unparsed: ' + p.refute.raw) : 'not run: ' + p.refute.why}` : '') : null;
+    const proof = p.proof?.length ? `  proof  ${p.proof.join('  ')}` + (p.refute ? '\n' + readerLine(p) : '') : null;
     const head = `${p.sc} ${name(p).padEnd(22)} ${V(p.verdict).padEnd(13)}`;
     const rule = `  rule   WCAG ${p.sc} (spec, ${p.method})${p.override ? ` · process joined by sameProcess ${JSON.stringify(p.override.sameProcess)} (project)` : ''}`;
     if (failLike(p) && p.sc === '3.3.7') {
@@ -57,7 +58,7 @@ function pageCard(result) {
       const t = p.targets;
       L.push(head, `  what   ${t.length} of ${p.measured} measured controls show no pixel change on focus: ${t.slice(0, 4).map(x => x.sel + (x.text ? ` "${x.text.slice(0, 20)}"` : '')).join(', ')}${t.length > 4 ? ', …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, `  check  Press Tab until ${t[0].sel}${t[0].text ? ` "${t[0].text.slice(0, 20)}"` : ''} should have focus. Can you see where focus is?`);
       if (p.proof?.length) L.push(`  proof  ${p.proof.slice(0, 4).join('  ')}${p.proof.length > 4 ? '  …' : ''}`);
-      if (p.refute) L.push(`  reader ${p.refute.tested ? (p.refute.parsed ? (p.refute.agrees ? 'agrees' : 'DISPUTES') + ' — ' + p.refute.reason : 'unparsed: ' + p.refute.raw) : 'not run: ' + p.refute.why}`);
+      if (p.refute) L.push(readerLine(p));
     } else if (failLike(p) && p.sc === '1.4.12') {
       const t = p.targets;
       L.push(head, `  what   ${t.length} locked value${t.length > 1 ? 's' : ''} below the minimum: ${t.slice(0, 3).map(x => `${x.sel} ${x.property} ${x.value}px < ${x.threshold}px (ACT ${x.rule})`).join('; ')}${t.length > 3 ? '; …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, `  check  Does the style attribute on ${t[0].lockedOn === 'self' ? t[0].sel : t[0].lockedOn} set ${t[0].property} with !important?`);

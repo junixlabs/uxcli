@@ -23,7 +23,7 @@ uxcli run journey.json                                # verdict card for a flow
 uxcli run journey.json --json                         # full evidence packet
 uxcli run https://example.org/login                   # verdict card for one screen; --state=FILE for a signed-in page (Playwright storageState)
 uxcli run https://example.org/ --src=./web/src         # name the design token behind each failing colour pair
-uxcli run journey.json --refute                       # a fresh second reader checks each fail from the screenshots (needs the claude CLI, or set UXCLI_REFUTER)
+uxcli run journey.json --refute                       # spawns a fresh Claude process per fail (haiku, Read only, ~US$0.04) to dispute it from the screenshots; announces command, count and cost on stderr first; nothing runs without this flag (UXCLI_REFUTER changes the command)
 uxcli gate                                            # every probe must fail on its seeded fixture and stay silent on the clean twin
 uxcli why 3.3.7                                       # the probe's definition (also why 2.4.7, why contrast)
 ```

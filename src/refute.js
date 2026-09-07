@@ -13,13 +13,31 @@ export function refuteQuestion(p) {
 export function refute(p, { cmd = process.env.UXCLI_REFUTER || 'claude -p --model haiku --allowedTools Read --output-format json' } = {}) {
   const q = refuteQuestion(p); if (!q || !p.proof?.length) return { tested: false, why: 'no question or no proof image' };
   const prompt = `You are an independent second reader checking one claim made by an automated UI checker. You have not seen the checker. Do not trust the claim.\nOpen each image with the Read tool: ${p.proof.join(' , ')}\nQuestion: ${q}\nReply with JSON only, on one line: {"supported": true|false, "reason": "<one sentence, what you saw>"}`;
-  const [bin, ...args] = cmd.split(/\s+/);
+  const [bin, ...args] = cmd.split(/\s+/); const t0 = Date.now();
   const r = spawnSync(bin, [...args, prompt], { encoding: 'utf8', timeout: 180000, stdio: ['ignore', 'pipe', 'pipe'] });
-  if (r.error) return { tested: false, why: `refuter command not found: ${bin} (set UXCLI_REFUTER)` };
-  if (r.status !== 0) return { tested: false, why: 'refuter exit ' + r.status + ': ' + (r.stderr || '').slice(0, 200) };
+  const base = { cmd, ms: Date.now() - t0 };
+  if (r.error) return { ...base, tested: false, why: `refuter command not found: ${bin} (set UXCLI_REFUTER)` };
+  if (r.status !== 0) return { ...base, tested: false, why: 'refuter exit ' + r.status + ': ' + (r.stderr || '').slice(0, 200) };
   let text = r.stdout;
-  try { const j = JSON.parse(text); text = j.result ?? j.content ?? text; } catch {}
+  try { const j = JSON.parse(text); text = j.result ?? j.content ?? text; if (typeof j.total_cost_usd === 'number') base.costUsd = j.total_cost_usd; } catch {}
   const m = String(text).match(/\{[^{}]*"supported"[^{}]*\}/);
-  if (!m) return { tested: true, parsed: false, raw: String(text).slice(0, 300) };
-  try { const a = JSON.parse(m[0]); return { tested: true, parsed: true, supported: !!a.supported, reason: String(a.reason || '').slice(0, 300), agrees: !!a.supported }; } catch { return { tested: true, parsed: false, raw: m[0].slice(0, 300) }; }
+  if (!m) return { ...base, tested: true, parsed: false, raw: String(text).slice(0, 300) };
+  try { const a = JSON.parse(m[0]); return { ...base, tested: true, parsed: true, supported: !!a.supported, reason: String(a.reason || '').slice(0, 300), agrees: !!a.supported }; } catch { return { ...base, tested: true, parsed: false, raw: m[0].slice(0, 300) }; }
+}
+
+// One line of the card per reader answer: the verdict, the command that produced it, what it cost.
+export function readerLine(p) {
+  const r = p.refute; if (!r) return null;
+  const via = ` (via ${r.cmd}${r.costUsd != null ? `, US$${r.costUsd.toFixed(3)}` : ''}${r.ms ? `, ${Math.round(r.ms / 1000)} s` : ''})`;
+  if (!r.tested) return `  reader not run: ${r.why}` + (r.cmd ? via : '');
+  if (!r.parsed) return `  reader unparsed: ${r.raw}` + via;
+  return `  reader ${r.agrees ? 'agrees' : 'DISPUTES'} — ${r.reason}` + via;
+}
+
+// --refute on a whole run. Says on stderr, before anything is spawned, which command will run, how many times and what it costs; then one line per answer. Nothing runs when there is no fail.
+export function refuteAll(probes, { cmd = process.env.UXCLI_REFUTER || 'claude -p --model haiku --allowedTools Read --output-format json', log = m => process.stderr.write(m + '\n') } = {}) {
+  const fails = probes.filter(p => p.verdict === 'fail');
+  if (!fails.length) { log('refute: no fail on this run, the second reader is not called'); return; }
+  log(`refute: ${fails.length} fail${fails.length > 1 ? 's' : ''} → spawning a fresh process per fail: ${cmd} (default reader is Claude haiku with Read only, about US$0.04 per fail; change with UXCLI_REFUTER)`);
+  for (const p of fails) { p.refute = refute(p, { cmd }); log(`refute: ${p.sc} ${p.probe} →${readerLine(p).replace(/^\s*reader /, ' ')}`); }
 }
