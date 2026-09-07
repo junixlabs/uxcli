@@ -2,7 +2,7 @@
 
 `uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
 
-**Status:** early. Four flow probes (WCAG 3.3.4, 3.3.1, 3.3.7, 3.2.3), three single-screen probes (2.4.7, 1.4.12, 1.4.3), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. The three single-screen probes are `method-validated` (focus-visible: 20 unseen pages after eight recorded revisions; text-spacing and contrast: 80 unseen pages; 0 false fails each). The three flow probes are `method-unproven` and report `finding` instead of `fail` until their unseen-flow run is recorded. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
+**Status:** early. Four flow probes (WCAG 3.3.4, 3.3.1, 3.3.7, 3.2.3), four single-screen probes (2.4.7, 1.4.12, 1.4.3, and text-overlap, the first probe with provenance `opinion`), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. The three single-screen probes are `method-validated` (focus-visible: 20 unseen pages after eight recorded revisions; text-spacing and contrast: 80 unseen pages; 0 false fails each). The four flow probes and text-overlap are `method-unproven` and report `finding` instead of `fail` until their unseen-flow run is recorded. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
 
 **Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
 
@@ -39,7 +39,7 @@ The one input the machine cannot derive, the journey, is written by a human. Eve
 | Available | Planned |
 |---|---|
 | `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | flow probes `method-validated` on 20 unseen flows |
-| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned); `--state`, `--src`, `--out`, `--refute`; `--prove` plants each passing probe's own defect and re-measures, so a pass reads `would fail on …` or warns that it could not be made to fail | one more flow probe, only with a falsification pair on day one |
+| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned), text-overlap (text painted over text, provenance `opinion`, from [#1](https://github.com/junixlabs/uxcli/issues/1)); `--state`, `--src`, `--out`, `--refute`; `--prove` plants each passing probe's own defect and re-measures, so a pass reads `would fail on …` or warns that it could not be made to fail | one more flow probe, only with a falsification pair on day one |
 | `sheet [--src=DIR]` the project's own commitments on its design tokens (`uxcli.commitments.json`), no browser | |
 | `diff a.json b.json [--gate]` drift between two saved runs: same, regressed, improved, new, gone | |
 | `discover <repo\|url> [--out=DIR]` journey candidates as proposals (Next.js routes and forms, or a same-origin crawl); `run` refuses a proposal until a human sets `confirmedBy` | |

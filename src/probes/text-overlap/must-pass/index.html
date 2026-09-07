@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Release steps</title><style>
+body{font:16px/1.5 system-ui,sans-serif;margin:2rem;max-width:40rem;color:#222;background:#fff}
+h1{font-size:1.5rem}
+p b{font-weight:600}
+.steps{list-style:none;padding:0;margin:1.5rem 0;display:grid;gap:12px}
+.steps li{display:grid;grid-template-columns:24px 1fr;border:1px solid #ccc;padding:14px 16px;border-radius:4px}
+/* the counter has its own column; the description rule names the description span only */
+.steps .n{color:#666;font-size:.85rem;padding-top:2px}
+.steps span.desc{display:block;color:#666;font-size:.9rem;margin-top:4px;grid-column:2}
+.steps code{display:block;font-family:ui-monospace,Menlo,monospace}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+ins.adsbygoogle{display:block;position:relative;height:60px;border:1px dashed #ccc;margin-top:2rem}
+ins.adsbygoogle i{position:absolute;left:8px;top:8px;font-style:normal;color:#999}
+</style></head><body>
+<h1>Release steps</h1>
+<p>The three commands below run <b>in order</b>. Each one prints a card and an exit code.</p>
+<ol class="steps">
+  <li><span class="n">1</span><code>uxcli init</code><span class="desc">Plug into the project</span></li>
+  <li><span class="n">2</span><code>uxcli run &lt;url&gt; --prove</code><span class="desc">Check a screen</span></li>
+  <li><span class="n">3</span><code>uxcli diff --gate</code><span class="desc">Block on drift</span></li>
+</ol>
+<div class="cols"><p>Left column text, touching the gutter.</p><p>Right column text, touching the gutter.</p></div>
+<ins class="adsbygoogle"><i>Sponsored</i><i>Sponsored</i></ins>
+</body></html>

@@ -1,0 +1,12 @@
+{
+ "kind": "page",
+ "operator": "index.html: the step counter is position:absolute and picks up the description span's padding-left, so 1, 2, 3 are painted over the first letter of each command name (three pairs); the must-pass twin gives the counter its own grid column and names the description span. Both twins carry adjacent two-column text (touching, not overlapping), a <b> inside a paragraph (containment), and an ins.adsbygoogle block whose two children overlap on purpose: the third-party exclusion must keep the probe silent on it.",
+ "hashes": {
+  "mustFail": {
+   "index.html": "e648dd9c357015bbc63782aaf0d2a3ee203990abab0782a9ac776df9c24af669"
+  },
+  "mustPass": {
+   "index.html": "85bf80601e5918edbd1f0d1af2f1ff0bcdb13d9ea847a6c851bc7b7830586d42"
+  }
+ }
+}

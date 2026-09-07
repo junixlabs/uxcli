@@ -53,9 +53,12 @@ function pageCard(result) {
   const L = [`uxcli run · ${result.url}`, ''];
   if (result.error) L.push(`  could not run: ${result.error}`, '');
   for (const p of result.probes) {
-    const head = `${p.sc.padEnd(6)} ${name(p).padEnd(16)} ${V(p.verdict).padEnd(13)}`;
-    const rule = `  rule   WCAG ${p.sc} (spec, ${p.method}${p.axe ? `, axe-core ${p.axe}` : ''})`;
-    if (failLike(p) && p.sc === '2.4.7') {
+    const head = `${(p.provenance === 'opinion' ? '·' : p.sc).padEnd(6)} ${name(p).padEnd(16)} ${V(p.verdict).padEnd(13)}`;
+    const rule = p.provenance === 'opinion' ? `  rule   ${p.rule} (opinion, ${p.method})` : `  rule   WCAG ${p.sc} (spec, ${p.method}${p.axe ? `, axe-core ${p.axe}` : ''})`;
+    if (failLike(p) && p.probe === 'page.text-overlap') {
+      const t = p.targets;
+      L.push(head, `  what   ${t.length} pair${t.length > 1 ? 's' : ''} of text painted over each other: ${t.slice(0, 3).map(x => `"${x.a.text.slice(0, 18)}" (${x.a.sel}) over "${x.b.text.slice(0, 18)}" (${x.b.sel}) at ${x.at.x},${x.at.y} ${x.at.w}×${x.at.h}px`).join('; ')}${t.length > 3 ? '; …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, `  check  Look at ${t[0].a.sel} and ${t[0].b.sel}. Can you read both texts?`);
+    } else if (failLike(p) && p.sc === '2.4.7') {
       const t = p.targets;
       L.push(head, `  what   ${t.length} of ${p.measured} measured controls show no pixel change on focus: ${t.slice(0, 4).map(x => x.sel + (x.text ? ` "${x.text.slice(0, 20)}"` : '')).join(', ')}${t.length > 4 ? ', …' : ''}`, `  where  ${result.finalUrl || result.url}`, rule, `  check  Press Tab until ${t[0].sel}${t[0].text ? ` "${t[0].text.slice(0, 20)}"` : ''} should have focus. Can you see where focus is?`);
       if (p.proof?.length) L.push(`  proof  ${p.proof.slice(0, 4).join('  ')}${p.proof.length > 4 ? '  …' : ''}`);

@@ -48,6 +48,7 @@ The project's own commitments become thresholds.
 - Done: 0.3.0 = Instrument exit (three page probes `method-validated`); 0.4.0 = Commit tooling (`sheet`, `diff --gate`, `discover`, `principles`). The Commit exit itself is still open above.
 - Done: 0.5.0 = the `journey` and `before-done` skills with their records, `init`, flow probe 3.3.1 with its pair, `run --prove` for the page probes, the `discover` dedup fix.
 - Done: 0.5.1 = `--refute` explicit about what it spawns and what it costs; `run.json` in every run directory; card footer and two GitHub issue forms (wrong or missed verdict; a flow for the unseen list). Feedback from projects enters here and nowhere else.
+- Done: 0.5.3 = `text-overlap`, the first probe with provenance `opinion` (text painted over text at rest), written from the first feedback issue (#1: a step counter painted over a command name on the project's own landing draft, missed by all three page probes). Ships `method-unproven` with its pair; needs 20 unseen pages. Also: a status line on stderr before a page run when attached to a terminal.
 - 0.6.0 when the flow probes flip to `method-validated` (20 unseen flows, the Gate 0 ruling); 0.5.x for the Commit exit and `--prove` on flow probes.
 - CI action running `run` against a live fixture; the planted-verdict test repeated on a second model.
 - Exit: a stranger installs it and gets a first verdict in ten minutes without reading the source.

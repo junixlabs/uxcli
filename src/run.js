@@ -11,7 +11,7 @@ export const PROBES = [errorPrevention, errorIdentification, redundantEntry, con
 
 // README rule: an unproven method reports `finding` where it would say `fail`. The probe's own verdict is kept as rawVerdict.
 export function withMethod(probe, out) {
-  const r = { probe: probe.id, sc: probe.sc, provenance: 'spec', method: probe.method?.status || 'method-unproven', ...out };
+  const r = { probe: probe.id, sc: probe.sc, provenance: probe.provenance || 'spec', method: probe.method?.status || 'method-unproven', ...out };
   if (r.verdict === 'fail' && r.method !== 'method-validated') { r.rawVerdict = 'fail'; r.verdict = 'finding'; }
   return r;
 }

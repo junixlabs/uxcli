@@ -11,7 +11,7 @@ const usage = `usage:
       measure one flow; card by default, --json for the evidence packet; run.json and screenshots for fails in DIR (default .uxcli/<journey>);
       --var substitutes {{k}} in the journey; --refute spawns a fresh second reader per fail (UXCLI_REFUTER, default: claude -p, haiku, Read only) to confirm or dispute it from the images alone; the command, count and cost are printed on stderr before it runs, and on the card
   uxcli run <url> [--json] [--out=DIR] [--refute] [--state=FILE] [--src=DIR] [--prove]
-      measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour; --prove plants each passing probe's own defect on the page and re-measures, so every pass carries "would fail on …" or a warning that it could not be made to fail
+      measure one screen: focus-visible (2.4.7), text-spacing (1.4.12), contrast (1.4.3, axe-core), text-overlap (opinion: text painted over text); --state is a Playwright storageState file for signed-in pages; --src is the project's source tree, used to name the design token behind a colour; --prove plants each passing probe's own defect on the page and re-measures, so every pass carries "would fail on …" or a warning that it could not be made to fail
   uxcli sheet [--src=DIR] [--json]    the project's own commitments on its design tokens (uxcli.commitments.json in DIR, default .); provenance project; exit 2 on a broken commitment
   uxcli diff <a.json> <b.json> [--gate] [--json]
       drift between two saved runs (run --json, sheet --json): same / regressed / improved / new / gone per probe or commitment; with --gate exit 2 when b carries a fail
@@ -19,7 +19,7 @@ const usage = `usage:
       journey candidates as proposals: routes and forms from a Next.js source tree, or forms from a same-origin crawl; written to DIR (default uxcli-proposals/); run refuses a journey whose provenance is proposal until a human sets confirmedBy
   uxcli init [dir]                    copy the shipped skills into dir/.claude/skills/ (existing files kept), create dir/.uxcli/, print the CI step; writes nothing else
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
-  uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7)
+  uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7, why text-overlap)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 const isUrl = s => /^https?:\/\//i.test(s) || /\.html?$/i.test(s) || s.startsWith('file:');
@@ -30,7 +30,7 @@ try {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
     const url = /^(https?|file):/i.test(args[0]) ? args[0] : pathToFileURL(path.resolve(args[0])).href;
     const outDir = opt('out') || path.join('.uxcli', new URL(url).hostname || 'page');
-    if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
+    if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast, text-overlap${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
     const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     saveRun(result, outDir);
@@ -65,7 +65,7 @@ try {
     const { gate } = await import('../src/gate.js'); process.exit((await gate()) ? 0 : 1);
   } else if (cmd === 'why' && args[0]) {
     const dirs = fs.readdirSync(path.join(ROOT, 'src/probes'));
-    const hit = dirs.find(d => d === args[0] || fs.readFileSync(path.join(ROOT, 'src/probes', d, 'spec.md'), 'utf8').split('\n')[0].includes('WCAG ' + args[0]));
+    const hit = dirs.find(d => d === args[0] || d.endsWith('-' + args[0]) || fs.readFileSync(path.join(ROOT, 'src/probes', d, 'spec.md'), 'utf8').split('\n')[0].includes('WCAG ' + args[0]));
     if (!hit) { console.error('no probe for ' + args[0] + '; have: ' + dirs.join(', ')); process.exit(1); }
     console.log(fs.readFileSync(path.join(ROOT, 'src/probes', hit, 'spec.md'), 'utf8'));
   } else { console.log(usage); process.exit(cmd ? 1 : 0); }

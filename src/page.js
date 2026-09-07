@@ -5,8 +5,9 @@ import { BOT } from './util.js'; import { withMethod } from './run.js';
 import focusVisible from './probes/focus-visible/probe.js';
 import textSpacing from './probes/text-spacing/probe.js';
 import contrast from './probes/contrast/probe.js';
+import textOverlap from './probes/text-overlap/probe.js';
 
-export const PAGE_PROBES = [focusVisible, textSpacing, contrast];
+export const PAGE_PROBES = [focusVisible, textSpacing, contrast, textOverlap];
 
 export async function runPage(url, { browser, state, only, outDir, src, prove } = {}) {
   const own = !browser; if (own) browser = await launch();
