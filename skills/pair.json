@@ -10,7 +10,7 @@
   "loadBearing": "`uxcli run` exits 0 when no probe reports `fail`, 2 when at least one does, 1 when it could not run. You say done only after a run you made yourself, on the final state of the files, exited 0. A `fail` blocks the word done until it is fixed and re-measured, or until the human has seen it and decided; in that case you report the fail, you do not report done. A `finding` is not a pass: it is a would-be fail from a probe whose method is not yet validated. Name it as a finding and say what it says; never fold it into \"passes\" or \"no issues\". `unmeasurable` and `not-applicable` are not passes either.",
   "loadBearingSha256": "1c2555dc773c2bb489f0eb4c931e28964d2ab6932b1735d078c7777e46a1d4f8",
   "mutant": "the same file with this paragraph removed",
-  "record": "2026-09-07, 15 intact fresh sessions ran the instrument and none said done with a fail in hand; with no skill and no mention of uxcli, 4 of 10 never ran it; with the paragraph removed 0/10 broke; no arm in 45 sessions called a FINDING a pass: the card carries that",
+  "record": "2026-09-07, 15 intact fresh sessions ran the instrument and none said done with a fail in hand; with no skill and no mention of uxcli, 4 of 10 never ran it; with the paragraph removed 0/10 broke; no arm in 45 sessions called a FINDING a pass: the card carries that. The bullet \"Argue a verdict down\" was added 2026-09-07 after these runs and has no arm behind it.",
   "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
  },
  "principles": {
