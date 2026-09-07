@@ -7,7 +7,7 @@ body:
     id: journey
     attributes:
       label: The journey file
-      description: Paste the journey JSON with `confirmedBy` set by the owner. `checkedPass: true` if the runner may submit the entry step with a deliberate input error (needed for 3.3.4 and 3.3.1).
+      description: "Paste the journey JSON with `confirmedBy` set by the owner. Set `checkedPass: true` if the runner may submit the entry step with a deliberate input error (needed for 3.3.4 and 3.3.1)."
       render: json
     validations: { required: true }
   - type: dropdown
