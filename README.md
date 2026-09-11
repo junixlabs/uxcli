@@ -1,97 +1,128 @@
-# UXCLI
+<h1 align="center">UXCLI</h1>
 
-`uxcli` measures a running UI against its design commitments. Built for AI coding agents that need to verify the frontend they just wrote.
+<p align="center"><strong>Design should be executable.</strong></p>
 
-**Status:** early. Four flow probes (WCAG 3.3.4, 3.3.1, 3.3.7, 3.2.3), four single-screen probes (2.4.7, 1.4.12, 1.4.3, and text-overlap, the first probe with provenance `opinion`), a gate that proves each probe fails on a seeded fixture and passes on its clean twin, a verdict card, and a second reader. The three single-screen probes are `method-validated` (focus-visible: 20 unseen pages after eight recorded revisions; text-spacing and contrast: 80 unseen pages; 0 false fails each). The four flow probes and text-overlap are `method-unproven` and report `finding` instead of `fail` until their unseen-flow run is recorded. On npm as `@junixlabs/uxcli`; the command is `uxcli`.
+<p align="center">
+  <code>uxcli</code> drives a real browser against the commitments that produced your UI,<br>
+  and returns a verdict the agent that wrote the code is not allowed to author.
+</p>
 
-**Core rule: no commitment, no verdict.** Every finding cites the commitment it enforces: W3C's, yours, or none. Where no one has committed, `uxcli` says nothing.
+<p align="center">
+  <a href="https://www.npmjs.com/package/@junixlabs/uxcli"><img alt="npm" src="https://img.shields.io/npm/v/@junixlabs/uxcli?color=5fd38a&label=npm"></a>
+  <a href="#install"><img alt="node" src="https://img.shields.io/node/v/@junixlabs/uxcli?color=8f8d86"></a>
+  <a href="LICENSE"><img alt="license" src="https://img.shields.io/npm/l/@junixlabs/uxcli?color=8f8d86"></a>
+</p>
 
-## Why
+<p align="center">
+  <img src="docs/uxcli-run.svg" alt="uxcli run against a login screen: focus-visible FAILs, contrast and text-overlap PASS, and each pass carries the defect that would have failed it" width="100%">
+</p>
 
-- Automated accessibility tools check one page at a time. Defects that span screens (data entered on step 1 missing from the review on step 3, navigation order changing between pages) have no automated check today.
-- Agents cannot see what they render. The common failure is not blindness but false confirmation: given a screenshot of a broken UI, the agent reports success.
-- Existing UI review tools produce false positives, and one false positive is enough for a developer to disable the tool.
+<p align="center"><sub>A real run against the fixture shipped in <code>src/probes/focus-visible/must-fail/</code>. Regenerate with <code>npm run clip</code>.</sub></p>
 
-## Install and use
+---
+
+## No commitment, no verdict
+
+A commitment is a threshold with a named owner and a written source. W3C is a named owner, so WCAG runs by default. Nobody signed taste, so taste never runs.
+
+Every finding cites the commitment it enforces — `spec`, `project`, or `opinion`. Where no one has committed, `uxcli` says nothing: `not-committed`, never `fail`. Where it cannot measure: `unmeasurable`, never `pass`.
+
+A review tool that lies three times is disabled forever. This is the rule that keeps it installed.
+
+## Why it exists
+
+- **Page-level tools cannot see between screens.** Data entered on step 1 missing from the review on step 3; navigation order changing between pages. WCAG 3.3.4, 3.3.7 and 3.2.3 have no ACT rule and none in axe-core.
+- **Agents cannot see what they render.** The failure is not blindness, it is false confirmation: handed a screenshot of a broken UI, the agent reports success.
+- **One false positive and the tool is off.** So a probe that cannot be made to fail on demand is not allowed to say `fail`.
+
+## Install
 
 Node 20+.
 
-```
+```bash
 npm install -g @junixlabs/uxcli
-npx playwright-core install chromium-headless-shell   # once; or set UXCLI_CHROME to a Chromium binary
-uxcli run journey.json                                # verdict card for a flow
-uxcli run journey.json --json                         # full evidence packet
-uxcli run https://example.org/login                   # verdict card for one screen; --state=FILE for a signed-in page (Playwright storageState)
-uxcli run https://example.org/ --src=./web/src         # name the design token behind each failing colour pair
-uxcli run journey.json --refute                       # spawns a fresh Claude process per fail (haiku, Read only, ~US$0.04) to dispute it from the screenshots; announces command, count and cost on stderr first; nothing runs without this flag (UXCLI_REFUTER changes the command)
-uxcli gate                                            # every probe must fail on its seeded fixture and stay silent on the clean twin
-uxcli why 3.3.7                                       # the probe's definition (also why 2.4.7, why contrast)
+npx playwright-core install chromium-headless-shell   # once, or set UXCLI_CHROME
+uxcli run https://example.org/login --prove
 ```
 
-`npx @junixlabs/uxcli <command>` works without the global install. To hack on it: `git clone https://github.com/junixlabs/uxcli && cd uxcli && npm install`, then `node bin/uxcli.js` in place of `uxcli`. An example journey is in `examples/sylius-guest-checkout.json`.
+`npx @junixlabs/uxcli <command>` works without installing.
 
-A journey is the commitment: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See `test/journeys/checkout.json`. Selectors are Playwright locator strings. Omit `url` for a page reached by the previous step's submit. A wizard step that keeps the URL may declare `expect`, a selector that is visible once the step has advanced. A step whose `url` differs from the page the previous step left is opened directly and starts a new process segment.
+## What it measures
 
-## How it works
+Eight probes. The **method** column is the load-bearing one: a probe is `method-validated` only after a recorded run with the packaged code on ≥20 pages or flows it had not seen when its definition was last revised, with 0 false fails and a recall record. Unproven probes report `finding` and never change the exit code.
 
-The one input the machine cannot derive, the journey, is written by a human. Everything else is measured. The agent may propose a commitment; it may not commit it.
+| Scope | Probe | Criterion | Provenance | Method |
+|---|---|---|---|---|
+| screen | `focus-visible` | WCAG 2.4.7 | spec | ✅ validated · 20 unseen pages, 0 false fails |
+| screen | `contrast` | WCAG 1.4.3 | spec | ✅ validated · 80 unseen pages, 0 false fails |
+| screen | `text-spacing` | WCAG 1.4.12 | spec | ✅ validated · 80 unseen pages, 0 false fails |
+| screen | `text-overlap` | — text painted over text | **opinion** | ⏳ unproven → reports `finding` |
+| flow | `error-prevention` | WCAG 3.3.4 | spec | ⏳ unproven → reports `finding` |
+| flow | `error-identification` | WCAG 3.3.1 | spec | ⏳ unproven → reports `finding` |
+| flow | `redundant-entry` | WCAG 3.3.7 | spec | ⏳ unproven → reports `finding` |
+| flow | `consistent-navigation` | WCAG 3.2.3 | spec | ⏳ unproven → reports `finding` |
 
-| Available | Planned |
-|---|---|
-| `run <journey>` measure a flow; card by default, `--json`, `--refute`, `--var=k=v` | flow probes `method-validated` on 20 unseen flows |
-| `run <url>` measure one screen: focus-visible, text-spacing, contrast (axe-core, pinned), text-overlap (text painted over text, provenance `opinion`, from [#1](https://github.com/junixlabs/uxcli/issues/1)); `--state`, `--src`, `--out`, `--refute`; `--prove` plants each passing probe's own defect and re-measures, so a pass reads `would fail on …` or warns that it could not be made to fail | one more flow probe, only with a falsification pair on day one |
-| `sheet [--src=DIR]` the project's own commitments on its design tokens (`uxcli.commitments.json`), no browser | |
-| `diff a.json b.json [--gate]` drift between two saved runs: same, regressed, improved, new, gone | |
-| `discover <repo\|url> [--out=DIR]` journey candidates as proposals (Next.js routes and forms, or a same-origin crawl); `run` refuses a proposal until a human sets `confirmedBy` | |
-| `principles` skill drafts `uxcli.commitments.proposed.json` with trade-offs; a human fills owner and source | |
-| `journey` skill turns `discover` output into `<name>.proposed.json` plus the questions only the owner can answer; never sets `confirmedBy` | |
-| `before-done` skill: what an agent does before saying UI work is finished: run, act on every fail, say done only at exit 0 | |
-| `init [dir]` copy the shipped skills into `.claude/skills/`, create `.uxcli/`, print the CI step; writes nothing else | |
-| `gate` run every probe's falsification pair | |
-| `why <rule>` the probe's definition | |
+Nine verdicts — `pass`, `fail`, `finding`, `not-applicable`, `not-committed`, `unmeasurable`, `suppressed`, `stale`, `untested`. **Only `fail` blocks a merge.**
+Exit codes: `0` no fail · `2` at least one fail · `1` the run could not be carried out.
 
-Every probe ships with a pair of fixtures: one where it must fail, one where it must reach `pass` through its satisfied branch. Silence (`not-applicable`) on the clean twin does not count. A probe without that pair cannot say `fail`. `gate` enforces it. Exit codes: 0 no fail, 2 at least one fail, 1 the run could not be carried out.
+### A pass has to earn it
+
+`--prove` plants, for every probe that passed, the exact defect that probe exists to catch — focus styles set equal to the unfocused ones, text blended into its background, a spacing lock below the minimum — confirms by computed style that the defect reached the elements the probe measured, then re-measures. Each pass then reads `would fail on …`, or warns that it could not be made to fail.
+
+Every probe also ships a falsification pair: one fixture where it must fail, one clean twin where it must reach `pass` through its satisfied branch. Silence on the clean twin does not count. `uxcli gate` enforces all of it, and a probe without a pair cannot say `fail`.
 
 ## Commitments
 
-`uxcli.commitments.json` in the project root is where the project commits to its own thresholds. Each entry carries `id`, `kind`, `why`, an `owner` and a `source` (the statement it cites); an entry without owner and source is `not-committed`, an entry with `"suppressed": "<reason>"` is reported as `suppressed`, never silently skipped. Today one kind is measured: `contrast`, two token names and a minimum ratio, read from the declared token values by `uxcli sheet --src=DIR`. A token that a theme block or an alias points at two colours is `unmeasurable`; commit the base token. Provenance of these verdicts is `project`; `fail` exits 2.
+The one input the machine cannot derive is written by a human, and versioned.
 
-Three skills ship in `skills/` and `uxcli init` copies them into a project's `.claude/skills/`. Each was tested on fresh agent sessions against the same task without the skill, and `skills/pair.json` records what the skill changed: `principles` keeps the agent from writing the commitments file itself (5 of 5 did without it); `journey` keeps the proposal out of the confirmed directory (2 of 5 put it there without it); `before-done` makes the agent run the instrument before saying done (4 of 10 never ran it without the skill and no mention of uxcli). What the skills do not add, the card already does: in 45 sessions no agent, with or without a skill, said done with a FAIL in hand or called a FINDING a pass. The gate checks each skill's frontmatter and its named paragraph by hash; it does not re-run the sessions.
+**A journey** is the commitment for a flow: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See [`test/journeys/checkout.json`](test/journeys/checkout.json).
 
-The `principles` skill (`skills/principles/SKILL.md`) helps an agent draft the file as `uxcli.commitments.proposed.json` with the trade-offs; a human fills owner and source and renames it. The agent may propose, it may not commit.
+**`uxcli.commitments.json`** is where a project commits to its own thresholds — each entry carries `id`, `kind`, `why`, an `owner` and a `source`. No owner and source means `not-committed`; `"suppressed": "<reason>"` is reported, never silently skipped. Today one kind is measured: `contrast`, read from the project's declared design tokens by `uxcli sheet --src=DIR`.
 
-`uxcli discover <repo|url>` writes journey candidates with `provenance: proposal` and `confirmedBy: null`; `run` refuses them until a human confirms. The same rule as the commitments file: the agent proposes, the human commits.
+**The agent may propose. It may not commit.** `uxcli discover` writes journey candidates with `provenance: proposal` and `confirmedBy: null`, and `run` refuses them until a human confirms.
 
-`uxcli diff a.json b.json --gate` compares two saved runs of `run` or `sheet` and exits 2 when the newer one carries a `fail`.
+## For coding agents
 
-What comes next, and in what order, is in [ROADMAP.md](ROADMAP.md).
+`uxcli init` copies three skills into a project's `.claude/skills/`:
 
-## Rules of output
+| Skill | What it changes |
+|---|---|
+| `before-done` | the agent runs the instrument before saying the UI is finished |
+| `journey` | keeps a proposal out of the confirmed directory |
+| `principles` | keeps the agent from writing the commitments file itself |
 
-- Every finding carries a provenance: `spec`, `project`, or `opinion`.
-- A pass is only as good as its counterfactual. `run <url> --prove` plants, for each probe that passed, the defect that probe exists to catch (focus styles made equal to the unfocused ones, text blended into its background, a spacing lock below the minimum), checks by computed style that the defect reached the very elements the probe measured, re-measures, and prints `would fail on …` on the pass line, or `could not be made to fail: …` as a warning. The gate requires `would fail` on every page probe's must-pass twin.
-- Every probe carries a method status: `method-validated` or `method-unproven`. Validated means a recorded run with the packaged code on at least 20 pages or flows the probe had not seen when its definition was last revised, 0 false fails, plus a recall record (ACT cases or seeded defects). Unproven probes report `finding`, never `fail`. `uxcli why <rule>` prints the status and its record.
-- Nine verdicts: `pass`, `fail`, `finding`, `not-applicable`, `not-committed`, `unmeasurable`, `suppressed`, `stale`, `untested`. Only `fail` blocks a merge.
-- `finding` is also used for what a probe saw but does not assert under its rule: a value shown in another format (3.3.4), text that clips under user spacing (1.4.12), a control in the tab order that is never painted (2.4.7, `hidden-focusable`). Findings never change the exit code.
-- What the exit code means today: a validated probe's `fail` exits 2 (focus-visible, text-spacing, contrast, so a control with no focus ring or a project's low-contrast token pairs block); an unproven probe's would-be fail prints `FINDING`, keeps `rawVerdict: fail` in `--json`, and exits 0. `uxcli why <rule>` prints each probe's status and what its validation still needs.
-- No threshold set means `not-committed`, not `fail`.
-- Cannot measure means `unmeasurable`, never `pass`.
-- Every exception ships with a coverage test.
-- No score, no summary line, no conformance claim.
+Each was tested against fresh agent sessions on the same task without it; the record is in [`skills/pair.json`](skills/pair.json) and `gate` checks it by hash. What the skills do not add, the card already does: across 45 sessions no agent — with or without a skill — said done holding a `FAIL`, or called a `FINDING` a pass.
 
-## Feedback from projects
+## Commands
 
-Every `run` leaves `run.json` and the screenshots in its output directory (default `.uxcli/<host or journey>/`), and the card ends with where to send them. Two forms at [issues/new/choose](https://github.com/junixlabs/uxcli/issues/new/choose):
+```bash
+uxcli run <journey.json>        # measure a flow          --json --out=DIR --refute --var=k=v
+uxcli run <url>                 # measure one screen      --prove --state=FILE --src=DIR
+uxcli sheet [--src=DIR]         # the project's own token commitments, no browser
+uxcli diff <a.json> <b.json>    # drift between two saved runs        --gate exits 2 on a new fail
+uxcli discover <repo|url>       # journey candidates, as proposals
+uxcli gate                      # every probe's falsification pair must hold
+uxcli why <rule>                # a probe's full definition: why · applies-when · correct-when
+uxcli init [dir]                # copy the skills, create .uxcli/, print the CI step
+```
 
-- **A verdict is wrong, or something was missed**: a fail or finding you can show is not real, a defect the probe let through, a run that could not be carried out. Attach the packet; "it looks fine" is not evidence, a screenshot of the same state is.
-- **Offer a flow for the unseen list**: a confirmed journey the flow probes have not seen. Twenty such flows with 0 false fails flip a flow probe from `finding` to `fail`; this is the only way they flip.
+`--refute` spawns a fresh second reader per fail (default `claude -p`, haiku, Read-only, ~US$0.04) to dispute it from the screenshots alone. It announces command, count and cost on stderr first, and nothing runs without the flag.
 
-A report is re-measured, not re-read. A confirmed false fail becomes a must-pass case in the probe's pair and a spec revision that names the issue; a confirmed miss becomes a must-fail case; what the probe cannot measure goes under known-infidelity in its spec. The outcome is written back on the issue.
+## Feedback
+
+Every run leaves `run.json` and screenshots in `.uxcli/<host or journey>/`. Two forms at [issues/new/choose](https://github.com/junixlabs/uxcli/issues/new/choose):
+
+- **A verdict is wrong, or something was missed** — attach the packet. "It looks fine" is not evidence; a screenshot of the same state is.
+- **Offer a flow for the unseen list** — twenty confirmed journeys with 0 false fails flip a flow probe from `finding` to `fail`. It is the only way they flip.
+
+A report is re-measured, not re-read. A confirmed false fail becomes a must-pass case and a spec revision; a confirmed miss becomes a must-fail case. The outcome is written back on the issue.
 
 ## Non-goals
 
-Conformance certification. Visual regression. Scores. Design critique.
+Conformance certification · visual regression · scores · design critique.
+
+Where it is going, and in what order: [ROADMAP.md](ROADMAP.md). The reasoning behind the rules: [VISION.md](VISION.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

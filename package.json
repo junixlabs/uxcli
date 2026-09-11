@@ -1,7 +1,7 @@
 {
   "name": "@junixlabs/uxcli",
   "version": "0.5.3",
-  "description": "UI/UX review for coding agents. No commitment, no verdict.",
+  "description": "Browser-driven UI/UX verification for coding agents. No commitment, no verdict.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,10 +13,18 @@
   },
   "keywords": [
     "accessibility",
+    "a11y",
     "wcag",
+    "wcag-2.2",
     "ui-review",
+    "ui-testing",
     "playwright",
-    "coding-agents"
+    "coding-agents",
+    "ai-agents",
+    "claude-code",
+    "design-tokens",
+    "ci",
+    "verification"
   ],
   "type": "module",
   "bin": {
@@ -36,7 +44,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node bin/uxcli.js gate"
+    "test": "node bin/uxcli.js gate",
+    "clip": "node scripts/clip.mjs"
   },
   "dependencies": {
     "axe-core": "4.13.0",

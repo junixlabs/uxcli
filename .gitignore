@@ -5,3 +5,6 @@ node_modules
 .DS_Store
 *.log
 .uxcli/
+
+# holds a storefront bearer token
+.mcp.json

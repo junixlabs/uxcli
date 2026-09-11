@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="966" height="530" viewBox="0 0 966 530" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', monospace" font-size="13" role="img" aria-label="uxcli run on a page with no visible focus ring: 2.4.7 FAIL, contrast and text-overlap PASS, each pass carrying the defect that would have failed it">
+<title>uxcli run · one screen, four probes, one blocking verdict</title>
+<style>
+@keyframes type{0%{width:0}17.822%,100%{width:353.6px}}
+@keyframes caret{0%,17.822%{opacity:1}22.153%,100%{opacity:0}}
+@keyframes st{0%,22.142999999999997%{opacity:0}22.153%,97%{opacity:1}100%{opacity:0}}
+@keyframes c0{0%,31.426%{opacity:0}31.436%,97%{opacity:1}100%{opacity:0}}
+@keyframes c1{0%,33.035000000000004%{opacity:0}33.045%,97%{opacity:1}100%{opacity:0}}
+@keyframes c2{0%,34.643%{opacity:0}34.653%,97%{opacity:1}100%{opacity:0}}
+@keyframes c3{0%,36.252%{opacity:0}36.262%,97%{opacity:1}100%{opacity:0}}
+@keyframes c4{0%,37.861000000000004%{opacity:0}37.871%,97%{opacity:1}100%{opacity:0}}
+@keyframes c5{0%,39.47%{opacity:0}39.48%,97%{opacity:1}100%{opacity:0}}
+@keyframes c6{0%,41.079%{opacity:0}41.089%,97%{opacity:1}100%{opacity:0}}
+@keyframes c7{0%,42.688%{opacity:0}42.698%,97%{opacity:1}100%{opacity:0}}
+@keyframes c8{0%,44.297000000000004%{opacity:0}44.307%,97%{opacity:1}100%{opacity:0}}
+@keyframes c9{0%,45.906%{opacity:0}45.916%,97%{opacity:1}100%{opacity:0}}
+@keyframes c10{0%,47.515%{opacity:0}47.525%,97%{opacity:1}100%{opacity:0}}
+@keyframes c11{0%,49.124%{opacity:0}49.134%,97%{opacity:1}100%{opacity:0}}
+@keyframes c12{0%,50.733000000000004%{opacity:0}50.743%,97%{opacity:1}100%{opacity:0}}
+@keyframes c13{0%,52.341%{opacity:0}52.351%,97%{opacity:1}100%{opacity:0}}
+@keyframes c14{0%,53.95%{opacity:0}53.96%,97%{opacity:1}100%{opacity:0}}
+@keyframes c15{0%,55.559000000000005%{opacity:0}55.569%,97%{opacity:1}100%{opacity:0}}
+@keyframes c16{0%,57.168%{opacity:0}57.178%,97%{opacity:1}100%{opacity:0}}
+@keyframes c17{0%,58.777%{opacity:0}58.787%,97%{opacity:1}100%{opacity:0}}
+@keyframes ex{0%,64.09899999999999%{opacity:0}64.109%,97%{opacity:1}100%{opacity:0}}
+</style>
+<rect width="966" height="530" rx="10" fill="#0b0b0c"/>
+<rect width="966" height="530" rx="10" fill="none" stroke="#26262a"/>
+<rect width="966" height="34" rx="10" fill="#1a1a1d"/>
+<rect y="24" width="966" height="10" fill="#1a1a1d"/>
+<line x1="0" y1="34" x2="966" y2="34" stroke="#26262a"/>
+<circle cx="18" cy="17" r="4.5" fill="#3a3a3f"/>
+<circle cx="34" cy="17" r="4.5" fill="#3a3a3f"/>
+<circle cx="50" cy="17" r="4.5" fill="#3a3a3f"/>
+<text x="483" y="21" fill="#5d5b56" font-size="11.5" text-anchor="middle">uxcli — verdict card</text>
+<clipPath id="type"><rect x="33.626" y="52" width="0" height="26" style="animation:type 8.08s steps(45) infinite"/></clipPath>
+<text x="18" y="72" fill="#7ccf9a">$ </text>
+<text x="33.626" y="72" fill="#ece9e2" clip-path="url(#type)" xml:space="preserve">uxcli run http://localhost:3100/login --prove</text>
+<rect x="385.2" y="58" width="6.6" height="15" fill="#ece9e2" style="animation:caret 8.08s step-end infinite"/>
+<text x="18" y="92" fill="#5d5b56" style="animation:st 8.08s linear infinite">opening http://localhost:3100/login · chromium 1280×800 · --prove: one planted defect per pass</text>
+<text x="18" y="132" style="animation:c0 8.08s linear infinite" xml:space="preserve"><tspan fill="#ece9e2" xml:space="preserve">uxcli run</tspan><tspan fill="#5d5b56" xml:space="preserve"> · </tspan><tspan fill="#c9c6be" xml:space="preserve">http://localhost:3100/login</tspan></text>
+<text x="18" y="152" style="animation:c1 8.08s linear infinite" xml:space="preserve"></text>
+<text x="18" y="172" style="animation:c2 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">2.4.7  </tspan><tspan fill="#ece9e2" font-weight="500" xml:space="preserve">focus-visible</tspan><tspan fill="#5d5b56" xml:space="preserve">    </tspan><tspan fill="#ff5c4d" font-weight="600" xml:space="preserve">FAIL</tspan><tspan fill="#5d5b56" xml:space="preserve">         </tspan></text>
+<text x="18" y="192" style="animation:c3 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  what   </tspan><tspan fill="#c9c6be" xml:space="preserve">3 of 5 measured controls show no pixel change on focus: a "Security", select#lang "EnglishTiếng Việt", </tspan></text>
+<text x="18" y="212" style="animation:c4 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">         </tspan><tspan fill="#c9c6be" xml:space="preserve">button.late "Save"</tspan></text>
+<text x="18" y="232" style="animation:c5 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  where  </tspan><tspan fill="#c9c6be" xml:space="preserve">http://localhost:3100/login</tspan></text>
+<text x="18" y="252" style="animation:c6 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  rule   </tspan><tspan fill="#c9c6be" xml:space="preserve">WCAG 2.4.7 (spec, method-validated)</tspan></text>
+<text x="18" y="272" style="animation:c7 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  check  </tspan><tspan fill="#c9c6be" xml:space="preserve">Press Tab until a "Security" should have focus. Can you see where focus is?</tspan></text>
+<text x="18" y="292" style="animation:c8 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  proof  </tspan><tspan fill="#c9c6be" xml:space="preserve">.uxcli/localhost/2.4.7-0-before.png  .uxcli/localhost/2.4.7-0-after.png  .uxcli/localhost/2.4.7-1-before.png  </tspan></text>
+<text x="18" y="312" style="animation:c9 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">         </tspan><tspan fill="#c9c6be" xml:space="preserve">.uxcli/localhost/2.4.7-1-after.png  …</tspan></text>
+<text x="18" y="332" style="animation:c10 8.08s linear infinite" xml:space="preserve"><tspan fill="#e0b04a" xml:space="preserve">  finding </tspan><tspan fill="#c9c6be" xml:space="preserve">2 controls are in the tab order but not painted (clipped by an overflow-hidden ancestor it lies outside of; </tspan></text>
+<text x="18" y="352" style="animation:c11 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">          </tspan><tspan fill="#c9c6be" xml:space="preserve">opacity 0 on the control or an ancestor); not measured for 2.4.7</tspan></text>
+<text x="18" y="372" style="animation:c12 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">1.4.12 </tspan><tspan fill="#ece9e2" font-weight="500" xml:space="preserve">text-spacing</tspan><tspan fill="#5d5b56" xml:space="preserve">     </tspan><tspan fill="#8f8d86" font-weight="600" xml:space="preserve">N/A</tspan><tspan fill="#5d5b56" xml:space="preserve">           </tspan><tspan fill="#8f8d86" xml:space="preserve">no text whose spacing is locked by an !important style attribute</tspan></text>
+<text x="18" y="392" style="animation:c13 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">1.4.3  </tspan><tspan fill="#ece9e2" font-weight="500" xml:space="preserve">contrast</tspan><tspan fill="#5d5b56" xml:space="preserve">         </tspan><tspan fill="#5fd38a" font-weight="600" xml:space="preserve">PASS</tspan><tspan fill="#5d5b56" xml:space="preserve">          </tspan><tspan fill="#8f8d86" xml:space="preserve">12 text nodes at or above the ratio · </tspan><tspan fill="#7ccf9a" xml:space="preserve">would fail on 12 passed text nodes blended </tspan></text>
+<text x="18" y="412" style="animation:c14 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">                                      </tspan><tspan fill="#7ccf9a" xml:space="preserve">four fifths into their background</tspan></text>
+<text x="18" y="432" style="animation:c15 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">·      </tspan><tspan fill="#ece9e2" font-weight="500" xml:space="preserve">text-overlap</tspan><tspan fill="#5d5b56" xml:space="preserve">     </tspan><tspan fill="#5fd38a" font-weight="600" xml:space="preserve">PASS</tspan><tspan fill="#5d5b56" xml:space="preserve">          </tspan><tspan fill="#8f8d86" xml:space="preserve">10 text boxes, no two painted over each other · </tspan><tspan fill="#7ccf9a" xml:space="preserve">would fail on "p" moved onto "h1"</tspan></text>
+<text x="18" y="452" style="animation:c16 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  files  </tspan><tspan fill="#c9c6be" xml:space="preserve">.uxcli/localhost/run.json and 6 screenshots. A verdict you can show is wrong, or a miss: </tspan></text>
+<text x="18" y="472" style="animation:c17 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">         </tspan><tspan fill="#c9c6be" xml:space="preserve">https://github.com/junixlabs/uxcli/issues/new/choose</tspan></text>
+<text x="18" y="492" style="animation:ex 8.08s linear infinite" xml:space="preserve"><tspan fill="#5d5b56">$ echo $? → </tspan><tspan fill="#ff5c4d" font-weight="600">2</tspan><tspan fill="#5d5b56">   one fail blocks the merge</tspan></text>
+</svg>
