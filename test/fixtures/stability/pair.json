@@ -1,0 +1,11 @@
+{
+  "operator": "must-pass/index.html: .hint is #9a9a9a on #ffffff (2.81:1) and stays there, so both reads agree and the fail must stand. must-fail/index.html is the same page except a script raises .hint to #595959 (7:1) at 1200 ms: the first read lands on the defect, the read taken after the recheck wait does not, and a verdict read twice with two answers may not be reported as a fail.",
+  "hashes": {
+    "mustFail": {
+      "index.html": "4c626ab469469660cc11f4ec05ab8b16b3c17ebc349ec7a1092ce09af061edb9"
+    },
+    "mustPass": {
+      "index.html": "66deeac4038816433fd5f14a6d3be3b40a6e7b282fc54999c490a26343102c51"
+    }
+  }
+}

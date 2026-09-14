@@ -44,6 +44,16 @@ export async function settle(page) {
   await page.waitForLoadState('load', { timeout: 15000 }).catch(() => {});
   await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
   await page.waitForTimeout(300);
+  // An entrance transition still running is a frame no reader sees at rest: a probe reading it
+  // measures a composited half-step (a fading colour, a box not yet in place) and the verdict
+  // becomes a coin flip between runs. Finish every finite animation; leave infinite ones
+  // (spinners, marquees) alone, since they have no resting state to finish to.
+  await page.evaluate(async () => {
+    for (const a of document.getAnimations()) {
+      try { const t = a.effect?.getTiming?.(); if (t && t.iterations !== Infinity) a.finish(); } catch {}
+    }
+    await new Promise(r => requestAnimationFrame(r));
+  }).catch(() => {});
 }
 export async function arrive(page, step) {
   if (step.url && normUrl(page.url()) !== normUrl(step.url)) { await page.goto(step.url, { waitUntil: 'load', timeout: 45000 }); await settle(page); return 'goto'; }
