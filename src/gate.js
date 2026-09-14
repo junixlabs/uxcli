@@ -32,6 +32,9 @@ export async function gate({ log = console.log } = {}) {
     const vp = (await runJourney(loadJourney(jPath, { base: build(mp ? path.join(dir, mp) : null) }), { browser })).probes.find(p => p.sc === probe.sc);
     fs.rmSync(tmp, { recursive: true, force: true });
     if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
+    // The citation belongs to the probe, not to the card: a fail that reaches run.json without one
+    // leaves every surface but the terminal unable to say what to do about it.
+    if (!vf?.what || !vf?.check) problems.push('must-fail carries no what/check from probe.explain()');
     report(probe, pair, vf, vp, problems);
     for (const v of variants.filter(v => v !== 'must-fail')) log(`       ${v}: ${pair.variants?.[v]?.operator || '(no operator recorded)'}`);
   }
@@ -45,8 +48,22 @@ export async function gate({ log = console.log } = {}) {
     // --prove on the must-pass twin: the probe's own planted defect must reach the measured elements and turn the pass into a fail.
     const pv = (await runPage(pathToFileURL(path.join(dir, 'must-pass', 'index.html')).href, { browser, only: [probe.id], prove: true })).probes[0];
     if (!pv.prove?.wouldFail) problems.push(`--prove on must-pass: ${pv.prove?.why || 'no counterfactual'}`);
+    if (!vf?.what || !vf?.check) problems.push('must-fail carries no what/check from probe.explain()');
     report(probe, pair, vf, vp, problems);
     log(`       prove: ${pv.prove?.wouldFail ? 'would fail on ' + pv.prove.mutation : 'could not be made to fail: ' + (pv.prove?.why || '')}`);
+  }
+  // stability: a `fail` read from a page that changed between two reads is not a fail. One pair of
+  // twins differing only in whether the defect is the page's resting state.
+  {
+    const dir = path.join(ROOT, 'test/fixtures/stability'); const pair = JSON.parse(fs.readFileSync(path.join(dir, 'pair.json'), 'utf8')); const problems = [];
+    checkHashes(dir, 'must-fail', pair.hashes.mustFail, problems); checkHashes(dir, 'must-pass', pair.hashes.mustPass, problems);
+    const one = async sub => (await runPage(pathToFileURL(path.join(dir, sub, 'index.html')).href, { browser, only: ['1.4.3'] })).probes[0];
+    const vf = await one('must-fail'), vp = await one('must-pass');
+    if (vf.verdict !== 'unmeasurable' || vf.reread?.agreed !== false) problems.push(`must-fail returned ${vf.verdict}, expected unmeasurable from a disagreeing re-read`);
+    if (vp.verdict !== 'fail' || vp.reread?.agreed !== true) problems.push(`must-pass returned ${vp.verdict}, expected a fail confirmed by the re-read`);
+    if (problems.length) ok = false;
+    log(`stable page.reread              must-fail: ${vf.verdict.slice(0, 6).padEnd(6)} must-pass: ${vp.verdict.padEnd(14)} ${'arithmetic'.padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
+    log(`       operator: ${pair.operator}`);
   }
   await browser.close();
   // Skills: frontmatter, and the load-bearing paragraph still present by hash. Load-bearing was shown on fresh agents; the record is printed, not re-run.
@@ -77,6 +94,14 @@ export async function gate({ log = console.log } = {}) {
     fs.rmSync(tmp, { recursive: true, force: true }); if (problems.length) ok = false;
     log(`diff   drift between two runs        must-fail: ${(gateExit(reg) === 2 ? 'exit 2' : 'exit ' + gateExit(reg)).padEnd(6)} must-pass: ${(same.rows.every(r => r.delta === 'same') ? 'all same' : 'mixed').padEnd(14)} ${'arithmetic'.padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
     log('       operator: the sheet pair saved as two runs; a regressed commitment must block, an unchanged run must not');
+  }
+  // init: the one command that writes into someone else's repository, so the claim that it does not
+  // write without being told is held by the same kind of pair as every probe. No browser.
+  {
+    const { pair, OPERATOR } = await import('../test/init-writes-nothing.mjs'); const r = pair();
+    if (!r.ok) ok = false;
+    log(`init   writes nothing unasked      must-fail: ${(r.created ? 'wrote ' + r.created : 'wrote 0').padEnd(6)} must-pass: ${(r.wrote ? 'wrote ' + r.wrote : 'untouched').padEnd(14)} ${'filesystem'.padEnd(17)} ${r.ok ? 'ok' : 'FAIL  ' + r.problems.join('; ')}`);
+    log(`       operator: ${OPERATOR}`);
   }
   log(ok ? 'GATE PASS' : 'GATE FAIL');
   return ok;
