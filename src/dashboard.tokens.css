@@ -1,0 +1,131 @@
+/* The dashboard's palette, and the only file that holds a colour value.
+ *
+ * Two layers, on purpose. The `--lt-*` and `--dk-*` primitives are declared exactly once each, which
+ * is what makes them nameable in a commitment: `uxcli sheet` refuses to judge a token that carries two
+ * colours, and a token re-declared inside a theme block carries two. The semantic names below them
+ * (`--fail`, `--ink`, `--rail`) never hold a colour — they only point at a primitive, and a theme
+ * switch re-points them. So the page is written entirely in semantic names, and every claim about the
+ * palette is still arithmetic on a primitive the project has signed for in uxcli.commitments.json.
+ *
+ * Colour is spent on the six verdicts and on one accent, and nowhere else. That is the whole rule:
+ * the reader's question is "which run needs a person", the answer is a verdict, so a verdict is the
+ * only thing allowed to be loud. Everything else is a grey with a slight blue cast so the verdict
+ * colours read as decisions rather than as decoration.
+ */
+:root {
+  /* light — the default, because a run is usually read beside a terminal in a lit room */
+  --lt-fail-ink: #b42318; --lt-fail-bg: #fee4e2; --lt-fail-edge: #fda29b;
+  --lt-finding-ink: #b54708; --lt-finding-bg: #fef0c7; --lt-finding-edge: #fdb022;
+  --lt-unmeas-ink: #5925dc; --lt-unmeas-bg: #ebe9fe; --lt-unmeas-edge: #bdb4fe;
+  --lt-pass-ink: #067647; --lt-pass-bg: #dcfae6; --lt-pass-edge: #75e0a7;
+  --lt-quiet-ink: #475467; --lt-quiet-bg: #f2f4f7; --lt-quiet-edge: #d0d5dd;
+  /* The mark that stands for a verdict carries information, so it owes WCAG 1.4.11's 3:1 even though
+     it is not text — and `--lt-quiet-edge` at 1.44:1 did not. Quiet is not the same as invisible.
+     uxcli's own probes do not measure 1.4.11, which is why this stood on its own dashboard. */
+  --lt-quiet-mark: #7d8898;
+  --lt-accent: #175cd3; --lt-accent-bg: #d1e9ff;
+  /* A selected row is a ground that ANY ink can land on — body, muted, and the bare `unproven` in the
+     method column — so it is a token of its own and is paler than the `check` highlight, which only
+     ever carries --lt-ink. One token doing both jobs is how `--lt-finding-ink` ended up at 4.34:1. */
+  --lt-select-bg: #eff8ff;
+  /* The `check` sentence needs its own ground: in dark it was the same navy as a selected row, so the
+     one selection accent also meant "here is some advice". Two meanings, two tokens. */
+  --lt-check-bg: #d1e9ff;
+  --lt-ink: #101828; --lt-ink-2: #475467; --lt-ink-3: #616b7d;
+  --lt-bg: #f6f7f9; --lt-panel: #ffffff; --lt-sunk: #f1f3f5; --lt-rail: #fbfcfd;
+  --lt-line: #dfe3e8; --lt-line-2: #edf0f3;
+
+  /* dark — a palette of its own, not an inversion: the run list carries 00:14 and 02:10 timestamps
+     because this is read at night, and an inverted light palette glows at that hour */
+  --dk-fail-ink: #fda29b; --dk-fail-bg: #55160c; --dk-fail-edge: #912018;
+  --dk-finding-ink: #fec84b; --dk-finding-bg: #4e1d09; --dk-finding-edge: #93370d;
+  --dk-unmeas-ink: #bdb4fe; --dk-unmeas-bg: #2e125e; --dk-unmeas-edge: #6938ef;
+  --dk-pass-ink: #75e0a7; --dk-pass-bg: #053321; --dk-pass-edge: #085d3a;
+  --dk-quiet-ink: #94969c; --dk-quiet-bg: #1f242f; --dk-quiet-edge: #333741;
+  --dk-quiet-mark: #717784;
+  --dk-accent: #84caff; --dk-accent-bg: #102a4c; --dk-select-bg: #102a4c; --dk-check-bg: #16345c;
+  --dk-ink: #f5f5f6; --dk-ink-2: #cecfd2; --dk-ink-3: #94969c;
+  --dk-bg: #0c111d; --dk-panel: #161b26; --dk-sunk: #1f242f; --dk-rail: #10151f;
+  --dk-line: #333741; --dk-line-2: #23262f;
+}
+
+/* Type. Two faces, and the split carries meaning rather than taste: everything the instrument
+   measured is set in the mono — criteria, colours, ratios, paths, timestamps — and everything a
+   person is meant to read as a sentence is set in the sans. The one sentence a person performs,
+   `check`, is the largest sans on the page.
+   Seven roles, named by job rather than by size, and every line height is a multiple of 5px. That
+   rule is GOV.UK's, and it is adopted for the reason GOV.UK gives for it: a consistent vertical
+   rhythm makes a page easier to SCAN — which is the whole of what this page is for.
+   https://design-system.service.gov.uk/styles/type-scale/  */
+:root {
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --type-label: 10px/15px var(--sans);  /* section labels, column headers, eyebrows */
+  --type-meta: 11px/15px var(--mono);   /* paths, timestamps, counts, chips, captions */
+  --type-data: 12px/20px var(--mono);   /* the measured value: table cells, keys, ratios */
+  --type-body: 13px/20px var(--sans);   /* a sentence: probe names, notes, list items */
+  --type-lede: 15px/25px var(--sans);   /* `check` — the one sentence a person performs */
+  --type-title: 21px/30px var(--sans);  /* the run being looked at */
+  --type-display: 24px/30px var(--mono);/* the six counts, the only large numerals */
+}
+
+/* Spacing. GOV.UK's ten-point scale, adopted whole and nothing outside it: base 5, linear to 30,
+   non-linear above. Published with the service's own user research behind it.
+   https://design-system.service.gov.uk/styles/spacing/
+   Written down because the alternative is measured: this file's first version carried 23 spacing
+   values, 15 of them off any grid — the same drift `2026-09-12-does-the-agent-hold-a-style.md`
+   measured in an agent given no token file. */
+:root {
+  --s1: 5px; --s2: 10px; --s3: 15px; --s4: 20px; --s5: 25px;
+  --s6: 30px; --s7: 40px; --s8: 50px; --s9: 60px;
+}
+
+/* Radius. Three steps, by what the corner belongs to. Ten radii was never a decision. */
+:root { --r-chip: 4px; --r-control: 8px; --r-panel: 12px; }
+
+/* Component constants — the two dimensions that are a component's own size rather than spacing
+   between things, written down so they stop being re-invented per block. */
+:root { --dot: 8px; --stripe: 3px; --shadow: rgba(16, 24, 40, .16); }
+
+/* the names the page is written in */
+:root {
+  --bg: var(--lt-bg); --panel: var(--lt-panel); --sunk: var(--lt-sunk); --rail: var(--lt-rail);
+  --line: var(--lt-line); --line-2: var(--lt-line-2);
+  --ink: var(--lt-ink); --ink-2: var(--lt-ink-2); --ink-3: var(--lt-ink-3);
+  --accent: var(--lt-accent); --accent-soft: var(--lt-accent-bg); --select-soft: var(--lt-select-bg);
+  --check-soft: var(--lt-check-bg);
+  --fail: var(--lt-fail-ink); --fail-bg: var(--lt-fail-bg); --fail-edge: var(--lt-fail-edge);
+  --finding: var(--lt-finding-ink); --finding-bg: var(--lt-finding-bg); --finding-edge: var(--lt-finding-edge);
+  --unmeas: var(--lt-unmeas-ink); --unmeas-bg: var(--lt-unmeas-bg); --unmeas-edge: var(--lt-unmeas-edge);
+  --pass: var(--lt-pass-ink); --pass-bg: var(--lt-pass-bg); --pass-edge: var(--lt-pass-edge);
+  --na: var(--lt-quiet-ink); --na-bg: var(--lt-quiet-bg); --na-edge: var(--lt-quiet-edge);
+  --na-mark: var(--lt-quiet-mark);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--dk-bg); --panel: var(--dk-panel); --sunk: var(--dk-sunk); --rail: var(--dk-rail);
+    --line: var(--dk-line); --line-2: var(--dk-line-2);
+    --ink: var(--dk-ink); --ink-2: var(--dk-ink-2); --ink-3: var(--dk-ink-3);
+    --accent: var(--dk-accent); --accent-soft: var(--dk-accent-bg); --select-soft: var(--dk-select-bg);
+    --check-soft: var(--dk-check-bg); --select-soft: var(--dk-select-bg);
+    --fail: var(--dk-fail-ink); --fail-bg: var(--dk-fail-bg); --fail-edge: var(--dk-fail-edge);
+    --finding: var(--dk-finding-ink); --finding-bg: var(--dk-finding-bg); --finding-edge: var(--dk-finding-edge);
+    --unmeas: var(--dk-unmeas-ink); --unmeas-bg: var(--dk-unmeas-bg); --unmeas-edge: var(--dk-unmeas-edge);
+    --pass: var(--dk-pass-ink); --pass-bg: var(--dk-pass-bg); --pass-edge: var(--dk-pass-edge);
+    --na: var(--dk-quiet-ink); --na-bg: var(--dk-quiet-bg); --na-edge: var(--dk-quiet-edge);
+    --na-mark: var(--dk-quiet-mark);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: var(--dk-bg); --panel: var(--dk-panel); --sunk: var(--dk-sunk); --rail: var(--dk-rail);
+  --line: var(--dk-line); --line-2: var(--dk-line-2);
+  --ink: var(--dk-ink); --ink-2: var(--dk-ink-2); --ink-3: var(--dk-ink-3);
+  --accent: var(--dk-accent); --accent-soft: var(--dk-accent-bg); --select-soft: var(--dk-select-bg); --check-soft: var(--dk-check-bg);
+  --fail: var(--dk-fail-ink); --fail-bg: var(--dk-fail-bg); --fail-edge: var(--dk-fail-edge);
+  --finding: var(--dk-finding-ink); --finding-bg: var(--dk-finding-bg); --finding-edge: var(--dk-finding-edge);
+  --unmeas: var(--dk-unmeas-ink); --unmeas-bg: var(--dk-unmeas-bg); --unmeas-edge: var(--dk-unmeas-edge);
+  --pass: var(--dk-pass-ink); --pass-bg: var(--dk-pass-bg); --pass-edge: var(--dk-pass-edge);
+  --na: var(--dk-quiet-ink); --na-bg: var(--dk-quiet-bg); --na-edge: var(--dk-quiet-edge);
+  --na-mark: var(--dk-quiet-mark);
+}

@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uxcli runs</title>
+<link rel="stylesheet" href="/dashboard.tokens.css">
+<style>
+  /* Three columns, three questions. Left: which run needs somebody — every run on the machine, worst
+     first, with its six counts. Middle: what this run says — the probe table, where provenance and
+     method are columns you can scan rather than badges you must read one by one. Right: the evidence —
+     for a journey it pages through the frames the run actually passed through, and it always ends on
+     the selected probe in full.
+     Every value here comes from src/dashboard.tokens.css: the palette, the 5px spacing scale, the
+     seven type roles, the three radii. Nothing in this file is a number chosen on the spot — that is
+     the whole point of it, and the reason is measured in
+     .claude/specs/research/2026-09-14-dashboard-brief-and-design-decision.md §3.
+     Six components repeat and each is defined once: chip, run card, cell, panel, pager, select.
+     This page is measured by the instrument it belongs to: `uxcli run http://127.0.0.1:4717/`. */
+  * { box-sizing: border-box; }
+  html { color-scheme: light dark; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: var(--type-body);
+    -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-chip); }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  input { font: inherit; color: inherit; }
+
+  /* ── header ───────────────────────────────────────────────────────── */
+  .top { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap;
+    padding-inline: var(--s3); min-height: var(--s8); border-bottom: 1px solid var(--line);
+    background: var(--panel); }
+  /* The wordmark is the product; the line after it is a sentence about the product, not more of the
+     wordmark — so it is set in the sans and given a rule of its own to stand behind. */
+  .brand { font: 700 var(--type-lede); font-family: var(--mono); letter-spacing: .08em; }
+  .tag { font: var(--type-body); color: var(--ink-3);
+    padding-left: var(--s3); border-left: 1px solid var(--line); }
+  @media (max-width: 620px) { .tag, .search .k { display: none; } }
+  .top .spacer { flex: 1 1 auto; }
+
+  /* component · control — every button-shaped thing on the page */
+  .btn, .iconbtn, .select > button, .pager button, .openshot {
+    border: 1px solid var(--line); border-radius: var(--r-control); background: var(--panel);
+    color: var(--ink-2); }
+  .btn:hover, .iconbtn:hover, .select > button:hover, .pager button:hover:not(:disabled) {
+    border-color: var(--ink-3); color: var(--ink); }
+  .btn { font: var(--type-meta); padding: var(--s1) var(--s2); }
+  .iconbtn { display: inline-flex; align-items: center; justify-content: center;
+    width: var(--s6); height: var(--s6); }
+  .iconbtn svg { width: var(--s3); height: var(--s3); display: block; }
+
+  .search { display: flex; align-items: center; gap: var(--s2);
+    border: 1px solid var(--line); border-radius: var(--r-control);
+    padding: var(--s1) var(--s2); background: var(--bg); }
+  /* The ring lives on the wrapper because the input itself has no border to light up — uxcli caught
+     this page with `outline: none` here and no pixel change on focus. */
+  .search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .search { flex: 1 1 140px; min-width: 0; max-width: 260px; }
+  .search input { border: 0; background: none; outline: none; width: 100%; min-width: 0; font: var(--type-data); }
+  .search input::placeholder { color: var(--ink-3); }
+  .search .k { font: var(--type-meta); color: var(--ink-3); border: 1px solid var(--line);
+    border-radius: var(--r-chip); padding: 0 var(--s1); }
+
+  /* component · select — APG's select-only combobox, not a bare listbox:
+     https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/ */
+  .select { position: relative; display: block; }
+  .select > button { display: flex; align-items: center; gap: var(--s2); width: 100%;
+    font: var(--type-meta); padding: var(--s1) var(--s2); text-align: left; }
+  .select .caret { margin-left: auto; color: var(--ink-3); font: var(--type-label); }
+  .select ul { position: absolute; z-index: 30; top: calc(100% + var(--s1)); left: 0; min-width: 100%;
+    max-height: 60vh; overflow: auto; margin: 0; padding: var(--s1); list-style: none;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-panel);
+    box-shadow: 0 var(--s3) var(--s7) var(--shadow); }
+  .select li { display: grid; grid-template-columns: var(--dot) minmax(0, 1fr) auto; gap: var(--s2);
+    align-items: center; padding: var(--s1) var(--s2); border-radius: var(--r-control);
+    font: var(--type-body); cursor: pointer; }
+  .select li:hover, .select li.here { background: var(--sunk); outline: none; }
+  .select li[aria-selected="true"] { background: var(--select-soft); }
+  .select li .n { font: var(--type-meta); color: var(--ink-3); }
+  .select li .sq { width: var(--dot); height: var(--dot); border-radius: 50%; background: var(--na-mark); }
+  .select li.has-fail .sq { background: var(--fail); }
+  .select li.has-finding .sq { background: var(--finding); }
+  .select li.clean .sq { background: var(--pass); }
+
+  /* ── the three columns ────────────────────────────────────────────── */
+  /* The evidence column is fixed, not proportional. Letting it grow to 32% to fill the space under a
+     short probe table squeezed the table itself into a sideways scroll and cut its sentences mid-word:
+     a proportion complaint traded for a legibility defect is a bad trade. The empty area under a
+     four-probe table is what a four-probe run honestly looks like. */
+  .cols { display: grid; grid-template-columns: 320px minmax(0, 1fr) 400px; height: calc(100vh - var(--s8)); }
+  /* Narrower than three columns: evidence keeps its own full-width band under the run rather than
+     covering it, so nothing the reader was looking at is hidden to show the frame. */
+  @media (max-width: 1240px) {
+    .cols { grid-template-columns: 300px minmax(0, 1fr); grid-template-areas: "runs stage" "ev ev"; height: auto; }
+    .runs { grid-area: runs; max-height: 78vh; } .stage { grid-area: stage; }
+    .evidence { grid-area: ev; border-left: 0; border-top: 1px solid var(--line); }
+    .evbody { max-width: 720px; }
+  }
+  @media (max-width: 820px) {
+    .cols { grid-template-columns: 1fr; grid-template-areas: "runs" "stage" "ev"; }
+    .runs { max-height: 46vh; } .stagepad { padding: var(--s3) var(--s3) var(--s7); }
+  }
+  .runs, .stage, .evidence { overflow: auto; min-width: 0; }
+
+  /* ── left · every run on the machine ──────────────────────────────── */
+  .runs { border-right: 1px solid var(--line); background: var(--rail); display: flex; flex-direction: column; }
+  /* The project filter sits in the column it filters, not in the header: what it changes is this list. */
+  .runshead { position: sticky; top: 0; z-index: 3; background: var(--rail); border-bottom: 1px solid var(--line-2); }
+  .colhead { display: flex; align-items: baseline; gap: var(--s2); padding: var(--s3) var(--s3) var(--s2); }
+  .colhead h2 { margin: 0; flex: 1 1 auto; font: 600 var(--type-lede); }
+  .colhead .sub { font: var(--type-meta); color: var(--ink-3); }
+  .filterbar { padding: 0 var(--s3) var(--s2); }
+  .runlist { flex: 1 1 auto; padding: var(--s1); }
+
+  /* component · run card */
+  .runcard { display: block; width: 100%; text-align: left; border: 1px solid transparent;
+    border-radius: var(--r-panel); padding: var(--s2); }
+  .runcard:hover { background: var(--sunk); }
+  .runcard[aria-current="true"] { background: var(--panel); border-color: var(--accent); }
+  .runcard .line1 { display: flex; align-items: baseline; gap: var(--s2); }
+  .runcard .proj { font: var(--type-meta); color: var(--ink-3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .runcard .verdict { margin-left: auto; }
+  .runcard .path { display: block; font: var(--type-meta); color: var(--ink-3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .runcard .path[hidden] { display: none; }
+  .runcard .line2 { display: flex; align-items: baseline; gap: var(--s2); }
+  .runcard .kind { font: 600 var(--type-label); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-3); }
+  .runcard .nm { font: 600 var(--type-body); color: var(--ink); min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .runcard .when { margin-left: auto; font: var(--type-meta); color: var(--ink-3);
+    white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .counts { display: flex; gap: var(--s2); margin-top: var(--s1); }
+  .counts span { display: inline-flex; align-items: center; gap: var(--s1);
+    font: var(--type-meta); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+  /* A mark that stands for a verdict is information, so it owes 3:1 (WCAG 1.4.11) — and the two quiet
+     verdicts are two different answers, so they must not be one swatch. Same hue, different mark:
+     `not-applicable` is filled, `not-committed` is a ring. Colour stays spent on the four that carry it. */
+  .counts i { width: var(--dot); height: var(--dot); border-radius: 50%; background: var(--na-mark); }
+  .counts .c-not-committed i { background: none; box-shadow: inset 0 0 0 2px var(--na-mark); }
+  .counts .c-fail i { background: var(--fail); } .counts .c-finding i { background: var(--finding); }
+  .counts .c-unmeasurable i { background: var(--unmeas); } .counts .c-pass i { background: var(--pass); }
+  .counts .zero { color: var(--ink-3); opacity: .5; }
+
+  .legend { border-top: 1px solid var(--line-2); padding: var(--s2) var(--s3) var(--s3);
+    position: sticky; bottom: 0; background: var(--rail); }
+  .legend summary { margin: 0 0 var(--s1); font: 500 var(--type-label); letter-spacing: .13em;
+    text-transform: uppercase; color: var(--ink-3); cursor: pointer; }
+  .legend:not([open]) summary { margin: 0; }
+  .legend ul { margin: 0; padding: 0; }
+  .legend li { list-style: none; display: grid; grid-template-columns: var(--dot) 96px minmax(0, 1fr);
+    gap: var(--s2); align-items: baseline; font: var(--type-meta); color: var(--ink-3); }
+  .legend i { width: var(--dot); height: var(--dot); border-radius: 50%; align-self: center; background: var(--na-mark); }
+  .legend i.ring { background: none; box-shadow: inset 0 0 0 2px var(--na-mark); }
+  .legend .w { color: var(--ink-2); }
+  .legend .doctrine { margin: var(--s2) 0 0; padding-top: var(--s2); border-top: 1px solid var(--line-2);
+    font: var(--type-meta); font-family: var(--sans); color: var(--ink-3); }
+
+  /* ── middle · the run ─────────────────────────────────────────────── */
+  .stage { background: var(--bg); }
+  .stagepad { padding: var(--s4) var(--s5) var(--s9); }
+  .kicker { font: var(--type-meta); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .titleline { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; margin: var(--s1) 0; }
+  .titleline h1 { margin: 0; font: 600 var(--type-title); letter-spacing: -.01em; }
+  .submeta { margin: 0; font: var(--type-meta); color: var(--ink-3); }
+  .submeta a { color: var(--ink-3); }
+
+  /* component · panel — the one definition of a raised surface */
+  .tiles, .tablewrap, .kv, figure.pair, .painted {
+    border: 1px solid var(--line); border-radius: var(--r-panel); background: var(--panel); }
+  /* A grid, and the dividers are the 1px gaps showing the container through: wrapped flex rows put the
+     borders at 110/110/127 then 174/174 then 348 at phone width, so no two dividers lined up. */
+  .tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line-2);
+    margin: var(--s4) 0; overflow: hidden; }
+  .tiles > div { padding: var(--s2) var(--s3); background: var(--panel); }
+  @media (max-width: 1240px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 420px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  .tiles .n { display: block; font: 700 var(--type-display); font-variant-numeric: tabular-nums; }
+  .tiles .k { display: block; font: 500 var(--type-label); letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+  .tiles .v-fail .n { color: var(--fail); } .tiles .v-finding .n { color: var(--finding); }
+  .tiles .v-unmeasurable .n { color: var(--unmeas); } .tiles .v-pass .n { color: var(--pass); }
+  .tiles .v-not-applicable .n, .tiles .v-not-committed .n { color: var(--ink-3); }
+  .tiles .zero .n { color: var(--ink-3); opacity: .4; }
+
+  .sec { margin: var(--s5) 0 var(--s2); font: 500 var(--type-label); letter-spacing: .13em;
+    text-transform: uppercase; color: var(--ink-3); }
+  /* The chain: a journey read as rows of urls stays abstract, so the frames are shown in order. */
+  .chain { display: flex; gap: 0; overflow-x: auto; padding-bottom: var(--s1); }
+  .link { display: flex; align-items: center; flex: none; }
+  .link .arrow { color: var(--ink-3); font: var(--type-data); padding: 0 var(--s1); }
+  .chip { width: 130px; border: 1px solid var(--line); border-radius: var(--r-panel);
+    background: var(--panel); overflow: hidden; text-align: left; }
+  .chip:hover { border-color: var(--ink-3); }
+  .chip[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .chip img { display: block; width: 100%; height: 70px; object-fit: cover; object-position: top left;
+    background: var(--sunk); }
+  .chip .miss { display: flex; align-items: center; justify-content: center; height: 70px;
+    background: var(--sunk); font: var(--type-meta); color: var(--ink-3); }
+  .chip .cap { padding: var(--s1); border-top: 1px solid var(--line-2); }
+  .chip .n { display: block; font: 600 var(--type-meta); color: var(--ink-2); }
+  .chip .u, .chip .st { display: block; font: var(--type-meta); color: var(--ink-3);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip.state-error { border-color: var(--fail-edge); } .chip.state-error .st { color: var(--fail); }
+  .chip.state-missed { opacity: .55; }
+
+  /* component · cell — one padding for every table cell on the page */
+  /* The wrapper is a focusable region: below ~700px the table scrolls sideways inside it, and a
+     region that can only be scrolled with a mouse fails WCAG 2.1.1. */
+  .tablewrap { overflow-x: auto; }
+  .tablewrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* `details` absorbs the slack and every other column sizes to its own content, so no column width is
+     a guess: a hand-picked width for `verdict` was 114px while the `not-applicable` chip measures
+     115.3px, and the chip painted 13.3px past its cell and over the sentence next to it. */
+  table.probes { border-collapse: collapse; width: 100%; min-width: 700px; }
+  table.probes th:last-child { width: 100%; }
+  table.probes th { text-align: left; padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line);
+    font: 500 var(--type-label); letter-spacing: .12em; text-transform: uppercase;
+    color: var(--ink-3); white-space: nowrap; }
+  table.probes td { padding: 0; border-bottom: 1px solid var(--line-2); }
+  table.probes tr:last-child td { border-bottom: 0; }
+  table.probes tbody tr:hover { background: var(--sunk); }
+  table.probes tbody tr[aria-current="true"] { background: var(--select-soft); }
+  /* One marker per row, inset so two rows of the same verdict do not weld into one bar. */
+  table.probes td:first-child { position: relative; }
+  table.probes tbody td:first-child::before { content: ''; position: absolute; left: 0;
+    top: var(--s1); bottom: var(--s1); width: var(--stripe); }
+  tr.v-fail td:first-child::before { background: var(--fail); }
+  tr.v-finding td:first-child::before { background: var(--finding); }
+  tr.v-unmeasurable td:first-child::before { background: var(--unmeas); }
+  tr.v-pass td:first-child::before { background: var(--pass); }
+  .cell { padding: var(--s2) var(--s3); font: var(--type-data); color: var(--ink-2); }
+  /* The row is chosen with a real control, not a click handler on a <tr>: 0 of 4 rows were reachable
+     by keyboard before this, on a page whose middle column exists to let you choose one. */
+  .cell.crit { padding: 0; }
+  .cell.crit button { display: block; width: 100%; text-align: left; padding: var(--s2) var(--s3);
+    font: 600 var(--type-data); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cell.pname { font: var(--type-body); color: var(--ink); white-space: nowrap; }
+  .cell.detail { color: var(--ink-3); }
+  /* The clamp sits on the text, not on the padded cell: clamping a padded box leaves a sliver of the
+     next line showing under the ellipsis. */
+  .cell.detail span { display: -webkit-box; -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  /* `unproven` is a claim about METHOD, not a verdict — an unproven method can sit on a `pass`. It was
+     painted in the `finding` colour, which made every such row read as a problem and spent a verdict's
+     hue on a seventh concept. It is marked, not coloured. */
+  .meth.unproven { text-decoration: underline dotted; text-underline-offset: 3px; }
+
+  /* component · chip — the verdict, and the only loud thing on the page */
+  .verdict { font: 700 var(--type-meta); letter-spacing: .06em; padding: var(--s1) var(--s2);
+    border-radius: var(--r-chip); background: var(--na-bg); color: var(--na);
+    border: 1px solid var(--na-edge); white-space: nowrap; }
+  .verdict.fail { background: var(--fail-bg); color: var(--fail); border-color: var(--fail-edge); }
+  /* A finding is a fail it measured and may not state: a verdict with its edge left open. */
+  .verdict.finding { background: var(--finding-bg); color: var(--finding);
+    border-color: var(--finding-edge); border-style: dashed; }
+  .verdict.unmeasurable { background: var(--unmeas-bg); color: var(--unmeas); border-color: var(--unmeas-edge); }
+  .verdict.pass { background: var(--pass-bg); color: var(--pass); border-color: var(--pass-edge); }
+
+  /* A refusal is a decision, stated in a sentence, not a paler chip. */
+  .stance { margin: 0 0 var(--s3); padding: var(--s2) var(--s3); border-radius: var(--r-panel);
+    border: 1px solid var(--line); background: var(--panel); font: var(--type-body); color: var(--ink-2); }
+  .stance b { color: var(--ink); }
+  .stance.clear { background: var(--pass-bg); border-color: var(--pass-edge); color: var(--pass); }
+  .stance.clear b { color: var(--pass); }
+  .stance.review { background: var(--unmeas-bg); border-color: var(--unmeas-edge); color: var(--unmeas); }
+  .stance.review b { color: var(--unmeas); }
+  .stance.held { background: var(--finding-bg); border-color: var(--finding-edge); color: var(--finding); }
+  .stance.held b { color: var(--finding); }
+  .stance.broken { background: var(--fail-bg); border-color: var(--fail-edge); color: var(--fail); }
+  .stance.broken b { color: var(--fail); }
+  .foot { margin: var(--s4) 0 0; font: var(--type-meta); color: var(--ink-3); overflow-wrap: anywhere; }
+  .foot button { color: var(--accent); }
+
+  /* ── right · evidence ─────────────────────────────────────────────── */
+  .evidence { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; }
+  .evhead { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3);
+    border-bottom: 1px solid var(--line-2); position: sticky; top: 0; background: var(--panel); z-index: 2; }
+  .evhead h2 { margin: 0; flex: 1 1 auto; font: 600 var(--type-lede); }
+  /* component · pager */
+  .pager { display: flex; align-items: center; gap: var(--s1); font: var(--type-meta); color: var(--ink-2); }
+  .pager button { padding: var(--s1) var(--s2); border-radius: var(--r-chip); }
+  .pager button:disabled { opacity: .35; cursor: default; }
+  .pager .lbl { padding: 0 var(--s1); white-space: nowrap; }
+  .evbody { padding: var(--s3); }
+  .shot { border: 1px solid var(--line); border-radius: var(--r-panel); overflow: hidden; background: var(--sunk); }
+  .shot img { display: block; width: 100%; }
+  .shot .miss { padding: var(--s6) var(--s3); text-align: center; font: var(--type-meta); color: var(--ink-3); }
+  .capt { margin: var(--s2) 0 0; font: var(--type-meta); color: var(--ink-3);
+    white-space: pre-line; overflow-wrap: anywhere; }
+  .openshot { display: inline-flex; align-items: center; gap: var(--s1); margin-top: var(--s2);
+    font: var(--type-meta); color: var(--accent); padding: var(--s1) var(--s2); text-decoration: none; }
+  .openshot:hover { border-color: var(--accent); }
+  .evsec { margin: var(--s4) 0 var(--s2); font: 500 var(--type-label); letter-spacing: .13em;
+    text-transform: uppercase; color: var(--ink-3); }
+  .evtitle { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+  .evtitle .crit { font: 700 var(--type-lede); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .evtitle .nm { font: 600 var(--type-lede); }
+  .prov { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
+  .prov > div { border: 1px solid var(--line); border-radius: var(--r-control); padding: var(--s1) var(--s2); }
+  .prov dt { font: var(--type-label); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .prov dd { margin: 0; font: var(--type-data); }
+  .prov dd.unproven { color: var(--finding); }
+  .cite { margin-top: var(--s3); }
+  .cite .k { font: 500 var(--type-label); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .cite .what { margin: 0 0 var(--s2); font: var(--type-data); overflow-wrap: anywhere; }
+  .cite .where { margin: 0 0 var(--s2); font: var(--type-meta); overflow-wrap: anywhere; }
+  .cite .where a { color: var(--ink-2); }
+  .cite .check { margin: 0; padding: var(--s2) var(--s3); border-radius: var(--r-control);
+    background: var(--check-soft); font: var(--type-lede); color: var(--ink); }
+  /* A measured value stays in the mono even inside the sentence a person performs. */
+  .cite .check code { font: var(--type-body); font-family: var(--mono); }
+  .why { margin: var(--s2) 0 0; font: var(--type-data); color: var(--ink-2); overflow-wrap: anywhere; }
+  .aside { margin: var(--s2) 0 0; padding: var(--s2); font: var(--type-data);
+    border-left: 2px solid; border-radius: 0 var(--r-control) var(--r-control) 0; }
+  .aside.held { border-color: var(--finding); background: var(--finding-bg); color: var(--finding); }
+  .aside.refused { border-color: var(--unmeas); background: var(--unmeas-bg); color: var(--unmeas); }
+  .aside.quiet { border-color: var(--line); background: var(--sunk); color: var(--ink-3); }
+  .aside button { color: var(--accent); }
+  /* Contrast is a claim about painted text, so the text is shown painted, at the measured colours.
+     No "after" is drawn: uxcli measures what was painted; it does not invent the fix. This is the one
+     element on the page exempt from the contrast floor — see the palette document. */
+  .painted { margin-top: var(--s2); overflow: hidden; }
+  /* 16px is the browser default body size, on purpose: the specimen shows the measured page's
+     text at the size a page gets when it asks for nothing. It is off this page's type scale for the
+     same reason it is off the contrast floor. */
+  .painted .sample { padding: var(--s3); font: 16px/25px var(--sans); }
+  .painted .cap { padding: var(--s1) var(--s2); font: var(--type-meta); color: var(--ink-3);
+    border-top: 1px solid var(--line-2); background: var(--panel); }
+  .kv { margin: var(--s2) 0 0; }
+  .kv div { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--s3);
+    padding: var(--s1) var(--s2); border-top: 1px solid var(--line-2); font: var(--type-data); }
+  .kv div:first-child { border-top: 0; }
+  .kv dt { color: var(--ink-3); } .kv dd { margin: 0; overflow-wrap: anywhere; }
+  .kv dd.big { font-weight: 700; font-variant-numeric: tabular-nums; }
+  figure.pair { margin: var(--s2) 0 0; overflow: hidden; }
+  figure.pair .two { display: grid; grid-template-columns: 1fr 1fr; }
+  figure.pair .two > div { padding: var(--s1); min-width: 0; }
+  figure.pair .two > div + div { border-left: 1px solid var(--line); }
+  figure.pair .side { display: block; font: var(--type-label); letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); }
+  figure.pair img { display: block; max-width: 100%; max-height: 120px; object-fit: contain; object-position: left top; }
+  figure.pair figcaption { padding: 0 var(--s2) var(--s1); font: var(--type-meta); color: var(--ink-3);
+    border-top: 1px solid var(--line-2); }
+  details.raw { margin-top: var(--s3); }
+  details.raw summary { font: var(--type-meta); color: var(--ink-3); cursor: pointer; }
+  details.raw pre { overflow-x: auto; font: var(--type-meta); background: var(--sunk);
+    border: 1px solid var(--line-2); border-radius: var(--r-control); padding: var(--s2); margin-top: var(--s1); }
+  .hint { padding: var(--s4) var(--s3); font: var(--type-body); color: var(--ink-3); }
+  .empty { padding: var(--s7) 0; max-width: 64ch; color: var(--ink-2); }
+  .empty h1 { margin: 0 0 var(--s2); font: 600 var(--type-title); }
+  .empty code { font: var(--type-data); background: var(--sunk); padding: 0 var(--s1); border-radius: var(--r-chip); }
+</style>
+</head>
+<body>
+<div class="top">
+  <span class="brand">UXCLI</span>
+  <span class="tag">what the page actually painted</span>
+  <span class="spacer"></span>
+  <span class="search"><input id="q" type="search" placeholder="search runs" autocomplete="off"><span class="k">/</span></span>
+  <button class="iconbtn" id="theme" type="button" title="light / dark" aria-label="switch between light and dark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5"></circle><path d="M12 3.5v17a8.5 8.5 0 0 0 0-17z" fill="currentColor" stroke="none"></path></svg>
+  </button>
+  <button class="iconbtn" id="reload" type="button" title="re-read the index" aria-label="re-read the index">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+      <path d="M20 12a8 8 0 1 1-2.5-5.8"></path><path d="M20 4v4.5h-4.5"></path></svg>
+  </button>
+</div>
+
+<div class="cols">
+  <nav class="runs" aria-label="Runs">
+    <div class="runshead">
+      <div class="colhead"><h2>Recent runs</h2><span class="sub" id="runsub"></span></div>
+      <div class="filterbar" id="filterbar" hidden><span class="select" id="pick"></span></div>
+    </div>
+    <div class="runlist" id="runlist"></div>
+    <details class="legend" open>
+      <summary>Verdicts</summary>
+      <ul>
+        <li><i style="background:var(--pass)"></i><span class="w">pass</span><span>satisfied</span></li>
+        <li><i style="background:var(--fail)"></i><span class="w">fail</span><span>measured and stated</span></li>
+        <li><i style="background:var(--finding)"></i><span class="w">finding</span><span>not stated</span></li>
+        <li><i style="background:var(--unmeas)"></i><span class="w">unmeasurable</span><span>declined</span></li>
+        <li><i></i><span class="w">not-applicable</span><span>nothing to measure</span></li>
+        <li><i class="ring"></i><span class="w">not-committed</span><span>nobody signed it</span></li>
+      </ul>
+      <p class="doctrine">Evidence stays in each project. This index only knows where to look.</p>
+    </details>
+  </nav>
+
+  <section class="stage" id="stage"><div class="stagepad"><div class="empty">loading…</div></div></section>
+
+  <aside class="evidence" id="evidence" aria-label="Evidence">
+    <div class="evhead"><h2 id="evtitle">Evidence</h2><span class="pager" id="pager"></span></div>
+    <div id="evbody"><p class="hint">Pick a run to see its evidence.</p></div>
+  </aside>
+</div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const el = (t, a = {}, ...kids) => { const n = document.createElement(t);
+  for (const [k, v] of Object.entries(a)) { if (v === null || v === undefined || v === false) continue;
+    if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v); }
+  for (const c of kids.flat()) if (c) n.append(c); return n; };
+const on = (n, f) => { n.addEventListener('click', f); return n; };
+
+const RANK = { fail: 0, finding: 1, unmeasurable: 2, pass: 3, 'not-applicable': 4, 'not-committed': 4 };
+const ORDER = ['fail', 'finding', 'unmeasurable', 'pass', 'not-applicable', 'not-committed'];
+const byRank = (a, b) => (RANK[a] ?? 5) - (RANK[b] ?? 5);
+const tallyOf = ps => ps.reduce((a, p) => (a[p.verdict] = (a[p.verdict] || 0) + 1, a), {});
+const homey = p => String(p).replace(/^\/(Users|home)\/[^/]+/, '~');
+// A path or url is printed so it can be recognised, not read end to end: the head names the machine,
+// the tail names the file, and the middle is what gets cut. The full string stays in `title`.
+const shorten = (v, n = 66) => { v = String(v); return v.length <= n ? v : v.slice(0, Math.round(n * .42)) + '…' + v.slice(-Math.round(n * .52)); };
+const leaf = p => String(p).split('/').filter(Boolean).pop() || '/';
+const day = s => { try { return new Date(s).toISOString().slice(0, 10); } catch { return ''; } };
+const clock = s => { try { return new Date(s).toTimeString().slice(0, 8); } catch { return ''; } };
+const when = s => { try { const d = new Date(s), m = Math.round((Date.now() - d) / 60000);
+  return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : day(s);
+} catch { return String(s); } };
+const shortName = p => (p || '').replace(/^(flow|page)\./, '').replace(/-/g, ' ');
+// A sentence a person performs, with the machine's own values still set as the machine's values:
+// a colour, a token name, a flag or a ratio stays in the mono inside the sans.
+const MEASURED = /(#[0-9a-fA-F]{3,8}\b|--[a-zA-Z][\w-]*(?:=[\w./-]+)?|\d+(?:\.\d+)?:1)/g;
+const sentence = text => { const out = document.createDocumentFragment();
+  for (const part of String(text).split(MEASURED)) if (part)
+    out.append(MEASURED.test(part) && (MEASURED.lastIndex = 0, true) ? el('code', { text: part }) : document.createTextNode(part));
+  return out; };
+
+let INDEX = { runs: [] }, RUN = null, ENTRY = null, FILTER = null, Q = '', STEP = 0, PROBE = null;
+
+// The url carries run, probe and step, so Back walks back through what was looked at, and a link to one
+// probe of one run is a link somebody else can open.
+const route = () => { const h = decodeURIComponent(location.hash.replace(/^#\/?/, '')); const i = h.indexOf('|');
+  if (i < 0) return { dir: h, probe: null, step: null };
+  const rest = h.slice(i + 1);
+  return rest.startsWith('s:') ? { dir: h.slice(0, i), probe: null, step: parseInt(rest.slice(2), 10) }
+    : { dir: h.slice(0, i), probe: rest, step: null }; };
+const nav = (dir, tail) => { const h = dir ? '#/' + encodeURIComponent(dir) + (tail ? '|' + tail : '') : '#/';
+  if (location.hash !== h) location.hash = h; else show(); };
+const go = (dir, probe) => nav(dir, probe || '');
+const goStep = (dir, n) => nav(dir, 's:' + n);
+
+const matches = r => { if (!Q) return true; const q = Q.toLowerCase();
+  return [r.name, r.project, r.kind, r.where].some(v => String(v || '').toLowerCase().includes(q)); };
+const listed = () => INDEX.runs.filter(matches).filter(r => !FILTER || r.project === FILTER)
+  .slice().sort((a, b) => byRank(a.worst, b.worst) || String(b.ranAt).localeCompare(String(a.ranAt)));
+
+async function boot() {
+  try { INDEX = await (await fetch('/api/index')).json(); } catch { INDEX = { runs: [] }; }
+  drawPick(); drawRuns(); show();
+}
+
+// APG calls this a select-only combobox, not a listbox: a trigger that owns a popup list.
+// https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
+// Focus stays on the trigger and `aria-activedescendant` names the option being pointed at, so the
+// whole control is one tab stop and every key the pattern lists is answered.
+function drawPick() {
+  const host = $('#pick'); host.textContent = '';
+  const all = new Map();
+  for (const r of INDEX.runs) (all.get(r.project) || all.set(r.project, []).get(r.project)).push(r);
+  $('#filterbar').hidden = all.size < 2;
+  if (all.size < 2) return;
+
+  const opts = [{ proj: null, label: `all projects (${all.size})`, note: `${INDEX.runs.length} runs` }];
+  for (const [proj, runs] of all) {
+    const bad = runs.filter(r => r.worst === 'fail').length;
+    opts.push({ proj, label: leaf(proj), runs, bad,
+      note: bad ? `${bad} failing` : `${runs.length} run${runs.length > 1 ? 's' : ''}` });
+  }
+  let at = Math.max(0, opts.findIndex(o => o.proj === FILTER));
+
+  const btn = el('button', { type: 'button', role: 'combobox', 'aria-controls': 'projlist',
+    'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': 'filter by project' },
+    el('span', { text: opts[at].label }), el('span', { class: 'caret', text: '▾' }));
+  const ul = el('ul', { id: 'projlist', role: 'listbox', 'aria-label': 'project', hidden: 'hidden' });
+  opts.forEach((o, i) => {
+    const li = el('li', { role: 'option', id: 'proj-' + i, 'aria-selected': String(o.proj === FILTER),
+      class: o.proj === null ? '' : (o.bad ? 'has-fail' : o.runs.some(r => r.worst === 'finding') ? 'has-finding' : 'clean') },
+      el('span', { class: o.proj === null ? '' : 'sq' }), el('span', { text: o.label }),
+      el('span', { class: 'n', text: o.note }));
+    li.addEventListener('click', () => choose(i));
+    ul.append(li);
+  });
+
+  const open = ul.hidden === false;
+  const point = i => { at = (i + opts.length) % opts.length;
+    for (const [k, li] of [...ul.children].entries()) li.classList.toggle('here', k === at);
+    btn.setAttribute('aria-activedescendant', 'proj-' + at);
+    ul.children[at].scrollIntoView({ block: 'nearest' }); };
+  const show = () => { ul.hidden = false; btn.setAttribute('aria-expanded', 'true'); point(at); };
+  const hide = () => { ul.hidden = true; btn.setAttribute('aria-expanded', 'false');
+    btn.removeAttribute('aria-activedescendant'); for (const li of ul.children) li.classList.remove('here'); };
+  const choose = i => { at = i; FILTER = opts[i].proj; hide(); btn.focus(); drawPick(); drawRuns(); };
+  const jump = ch => { const from = at + 1;
+    for (let k = 0; k < opts.length; k++) { const i = (from + k) % opts.length;
+      if (opts[i].label.toLowerCase().startsWith(ch)) return point(i); } };
+
+  btn.addEventListener('click', e => { e.stopPropagation(); ul.hidden ? show() : hide(); });
+  btn.addEventListener('keydown', e => {
+    const k = e.key, isOpen = !ul.hidden;
+    if (!isOpen && (k === 'ArrowDown' || k === 'ArrowUp' || k === 'Enter' || k === ' ' || k === 'Home' || k === 'End')) {
+      e.preventDefault(); show(); if (k === 'Home') point(0); else if (k === 'End') point(opts.length - 1);
+      else if (k === 'ArrowUp') point(at - 1); return;
+    }
+    if (isOpen) {
+      if (k === 'Escape') { e.preventDefault(); return hide(); }
+      if (k === 'Enter' || k === ' ') { e.preventDefault(); return choose(at); }
+      if (k === 'Tab') return choose(at);
+      if (k === 'ArrowDown') { e.preventDefault(); return point(at + 1); }
+      if (k === 'ArrowUp') { e.preventDefault(); return point(at - 1); }
+      if (k === 'Home') { e.preventDefault(); return point(0); }
+      if (k === 'End') { e.preventDefault(); return point(opts.length - 1); }
+      if (k === 'PageDown') { e.preventDefault(); return point(Math.min(at + 5, opts.length - 1)); }
+      if (k === 'PageUp') { e.preventDefault(); return point(Math.max(at - 5, 0)); }
+    }
+    if (k.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      if (!isOpen) show(); jump(k.toLowerCase());
+    }
+  });
+  addEventListener('click', () => { if (!ul.hidden) hide(); });
+  host.append(btn, ul);
+}
+
+// Every run on the machine, worst first, each carrying its project, its kind and its six counts — so
+// the column answers "which one needs somebody" without opening anything.
+function drawRuns() {
+  const list = listed(), host = $('#runlist'); host.textContent = '';
+  const projects = new Set(INDEX.runs.map(r => r.project)).size;
+  $('#runsub').textContent = Q || FILTER
+    ? `${list.length} of ${INDEX.runs.length}`
+    : `${INDEX.runs.length} run${INDEX.runs.length === 1 ? '' : 's'} · ${projects} project${projects === 1 ? '' : 's'}`;
+  if (!list.length) { host.append(el('p', { class: 'hint', text: 'Nothing matches.' })); return; }
+  const cur = route().dir;
+  // Runs from one project arrive in a row: the name stays on every card, the path is printed once.
+  let last = null;
+  for (const r of list) {
+    const c = r.counts || {}, repeat = r.project === last; last = r.project;
+    host.append(on(el('button', { class: 'runcard', type: 'button', 'data-dir': r.dir,
+      'aria-current': String(r.dir === cur) },
+      el('div', { class: 'line1' }, el('span', { class: 'proj', text: leaf(r.project) }),
+        el('span', { class: 'verdict ' + r.worst, text: r.worst })),
+      el('span', { class: 'path', title: r.project, hidden: repeat ? 'hidden' : null, text: homey(r.project) }),
+      el('div', { class: 'line2' }, el('span', { class: 'kind', text: r.kind }),
+        el('span', { class: 'nm', text: r.name }),
+        el('span', { class: 'when', text: `${day(r.ranAt).slice(5)} ${clock(r.ranAt).slice(0, 5)}` })),
+      el('div', { class: 'counts' }, ORDER.map(v => el('span',
+        { class: 'c-' + v + (c[v] ? '' : ' zero'), title: `${c[v] || 0} ${v}` },
+        el('i'), document.createTextNode(String(c[v] || 0)))))), () => go(r.dir)));
+  }
+}
+
+async function show() {
+  const { dir, probe, step } = route();
+  for (const b of document.querySelectorAll('.runcard')) b.setAttribute('aria-current', String(b.dataset.dir === dir));
+  const stage = $('#stage');
+  if (!dir) { RUN = null; ENTRY = null; return welcome(stage); }
+  const entry = INDEX.runs.find(r => r.dir === dir);
+  if (!entry) { RUN = null; ENTRY = null; return welcome(stage); }
+  if (!RUN || ENTRY?.dir !== dir) {
+    try { const res = await fetch('/api/run?dir=' + encodeURIComponent(dir)); if (!res.ok) throw new Error(); RUN = await res.json(); }
+    catch { RUN = null; ENTRY = null; return missing(stage, dir); }
+    ENTRY = entry; STEP = 0; PROBE = null;
+  }
+  const ordered = probesOrdered();
+  // Nothing has to be clicked to see the failure: the worst probe is already the one in the panel.
+  PROBE = probe || PROBE || (ordered[0] && ordered[0].verdict !== 'pass' ? ordered[0].probe : ordered[0]?.probe) || null;
+  if (step !== null && !Number.isNaN(step)) STEP = step;
+  renderRun(stage); renderEvidence();
+}
+
+function welcome(stage) {
+  $('#evbody').textContent = ''; $('#pager').textContent = ''; $('#evtitle').textContent = 'Evidence';
+  $('#evbody').append(el('p', { class: 'hint', text: 'Pick a run on the left.' }));
+  stage.textContent = '';
+  const pad = el('div', { class: 'stagepad' });
+  if (!INDEX.runs.length) pad.append(el('div', { class: 'empty' },
+    el('h1', { text: 'Nothing indexed yet' }),
+    el('p', {}, 'Every ', el('code', { text: 'uxcli run' }), ' adds one line to ',
+      el('code', { text: '~/.uxcli/index.json' }), ' — a pointer to where it left run.json.'),
+    el('p', { text: 'The packet stays in the project, so it travels with the repo, the pull request and CI. Delete the index and you lose this list, never a piece of evidence.' })));
+  else {
+    const list = listed();
+    const bad = list.filter(r => r.worst === 'fail').length, held = list.filter(r => r.worst === 'finding').length;
+    const say = bad && held ? `${bad} run${bad > 1 ? 's' : ''} failed and ${held} measured a failure ${held > 1 ? 'they are' : 'it is'} not licensed to state.`
+      : bad ? `${bad} run${bad > 1 ? 's are' : ' is'} failing.`
+        : held ? `Nothing failed, but ${held} run${held > 1 ? 's' : ''} measured a failure the probe may not state.`
+          : 'Nothing failed and nothing was left unsaid.';
+    pad.append(el('div', { class: 'empty' },
+      el('h1', { text: 'Runs on this machine' }),
+      el('p', { text: say + ' The list on the left is ordered worst first.' }),
+      el('p', { text: 'Pick one to see what it measured, and the evidence it kept.' })));
+  }
+  stage.append(pad);
+}
+
+function missing(stage, dir) {
+  $('#evbody').textContent = ''; $('#pager').textContent = '';
+  stage.textContent = '';
+  stage.append(el('div', { class: 'stagepad' }, el('div', { class: 'empty' },
+    el('h1', { text: 'The packet is gone' }),
+    el('p', { text: 'This run is still in the index, but run.json is no longer on disk:' }),
+    el('p', {}, el('code', { text: homey(dir) })),
+    el('p', { text: 'The index points; it never keeps a copy. Re-run it, or drop the line — either is fine.' }),
+    on(el('button', { class: 'btn', type: 'button', text: 'forget this line' }),
+      async () => { await fetch('/api/forget?dir=' + encodeURIComponent(dir)); location.hash = ''; boot(); }))));
+}
+
+const probesOrdered = () => (RUN?.probes || []).slice().sort((a, b) => byRank(a.verdict, b.verdict));
+const src = f => '/file?dir=' + encodeURIComponent(ENTRY.dir) + '&f=' + encodeURIComponent(f);
+
+function frames() {
+  if (!RUN?.steps?.length) return [];
+  const out = RUN.steps.map(s => ({ ...s, state: s.error ? 'error' : 'ran',
+    label: (s.url || '').replace(/^https?:\/\/[^/]+/, '') || '/' }));
+  for (let i = out.length; i < (RUN.stepCount || 0); i++) out.push({ i, state: 'missed', label: 'not reached' });
+  if (RUN.finalShot) out.push({ i: 'final', shot: RUN.finalShot, state: 'ran', final: true,
+    label: 'the screen after the last step', url: RUN.steps[RUN.steps.length - 1]?.url });
+  return out;
+}
+
+function renderRun(stage) {
+  stage.textContent = '';
+  const pad = el('div', { class: 'stagepad' });
+  const probes = RUN.probes || [], c = tallyOf(probes);
+  const worst = probesOrdered()[0]?.verdict || 'not-applicable';
+  pad.append(el('div', { class: 'kicker', text: `${leaf(ENTRY.project)}  ·  ${ENTRY.kind} run` }),
+    el('div', { class: 'titleline' }, el('h1', { text: RUN.journey || RUN.title || RUN.url || ENTRY.name }),
+      el('span', { class: 'verdict ' + worst, text: worst })));
+  const url = RUN.finalUrl || RUN.url;
+  const sub = el('p', { class: 'submeta' });
+  sub.append(document.createTextNode([when(RUN.ranAt), RUN.uxcli ? 'uxcli ' + RUN.uxcli : null,
+    RUN.journey ? `${RUN.steps?.length ?? 0} of ${RUN.stepCount} steps ran` : null].filter(Boolean).join('  ·  ')));
+  if (url) { sub.append(document.createTextNode('  ·  '));
+    sub.append(el('a', { href: url, target: '_blank', rel: 'noreferrer', title: url, text: shorten(url) })); }
+  pad.append(sub);
+
+  const tiles = el('div', { class: 'tiles' });
+  for (const v of ORDER) tiles.append(el('div', { class: 'v-' + v + (c[v] ? '' : ' zero') },
+    el('span', { class: 'n', text: String(c[v] || 0) }), el('span', { class: 'k', text: v })));
+  pad.append(tiles);
+
+  const act = c.fail || 0, held = c.finding || 0, rev = c.unmeasurable || 0;
+  if (act) {
+    const named = probesOrdered().filter(p => p.verdict === 'fail').map(p => p.sc || shortName(p.probe));
+    pad.append(el('p', { class: 'stance broken' },
+      el('b', { text: `${act} failed: ${named.join(', ')}. ` }),
+      document.createTextNode(held
+        ? `${held} more measured a failure but may not state one. Both are below.`
+        : 'Measured, confirmed, and the probe is licensed to say so.')));
+  }
+  else if (!held) pad.append(el('p', { class: 'stance ' + (rev ? 'review' : 'clear') },
+    el('b', { text: rev ? `${rev} declined. ` : 'Nothing failed. ' }),
+    document.createTextNode(rev
+      ? 'The instrument read these and refused to judge rather than guess. A refusal is not a lesser failure; it is the verdict it is entitled to give.'
+      : 'Every probe that applied was satisfied, and none had to decline.')));
+  else pad.append(el('p', { class: 'stance held' },
+    el('b', { text: `${held} measured, none stated. ` }),
+    document.createTextNode('These probes measured a failure but their method is not validated yet, so they are not allowed to call it one.')));
+
+  const fr = frames();
+  if (fr.length) {
+    pad.append(el('div', { class: 'sec', text: 'The journey, in order' }));
+    const chain = el('div', { class: 'chain' });
+    fr.forEach((f, k) => {
+      if (k) chain.append(el('span', { class: 'link' }, el('span', { class: 'arrow', text: '→' })));
+      chain.append(on(el('button', { class: 'chip state-' + f.state, type: 'button', 'aria-current': String(k === STEP) },
+        f.shot ? el('img', { src: src(f.shot), alt: '', loading: 'lazy' })
+          : el('div', { class: 'miss', text: f.state === 'missed' ? 'not reached' : 'no shot' }),
+        el('span', { class: 'cap' }, el('span', { class: 'n', text: f.final ? 'outcome' : `step ${f.i}` }),
+          el('span', { class: 'u', text: f.label }),
+          el('span', { class: 'st', text: f.state === 'error' ? 'error' : f.ms ? `${f.ms} ms` : '' }))),
+        () => goStep(ENTRY.dir, k)));
+    });
+    pad.append(chain);
+  }
+
+  pad.append(el('div', { class: 'sec', text: 'Probes' }));
+  const tb = el('tbody');
+  for (const p of probesOrdered()) {
+    const pick = on(el('button', { type: 'button', text: p.sc || shortName(p.probe) }),
+      e => { e.stopPropagation(); go(ENTRY.dir, p.probe); });
+    const tr = el('tr', { class: 'v-' + p.verdict, 'aria-current': String(p.probe === PROBE) },
+      el('td', {}, el('div', { class: 'cell crit' }, pick)),
+      el('td', {}, el('div', { class: 'cell pname', text: shortName(p.probe) })),
+      el('td', {}, el('div', { class: 'cell', text: p.provenance || '' })),
+      el('td', {}, el('div', { class: 'cell' }, el('span',
+        { class: 'meth' + (/unproven/.test(p.method || '') ? ' unproven' : ''),
+          text: (p.method || '').replace('method-', '') }))),
+      el('td', {}, el('div', { class: 'cell' }, el('span', { class: 'verdict ' + p.verdict, text: p.verdict }))),
+      el('td', {}, el('div', { class: 'cell detail' }, el('span', { text: p.what || p.why || '' }))));
+    tr.addEventListener('click', () => go(ENTRY.dir, p.probe));
+    tb.append(tr);
+  }
+  pad.append(el('div', { class: 'tablewrap', tabindex: '0', role: 'region', 'aria-label': 'probes, scrolls sideways when narrow' },
+    el('table', { class: 'probes' },
+    el('thead', {}, el('tr', {}, ['criterion', 'probe', 'provenance', 'method', 'verdict', 'details']
+      .map(h => el('th', { text: h })))), tb)));
+
+  const shots = probes.reduce((n, x) => n + (x.proof?.length || 0), 0)
+    + (RUN.steps || []).filter(s => s.shot).length + (RUN.finalShot ? 1 : 0);
+  const foot = el('p', { class: 'foot' });
+  foot.append(el('span', { title: ENTRY.dir + '/run.json', text: `packet  ${shorten(homey(ENTRY.dir) + '/run.json', 58)}` }),
+    document.createTextNode(`   ·   ${shots} image${shots === 1 ? '' : 's'} beside it   ·   `));
+  foot.append(on(el('button', { type: 'button', text: 'open the folder' }),
+    () => fetch('/api/open?dir=' + encodeURIComponent(ENTRY.dir))));
+  pad.append(foot);
+  stage.append(pad);
+}
+
+// The evidence column. On a journey it pages through the frames the run passed through and the probe
+// sits underneath; on a page run there are no frames, so the probe is the whole column.
+function renderEvidence() {
+  const body = $('#evbody'), pager = $('#pager');
+  body.textContent = ''; pager.textContent = '';
+  if (!RUN) { $('#evtitle').textContent = 'Evidence';
+    body.append(el('p', { class: 'hint', text: 'Pick a run on the left.' })); return; }
+  const fr = frames();
+  const box = el('div', { class: 'evbody' });
+
+  if (fr.length) {
+    if (STEP >= fr.length) STEP = 0;
+    const f = fr[STEP];
+    $('#evtitle').textContent = 'Evidence';
+    const stepTo = d => { const n = STEP + d; if (fr[n]) goStep(ENTRY.dir, n); };
+    pager.append(on(el('button', { type: 'button', text: '‹', disabled: STEP === 0 }), () => stepTo(-1)),
+      el('span', { class: 'lbl', text: f.final ? 'outcome' : `step ${f.i} of ${RUN.stepCount}` }),
+      on(el('button', { type: 'button', text: '›', disabled: STEP === fr.length - 1 }), () => stepTo(1)));
+    const shot = el('div', { class: 'shot' });
+    if (f.shot) shot.append(el('img', { src: src(f.shot), alt: `step ${f.i}` }));
+    else shot.append(el('div', { class: 'miss', text: f.state === 'missed'
+      ? 'This step was never reached, so there is nothing to show.' : 'No frame was captured for this step.' }));
+    box.append(shot);
+    const bits = [f.url, f.startedAt ? `captured at ${clock(f.startedAt)} · took ${f.ms} ms` : null,
+      f.arrivedBy ? `arrived by ${f.arrivedBy}` : null, f.error || f.flowBreak || null].filter(Boolean);
+    box.append(el('p', { class: 'capt', text: bits.join('\n') }));
+    if (f.shot) box.append(el('a', { class: 'openshot', href: src(f.shot), target: '_blank',
+      rel: 'noreferrer', text: 'open full screenshot ↗' }));
+    box.append(el('div', { class: 'evsec', text: 'Probe details' }));
+  } else $('#evtitle').textContent = 'Probe evidence';
+
+  const list = probesOrdered(), p = list.find(x => x.probe === PROBE) || list[0];
+  if (!p) { box.append(el('p', { class: 'hint', text: 'This run recorded no probes.' })); body.append(box); return; }
+  if (!fr.length) {
+    const i = list.indexOf(p);
+    const to = d => { const n = list[i + d]; if (n) go(ENTRY.dir, n.probe); };
+    pager.append(on(el('button', { type: 'button', text: '‹', disabled: i === 0 }), () => to(-1)),
+      el('span', { class: 'lbl', text: `${i + 1} of ${list.length}` }),
+      on(el('button', { type: 'button', text: '›', disabled: i === list.length - 1 }), () => to(1)));
+  }
+
+  box.append(el('div', { class: 'evtitle' }, el('span', { class: 'verdict ' + p.verdict, text: p.verdict }),
+    el('span', { class: 'crit', text: p.sc || '' }), el('span', { class: 'nm', text: shortName(p.probe) })));
+  box.append(el('div', { class: 'prov' },
+    el('div', {}, el('dt', { text: 'provenance' }), el('dd', { text: p.provenance || '—' })),
+    el('div', {}, el('dt', { text: 'method' }),
+      el('dd', { class: /unproven/.test(p.method || '') ? 'unproven' : '', text: (p.method || '—').replace('method-', '') }))));
+
+  if (p.what) {
+    const cite = el('div', { class: 'cite' });
+    cite.append(el('div', { class: 'k', text: 'what' }), el('p', { class: 'what', text: p.what }));
+    if (p.where) cite.append(el('div', { class: 'k', text: 'where' }),
+      el('p', { class: 'where' }, el('a', { href: p.where, target: '_blank', rel: 'noreferrer',
+        title: p.where, text: shorten(p.where, 54) })));
+    if (p.check) cite.append(el('div', { class: 'k', text: 'check' }), el('p', { class: 'check' }, sentence(p.check)));
+    box.append(cite);
+  } else if (p.why) box.append(el('p', { class: 'why', text: p.why }));
+
+  for (const g of (p.groups || []).slice(0, 2)) if (g.fg && g.bg) {
+    box.append(el('div', { class: 'painted' },
+      // A specimen of what the measured page painted, not text this page is asking anyone to read:
+      // the colours, the ratio and the count are all set as text in the table directly beneath it.
+      // It is deliberately unreadable when the measured page was — removing that would remove the
+      // evidence — so it is kept out of the accessibility tree rather than "fixed".
+      el('div', { class: 'sample', role: 'img', 'aria-hidden': 'true',
+        'data-specimen': `${g.fg} on ${g.bg}`, style: `color:${g.fg};background:${g.bg}`,
+        text: 'The quick brown fox jumps over the lazy dog' }),
+      el('div', { class: 'cap', text: 'the measured colours, as painted' })));
+    const kv = el('div', { class: 'kv' });
+    const pair = (k, v, big) => kv.append(el('div', {}, el('dt', { text: k }), el('dd', { class: big ? 'big' : '', text: v })));
+    pair('colour pair', `${g.fg} on ${g.bg}`); pair('ratio', g.ratio + ':1', true);
+    pair('across', `${g.count} text node${g.count === 1 ? '' : 's'}`);
+    if (g.example) pair('example', g.example);
+    if (g.fgToken || g.bgToken) pair('token', [g.fgToken, g.bgToken].filter(Boolean).join(' / '));
+    box.append(kv);
+  }
+
+  if (p.rawVerdict && p.rawVerdict !== p.verdict)
+    box.append(el('p', { class: 'aside held', text: `measured ${p.rawVerdict}, reported ${p.verdict}: this probe's method is not validated yet, so it may not state a fail.` }));
+  if (p.reread && !p.reread.agreed)
+    box.append(el('p', { class: 'aside refused', text: `read twice ${p.reread.afterMs} ms apart and the page had changed between them, so the first read is not evidence.` }));
+  if (p.reread?.agreed)
+    box.append(el('p', { class: 'aside quiet', text: `confirmed by a second read ${p.reread.afterMs} ms later, naming the same elements.` }));
+  const steps = [...new Set([...(p.reasked || []).map(m => m.step),
+    ...(p.inversion ? [p.inversion.stepA, p.inversion.stepB] : [])])].filter(n => n !== undefined);
+  if (steps.length) box.append(on(el('p', { class: 'aside quiet' },
+    document.createTextNode(`pointed from step ${steps.join(', ')} — `),
+    el('button', { type: 'button', text: 'show that frame' })), () => goStep(ENTRY.dir, steps[0])));
+
+  const proof = (p.proof || []).map(f => String(f).split('/').pop());
+  if (proof.length) {
+    const img = f => el('img', { src: src(f), alt: f, loading: 'lazy' });
+    const side = (label, f) => el('div', {}, el('span', { class: 'side', text: label }), img(f));
+    const pairs = new Map(), loose = [];
+    for (const f of proof) { const m = f.match(/^(.*)-(before|after)\.png$/i);
+      if (m) (pairs.get(m[1]) || pairs.set(m[1], {}).get(m[1]))[m[2].toLowerCase()] = f; else loose.push(f); }
+    for (const [k, pr] of pairs) box.append(el('figure', { class: 'pair' },
+      el('div', { class: 'two' }, pr.before ? side('before', pr.before) : null, pr.after ? side('after', pr.after) : null),
+      el('figcaption', { text: k })));
+    for (const f of loose) box.append(el('figure', { class: 'pair' },
+      el('div', { class: 'two' }, el('div', {}, img(f))), el('figcaption', { text: f })));
+  }
+  box.append(el('details', { class: 'raw' }, el('summary', { text: 'the packet as measured' }),
+    el('pre', { text: JSON.stringify(p, null, 1) })));
+  body.append(box);
+}
+
+addEventListener('hashchange', show);
+on($('#reload'), boot); on($('#theme'), () => { const r = document.documentElement;
+  const now = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  r.setAttribute('data-theme', now === 'dark' ? 'light' : 'dark'); });
+$('#q').addEventListener('input', e => { Q = e.target.value.trim(); drawRuns(); });
+// Below the three-column layout the legend lands between the run list and the run itself, so it is
+// folded there rather than made into a glossary the reader scrolls past on every visit.
+const fitLegend = () => { $('.legend').open = innerWidth > 820; };
+addEventListener('resize', fitLegend); fitLegend();
+addEventListener('keydown', e => { if (e.key === '/' && e.target.tagName !== 'INPUT') { e.preventDefault(); $('#q').focus(); } });
+boot();
+</script>
+</body>
+</html>
