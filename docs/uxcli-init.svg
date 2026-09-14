@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="833" height="510" viewBox="0 0 833 510" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', monospace" font-size="13" role="img" aria-label="uxcli init on a project that has never used it: five files it would create, none written; commitments not found and no journey measured, each marked as something only a human signs; and the next step, which needs nothing signed">
+<title>uxcli init · what would be created, and where the project stands</title>
+<style>
+@keyframes type{0%{width:0}5.515%,100%{width:95.8px}}
+@keyframes caret{0%,5.515%{opacity:1}10.595%,100%{opacity:0}}
+@keyframes st{0%,10.585%{opacity:0}10.595%,97%{opacity:1}100%{opacity:0}}
+@keyframes c0{0%,21.47%{opacity:0}21.48%,97%{opacity:1}100%{opacity:0}}
+@keyframes c1{0%,23.357%{opacity:0}23.367%,97%{opacity:1}100%{opacity:0}}
+@keyframes c2{0%,25.244%{opacity:0}25.254%,97%{opacity:1}100%{opacity:0}}
+@keyframes c3{0%,27.130999999999997%{opacity:0}27.141%,97%{opacity:1}100%{opacity:0}}
+@keyframes c4{0%,29.017999999999997%{opacity:0}29.028%,97%{opacity:1}100%{opacity:0}}
+@keyframes c5{0%,30.904%{opacity:0}30.914%,97%{opacity:1}100%{opacity:0}}
+@keyframes c6{0%,32.791000000000004%{opacity:0}32.801%,97%{opacity:1}100%{opacity:0}}
+@keyframes c7{0%,34.678000000000004%{opacity:0}34.688%,97%{opacity:1}100%{opacity:0}}
+@keyframes c8{0%,36.565000000000005%{opacity:0}36.575%,97%{opacity:1}100%{opacity:0}}
+@keyframes c9{0%,38.452000000000005%{opacity:0}38.462%,97%{opacity:1}100%{opacity:0}}
+@keyframes c10{0%,40.338%{opacity:0}40.348%,97%{opacity:1}100%{opacity:0}}
+@keyframes c11{0%,42.225%{opacity:0}42.235%,97%{opacity:1}100%{opacity:0}}
+@keyframes c12{0%,44.112%{opacity:0}44.122%,97%{opacity:1}100%{opacity:0}}
+@keyframes c13{0%,45.999%{opacity:0}46.009%,97%{opacity:1}100%{opacity:0}}
+@keyframes c14{0%,47.886%{opacity:0}47.896%,97%{opacity:1}100%{opacity:0}}
+@keyframes c15{0%,49.772%{opacity:0}49.782%,97%{opacity:1}100%{opacity:0}}
+@keyframes c16{0%,51.659%{opacity:0}51.669%,97%{opacity:1}100%{opacity:0}}
+@keyframes ex{0%,57.9%{opacity:0}57.91%,97%{opacity:1}100%{opacity:0}}
+</style>
+<rect width="833" height="510" rx="10" fill="#0b0b0c"/>
+<rect width="833" height="510" rx="10" fill="none" stroke="#26262a"/>
+<rect width="833" height="34" rx="10" fill="#1a1a1d"/>
+<rect y="24" width="833" height="10" fill="#1a1a1d"/>
+<line x1="0" y1="34" x2="833" y2="34" stroke="#26262a"/>
+<circle cx="18" cy="17" r="4.5" fill="#3a3a3f"/>
+<circle cx="34" cy="17" r="4.5" fill="#3a3a3f"/>
+<circle cx="50" cy="17" r="4.5" fill="#3a3a3f"/>
+<text x="416.5" y="21" fill="#5d5b56" font-size="11.5" text-anchor="middle">uxcli — verdict card</text>
+<clipPath id="type"><rect x="33.626" y="52" width="0" height="26" style="animation:type 6.89s steps(12) infinite"/></clipPath>
+<text x="18" y="72" fill="#7ccf9a">$ </text>
+<text x="33.626" y="72" fill="#ece9e2" clip-path="url(#type)" xml:space="preserve">uxcli init .</text>
+<rect x="127.4" y="58" width="6.6" height="15" fill="#ece9e2" style="animation:caret 6.89s step-end infinite"/>
+<text x="18" y="92" fill="#5d5b56" style="animation:st 6.89s linear infinite">reading the project · no browser, nothing written</text>
+<text x="18" y="132" style="animation:c0 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">uxcli init · ~/your-project          nothing written — this is a plan</tspan></text>
+<text x="18" y="152" style="animation:c1 6.89s linear infinite" xml:space="preserve"></text>
+<text x="18" y="172" style="animation:c2 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  would create  .claude/skills/before-done/SKILL.md</tspan></text>
+<text x="18" y="192" style="animation:c3 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  would create  .claude/skills/journey/SKILL.md</tspan></text>
+<text x="18" y="212" style="animation:c4 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  would create  .claude/skills/principles/SKILL.md</tspan></text>
+<text x="18" y="232" style="animation:c5 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  would create  .claude/rules/uxcli.md  loaded at the start of every session</tspan></text>
+<text x="18" y="252" style="animation:c6 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  would create  .uxcli/</tspan></text>
+<text x="18" y="272" style="animation:c7 6.89s linear infinite" xml:space="preserve"></text>
+<text x="18" y="292" style="animation:c8 6.89s linear infinite" xml:space="preserve"><tspan fill="#5d5b56" xml:space="preserve">  where </tspan><tspan fill="#c9c6be" xml:space="preserve">this project stands</tspan></text>
+<text x="18" y="312" style="animation:c9 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">    commitments   not found (uxcli.commitments.json)    ← only a human signs this</tspan></text>
+<text x="18" y="332" style="animation:c10 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">    journeys      0 measured · 0 proposals</tspan></text>
+<text x="18" y="352" style="animation:c11 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">    runs          none recorded for this project</tspan></text>
+<text x="18" y="372" style="animation:c12 6.89s linear infinite" xml:space="preserve"></text>
+<text x="18" y="392" style="animation:c13 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  next step</tspan></text>
+<text x="18" y="412" style="animation:c14 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">    uxcli run &lt;url of the screen under test&gt;            the first measurement; it needs nothing signed</tspan></text>
+<text x="18" y="432" style="animation:c15 6.89s linear infinite" xml:space="preserve"></text>
+<text x="18" y="452" style="animation:c16 6.89s linear infinite" xml:space="preserve"><tspan fill="#c9c6be" xml:space="preserve">  uxcli init --apply          create the 5 items above. Nothing is overwritten.</tspan></text>
+<text x="18" y="472" style="animation:ex 6.89s linear infinite" xml:space="preserve"><tspan fill="#5d5b56">$ echo $? → </tspan><tspan fill="#5fd38a" font-weight="600">0</tspan><tspan fill="#5d5b56">   a plan is not a change</tspan></text>
+</svg>
