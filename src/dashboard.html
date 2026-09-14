@@ -808,7 +808,7 @@ function renderRun(stage) {
       pad.append(el('p', { class: 'aside refused' },
         el('b', { text: `Step ${broke} did not finish. ` }),
         document.createTextNode(missed > 0
-          ? `The journey stopped there, so the ${missed === 1 ? 'step' : `${missed} steps`} after it never ran and no probe saw ${missed === 1 ? 'it' : 'them'}.`
+          ? `The ${missed === 1 ? 'step' : `${missed} steps`} after it never ran.`
           : 'The journey stopped there.')));
     }
     const chain = el('div', { class: 'chain', tabindex: '0', role: 'group', 'aria-label': 'the journey, in order' });
