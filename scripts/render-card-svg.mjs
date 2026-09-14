@@ -12,6 +12,10 @@ if (!cardPath || !outPath) {
   process.exit(1);
 }
 const cmd = (rest.find(a => a.startsWith('--cmd=')) || '--cmd=uxcli run http://localhost:3100/login --prove').slice(6);
+// Everything the card does not itself contain — the browser line, the exit code, the accessible name —
+// is per-command and must be passed in. A clip that narrates a browser launch for a command that opens
+// no browser, or prints exit 2 for a command that returns 0, is the defect this tool exists to catch.
+const flag = (k, d) => { const f = rest.find(a => a.startsWith(`--${k}=`)); return f === undefined ? d : f.slice(k.length + 3); };
 
 const C = {
   bg: '#0b0b0c', panel: '#141416', bar: '#1a1a1d', hair: '#26262a',
@@ -23,6 +27,7 @@ const FONT = "ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono',
 const FS = 13, CH = FS * 0.601, LH = 20, PAD = 18, BAR = 34;
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const escAttr = s => esc(s).replace(/"/g, '&quot;');
 
 // ── colour the card by its own vocabulary ────────────────────────────────────
 // Only presentation: every character comes from the captured card.
@@ -115,7 +120,7 @@ const FIRST = STATUS_AT + 0.75;
 const STEP = 0.13;
 const total = +(FIRST + card.length * STEP + 3.2).toFixed(2);
 
-const status = 'opening http://localhost:3100/login · chromium 1280×800 · --prove: one planted defect per pass';
+const status = flag('status', 'opening http://localhost:3100/login · chromium 1280×800 · --prove: one planted defect per pass');
 
 const widest = Math.max(cmd.length + 12, status.length + 2, ...card.map(r => r.length));
 const W = Math.round(widest * CH + PAD * 2);
@@ -132,8 +137,8 @@ const reveal = (name, t) => {
 };
 
 const L = [];
-L.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${FONT}" font-size="${FS}" role="img" aria-label="uxcli run on a page with no visible focus ring: 2.4.7 FAIL, contrast and text-overlap PASS, each pass carrying the defect that would have failed it">`);
-L.push(`<title>uxcli run · one screen, four probes, one blocking verdict</title>`);
+L.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${FONT}" font-size="${FS}" role="img" aria-label="${escAttr(flag('label', 'uxcli run on a page with no visible focus ring: 2.4.7 FAIL, contrast and text-overlap PASS, each pass carrying the defect that would have failed it'))}">`);
+L.push(`<title>${esc(flag('title', 'uxcli run · one screen, four probes, one blocking verdict'))}</title>`);
 const STYLE_AT = L.length;   // keyframes are collected as the body is built
 L.push('');                  // placeholder, filled in once every delay is known
 
@@ -173,7 +178,8 @@ card.forEach((line, i) => {
 
 // exit line
 y += LH;
-L.push(`<text x="${PAD}" y="${y}" style="${reveal('ex', FIRST + card.length * STEP + 0.3)}" xml:space="preserve"><tspan fill="${C.faint}">$ echo $? → </tspan><tspan fill="${C.fail}" font-weight="600">2</tspan><tspan fill="${C.faint}">   one fail blocks the merge</tspan></text>`);
+const exitCode = flag('exit', '2'), exitNote = flag('exit-note', 'one fail blocks the merge');
+L.push(`<text x="${PAD}" y="${y}" style="${reveal('ex', FIRST + card.length * STEP + 0.3)}" xml:space="preserve"><tspan fill="${C.faint}">$ echo $? → </tspan><tspan fill="${exitCode === '0' ? C.pass : C.fail}" font-weight="600">${esc(exitCode)}</tspan><tspan fill="${C.faint}">   ${esc(exitNote)}</tspan></text>`);
 
 L[STYLE_AT] = `<style>\n${keyframes.join('\n')}\n</style>`;
 L.push(`</svg>`);
