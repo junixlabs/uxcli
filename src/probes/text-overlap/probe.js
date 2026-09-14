@@ -68,5 +68,13 @@ export default {
       return Math.min(a.right, b.right) - Math.max(a.left, b.left) >= 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) >= 2;
     }, ['[data-uxcli-a]', '[data-uxcli-b]']).catch(() => false);
     return { mutation: `"${s.b.sel}" moved onto "${s.a.sel}"`, reached, ...(reached ? {} : { why: 'the moved text did not land on the other' }) };
-  }
+  },
+  explain(p, result) {
+    const t = p.targets;
+    return {
+      what: `${t.length} pair${t.length > 1 ? 's' : ''} of text painted over each other: ${t.slice(0, 3).map(x => `"${x.a.text.slice(0, 18)}" (${x.a.sel}) over "${x.b.text.slice(0, 18)}" (${x.b.sel}) at ${x.at.x},${x.at.y} ${x.at.w}×${x.at.h}px`).join('; ')}${t.length > 3 ? '; …' : ''}`,
+      where: result.finalUrl || result.url,
+      check: `Look at ${t[0].a.sel} and ${t[0].b.sel}. Can you read both texts?`,
+    };
+  },
 };

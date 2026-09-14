@@ -16,6 +16,18 @@ export function withMethod(probe, out) {
   return r;
 }
 
+// what / where / check — the citation a reader acts on. Written into the result, not composed by the
+// card, so run.json carries it and every surface (card, report, dashboard, MCP) says the same thing.
+// Runs last: contrast can only name a design token after --src has been indexed.
+export function explainAll(result, probes) {
+  for (const p of result.probes) {
+    if (p.verdict !== 'fail' && p.rawVerdict !== 'fail') continue;
+    const probe = probes.find(x => x.id === p.probe);
+    if (!probe?.explain) continue;
+    try { Object.assign(p, probe.explain(p, result)); } catch {}
+  }
+}
+
 export async function runJourney(J, { browser, outDir } = {}) {
   const own = !browser; if (own) browser = await launch();
   const ctx = { J, steps: [], recorded: [], authSteps: new Set(), commitIdx: J.steps.findIndex(s => s.commit), blocked: false, browser };
@@ -23,17 +35,27 @@ export async function runJourney(J, { browser, outDir } = {}) {
   bctx.setDefaultTimeout(10000); // a selector that is not on the page fails in 10 s, not 30
   const page = await bctx.newPage();
   for (let i = 0; i < J.steps.length; i++) {
-    const step = J.steps[i]; const rec = { i, url: null, arrivedBy: null, title: null, noise: null, inputsOnArrival: [] };
-    try { rec.arrivedBy = await arrive(page, step); } catch (e) { rec.error = 'load: ' + String(e).slice(0, 160); ctx.steps.push(rec); break; }
+    // When each step began and how long it took. Two fields, and they turn "the page was still changing"
+    // from a sentence into a number a reader can check against the 700 ms re-read.
+    const t0 = Date.now();
+    const step = J.steps[i]; const rec = { i, startedAt: new Date(t0).toISOString(), ms: 0, url: null, arrivedBy: null, title: null, noise: null, inputsOnArrival: [] };
+    try { rec.arrivedBy = await arrive(page, step); } catch (e) { rec.error = 'load: ' + String(e).slice(0, 160); rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
     rec.url = page.url(); rec.title = await page.title();
-    if (BOT.test(rec.title)) { rec.blocked = true; ctx.blocked = true; ctx.steps.push(rec); break; }
+    if (BOT.test(rec.title)) { rec.blocked = true; ctx.blocked = true; rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
     rec.noise = await noise(page);
     rec.scope = await markScope(page, step);
     rec.inputsOnArrival = await evalIn(page, '() => processInputs()');
     for (const p of PROBES) if (p.onStep) await p.onStep(page, rec, ctx);
-    try { if (await fillStep(page, step, i, ctx.recorded)) ctx.authSteps.add(i); rec.flowBreak = await act(page, step); } catch (e) { rec.error = 'act: ' + String(e).slice(0, 160); ctx.steps.push(rec); break; }
-    ctx.steps.push(rec);
+    // The screen as it was when this step was reached, before anything was typed or clicked. A journey
+    // read as a table of urls is a journey nobody can picture; this is the one frame per step that
+    // makes the sequence legible, and it is the same frame the probes just read.
+    rec.film = await page.screenshot({ type: 'jpeg', quality: 55 }).catch(() => null);
+    try { if (await fillStep(page, step, i, ctx.recorded)) ctx.authSteps.add(i); rec.flowBreak = await act(page, step); } catch (e) { rec.error = 'act: ' + String(e).slice(0, 160); rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
+    rec.ms = Date.now() - t0; ctx.steps.push(rec);
   }
+  // The outcome of the last step belongs to no step's arrival, and on a commit it is the screen that
+  // matters most, so it is kept separately rather than squeezed into the last row.
+  ctx.finalShot = await page.screenshot({ type: 'jpeg', quality: 55 }).catch(() => null);
   await bctx.close();
   segment(ctx);
   const probes = [];
@@ -41,7 +63,11 @@ export async function runJourney(J, { browser, outDir } = {}) {
   if (own) await browser.close();
   if (outDir) writeEvidence(ctx, probes, outDir);
   for (const s of ctx.steps) delete s.evidence;
-  return { journey: J.name, ranAt: new Date().toISOString(), stepCount: J.steps.length, steps: ctx.steps, recorded: ctx.recorded, probes };
+  for (const s of ctx.steps) delete s.film;
+  const out = { journey: J.name, ranAt: new Date().toISOString(), stepCount: J.steps.length, steps: ctx.steps, recorded: ctx.recorded, probes };
+  if (ctx.finalShotFile) out.finalShot = ctx.finalShotFile;
+  explainAll(out, PROBES);
+  return out;
 }
 
 // Process segments: a goto or a submit that did not navigate starts a new segment; sameProcess joins ranges (provenance project).
@@ -54,10 +80,14 @@ function segment(ctx) {
   ctx.breakAfter = (a, b) => { for (let i = Math.min(a, b) + 1; i <= Math.max(a, b); i++) if (segOf[i] !== segOf[i - 1]) return i; return null; };
 }
 
-// Evidence files are written only for fails: the cited screen, cited fields outlined.
+// Two different things are written here. The per-step frames are written for every journey run,
+// because the sequence is what a journey is and it cannot be reconstructed afterwards. The cited
+// crops — a field outlined in red — are still written only for a fail, because only a fail cites.
 function writeEvidence(ctx, probes, outDir) {
   fs.mkdirSync(outDir, { recursive: true });
   const save = (name, buf) => { if (!buf) return null; const f = path.join(outDir, name); fs.writeFileSync(f, buf); return f; };
+  for (const s of ctx.steps) { const f = save(`step-${s.i}.jpg`, s.film); if (f) s.shot = path.basename(f); }
+  ctx.finalShotFile = (f => f && path.basename(f))(save('step-final.jpg', ctx.finalShot));
   for (const p of probes) {
     if (p.verdict !== 'fail') continue;
     if (p.sc === '3.3.7') p.proof = [...new Set(p.reasked.map(m => m.step))].map(i => save(`3.3.7-step${i}.png`, ctx.steps[i]?.evidence?.['3.3.7'])).filter(Boolean);

@@ -40,4 +40,14 @@ export default {
     const reached = r.found > 0 && r.hit * 2 >= r.found;
     return { mutation: `${r.found} passed text nodes blended four fifths into their background`, reached, why: reached ? null : `${r.hit} of ${r.found} nodes took the colour (selectors stale or overridden)`, found: r.found, hit: r.hit };
   },
+  explain(p, result) {
+    const g = p.groups, col = (hex, tok) => tok ? `${hex} (${tok})` : hex;
+    return {
+      what: `${g.reduce((n, x) => n + x.count, 0)} text nodes in ${g.length} colour pair${g.length > 1 ? 's' : ''}: ${g.slice(0, 4).map(x => `${col(x.fg, x.fgToken)} on ${col(x.bg, x.bgToken)} ${x.ratio}:1 ×${x.count} (e.g. ${x.example})`).join('; ')}${g.length > 4 ? '; …' : ''}`,
+      where: result.finalUrl || result.url,
+      check: g[0].fgToken || g[0].bgToken
+        ? `${[g[0].fgToken, g[0].bgToken].filter(Boolean).join(' and ')} declared in ${result.src}; one change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}.`
+        : `Is ${g[0].fg} on ${g[0].bg} a design token? One change there fixes ${g[0].count} node${g[0].count > 1 ? 's' : ''}. Pass --src=DIR to name it.`,
+    };
+  },
 };

@@ -68,4 +68,12 @@ export default {
     if (!r.found) return { mutation: null, reached: false, why: `locked element ${t.sel} not found on reload` };
     return { mutation: `${t.property} on ${t.sel} locked below the minimum`, reached: r.before !== r.after, why: r.before !== r.after ? null : `computed ${t.property} unchanged (${r.before})` };
   },
+  explain(p, result) {
+    const t = p.targets;
+    return {
+      what: `${t.length} locked value${t.length > 1 ? 's' : ''} below the minimum: ${t.slice(0, 3).map(x => `${x.sel} ${x.property} ${x.value}px < ${x.threshold}px (ACT ${x.rule})`).join('; ')}${t.length > 3 ? '; …' : ''}`,
+      where: result.finalUrl || result.url,
+      check: `Does the style attribute on ${t[0].lockedOn === 'self' ? t[0].sel : t[0].lockedOn} set ${t[0].property} with !important?`,
+    };
+  },
 };

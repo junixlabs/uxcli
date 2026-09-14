@@ -117,4 +117,14 @@ export default {
     const reached = r.checked > 0 && r.same === r.checked;
     return { mutation: `focus styles of the ${idx.length} measured controls set equal to their unfocused styles`, reached, why: reached ? null : r.checked === 0 ? 'no measured control took programmatic focus' : `${r.checked - r.same} of ${r.checked} controls still change computed style on focus (indicator drawn by an ancestor, a script, or a pseudo-element)`, checked: r.checked, same: r.same };
   },
+  // The citation a reader acts on. Lives here, not in the card, so every surface that reads run.json
+  // (card, report, dashboard, MCP) gets the same sentence instead of re-deriving it.
+  explain(p, result) {
+    const t = p.targets;
+    return {
+      what: `${t.length} of ${p.measured} measured controls show no pixel change on focus: ${t.slice(0, 4).map(x => x.sel + (x.text ? ` "${x.text.slice(0, 20)}"` : '')).join(', ')}${t.length > 4 ? ', …' : ''}`,
+      where: result.finalUrl || result.url,
+      check: `Press Tab until ${t[0].sel}${t[0].text ? ` "${t[0].text.slice(0, 20)}"` : ''} should have focus. Can you see where focus is?`,
+    };
+  },
 };
