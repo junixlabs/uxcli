@@ -1,0 +1,342 @@
+{
+  "owner": "uxcli maintainers",
+  "source": ".claude/specs/research/2026-09-14-dashboard-palette.md",
+  "entries": [
+    {
+      "id": "verdict.fail.light",
+      "kind": "contrast",
+      "fg": "--lt-fail-ink",
+      "bg": "--lt-fail-bg",
+      "min": 4.5,
+      "why": "a verdict chip is 10.5px mono, so it is small text and takes the 4.5:1 floor, not 3:1"
+    },
+    {
+      "id": "verdict.fail.dark",
+      "kind": "contrast",
+      "fg": "--dk-fail-ink",
+      "bg": "--dk-fail-bg",
+      "min": 4.5,
+      "why": "same chip at night; the dark palette is committed separately because it is not an inversion"
+    },
+    {
+      "id": "verdict.finding.light",
+      "kind": "contrast",
+      "fg": "--lt-finding-ink",
+      "bg": "--lt-finding-bg",
+      "min": 4.5,
+      "why": "finding is a measured failure a probe may not state; it must be as readable as fail, never a faded fail"
+    },
+    {
+      "id": "verdict.finding.dark",
+      "kind": "contrast",
+      "fg": "--dk-finding-ink",
+      "bg": "--dk-finding-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "verdict.unmeasurable.light",
+      "kind": "contrast",
+      "fg": "--lt-unmeas-ink",
+      "bg": "--lt-unmeas-bg",
+      "min": 4.5,
+      "why": "a refusal is a decision the instrument is entitled to make, so it is printed as loudly as any other verdict"
+    },
+    {
+      "id": "verdict.unmeasurable.dark",
+      "kind": "contrast",
+      "fg": "--dk-unmeas-ink",
+      "bg": "--dk-unmeas-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "verdict.pass.light",
+      "kind": "contrast",
+      "fg": "--lt-pass-ink",
+      "bg": "--lt-pass-bg",
+      "min": 4.5,
+      "why": "pass is read as often as fail when a reader is checking that a fix landed"
+    },
+    {
+      "id": "verdict.pass.dark",
+      "kind": "contrast",
+      "fg": "--dk-pass-ink",
+      "bg": "--dk-pass-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "verdict.quiet.light",
+      "kind": "contrast",
+      "fg": "--lt-quiet-ink",
+      "bg": "--lt-quiet-bg",
+      "min": 4.5,
+      "why": "not-applicable and not-committed are deliberately colourless, but colourless is not an excuse to be unreadable"
+    },
+    {
+      "id": "verdict.quiet.dark",
+      "kind": "contrast",
+      "fg": "--dk-quiet-ink",
+      "bg": "--dk-quiet-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "reading.body.light",
+      "kind": "contrast",
+      "fg": "--lt-ink",
+      "bg": "--lt-panel",
+      "min": 4.5,
+      "why": "the probe table is the page's running text"
+    },
+    {
+      "id": "reading.body.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink",
+      "bg": "--dk-panel",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "reading.muted.light",
+      "kind": "contrast",
+      "fg": "--lt-ink-3",
+      "bg": "--lt-rail",
+      "min": 4.5,
+      "why": "the run list sets paths and timestamps at 10.5px in this colour; muted here still means small text"
+    },
+    {
+      "id": "reading.muted.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink-3",
+      "bg": "--dk-rail",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "link.accent.light",
+      "kind": "contrast",
+      "fg": "--lt-accent",
+      "bg": "--lt-panel",
+      "min": 4.5,
+      "why": "the accent is the one non-verdict colour on the page and it is only ever a link or a selection"
+    },
+    {
+      "id": "link.accent.dark",
+      "kind": "contrast",
+      "fg": "--dk-accent",
+      "bg": "--dk-panel",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "check.sentence.light",
+      "kind": "contrast",
+      "fg": "--lt-ink",
+      "bg": "--lt-accent-bg",
+      "min": 4.5,
+      "why": "`check` is the one sentence a person performs; it is the last thing allowed to be hard to read"
+    },
+    {
+      "id": "check.sentence.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink",
+      "bg": "--dk-accent-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "method.unproven.light",
+      "kind": "contrast",
+      "fg": "--lt-finding-ink",
+      "bg": "--lt-panel",
+      "min": 4.5,
+      "why": "`unproven` is printed in the method column in the finding colour, on the panel rather than on a chip"
+    },
+    {
+      "id": "method.unproven.dark",
+      "kind": "contrast",
+      "fg": "--dk-finding-ink",
+      "bg": "--dk-panel",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "select.body.light",
+      "kind": "contrast",
+      "fg": "--lt-ink",
+      "bg": "--lt-select-bg",
+      "min": 4.5,
+      "why": "the probe row a reader has selected is still the row they are reading"
+    },
+    {
+      "id": "select.cell.light",
+      "kind": "contrast",
+      "fg": "--lt-ink-2",
+      "bg": "--lt-select-bg",
+      "min": 4.5,
+      "why": "provenance and probe name sit on the selection ground once a row is picked"
+    },
+    {
+      "id": "select.muted.light",
+      "kind": "contrast",
+      "fg": "--lt-ink-3",
+      "bg": "--lt-select-bg",
+      "min": 4.5,
+      "why": "the details sentence is muted and 12px, and it is the widest thing on the selected row"
+    },
+    {
+      "id": "select.method-unproven.light",
+      "kind": "contrast",
+      "fg": "--lt-finding-ink",
+      "bg": "--lt-select-bg",
+      "min": 4.5,
+      "why": "`unproven` is bare text in the finding colour, so it lands on whatever ground its row has; this is the pair that measured 4.34:1 and forced a separate selection token"
+    },
+    {
+      "id": "select.body.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink",
+      "bg": "--dk-select-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "select.cell.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink-2",
+      "bg": "--dk-select-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "select.muted.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink-3",
+      "bg": "--dk-select-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "select.method-unproven.dark",
+      "kind": "contrast",
+      "fg": "--dk-finding-ink",
+      "bg": "--dk-select-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "reading.muted.on-sunk.light",
+      "kind": "contrast",
+      "fg": "--lt-ink-3",
+      "bg": "--lt-sunk",
+      "min": 4.5,
+      "why": "the muted grey also lands on the sunken ground — a quiet aside, a missing frame, a raw packet — and 'quiet' never means below the floor; this pair measured 4.47:1 before the grey was darkened"
+    },
+    {
+      "id": "reading.muted.on-sunk.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink-3",
+      "bg": "--dk-sunk",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "reading.muted.on-page.light",
+      "kind": "contrast",
+      "fg": "--lt-ink-3",
+      "bg": "--lt-bg",
+      "min": 4.5,
+      "why": "the same grey on the page ground behind the run column"
+    },
+    {
+      "id": "reading.muted.on-page.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink-3",
+      "bg": "--dk-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    },
+    {
+      "id": "mark.verdict.on-rail.light",
+      "kind": "contrast",
+      "fg": "--lt-quiet-mark",
+      "bg": "--lt-rail",
+      "min": 3,
+      "why": "the dot that stands for not-applicable / not-committed is a non-text element that carries meaning, so it takes 1.4.11's 3:1 and not the text floor; it sat at 1.44:1 as --quiet-edge, and uxcli's own probes do not measure 1.4.11"
+    },
+    {
+      "id": "mark.verdict.on-panel.light",
+      "kind": "contrast",
+      "fg": "--lt-quiet-mark",
+      "bg": "--lt-panel",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "mark.verdict.on-bg.light",
+      "kind": "contrast",
+      "fg": "--lt-quiet-mark",
+      "bg": "--lt-bg",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "mark.verdict.on-sunk.light",
+      "kind": "contrast",
+      "fg": "--lt-quiet-mark",
+      "bg": "--lt-sunk",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "mark.verdict.on-rail.dark",
+      "kind": "contrast",
+      "fg": "--dk-quiet-mark",
+      "bg": "--dk-rail",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "mark.verdict.on-panel.dark",
+      "kind": "contrast",
+      "fg": "--dk-quiet-mark",
+      "bg": "--dk-panel",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "mark.verdict.on-bg.dark",
+      "kind": "contrast",
+      "fg": "--dk-quiet-mark",
+      "bg": "--dk-bg",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "mark.verdict.on-sunk.dark",
+      "kind": "contrast",
+      "fg": "--dk-quiet-mark",
+      "bg": "--dk-sunk",
+      "min": 3,
+      "why": "as above"
+    },
+    {
+      "id": "check.ground.light",
+      "kind": "contrast",
+      "fg": "--lt-ink",
+      "bg": "--lt-check-bg",
+      "min": 4.5,
+      "why": "the `check` sentence has a ground of its own; in dark it shared the selected-row navy, so one accent carried two meanings"
+    },
+    {
+      "id": "check.ground.dark",
+      "kind": "contrast",
+      "fg": "--dk-ink",
+      "bg": "--dk-check-bg",
+      "min": 4.5,
+      "why": "as above, at night"
+    }
+  ]
+}

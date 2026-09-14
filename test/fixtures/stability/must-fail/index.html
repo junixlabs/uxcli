@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page that is still changing when it is read</title>
+<style>
+  :root { color-scheme: light }
+  body { margin: 0; padding: 40px; background: #ffffff; color: #1a1a1a;
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif }
+  h1 { font-size: 22px; margin: 0 0 12px }
+  .hint { color: #9a9a9a }
+</style>
+</head>
+<body>
+  <h1>Delivery details</h1>
+  <p>Enter the address the order should be sent to.</p>
+  <p class="hint" id="t">We only use this address for this order.</p>
+<script>
+  // The twin of must-pass, except that the defect is not the page's resting state: a script raises
+  // the hint to a passing colour 1200 ms in, the way a scripted intro finishes long after load.
+  // settle() returns at ~820 ms, so the first read lands on #9a9a9a (2.81:1) and the second, taken
+  // after the recheck wait, lands on #595959 (7:1). No CSS transition is used on purpose: settle()
+  // finishes finite animations, and this defect must survive that to be about time, not animation.
+  setTimeout(function () { document.getElementById('t').style.color = '#595959'; }, 1200);
+</script>
+</body>
+</html>

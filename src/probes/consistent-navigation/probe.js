@@ -36,6 +36,21 @@ export default {
     const out = { mechanisms: Object.fromEntries(Object.entries(mechanisms).map(([k, v]) => [k, v.map(o => ({ step: o.step, links: o.links.length }))])), comparedPairs: compared };
     if (navsByStep.some(n => n.origin !== origin0)) out.note = 'steps on another origin excluded';
     if (inversion) return { ...out, verdict: 'fail', inversion };
-    return { ...out, verdict: compared ? 'pass' : 'not-applicable' };
-  }
+    // A verdict with no reason is a verdict a reader cannot act on: say which half was missing —
+    // the journey never showed the same mechanism twice, or it did but the two copies shared fewer
+    // than two links, so there was no order to compare.
+    const seen = Object.values(out.mechanisms).filter(v => v.length > 1).length;
+    return { ...out, verdict: compared ? 'pass' : 'not-applicable',
+      why: compared ? undefined : seen
+        ? `${seen} navigation mechanism${seen > 1 ? 's were' : ' was'} on more than one step, but no two copies shared two or more links, so there was no order to compare`
+        : 'no navigation mechanism appeared on more than one step of this journey; consistency is a claim about repetition' };
+  },
+  explain(p) {
+    const x = p.inversion;
+    const short = s => { s = String(s); if (s.startsWith('t:')) return s.slice(2); s = s.slice(2); const i = s.lastIndexOf('/'); return (i >= 0 ? s.slice(i + 1) : s).slice(0, 60) || s.slice(0, 60); };
+    return {
+      what: `${x.mechanism} order differs between steps ${x.stepA} and ${x.stepB}; first inverted pair ${x.firstInvertedPair.map(short).join(' / ')}`,
+      check: `Compare the ${x.mechanism.replace(/^name:/, '')} menu on both pages; are those two items in swapped order?`,
+    };
+  },
 };

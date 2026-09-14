@@ -56,6 +56,20 @@ export default {
     if (branches.checked.holds) return { ...ep, verdict: 'pass', branch: 'checked' };
     if (J.reversible) return { ...ep, verdict: 'pass', branch: 'reversible (project)' };
     if (branches.checked.tested) return { ...ep, verdict: 'fail', why: 'no branch holds', missing: conf.missing };
-    return { ...ep, verdict: 'unmeasurable', why: 'confirmed false; checked untested (the journey does not declare checkedPass: true, so no error was planted); reversible not declared' };
-  }
+    // This sentence used to assert the journey had not declared checkedPass. It is also reached when the
+    // journey did declare it and the planted error could not be delivered — and then the sentence was
+    // simply false, while the real reason sat unread in branches.checked.why. Say what happened.
+    const ck = branches.checked.why === 'journey does not allow the mutating checked pass'
+      ? 'the journey does not declare checkedPass: true, so no error was planted'
+      : `the planted error could not be delivered (${String(branches.checked.why || 'no reason recorded').replace(/\s+/g, ' ').slice(0, 120)})`;
+    return { ...ep, verdict: 'unmeasurable', why: `confirmed false; checked untested (${ck}); reversible not declared` };
+  },
+  explain(p, result) {
+    const c = p.branches.confirmed, ck = p.branches.checked, cm = c.changeMechanism;
+    return {
+      what: `${c.missing.length} of ${c.missing.length + c.present.length} entered values are not shown on the commit screen; ${cm ? `change control "${typeof cm === 'string' ? cm : cm.text}"` : 'no change control'}; validation ${ck.tested ? 'tested: ' + ck.evidence : 'untested'}`,
+      where: result.steps.find(s => s.i === c.screen)?.url,
+      check: `On this screen, can you see ${c.missing.slice(0, 3).map(m => JSON.stringify(m.value)).join(', ')} and a way to change them before committing?`,
+    };
+  },
 };

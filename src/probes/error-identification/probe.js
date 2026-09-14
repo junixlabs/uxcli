@@ -21,5 +21,13 @@ export default {
     if (signals.length) return { ...ep, verdict: 'pass', signal: signals[0], signals };
     const form = p.newTextCount === 0 && !p.nativeValidation ? 'silent' : 'unidentified';
     return { ...ep, verdict: 'fail', form, why: form === 'silent' ? `the submission with ${p.probeKind} was rejected and nothing was said: no new text, no native validation` : `text appeared (${p.newText.slice(0, 2).map(t => JSON.stringify(t.slice(0, 60))).join(', ')}) but none of it is tied to "${p.probedField}" or names it` };
-  }
+  },
+  explain(p) {
+    const pl = p.planted;
+    return {
+      what: `${p.form === 'silent' ? 'submission rejected, nothing said' : 'submission rejected, message not tied to the field'}: ${pl.probeKind} on "${pl.probedField}" (step ${pl.entryStep + 1}); ${p.form === 'silent' ? 'no new text, no native validation' : 'new text: ' + pl.newText.slice(0, 2).map(t => JSON.stringify(t.slice(0, 50))).join(', ')}`,
+      where: `${pl.urlBefore}  ${pl.probedField}`,
+      check: `Submit this form with "${pl.probedField}" ${pl.probeValue ? 'set to ' + JSON.stringify(pl.probeValue) : 'empty'}. Does a text message appear that names that field?`,
+    };
+  },
 };
