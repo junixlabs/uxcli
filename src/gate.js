@@ -103,6 +103,13 @@ export async function gate({ log = console.log } = {}) {
     log(`init   writes nothing unasked      must-fail: ${(r.created ? 'wrote ' + r.created : 'wrote 0').padEnd(6)} must-pass: ${(r.wrote ? 'wrote ' + r.wrote : 'untouched').padEnd(14)} ${'filesystem'.padEnd(17)} ${r.ok ? 'ok' : 'FAIL  ' + r.problems.join('; ')}`);
     log(`       operator: ${OPERATOR}`);
   }
+  // experiments: a behavioural claim with no arm behind it may not reach a user.
+  {
+    const { pair, OPERATOR } = await import('../test/experiments-do-not-ship.mjs'); const r = pair();
+    if (!r.ok) ok = false;
+    log(`exp    experiments do not ship      must-fail: ${'planted'.padEnd(6)} must-pass: ${(r.experiments + ' held back').padEnd(14)} ${'packaging'.padEnd(17)} ${r.ok ? 'ok' : 'FAIL  ' + r.problems.join('; ')}`);
+    log(`       operator: ${OPERATOR}`);
+  }
   log(ok ? 'GATE PASS' : 'GATE FAIL');
   return ok;
 }
