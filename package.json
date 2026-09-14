@@ -1,6 +1,6 @@
 {
   "name": "@junixlabs/uxcli",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Browser-driven UI/UX verification for coding agents. No commitment, no verdict.",
   "license": "MIT",
   "repository": {

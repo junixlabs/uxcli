@@ -3,8 +3,8 @@
 <p align="center"><strong>Design should be executable.</strong></p>
 
 <p align="center">
-  <code>uxcli</code> drives a real browser against the commitments that produced your UI,<br>
-  and returns a verdict the agent that wrote the code is not allowed to author.
+  The agent that wrote the UI does not get to decide whether the UI is finished.<br>
+  <code>uxcli</code> drives a real browser and returns that decision as an exit code.
 </p>
 
 <p align="center">
@@ -21,19 +21,36 @@
 
 ---
 
-## No commitment, no verdict
+## The agent is not lying. It was never told.
 
-A commitment is a threshold with a named owner and a written source. W3C is a named owner, so WCAG runs by default. Nobody signed taste, so taste never runs.
+Ask a coding agent to predict, before rendering, exactly where it is about to put things — and it is
+good at it. Across nine trials it put the announcement bar above the nav 9 times out of 9, honoured
+"10 px from the top, not flush" 3 out of 3, and aligned a button's right edge to a nav link's right
+edge to 0.0 px, 3 out of 3. Almost every pixel value it predicted was the pixel value the browser
+produced, at 1280 px wide and at 390.
 
-Every finding cites the commitment it enforces — `spec`, `project`, or `opinion`. Where no one has committed, `uxcli` says nothing: `not-committed`, never `fail`. Where it cannot measure: `unmeasurable`, never `pass`.
+Once, it predicted the button would land at `y=362`. The browser put it at `432`.
 
-A review tool that lies three times is disabled forever. This is the rule that keeps it installed.
+**It never found out.** It said done.
 
-## Why it exists
+That is the gap. Not imagination — the agent has an intention and is usually right about it. What is
+missing is any signal that the intention was not met. An agent whose confidence is calibrated to its
+own plan, and never to the result, is the one you cannot leave running.
 
-- **Page-level tools cannot see between screens.** Data entered on step 1 missing from the review on step 3; navigation order changing between pages. WCAG 3.3.4, 3.3.7 and 3.2.3 have no ACT rule and none in axe-core.
-- **Agents cannot see what they render.** The failure is not blindness, it is false confirmation: handed a screenshot of a broken UI, the agent reports success.
-- **One false positive and the tool is off.** So a probe that cannot be made to fail on demand is not allowed to say `fail`.
+## A decision, not a report
+
+| | Returns | Who decides |
+|---|---|---|
+| linters, audits, scanners | a report | the agent reads it and interprets |
+| snapshot and visual diffing | a difference | different is not wrong; a human still rules |
+| handing the model a screenshot | an image | the agent grades its own work |
+| **`uxcli`** | **an exit code** | **someone who is not the agent** |
+
+A report is something an agent can talk itself past. `2` is not.
+
+```bash
+uxcli run https://example.org/login   # 0 no fail · 2 at least one fail · 1 could not run
+```
 
 ## Install
 
@@ -47,43 +64,75 @@ uxcli run https://example.org/login --prove
 
 `npx @junixlabs/uxcli <command>` works without installing.
 
-## What it measures
+## Who it is for
 
-Eight probes. The **method** column is the load-bearing one: a probe is `method-validated` only after a recorded run with the packaged code on ≥20 pages or flows it had not seen when its definition was last revised, with 0 false fails and a recall record. Unproven probes report `finding` and never change the exit code.
+The value scales with **how much UI your agent produces that nobody looks at.**
+
+- Platform teams whose agents generate UI for end users, where no human opens every page.
+- Anyone running agents in a loop, overnight, or in CI — where the bottleneck is review bandwidth, not the agent.
+- Teams where the agent writes the feature and a person reviews the PR, currently doubling as the first line of defence for "does this actually work".
+
+If you open every screen yourself, your eyes are better than this tool and you should keep using them.
+
+## Why the verdict can be trusted
+
+Everything below exists for one reason: so that `2` is right. A review tool that lies three times is
+disabled forever.
+
+**No commitment, no verdict.** A commitment is a threshold with a named owner and a written source.
+W3C is a named owner, so WCAG runs by default. Nobody signed taste, so taste never runs. Where no one
+has committed, `uxcli` says `not-committed`, never `fail`. Where it cannot measure, `unmeasurable`,
+never `pass`. A button 70 px from where the agent expected it is not a defect — and the instrument
+stays silent unless something with an owner says otherwise.
+
+**A probe that cannot be made to fail on demand may not say `fail`.** Every probe ships a
+falsification pair — a fixture where it must fail, a clean twin where it must reach `pass` through its
+satisfied branch. Silence on the clean twin does not count. `uxcli gate` enforces it.
+
+**`--prove` makes each pass earn it.** For every probe that passed, it plants the exact defect that
+probe exists to catch, confirms by computed style that the defect reached the measured elements, then
+re-measures. Each pass then reads `would fail on …`, or warns that it could not be made to fail.
+
+**A probe may not block a merge until its method is validated** — a recorded run with the packaged
+code on ≥20 pages or flows it had not seen, with 0 false fails. Until then it reports `finding` and
+cannot change the exit code.
 
 | Scope | Probe | Criterion | Provenance | Method |
 |---|---|---|---|---|
-| screen | `focus-visible` | WCAG 2.4.7 | spec | ✅ validated · 20 unseen pages, 0 false fails |
-| screen | `contrast` | WCAG 1.4.3 | spec | ✅ validated · 80 unseen pages, 0 false fails |
-| screen | `text-spacing` | WCAG 1.4.12 | spec | ✅ validated · 80 unseen pages, 0 false fails |
-| screen | `text-overlap` | — text painted over text | **opinion** | ⏳ unproven → reports `finding` |
-| flow | `error-prevention` | WCAG 3.3.4 | spec | ⏳ unproven → reports `finding` |
-| flow | `error-identification` | WCAG 3.3.1 | spec | ⏳ unproven → reports `finding` |
-| flow | `redundant-entry` | WCAG 3.3.7 | spec | ⏳ unproven → reports `finding` |
-| flow | `consistent-navigation` | WCAG 3.2.3 | spec | ⏳ unproven → reports `finding` |
+| screen | `focus-visible` | WCAG 2.4.7 | spec | ✅ 20 unseen pages, 0 false fails |
+| screen | `contrast` | WCAG 1.4.3 | spec | ✅ 80 unseen pages, 0 false fails |
+| screen | `text-spacing` | WCAG 1.4.12 | spec | ✅ 80 unseen pages, 0 false fails |
+| screen | `text-overlap` | — text painted over text | **opinion** | ⏳ unproven → `finding` |
+| flow | `error-prevention` | WCAG 3.3.4 | spec | ⏳ unproven → `finding` |
+| flow | `error-identification` | WCAG 3.3.1 | spec | ⏳ unproven → `finding` |
+| flow | `redundant-entry` | WCAG 3.3.7 | spec | ⏳ unproven → `finding` |
+| flow | `consistent-navigation` | WCAG 3.2.3 | spec | ⏳ unproven → `finding` |
 
-Nine verdicts — `pass`, `fail`, `finding`, `not-applicable`, `not-committed`, `unmeasurable`, `suppressed`, `stale`, `untested`. **Only `fail` blocks a merge.**
-Exit codes: `0` no fail · `2` at least one fail · `1` the run could not be carried out.
+Flow probes reach what page-level tools cannot: data entered on step 1 missing from the review on
+step 3, navigation order changing between pages. Nine verdicts in all — `pass`, `fail`, `finding`,
+`not-applicable`, `not-committed`, `unmeasurable`, `suppressed`, `stale`, `untested`.
+**Only `fail` blocks a merge.**
 
-### A pass has to earn it
+## The commitments are written by a human
 
-`--prove` plants, for every probe that passed, the exact defect that probe exists to catch — focus styles set equal to the unfocused ones, text blended into its background, a spacing lock below the minimum — confirms by computed style that the defect reached the elements the probe measured, then re-measures. Each pass then reads `would fail on …`, or warns that it could not be made to fail.
+**A journey** is the commitment for a flow: the steps of one process, which step commits, and what the
+human declares — `sameProcess`, `checkedPass`, `reversible` ([example](test/journeys/checkout.json)).
+**`uxcli.commitments.json`** is where a project commits to its own thresholds, each entry carrying
+`id`, `kind`, `why`, an `owner` and a `source`; no owner and source means `not-committed`, and
+`"suppressed": "<reason>"` is reported rather than silently skipped.
 
-Every probe also ships a falsification pair: one fixture where it must fail, one clean twin where it must reach `pass` through its satisfied branch. Silence on the clean twin does not count. `uxcli gate` enforces all of it, and a probe without a pair cannot say `fail`.
-
-## Commitments
-
-The one input the machine cannot derive is written by a human, and versioned.
-
-**A journey** is the commitment for a flow: the steps of one process, which step commits, and what the human declares (`sameProcess`, `checkedPass`, `reversible`). See [`test/journeys/checkout.json`](test/journeys/checkout.json).
-
-**`uxcli.commitments.json`** is where a project commits to its own thresholds — each entry carries `id`, `kind`, `why`, an `owner` and a `source`. No owner and source means `not-committed`; `"suppressed": "<reason>"` is reported, never silently skipped. Today one kind is measured: `contrast`, read from the project's declared design tokens by `uxcli sheet --src=DIR`.
-
-**The agent may propose. It may not commit.** `uxcli discover` writes journey candidates with `provenance: proposal` and `confirmedBy: null`, and `run` refuses them until a human confirms.
+**The agent may propose. It may not commit.** `uxcli discover` writes journey candidates with
+`provenance: proposal` and `confirmedBy: null`, and `run` refuses them until a human confirms.
 
 ## For coding agents
 
-`uxcli init` copies three skills into a project's `.claude/skills/`:
+`uxcli init` prints what it would put in a project, and where that project stands in the sequence —
+whether the commitments are signed, whether a journey is confirmed, whether anything has been
+measured. It writes nothing. `uxcli init --apply` is the consent, and even then it only ever creates:
+no file that exists is edited, overwritten or appended to. A shipped file the project has since
+changed is reported as `stale`, not replaced.
+
+What `--apply` creates is three skills in `.claude/skills/`:
 
 | Skill | What it changes |
 |---|---|
@@ -91,7 +140,21 @@ The one input the machine cannot derive is written by a human, and versioned.
 | `journey` | keeps a proposal out of the confirmed directory |
 | `principles` | keeps the agent from writing the commitments file itself |
 
-Each was tested against fresh agent sessions on the same task without it; the record is in [`skills/pair.json`](skills/pair.json) and `gate` checks it by hash. What the skills do not add, the card already does: across 45 sessions no agent — with or without a skill — said done holding a `FAIL`, or called a `FINDING` a pass.
+and four lines in `.claude/rules/uxcli.md`. The three skills are reactive — an agent loads one when
+its own judgement matches the task to the skill's description — so none of them is a beginning; the
+rule file is meant to be. It names the first command and the two things only a human signs, and
+points at `uxcli init` for everything else. It is four lines because Claude Code reads it at the
+start of every session in the project, including every session that has nothing to do with the
+interface.
+
+That it is read is documented; **that it changes what an agent does is not yet measured**. The three
+skills each carry a fresh-session arm in [`skills/pair.json`](skills/pair.json); the rule file has
+none, and until it does, nothing here should be read as a claim about agent behaviour.
+
+Each was tested against fresh agent sessions on the same task without it; the record is in
+[`skills/pair.json`](skills/pair.json) and `gate` checks it by hash. What the skills do not add, the
+card already does: across **45 sessions no agent said done holding a `FAIL`**, or called a `FINDING`
+a pass.
 
 ## Commands
 
@@ -103,19 +166,23 @@ uxcli diff <a.json> <b.json>    # drift between two saved runs        --gate exi
 uxcli discover <repo|url>       # journey candidates, as proposals
 uxcli gate                      # every probe's falsification pair must hold
 uxcli why <rule>                # a probe's full definition: why · applies-when · correct-when
-uxcli init [dir]                # copy the skills, create .uxcli/, print the CI step
+uxcli init [dir]                # where this project stands, and what would be created  --apply to create it
 ```
 
-`--refute` spawns a fresh second reader per fail (default `claude -p`, haiku, Read-only, ~US$0.04) to dispute it from the screenshots alone. It announces command, count and cost on stderr first, and nothing runs without the flag.
+`--refute` spawns a fresh second reader per fail (default `claude -p`, haiku, Read-only, ~US$0.04) to
+dispute it from the screenshots alone. It announces command, count and cost on stderr first, and
+nothing runs without the flag.
 
-## Feedback
+## When it is wrong, say so
 
-Every run leaves `run.json` and screenshots in `.uxcli/<host or journey>/`. Two forms at [issues/new/choose](https://github.com/junixlabs/uxcli/issues/new/choose):
+Every run leaves `run.json` and screenshots in `.uxcli/<host or journey>/`. Two forms at
+[issues/new/choose](https://github.com/junixlabs/uxcli/issues/new/choose):
 
 - **A verdict is wrong, or something was missed** — attach the packet. "It looks fine" is not evidence; a screenshot of the same state is.
 - **Offer a flow for the unseen list** — twenty confirmed journeys with 0 false fails flip a flow probe from `finding` to `fail`. It is the only way they flip.
 
-A report is re-measured, not re-read. A confirmed false fail becomes a must-pass case and a spec revision; a confirmed miss becomes a must-fail case. The outcome is written back on the issue.
+A report is re-measured, not re-read. A confirmed false fail becomes a must-pass case and a spec
+revision; a confirmed miss becomes a must-fail case. The outcome is written back on the issue.
 
 ## Non-goals
 
