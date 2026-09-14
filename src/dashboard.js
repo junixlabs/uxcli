@@ -44,6 +44,11 @@ export function registerRun(result, outDir) {
 const under = (dir, f) => { const p = path.resolve(dir, f); return p === dir || p.startsWith(dir + path.sep) ? p : null; };
 const allowed = (idx, dir) => idx.runs.some(r => r.dir === path.resolve(dir || '')) ? path.resolve(dir) : null;
 
+const mark = () => { try { return fs.readFileSync(path.join(HERE, 'dashboard.mark.svg'), 'utf8'); } catch { return ''; } };
+// Inlined into the page the mark is decorative: the .brand span names the lockup, so a second
+// accessible name here would announce the product twice. As a favicon the file keeps its <title>.
+const markInline = () => mark().replace('role="img" aria-label="UXCLI"', 'aria-hidden="true" focusable="false"');
+
 export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
   const send = (res, code, type, body) => { res.writeHead(code, { 'content-type': type, 'cache-control': 'no-store' }); res.end(body); };
   const server = http.createServer((req, res) => {
@@ -53,7 +58,12 @@ export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
     if (!['127.0.0.1', 'localhost', '[::1]', '::1'].includes(hostHdr)) return send(res, 403, 'text/plain', 'loopback only');
     const u = new URL(req.url, 'http://127.0.0.1'); const q = u.searchParams; const idx = read();
     try {
-      if (u.pathname === '/') return send(res, 200, 'text/html; charset=utf-8', fs.readFileSync(path.join(HERE, 'dashboard.html')));
+      // The mark is one file. Inlined into the page it takes `currentColor` and follows the theme
+      // toggle; served as itself it is the favicon and colours itself. Drawing it twice would be two
+      // marks to keep in step, which is how a logo ends up subtly different from its own favicon.
+      if (u.pathname === '/') return send(res, 200, 'text/html; charset=utf-8',
+        fs.readFileSync(path.join(HERE, 'dashboard.html'), 'utf8').replace('<!--mark-->', () => markInline()));
+      if (u.pathname === '/mark.svg') return send(res, 200, 'image/svg+xml; charset=utf-8', mark());
       // The palette is a real stylesheet so `uxcli sheet` can read the project's own tokens out of it.
       if (u.pathname === '/dashboard.tokens.css') return send(res, 200, 'text/css; charset=utf-8', fs.readFileSync(path.join(HERE, 'dashboard.tokens.css')));
       if (u.pathname === '/api/index') return send(res, 200, 'application/json', JSON.stringify(idx));
@@ -81,7 +91,15 @@ export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
     } catch (e) { return send(res, 404, 'text/plain', String(e.message || e).slice(0, 120)); }
     send(res, 404, 'text/plain', 'no such route');
   });
-  return new Promise(resolve => server.listen(port, host, () => resolve({ server, url: `http://${host}:${port}/` })));
+  // Running it twice is the ordinary mistake, not an exceptional one — a second terminal, a second
+  // project. It used to answer with an unhandled EADDRINUSE stack trace, which says nothing a person
+  // can act on. The dashboard they wanted is already open, so say that and where it is.
+  return new Promise((resolve, reject) => {
+    server.once('error', err => reject(err && err.code === 'EADDRINUSE'
+      ? Object.assign(new Error(`a dashboard is already listening on http://${host}:${port}/ — open it, or pass --port=N for a second one`), { code: 'EADDRINUSE', expected: true })
+      : err));
+    server.listen(port, host, () => resolve({ server, url: `http://${host}:${port}/` }));
+  });
 }
 
 export function indexCard() {

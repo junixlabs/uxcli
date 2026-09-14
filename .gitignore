@@ -8,3 +8,4 @@ node_modules
 
 # holds a storefront bearer token
 .mcp.json
+.playwright-mcp/

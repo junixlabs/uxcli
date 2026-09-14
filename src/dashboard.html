@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>uxcli runs</title>
+<link rel="icon" href="/mark.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/dashboard.tokens.css">
 <style>
   /* Three columns, three questions. Left: which run needs somebody — every run on the machine, worst
@@ -31,11 +32,29 @@
     padding-inline: var(--s3); min-height: var(--s8); border-bottom: 1px solid var(--line);
     background: var(--panel); }
   /* The wordmark is the product; the line after it is a sentence about the product, not more of the
-     wordmark — so it is set in the sans and given a rule of its own to stand behind. */
-  .brand { font: 700 var(--type-lede); font-family: var(--mono); letter-spacing: .08em; }
+     wordmark — so it is set in the sans and given a rule of its own to stand behind.
+     The lockup is the site's: the mark carries the UX and only CLI is set in type, so the two are one
+     word and not a picture beside a name. It is one label to a screen reader — `aria-label` on the
+     span, `aria-hidden` on the glyph the server inlines — because "UXCLI, image, UXCLI" is what a
+     titled <svg> inside a named span actually reads out. */
+  .brand { display: inline-flex; align-items: center; gap: .14em; line-height: 1;
+    font: 700 var(--type-lede); font-family: var(--mono); letter-spacing: .03em; }
+  /* The mark is the product's own, served from dashboard.mark.svg and inlined here by the server so
+     one file is both this glyph and the favicon. Inlined it takes currentColor, so it follows the
+     theme toggle; as a favicon it colours itself (see the `svg:root` rule in that file).
+     Sized in em, so it stays the wordmark's own height rather than a number that happens to match. */
+  .brand svg { height: 1.02em; width: auto; display: block; color: var(--accent); }
+  .deck { margin: 0; padding: var(--s2) var(--s4); border-bottom: 1px solid var(--line-2);
+    background: var(--rail); font: var(--type-body); color: var(--ink-3); }
+  .deck code { font: var(--type-meta); color: var(--ink-2); background: var(--sunk);
+    padding: 1px var(--s1); border-radius: var(--r-chip); }
+  .deck a { color: var(--accent); }
+  @media (max-width: 760px) { .deck { display: none; } }
   .tag { font: var(--type-body); color: var(--ink-3);
     padding-left: var(--s3); border-left: 1px solid var(--line); }
-  @media (max-width: 620px) { .tag, .search .k { display: none; } }
+  /* The search box gives up its floor before the row wraps: below 620px the header is the wordmark,
+     the search, and three controls, and a wrapped row put one control alone on a line of its own. */
+  @media (max-width: 620px) { .tag, .search .k { display: none; } .search { flex: 1 1 60px; } .top { flex-wrap: nowrap; } }
   .top .spacer { flex: 1 1 auto; }
 
   /* component · control — every button-shaped thing on the page */
@@ -48,6 +67,10 @@
   .iconbtn { display: inline-flex; align-items: center; justify-content: center;
     width: var(--s6); height: var(--s6); }
   .iconbtn svg { width: var(--s3); height: var(--s3); display: block; }
+  .iconbtn[aria-busy="true"] svg { animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .iconbtn[aria-busy="true"] svg { animation: none; opacity: .5; } }
+  .say { font: var(--type-meta); color: var(--ink-3); white-space: nowrap; }
 
   .search { display: flex; align-items: center; gap: var(--s2);
     border: 1px solid var(--line); border-radius: var(--r-control);
@@ -130,10 +153,10 @@
   .runcard .nm { font: 600 var(--type-body); color: var(--ink); min-width: 0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .runcard .when { margin-left: auto; font: var(--type-meta); color: var(--ink-3);
-    white-space: nowrap; font-variant-numeric: tabular-nums; }
+    white-space: nowrap; font-variant-numeric: tabular-nums slashed-zero; }
   .counts { display: flex; gap: var(--s2); margin-top: var(--s1); }
   .counts span { display: inline-flex; align-items: center; gap: var(--s1);
-    font: var(--type-meta); font-variant-numeric: tabular-nums; color: var(--ink-2); }
+    font: var(--type-meta); font-variant-numeric: tabular-nums slashed-zero; color: var(--ink-2); }
   /* A mark that stands for a verdict is information, so it owes 3:1 (WCAG 1.4.11) — and the two quiet
      verdicts are two different answers, so they must not be one swatch. Same hue, different mark:
      `not-applicable` is filled, `not-committed` is a ring. Colour stays spent on the four that carry it. */
@@ -171,12 +194,17 @@
     border: 1px solid var(--line); border-radius: var(--r-panel); background: var(--panel); }
   /* A grid, and the dividers are the 1px gaps showing the container through: wrapped flex rows put the
      borders at 110/110/127 then 174/174 then 348 at phone width, so no two dividers lined up. */
-  .tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; background: var(--line-2);
+  /* The six counts wrap on the width of THIS column, not the window's. They were laid out by a
+     viewport media query, so at a 1280px window the middle column is 560px wide and still got six
+     columns: `not-committed` ran 81px past a box with `overflow:hidden` and no scrollbar, and the
+     count a reader most needs to see — nobody signed it — was the one that could not be reached.
+     The phone layout was correct the whole time; only the desktop one was wrong. `auto-fit` asks
+     the tiles how wide they are instead of asking the window, so there is no breakpoint to get
+     wrong and no second rule to keep in step with this one. */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--line-2);
     margin: var(--s4) 0; overflow: hidden; }
   .tiles > div { padding: var(--s2) var(--s3); background: var(--panel); }
-  @media (max-width: 1240px) { .tiles { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 420px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
-  .tiles .n { display: block; font: 700 var(--type-display); font-variant-numeric: tabular-nums; }
+  .tiles .n { display: block; font: 500 var(--type-display); font-variant-numeric: tabular-nums slashed-zero; }
   .tiles .k { display: block; font: 500 var(--type-label); letter-spacing: .1em;
     text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
   .tiles .v-fail .n { color: var(--fail); } .tiles .v-finding .n { color: var(--finding); }
@@ -208,8 +236,24 @@
   /* component · cell — one padding for every table cell on the page */
   /* The wrapper is a focusable region: below ~700px the table scrolls sideways inside it, and a
      region that can only be scrolled with a mouse fails WCAG 2.1.1. */
-  .tablewrap { overflow-x: auto; }
-  .tablewrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* The table needs 700px and this column is 560px at a 1280px window, so the verdict — the one
+     column the table is read for — sits off the right edge on most screens. It has always scrolled
+     and has always been keyboard-reachable; what it never did was SAY so, and a scroller nobody can
+     see is a scroller nobody uses.
+     The fade is a sticky element rather than a background, because the rows carry their own fill —
+     a selected row, a hovered row — and a background painted on the wrapper is behind all of it, so
+     it showed only in the gaps between rows. `more` is set from the scroll position itself, so the
+     fade is there exactly while there is something further right and gone the moment there is not. */
+  .tablewrap { position: relative; }
+  .tablescroll { overflow-x: auto; border-radius: inherit; }
+  .tablescroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* The fade overlays the BOX, not the scrolled content: a sticky child of the scroller resolves to
+     height 0, because a scroller sized by its content has no height for a percentage to refer to. */
+  .tablewrap .fade { position: absolute; top: 1px; right: 1px; bottom: 1px; width: var(--s6);
+    pointer-events: none; opacity: 0; transition: opacity .12s linear; border-radius: inherit;
+    background: linear-gradient(to right, transparent, var(--panel)); }
+  .tablewrap.more .fade { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .tablewrap .fade { transition: none; } }
   /* `details` absorbs the slack and every other column sizes to its own content, so no column width is
      a guess: a hand-picked width for `verdict` was 114px while the `not-applicable` chip measures
      115.3px, and the chip painted 13.3px past its cell and over the sentence next to it. */
@@ -235,7 +279,7 @@
      by keyboard before this, on a page whose middle column exists to let you choose one. */
   .cell.crit { padding: 0; }
   .cell.crit button { display: block; width: 100%; text-align: left; padding: var(--s2) var(--s3);
-    font: 600 var(--type-data); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    font: 600 var(--type-data); color: var(--ink); font-variant-numeric: tabular-nums slashed-zero; white-space: nowrap; }
   .cell.pname { font: var(--type-body); color: var(--ink); white-space: nowrap; }
   .cell.detail { color: var(--ink-3); }
   /* The clamp sits on the text, not on the padded cell: clamping a padded box leaves a sliver of the
@@ -295,7 +339,7 @@
   .evsec { margin: var(--s4) 0 var(--s2); font: 500 var(--type-label); letter-spacing: .13em;
     text-transform: uppercase; color: var(--ink-3); }
   .evtitle { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
-  .evtitle .crit { font: 700 var(--type-lede); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .evtitle .crit { font: 700 var(--type-lede); font-family: var(--mono); font-variant-numeric: tabular-nums slashed-zero; }
   .evtitle .nm { font: 600 var(--type-lede); }
   .prov { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
   .prov > div { border: 1px solid var(--line); border-radius: var(--r-control); padding: var(--s1) var(--s2); }
@@ -333,7 +377,7 @@
     padding: var(--s1) var(--s2); border-top: 1px solid var(--line-2); font: var(--type-data); }
   .kv div:first-child { border-top: 0; }
   .kv dt { color: var(--ink-3); } .kv dd { margin: 0; overflow-wrap: anywhere; }
-  .kv dd.big { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kv dd.big { font-weight: 700; font-variant-numeric: tabular-nums slashed-zero; }
   figure.pair { margin: var(--s2) 0 0; overflow: hidden; }
   figure.pair .two { display: grid; grid-template-columns: 1fr 1fr; }
   figure.pair .two > div { padding: var(--s1); min-width: 0; }
@@ -355,7 +399,7 @@
 </head>
 <body>
 <div class="top">
-  <span class="brand">UXCLI</span>
+  <span class="brand" aria-label="UXCLI"><!--mark-->CLI</span>
   <span class="tag">what the page actually painted</span>
   <span class="spacer"></span>
   <span class="search"><input id="q" type="search" placeholder="search runs" autocomplete="off"><span class="k">/</span></span>
@@ -367,7 +411,18 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
       <path d="M20 12a8 8 0 1 1-2.5-5.8"></path><path d="M20 4v4.5h-4.5"></path></svg>
   </button>
+  <span class="say" id="reloadsay" role="status" aria-live="polite"></span>
+  <a class="iconbtn" id="repo" href="https://github.com/junixlabs/uxcli" target="_blank" rel="noreferrer noopener"
+     title="uxcli on GitHub" aria-label="uxcli on GitHub — opens in a new tab">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 1.8a10.2 10.2 0 0 0-3.2 19.9c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 4.9.3.3.7 1 .7 2v2.9c0 .3.2.6.7.5A10.2 10.2 0 0 0 12 1.8z"></path></svg>
+  </a>
 </div>
+<!-- A tool this terse needs one line that says where the rest of it is. It is a sentence, not a
+     menu: the two commands below are the only two a reader of this page has a reason to run next. -->
+<p class="deck">Every run here was written by <code>uxcli run</code> in its own project.
+  <code>uxcli why &lt;rule&gt;</code> prints a probe's full definition; <code>uxcli init</code> prints where a project stands.
+  <a href="https://github.com/junixlabs/uxcli#readme" target="_blank" rel="noreferrer noopener">What the verdicts mean</a></p>
 
 <div class="cols">
   <nav class="runs" aria-label="Runs">
@@ -694,10 +749,17 @@ function renderRun(stage) {
     tr.addEventListener('click', () => go(ENTRY.dir, p.probe));
     tb.append(tr);
   }
-  pad.append(el('div', { class: 'tablewrap', tabindex: '0', role: 'region', 'aria-label': 'probes, scrolls sideways when narrow' },
+  const scroll = el('div', { class: 'tablescroll', tabindex: '0', role: 'region', 'aria-label': 'probes, scrolls sideways when narrow' },
     el('table', { class: 'probes' },
     el('thead', {}, el('tr', {}, ['criterion', 'probe', 'provenance', 'method', 'verdict', 'details']
-      .map(h => el('th', { text: h })))), tb)));
+      .map(h => el('th', { text: h })))), tb));
+  const wrap = el('div', { class: 'tablewrap' }, scroll, el('span', { class: 'fade', 'aria-hidden': 'true' }));
+  pad.append(wrap);
+  // The verdict is the last column, so "there is more to the right" is the thing worth saying.
+  const more = () => wrap.classList.toggle('more', scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1);
+  scroll.addEventListener('scroll', more, { passive: true });
+  new ResizeObserver(more).observe(scroll);
+  more();
 
   const shots = probes.reduce((n, x) => n + (x.proof?.length || 0), 0)
     + (RUN.steps || []).filter(s => s.shot).length + (RUN.finalShot ? 1 : 0);
@@ -818,7 +880,26 @@ function renderEvidence() {
 }
 
 addEventListener('hashchange', show);
-on($('#reload'), boot); on($('#theme'), () => { const r = document.documentElement;
+// Re-reading the index takes about 4 ms, which is exactly the problem: the button gave no sign it
+// had done anything, so "re-read, nothing new" and "did nothing" looked identical — to the reader,
+// and to whoever was testing it. It now always reports, and holds the report long enough to read.
+// A verdict this page will not state about itself is one it has no business stating about a page.
+let saidAt = 0;
+async function reread() {
+  const btn = $('#reload'), say = $('#reloadsay'), before = INDEX ? INDEX.runs.length : 0;
+  btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
+  const t0 = performance.now();
+  await boot();
+  const after = INDEX.runs.length, added = after - before;
+  await new Promise(r => setTimeout(r, Math.max(0, 250 - (performance.now() - t0))));
+  btn.disabled = false; btn.removeAttribute('aria-busy');
+  say.textContent = added > 0 ? `${added} new run${added > 1 ? 's' : ''}`
+    : added < 0 ? `${-added} run${added < -1 ? 's' : ''} gone`
+      : `no change · ${after} run${after === 1 ? '' : 's'}`;
+  const mine = ++saidAt;
+  setTimeout(() => { if (saidAt === mine) say.textContent = ''; }, 4000);
+}
+on($('#reload'), reread); on($('#theme'), () => { const r = document.documentElement;
   const now = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   r.setAttribute('data-theme', now === 'dark' ? 'light' : 'dark'); });
 $('#q').addEventListener('input', e => { Q = e.target.value.trim(); drawRuns(); });

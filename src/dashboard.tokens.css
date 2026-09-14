@@ -61,7 +61,7 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  --type-label: 10px/15px var(--sans);  /* section labels, column headers, eyebrows */
+  --type-label: 11px/15px var(--sans);  /* section labels, column headers, eyebrows */
   --type-meta: 11px/15px var(--mono);   /* paths, timestamps, counts, chips, captions */
   --type-data: 12px/20px var(--mono);   /* the measured value: table cells, keys, ratios */
   --type-body: 13px/20px var(--sans);   /* a sentence: probe names, notes, list items */
@@ -69,6 +69,17 @@
   --type-title: 21px/30px var(--sans);  /* the run being looked at */
   --type-display: 24px/30px var(--mono);/* the six counts, the only large numerals */
 }
+
+/* A role carries size and family; the call site carries weight, because one role is deliberately set
+   at three weights — `--type-label` is 500 on a section heading, 600 on a run's kind — and a weight
+   inside the token would flatten that to one.
+   `label` moved 10px → 11px. Ten CSS pixels is below where semantic information belongs in a tool
+   someone reads for an hour, the saved pixel buys no density worth having, and 11px is what survives
+   a system font that is not the one this was drawn on — which, since the sans here is whatever the
+   operating system supplies, is every machine but this one.
+   Numerals that carry evidence are tabular and slashed where they are declared — in dashboard.html,
+   beside the component that paints them. This file holds the tokens; a numeral rule needs a selector,
+   and a selector needs to name a class that exists, which is a question about the page, not the scale. */
 
 /* Spacing. GOV.UK's ten-point scale, adopted whole and nothing outside it: base 5, linear to 30,
    non-linear above. Published with the service's own user research behind it.
