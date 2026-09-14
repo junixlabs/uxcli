@@ -1,12 +1,12 @@
 {
  "kind": "page",
- "operator": "index.html: the step counter is position:absolute and picks up the description span's padding-left, so 1, 2, 3 are painted over the first letter of each command name (three pairs); the must-pass twin gives the counter its own grid column and names the description span. Both twins carry adjacent two-column text (touching, not overlapping), a <b> inside a paragraph (containment), and an ins.adsbygoogle block whose two children overlap on purpose: the third-party exclusion must keep the probe silent on it.",
+ "operator": "index.html: the step counter is position:absolute and picks up the description span's padding-left, so 1, 2, 3 are painted over the first letter of each command name (three pairs); the must-pass twin gives the counter its own grid column and names the description span. Both twins carry adjacent two-column text (touching, not overlapping), a <b> inside a paragraph (containment), and an ins.adsbygoogle block whose two children overlap on purpose: the third-party exclusion must keep the probe silent on it. The must-pass twin also carries the two shapes that made the probe report six false pairs on uxcli's own dashboard (v1.3): two run names ellipsised by `overflow:hidden` whose unclipped text would reach the timestamp beside them, and a list scrolling inside its own box whose first rows are cut away entirely. Both were reported as overlaps before text rects were clamped to their clipping ancestors; neither is painted where the probe said it was.",
  "hashes": {
   "mustFail": {
    "index.html": "e648dd9c357015bbc63782aaf0d2a3ee203990abab0782a9ac776df9c24af669"
   },
   "mustPass": {
-   "index.html": "85bf80601e5918edbd1f0d1af2f1ff0bcdb13d9ea847a6c851bc7b7830586d42"
+   "index.html": "75794258c50c9d34be9826c04b41825ffb48888e5e9259e809b3f727086c9bd4"
   }
  }
 }

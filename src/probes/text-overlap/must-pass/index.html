@@ -11,6 +11,18 @@ p b{font-weight:600}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 ins.adsbygoogle{display:block;position:relative;height:60px;border:1px dashed #ccc;margin-top:2rem}
 ins.adsbygoogle i{position:absolute;left:8px;top:8px;font-style:normal;color:#999}
+/* Clipped text. Both rows are the case measured on uxcli's own dashboard: a name too long for its
+   column, ellipsised, whose UNCLIPPED text run would reach the timestamp beside it. Nothing is
+   painted over anything — the probe must read the box the reader sees, not the box the text wants. */
+.rows{margin-top:1.5rem;border:1px solid #ccc;border-radius:4px}
+.row{display:flex;align-items:baseline;gap:10px;padding:8px 12px;border-top:1px solid #eee}
+.row:first-child{border-top:0}
+.row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .when{font-family:ui-monospace,Menlo,monospace;font-size:.85rem;color:#666;flex:none}
+/* A list that scrolls inside its own box: rows above the scroll position are cut away entirely and
+   are not text on the page at all. */
+.scroller{margin-top:1rem;height:60px;overflow-y:scroll;border:1px solid #ccc;border-radius:4px}
+.scroller p{margin:0;padding:6px 12px}
 </style></head><body>
 <h1>Release steps</h1>
 <p>The three commands below run <b>in order</b>. Each one prints a card and an exit code.</p>
@@ -20,5 +32,10 @@ ins.adsbygoogle i{position:absolute;left:8px;top:8px;font-style:normal;color:#99
   <li><span class="n">3</span><code>uxcli diff --gate</code><span class="desc">Block on drift</span></li>
 </ol>
 <div class="cols"><p>Left column text, touching the gutter.</p><p>Right column text, touching the gutter.</p></div>
+<div class="rows">
+  <div class="row"><span class="nm">Toolshop register to checkout, long enough that the name cannot fit its column</span><span class="when">09-13 00:17</span></div>
+  <div class="row"><span class="nm">saucedemo checkout, also far longer than the space the column gives it</span><span class="when">09-13 01:35</span></div>
+</div>
+<div class="scroller"><p>First row, scrolled out of sight.</p><p>Second row.</p><p>Third row.</p><p>Fourth row.</p></div>
 <ins class="adsbygoogle"><i>Sponsored</i><i>Sponsored</i></ins>
 </body></html>

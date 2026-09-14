@@ -10,6 +10,26 @@ const COLLECT = ([THIRD, LIMIT]) => {
   // Nearest block container: two boxes in the same one are lines or inline siblings of one flow (tight leading makes their content boxes touch), not one text painted over another.
   const blockOf = el => { for (let a = el; a && a.nodeType === 1 && a !== document.body; a = a.parentElement) { const cs = getComputedStyle(a); if (!/^inline\b/.test(cs.display) || cs.position === 'absolute' || cs.position === 'fixed') return a; } return document.body; };
   const shown = el => { for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; if (a.getAttribute('aria-hidden') === 'true') return false; } return true; };
+  // Where the text is actually painted, which is not where its box says. A Range rect covers the whole
+  // text run; an ancestor whose overflow is not `visible` cuts it, and an ellipsised name reports a
+  // width no reader ever sees. Follow the CSS rule for which ancestors do the cutting: a `fixed` box
+  // escapes them all, an `absolute` box is cut only by ancestors that are themselves positioned, and
+  // once the walk passes a positioned ancestor, that ancestor's own position governs from there up.
+  const clipBox = el => {
+    const clips = cs => cs.overflowX !== 'visible' || cs.overflowY !== 'visible';
+    const cut = (box, a) => { const q = a.getBoundingClientRect(); return { x: Math.max(box.x, q.x), y: Math.max(box.y, q.y), r: Math.min(box.r, q.right), b: Math.min(box.b, q.bottom) }; };
+    let box = { x: -1e9, y: -1e9, r: 1e9, b: 1e9 };
+    const own = getComputedStyle(el);
+    if (clips(own)) box = cut(box, el); // an element never escapes its own overflow — this is the ellipsis case
+    let mode = own.position;
+    for (let a = el.parentElement; a && a.nodeType === 1; a = a.parentElement) {
+      if (mode === 'fixed') break;
+      const cs = getComputedStyle(a), positioned = cs.position !== 'static';
+      if ((mode !== 'absolute' || positioned) && clips(cs)) box = cut(box, a);
+      if (positioned) mode = cs.position;
+    }
+    return box;
+  };
   const boxes = [];
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, { acceptNode: n => n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
   let n, seen = 0;
@@ -17,9 +37,14 @@ const COLLECT = ([THIRD, LIMIT]) => {
     const el = n.parentElement; if (!el || el.closest(THIRD) || ['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE'].includes(el.tagName)) continue;
     if (!shown(el) || moving(el)) continue; seen++;
     const range = document.createRange(); range.selectNodeContents(n);
+    const cb = clipBox(el);
     for (const r of range.getClientRects()) {
       if (r.width <= 0 || r.height <= 0 || r.right + scrollX <= 0 || r.bottom + scrollY <= 0) continue; // off the document, not merely off the viewport: earlier probes leave the page scrolled
-      boxes.push({ el, sel: sel(el), text: n.textContent.trim().slice(0, 40), x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height, pinned: pinned(el), block: blockOf(el) });
+      // Clamped to what its ancestors let through. A rect cut away entirely is text the reader cannot
+      // see at all, so it is not a box; it cannot be painted over and cannot paint over anything.
+      const x = Math.max(r.left, cb.x), y = Math.max(r.top, cb.y), w = Math.min(r.right, cb.r) - x, h = Math.min(r.bottom, cb.b) - y;
+      if (w <= 0 || h <= 0) continue;
+      boxes.push({ el, sel: sel(el), text: n.textContent.trim().slice(0, 40), x: x + scrollX, y: y + scrollY, w, h, pinned: pinned(el), block: blockOf(el) });
     }
   }
   const pairs = [];
