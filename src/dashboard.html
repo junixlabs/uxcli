@@ -44,12 +44,6 @@
      theme toggle; as a favicon it colours itself (see the `svg:root` rule in that file).
      Sized in em, so it stays the wordmark's own height rather than a number that happens to match. */
   .brand svg { height: 1.02em; width: auto; display: block; color: var(--accent); }
-  .deck { margin: 0; padding: var(--s2) var(--s4); border-bottom: 1px solid var(--line-2);
-    background: var(--rail); font: var(--type-body); color: var(--ink-3); }
-  .deck code { font: var(--type-meta); color: var(--ink-2); background: var(--sunk);
-    padding: 1px var(--s1); border-radius: var(--r-chip); }
-  .deck a { color: var(--accent); }
-  @media (max-width: 760px) { .deck { display: none; } }
   .tag { font: var(--type-body); color: var(--ink-3);
     padding-left: var(--s3); border-left: 1px solid var(--line); }
   /* The search box gives up its floor before the row wraps: below 620px the header is the wordmark,
@@ -201,7 +195,7 @@
 
   /* ── middle · the run ─────────────────────────────────────────────── */
   .stage { background: var(--bg); }
-  .stagepad { padding: var(--s4) var(--s5) var(--s9); }
+  .stagepad { max-width: 980px; padding: var(--s4) var(--s5) var(--s9); }
   .kicker { font: var(--type-meta); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
   .titleline { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; margin: var(--s1) 0; }
   .titleline .evopen { margin-left: auto; }
@@ -340,13 +334,9 @@
   .cell.pname { font: var(--type-body); color: var(--ink); white-space: nowrap; }
   .cell.detail { color: var(--ink-3); }
   /* The clamp sits on the text, not on the padded cell: clamping a padded box leaves a sliver of the
-     next line showing under the ellipsis. */
+     next line showing under the ellipsis. One line — the whole sentence is in the rail. */
   .cell.detail span { display: -webkit-box; -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-  /* `unproven` is a claim about METHOD, not a verdict — an unproven method can sit on a `pass`. It was
-     painted in the `finding` colour, which made every such row read as a problem and spent a verdict's
-     hue on a seventh concept. It is marked, not coloured. */
-  .meth.unproven { text-decoration: underline dotted; text-underline-offset: 3px; }
+    -webkit-line-clamp: 1; line-clamp: 1; overflow: hidden; }
 
   /* component · chip — the verdict, and the only loud thing on the page */
   .verdict { font: 700 var(--type-meta); letter-spacing: .06em; padding: var(--s1) var(--s2);
@@ -359,18 +349,13 @@
   .verdict.unmeasurable { background: var(--unmeas-bg); color: var(--unmeas); border-color: var(--unmeas-edge); }
   .verdict.pass { background: var(--pass-bg); color: var(--pass); border-color: var(--pass-edge); }
 
-  /* A refusal is a decision, stated in a sentence, not a paler chip. */
+  /* One banner, and only for the thing no other element on the page can say: that the run does not
+     cover what it appears to. Which probes failed is the table's job, and how many is the tiles'. */
   .stance { margin: 0 0 var(--s3); padding: var(--s2) var(--s3); border-radius: var(--r-panel);
     border: 1px solid var(--line); background: var(--panel); font: var(--type-body); color: var(--ink-2); }
   .stance b { color: var(--ink); }
-  .stance.clear { background: var(--pass-bg); border-color: var(--pass-edge); color: var(--pass); }
-  .stance.clear b { color: var(--pass); }
   .stance.review { background: var(--unmeas-bg); border-color: var(--unmeas-edge); color: var(--unmeas); }
   .stance.review b { color: var(--unmeas); }
-  .stance.held { background: var(--finding-bg); border-color: var(--finding-edge); color: var(--finding); }
-  .stance.held b { color: var(--finding); }
-  .stance.broken { background: var(--fail-bg); border-color: var(--fail-edge); color: var(--fail); }
-  .stance.broken b { color: var(--fail); }
   .foot { margin: var(--s4) 0 0; font: var(--type-meta); color: var(--ink-3); overflow-wrap: anywhere; }
   .foot button { color: var(--accent); }
 
@@ -456,15 +441,9 @@
   .packet dd { margin: 0; overflow-wrap: anywhere; color: var(--ink); }
   .packet dd.num { font-family: var(--mono); font-variant-numeric: tabular-nums slashed-zero; }
   .packet dd.nil { color: var(--ink-3); }
-  .packet table { width: 100%; border-collapse: collapse; font: var(--type-meta); }
-  .packet table th { text-align: left; color: var(--ink-3); font-weight: 400;
-    padding: 0 var(--s2) var(--s1) 0; white-space: nowrap; }
-  .packet table td { padding: 0 var(--s2) 0 0; color: var(--ink-2); overflow-wrap: anywhere;
-    vertical-align: top; }
   .packet .rows { grid-column: 1 / -1; overflow-x: auto; }
   .packet .nest { border: 0; border-radius: 0; background: none; }
   .packet .nest > div { padding-inline: 0; }
-  .packet .andmore { color: var(--ink-3); padding-top: var(--s1); }
   details.raw { margin-top: var(--s3); }
   details.raw summary { font: var(--type-meta); color: var(--ink-3); cursor: pointer; }
   details.raw pre { overflow-x: auto; font: var(--type-meta); background: var(--sunk);
@@ -496,12 +475,6 @@
       <path d="M12 1.8a10.2 10.2 0 0 0-3.2 19.9c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 4.9.3.3.7 1 .7 2v2.9c0 .3.2.6.7.5A10.2 10.2 0 0 0 12 1.8z"></path></svg>
   </a>
 </div>
-<!-- A tool this terse needs one line that says where the rest of it is. It is a sentence, not a
-     menu: the two commands below are the only two a reader of this page has a reason to run next. -->
-<p class="deck">Every run here was written by <code>uxcli run</code> in its own project.
-  <code>uxcli why &lt;rule&gt;</code> prints a probe's full definition; <code>uxcli init</code> prints where a project stands.
-  <a href="https://github.com/junixlabs/uxcli#readme" target="_blank" rel="noreferrer noopener">What the verdicts mean</a></p>
-
 <div class="cols" id="cols" data-ev="shut">
   <nav class="runs" aria-label="Runs">
     <div class="runshead">
@@ -681,7 +654,7 @@ function drawRuns() {
     const c = r.counts || {}, repeat = r.project === last; last = r.project;
     host.append(on(el('button', { class: 'runcard', type: 'button', 'data-dir': r.dir,
       'aria-current': String(r.dir === cur) },
-      el('div', { class: 'line1' }, el('span', { class: 'proj', text: leaf(r.project) }),
+      el('div', { class: 'line1' }, el('span', { class: 'proj', text: repeat ? leaf(r.project) : '' }),
         el('span', { class: 'verdict ' + r.worst, text: r.worst })),
       el('span', { class: 'path', title: r.project, hidden: repeat ? 'hidden' : null, text: homey(r.project) }),
       el('span', { class: 'nm', text: r.name }),
@@ -812,7 +785,6 @@ function renderRun(stage) {
     el('span', { class: 'k', text: v })));
   pad.append(tiles);
 
-  const act = c.fail || 0, held = c.finding || 0, rev = c.unmeasurable || 0;
   // A journey that stopped early is not a journey that passed. Every probe here read the steps that
   // ran and nothing else, so "nothing failed" is a true sentence about a page nobody finished — and
   // read beside the headline verdict it says the opposite of what happened. The verdicts are not
@@ -823,26 +795,8 @@ function renderRun(stage) {
     const short = RUN.stepCount - (RUN.steps || []).length;
     pad.append(el('p', { class: 'stance review' },
       el('b', { text: `${(RUN.steps || []).length} of ${RUN.stepCount} steps ran. ` }),
-      document.createTextNode(`The journey stopped before the end, so ${short === 1 ? 'the last step was' : `the last ${short} steps were`} never measured. `
-        + `What the probes below say is true of the steps that ran and says nothing about the ${short === 1 ? 'one' : 'ones'} that did not.`)));
+      document.createTextNode(`The ${short === 1 ? 'last step was' : `last ${short} steps were`} never measured.`)));
   }
-  if (act) {
-    const named = probesOrdered().filter(p => p.verdict === 'fail').map(p => p.sc || shortName(p.probe));
-    pad.append(el('p', { class: 'stance broken' },
-      el('b', { text: `${act} failed: ${named.join(', ')}. ` }),
-      document.createTextNode(held
-        ? `${held} more measured a failure but may not state one. Both are below.`
-        : 'Measured, confirmed, and the probe is licensed to say so.')));
-  }
-  else if (!held && ranAll) pad.append(el('p', { class: 'stance ' + (rev ? 'review' : 'clear') },
-    el('b', { text: rev ? `${rev} declined. ` : 'Nothing failed. ' }),
-    document.createTextNode(rev
-      ? 'The instrument read these and refused to judge rather than guess. A refusal is not a lesser failure; it is the verdict it is entitled to give.'
-      : 'Every probe that applied was satisfied, and none had to decline.')));
-  else if (held) pad.append(el('p', { class: 'stance held' },
-    el('b', { text: `${held} measured, none stated. ` }),
-    document.createTextNode('These probes measured a failure but their method is not validated yet, so they are not allowed to call it one.')));
-
   const fr = frames();
   if (fr.length) {
     pad.append(el('div', { class: 'sec', text: 'The journey, in order' }));
@@ -880,18 +834,15 @@ function renderRun(stage) {
     const tr = el('tr', { class: 'v-' + p.verdict, 'aria-current': String(p.probe === PROBE) },
       el('td', {}, el('div', { class: 'cell crit' }, pick)),
       el('td', {}, el('div', { class: 'cell pname', text: shortName(p.probe) })),
-      el('td', {}, el('div', { class: 'cell', text: p.provenance || '' })),
-      el('td', {}, el('div', { class: 'cell' }, el('span',
-        { class: 'meth' + (/unproven/.test(p.method || '') ? ' unproven' : ''),
-          text: (p.method || '').replace('method-', '') }))),
       el('td', {}, el('div', { class: 'cell' }, el('span', { class: 'verdict ' + p.verdict, text: p.verdict }))),
-      el('td', {}, el('div', { class: 'cell detail' }, el('span', { text: p.what || p.why || '' }))));
+      el('td', {}, el('div', { class: 'cell detail' },
+        el('span', { title: p.what || p.why || '', text: p.what || p.why || '' }))));
     tr.addEventListener('click', () => go(ENTRY.dir, p.probe));
     tb.append(tr);
   }
   const scroll = el('div', { class: 'tablescroll', tabindex: '0', role: 'region', 'aria-label': 'probes, scrolls sideways when narrow' },
     el('table', { class: 'probes' },
-    el('thead', {}, el('tr', {}, ['criterion', 'probe', 'provenance', 'method', 'verdict', 'details']
+    el('thead', {}, el('tr', {}, ['criterion', 'probe', 'verdict', 'details']
       .map(h => el('th', { text: h })))), tb));
   // The verdict is the last column, so "there is more to the right" is the thing worth saying.
   pad.append(sideways('tablewrap', scroll));
@@ -910,33 +861,19 @@ function renderRun(stage) {
 // What a probe recorded, laid out. Scalars are a row; a list of records is a small table, because a
 // list of records is what `targets`, `groups` and `controls` all are and a reader comparing three
 // overlaps wants them in columns. Long lists are capped — the raw packet underneath holds them all.
-const ROWS = 12;
+// What a probe recorded, laid out. Scalars are a row and that is all: the first version turned every
+// array of records into a table, which in a 400px rail meant eight columns at 45px each and every
+// value broken mid-token — a worse way to read the same data than the JSON it was replacing. A list
+// says how many it has and leaves the records to the raw packet below, which is also the thing the
+// copy button hands an agent. The rail is for the reader.
 function packet(p, depth = 0) {
   const box = el('div', { class: depth ? 'packet nest' : 'packet' });
   const row = (k, ...kids) => box.append(el('div', {}, el('dt', { text: k }), ...kids));
-  const cell = x => typeof x === 'object' && x !== null
-    ? Object.entries(x).map(([a, b]) => `${a} ${typeof b === 'object' ? JSON.stringify(b) : b}`).join(' · ')
-    : String(x ?? '');
   for (const [k, v] of Object.entries(p)) {
-    if (Array.isArray(v)) {
-      if (!v.length) { row(k, el('dd', { class: 'nil', text: 'none' })); continue; }
-      if (!v.every(x => x && typeof x === 'object' && !Array.isArray(x))) {
-        row(`${k} (${v.length})`, el('dd', { text: v.map(x => String(x).split('/').pop()).join(', ') })); continue;
-      }
-      // One column per key any of the shown records carries, so a record missing one reads as blank
-      // rather than shifting every value one column left.
-      const shown = v.slice(0, ROWS), cols = [...new Set(shown.flatMap(x => Object.keys(x)))];
-      row(`${k} (${v.length})`, el('dd', { class: 'rows' },
-        el('table', {}, el('thead', {}, el('tr', {}, cols.map(c => el('th', { text: c })))),
-          el('tbody', {}, shown.map(x => el('tr', {}, cols.map(c => el('td', { text: c in x ? cell(x[c]) : '' })))))),
-        v.length > ROWS ? el('div', { class: 'andmore', text: `and ${v.length - ROWS} more — in the raw packet below` }) : null));
-      continue;
-    }
-    // A nested object gets the same treatment one level in rather than being flattened to JSON: the
-    // numbers a reader wants are as often inside `branches` or `reread` as at the top of the packet.
+    if (Array.isArray(v)) { row(k, el('dd', { class: 'nil', text: v.length ? `${v.length} recorded — in the packet below` : 'none' })); continue; }
     if (v && typeof v === 'object') {
-      if (depth < 2) row(k, el('dd', { class: 'rows' }, packet(v, depth + 1)));
-      else row(k, el('dd', { text: cell(v) }));
+      if (depth < 1) row(k, el('dd', { class: 'rows' }, packet(v, depth + 1)));
+      else row(k, el('dd', { class: 'nil', text: `${Object.keys(v).length} fields — in the packet below` }));
       continue;
     }
     row(k, v === null || v === undefined || v === ''
@@ -1086,7 +1023,12 @@ function renderEvidence() {
   box.append(el('div', { class: 'acts' },
     on(el('button', { class: 'btn', type: 'button', title: 'the whole packet, ready to paste to an agent' },
       'copy for an agent'), e => copyPacket(p, e.currentTarget))));
-  box.append(packet(p));
+  // Only the fields the rail has not already painted. The verdict is a chip, the provenance and the
+  // method are two boxes, the sentence is `what`/`why` — printing them again four inches lower is how
+  // the same fact ends up with two wordings on one screen.
+  const SAID = new Set(['probe', 'sc', 'verdict', 'rawVerdict', 'provenance', 'method', 'rule',
+    'what', 'where', 'check', 'why', 'proof', 'reread', 'reasked', 'inversion']);
+  box.append(packet(Object.fromEntries(Object.entries(p).filter(([k]) => !SAID.has(k)))));
   box.append(el('details', { class: 'raw' }, el('summary', { text: 'the packet as measured, raw' }),
     el('pre', { text: JSON.stringify(p, null, 1) })));
   body.append(box);
