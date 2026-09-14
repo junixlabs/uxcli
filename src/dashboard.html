@@ -111,16 +111,23 @@
      a proportion complaint traded for a legibility defect is a bad trade. The empty area under a
      four-probe table is what a four-probe run honestly looks like. */
   .cols { display: grid; grid-template-columns: 320px minmax(0, 1fr) 400px; height: calc(100vh - var(--s8)); }
+  /* Evidence is shut until it is asked for. It is one frame and one probe's packet — the answer to a
+     question the reader has not asked yet while they are still choosing a run — and open by default
+     it spent a third of the window on that question and squeezed the run it was about. Choosing a
+     probe or a step opens it, because choosing one IS the question; the header button opens it
+     without choosing anything, and the choice is remembered. */
+  .cols[data-ev="shut"] { grid-template-columns: 320px minmax(0, 1fr); }
+  .cols[data-ev="shut"] > .evidence { display: none; }
   /* Narrower than three columns: evidence keeps its own full-width band under the run rather than
      covering it, so nothing the reader was looking at is hidden to show the frame. */
   @media (max-width: 1240px) {
-    .cols { grid-template-columns: 300px minmax(0, 1fr); grid-template-areas: "runs stage" "ev ev"; height: auto; }
+    .cols, .cols[data-ev="shut"] { grid-template-columns: 300px minmax(0, 1fr); grid-template-areas: "runs stage" "ev ev"; height: auto; }
     .runs { grid-area: runs; max-height: 78vh; } .stage { grid-area: stage; }
     .evidence { grid-area: ev; border-left: 0; border-top: 1px solid var(--line); }
     .evbody { max-width: 720px; }
   }
   @media (max-width: 820px) {
-    .cols { grid-template-columns: 1fr; grid-template-areas: "runs" "stage" "ev"; }
+    .cols, .cols[data-ev="shut"] { grid-template-columns: 1fr; grid-template-areas: "runs" "stage" "ev"; }
     .runs { max-height: 46vh; } .stagepad { padding: var(--s3) var(--s3) var(--s7); }
   }
   .runs, .stage, .evidence { overflow: auto; min-width: 0; }
@@ -133,26 +140,38 @@
   .colhead h2 { margin: 0; flex: 1 1 auto; font: 600 var(--type-lede); }
   .colhead .sub { font: var(--type-meta); color: var(--ink-3); }
   .filterbar { padding: 0 var(--s3) var(--s2); }
-  .runlist { flex: 1 1 auto; padding: var(--s1); }
+  .runlist { flex: 1 1 auto; }
 
-  /* component · run card */
-  .runcard { display: block; width: 100%; text-align: left; border: 1px solid transparent;
-    border-radius: var(--r-panel); padding: var(--s2); }
+  /* component · run card — a list of what is on this machine, so it is marked the way a file list
+     marks the open file: the highlight is a band the full width of the rail with a solid accent edge
+     down one side, not a rounded card floating inside it. A rounded selection inside a rail reads as
+     an object sitting on the list; a full-bleed one reads as the row the list is currently on, which
+     is what it is. The row keeps its own hairline between rows so the band has something to end on. */
+  .runcard { display: block; width: 100%; text-align: left; border: 0; border-radius: 0;
+    border-left: var(--s1) solid transparent; border-bottom: 1px solid var(--line-2);
+    padding: var(--s2) var(--s3) var(--s2) var(--s2); }
   .runcard:hover { background: var(--sunk); }
-  .runcard[aria-current="true"] { background: var(--panel); border-color: var(--accent); }
+  .runcard[aria-current="true"] { background: var(--select-soft); border-left-color: var(--accent); }
+  /* The focus ring is the row, for the same reason: a keyboard reader arriving here is choosing a row,
+     and a ring drawn inside the row would say they had landed on something smaller than one. It is
+     drawn inset so a row at either end of the list keeps all four sides of its ring. */
+  .runcard:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 0; }
   .runcard .line1 { display: flex; align-items: baseline; gap: var(--s2); }
-  .runcard .proj { font: var(--type-meta); color: var(--ink-3);
+  .runcard .proj { flex: 1 1 auto; min-width: 0; font: var(--type-meta); color: var(--ink-3);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .runcard .verdict { margin-left: auto; }
+  .runcard .verdict { flex: none; margin-left: auto; }
   .runcard .path { display: block; font: var(--type-meta); color: var(--ink-3);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .runcard .path[hidden] { display: none; }
-  .runcard .line2 { display: flex; align-items: baseline; gap: var(--s2); }
+  /* The run name is what the reader came here to read, so it has the line to itself and wraps to a
+     second rather than being cut: it was ellipsised on every card because the kind label and the
+     timestamp beside it were fixed-width and always won the fight for the row. */
+  .runcard .nm { display: block; margin-top: var(--s1); font: 600 var(--type-lede); color: var(--ink);
+    overflow-wrap: anywhere; }
+  .runcard .line2 { display: flex; align-items: baseline; gap: var(--s2); margin-top: var(--s1); }
   .runcard .kind { font: 600 var(--type-label); letter-spacing: .08em; text-transform: uppercase;
     color: var(--ink-3); }
-  .runcard .nm { font: 600 var(--type-body); color: var(--ink); min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .runcard .when { margin-left: auto; font: var(--type-meta); color: var(--ink-3);
+  .runcard .when { font: var(--type-meta); color: var(--ink-3);
     white-space: nowrap; font-variant-numeric: tabular-nums slashed-zero; }
   .counts { display: flex; gap: var(--s2); margin-top: var(--s1); }
   .counts span { display: inline-flex; align-items: center; gap: var(--s1);
@@ -185,6 +204,7 @@
   .stagepad { padding: var(--s4) var(--s5) var(--s9); }
   .kicker { font: var(--type-meta); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
   .titleline { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; margin: var(--s1) 0; }
+  .titleline .evopen { margin-left: auto; }
   .titleline h1 { margin: 0; font: 600 var(--type-title); letter-spacing: -.01em; }
   .submeta { margin: 0; font: var(--type-meta); color: var(--ink-3); }
   .submeta a { color: var(--ink-3); }
@@ -201,16 +221,31 @@
      The phone layout was correct the whole time; only the desktop one was wrong. `auto-fit` asks
      the tiles how wide they are instead of asking the window, so there is no breakpoint to get
      wrong and no second rule to keep in step with this one. */
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--line-2);
-    margin: var(--s4) 0; overflow: hidden; }
+  /* Four of the six counts read 0 on almost every run, and the first version gave each of them a
+     140px tile with a 24px numeral — a third of the column spent saying nothing happened. They are
+     one row now: a verdict mark, the number, the name. The number still reads as a number, which is
+     the point (these are measurements, not figures being presented to anyone), but a zero no longer
+     takes the same area as a two. Below 620px the row wraps and the grid keeps the dividers aligned. */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px;
+    background: var(--line-2); margin: var(--s4) 0; overflow: hidden; }
   .tiles > div { padding: var(--s2) var(--s3); background: var(--panel); }
-  .tiles .n { display: block; font: 500 var(--type-display); font-variant-numeric: tabular-nums slashed-zero; }
+  /* Two fixed lines, so six cells whose labels are four characters or fourteen still align: the mark
+     and the number on one, the name under it. A flex row instead let the long labels wrap and every
+     cell then sat at a different height. */
+  .tiles .top { display: flex; align-items: center; gap: var(--s1); }
+  .tiles i { flex: none; width: var(--dot); height: var(--dot); border-radius: 50%;
+    background: var(--na-mark); }
+  .tiles .n { font: 500 var(--type-title); font-variant-numeric: tabular-nums slashed-zero; }
   .tiles .k { display: block; font: 500 var(--type-label); letter-spacing: .1em;
     text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
-  .tiles .v-fail .n { color: var(--fail); } .tiles .v-finding .n { color: var(--finding); }
-  .tiles .v-unmeasurable .n { color: var(--unmeas); } .tiles .v-pass .n { color: var(--pass); }
+  .tiles .v-fail .n { color: var(--fail); } .tiles .v-fail i { background: var(--fail); }
+  .tiles .v-finding .n { color: var(--finding); } .tiles .v-finding i { background: var(--finding); }
+  .tiles .v-unmeasurable .n { color: var(--unmeas); } .tiles .v-unmeasurable i { background: var(--unmeas); }
+  .tiles .v-pass .n { color: var(--pass); } .tiles .v-pass i { background: var(--pass); }
   .tiles .v-not-applicable .n, .tiles .v-not-committed .n { color: var(--ink-3); }
-  .tiles .zero .n { color: var(--ink-3); opacity: .4; }
+  .tiles .v-not-committed i { background: none; box-shadow: inset 0 0 0 2px var(--na-mark); }
+  /* A zero is quiet, but it is still a number the reader may need: it is greyed, not faded out. */
+  .tiles .zero .n { color: var(--ink-3); } .tiles .zero i { background: var(--line); box-shadow: none; }
 
   .sec { margin: var(--s5) 0 var(--s2); font: 500 var(--type-label); letter-spacing: .13em;
     text-transform: uppercase; color: var(--ink-3); }
@@ -225,15 +260,21 @@
      measured 88px each, the thumbnail cropped 1280×800 down to a 74px sliver in which every step looks
      like every other, and the scroller this was written to be could not scroll because nothing ever
      exceeded it. The chips hold their width now and the chain scrolls when they no longer fit. */
+  /* The frame is a picture inside the card, not the card's own face: flush to the edge its square
+     corners ran out past the card's 12px radius, and `overflow: hidden` then shaved them — which is
+     the card cutting its own evidence. It sits on a 5px mat now and carries its own 8px radius and
+     hairline, so the two radii are concentric (12 outside, 5 of mat, 8 inside) and the picture is
+     whole. The caption shares the mat rather than running to the edge under it. */
   .chip { flex: none; width: 130px; border: 1px solid var(--line); border-radius: var(--r-panel);
-    background: var(--panel); overflow: hidden; text-align: left; }
+    background: var(--panel); padding: var(--s1); text-align: left; }
   .chip:hover { border-color: var(--ink-3); }
   .chip[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .chip img { display: block; width: 100%; height: 70px; object-fit: cover; object-position: top left;
-    background: var(--sunk); }
-  .chip .miss { display: flex; align-items: center; justify-content: center; height: 70px;
-    background: var(--sunk); font: var(--type-meta); color: var(--ink-3); }
-  .chip .cap { padding: var(--s1); border-top: 1px solid var(--line-2); }
+  .chip img, .chip .miss { display: block; width: 100%; height: 70px; border-radius: var(--r-control);
+    border: 1px solid var(--line-2); background: var(--sunk); }
+  .chip img { object-fit: cover; object-position: top left; }
+  .chip .miss { display: flex; align-items: center; justify-content: center;
+    font: var(--type-meta); color: var(--ink-3); }
+  .chip .cap { padding: var(--s1) 0 0; }
   .chip .n { display: block; font: 600 var(--type-meta); color: var(--ink-2); }
   .chip .u, .chip .st { display: block; font: var(--type-meta); color: var(--ink-3);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -245,7 +286,7 @@
      meant here is "there is nothing behind this one", and an empty sunken panel says that without
      asking anyone to read faded text. */
   .chip.state-missed { border-style: dashed; background: var(--sunk); }
-  .chip.state-missed .cap { border-top-color: var(--line); }
+  .chip.state-missed .miss { border-style: dashed; background: none; }
 
   /* component · cell — one padding for every table cell on the page */
   /* The wrapper is a focusable region: below ~700px the table scrolls sideways inside it, and a
@@ -461,7 +502,7 @@
   <code>uxcli why &lt;rule&gt;</code> prints a probe's full definition; <code>uxcli init</code> prints where a project stands.
   <a href="https://github.com/junixlabs/uxcli#readme" target="_blank" rel="noreferrer noopener">What the verdicts mean</a></p>
 
-<div class="cols">
+<div class="cols" id="cols" data-ev="shut">
   <nav class="runs" aria-label="Runs">
     <div class="runshead">
       <div class="colhead"><h2>Recent runs</h2><span class="sub" id="runsub"></span></div>
@@ -485,7 +526,12 @@
   <section class="stage" id="stage"><div class="stagepad"><div class="empty">loading…</div></div></section>
 
   <aside class="evidence" id="evidence" aria-label="Evidence">
-    <div class="evhead"><h2 id="evtitle">Evidence</h2><span class="pager" id="pager"></span></div>
+    <div class="evhead">
+      <button class="iconbtn" id="evshut" type="button" title="close the evidence rail" aria-label="close the evidence rail" aria-expanded="true" aria-controls="evidence">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+          <path d="M14 6l-6 6 6 6"></path></svg>
+      </button>
+      <h2 id="evtitle">Evidence</h2><span class="pager" id="pager"></span></div>
     <div id="evbody"><p class="hint">Pick a run to see its evidence.</p></div>
   </aside>
 </div>
@@ -535,8 +581,8 @@ const route = () => { const h = decodeURIComponent(location.hash.replace(/^#\/?/
     : { dir: h.slice(0, i), probe: rest, step: null }; };
 const nav = (dir, tail) => { const h = dir ? '#/' + encodeURIComponent(dir) + (tail ? '|' + tail : '') : '#/';
   if (location.hash !== h) location.hash = h; else show(); };
-const go = (dir, probe) => nav(dir, probe || '');
-const goStep = (dir, n) => nav(dir, 's:' + n);
+const go = (dir, probe) => { if (probe) evidence(true); nav(dir, probe || ''); };
+const goStep = (dir, n) => { evidence(true); nav(dir, 's:' + n); };
 
 const matches = r => { if (!Q) return true; const q = Q.toLowerCase();
   return [r.name, r.project, r.kind, r.where].some(v => String(v || '').toLowerCase().includes(q)); };
@@ -638,8 +684,8 @@ function drawRuns() {
       el('div', { class: 'line1' }, el('span', { class: 'proj', text: leaf(r.project) }),
         el('span', { class: 'verdict ' + r.worst, text: r.worst })),
       el('span', { class: 'path', title: r.project, hidden: repeat ? 'hidden' : null, text: homey(r.project) }),
+      el('span', { class: 'nm', text: r.name }),
       el('div', { class: 'line2' }, el('span', { class: 'kind', text: r.kind }),
-        el('span', { class: 'nm', text: r.name }),
         el('span', { class: 'when', text: `${day(r.ranAt).slice(5)} ${clock(r.ranAt).slice(0, 5)}` })),
       el('div', { class: 'counts' }, ORDER.map(v => el('span',
         { class: 'c-' + v + (c[v] ? '' : ' zero'), title: `${c[v] || 0} ${v}` },
@@ -734,7 +780,7 @@ function frames() {
   if (!RUN?.steps?.length) return [];
   const labels = stepLabels(RUN.steps.map(s => s.url));
   const out = RUN.steps.map((s, k) => ({ ...s, state: s.error ? 'error' : 'ran', label: labels[k] }));
-  for (let i = out.length; i < (RUN.stepCount || 0); i++) out.push({ i, state: 'missed', label: '' });
+  for (let i = out.length; i < (RUN.stepCount || 0); i++) out.push({ i, state: 'missed', label: '—' });
   if (RUN.finalShot) out.push({ i: 'final', shot: RUN.finalShot, state: 'ran', final: true,
     label: 'after the last step', url: RUN.steps[RUN.steps.length - 1]?.url });
   return out;
@@ -747,7 +793,10 @@ function renderRun(stage) {
   const worst = probesOrdered()[0]?.verdict || 'not-applicable';
   pad.append(el('div', { class: 'kicker', text: `${leaf(ENTRY.project)}  ·  ${ENTRY.kind} run` }),
     el('div', { class: 'titleline' }, el('h1', { text: RUN.journey || RUN.title || RUN.url || ENTRY.name }),
-      el('span', { class: 'verdict ' + worst, text: worst })));
+      el('span', { class: 'verdict ' + worst, text: worst }),
+      on(el('button', { class: 'btn evopen', type: 'button', 'aria-controls': 'evidence',
+        'aria-expanded': String(evOpen()), title: 'the frame and the probe packet, on the right' },
+        'evidence'), () => { evidence(!evOpen()); if (evOpen()) $('#evshut').focus(); })));
   const url = RUN.finalUrl || RUN.url;
   const sub = el('p', { class: 'submeta' });
   sub.append(document.createTextNode([when(RUN.ranAt), RUN.uxcli ? 'uxcli ' + RUN.uxcli : null,
@@ -758,7 +807,9 @@ function renderRun(stage) {
 
   const tiles = el('div', { class: 'tiles' });
   for (const v of ORDER) tiles.append(el('div', { class: 'v-' + v + (c[v] ? '' : ' zero') },
-    el('span', { class: 'n', text: String(c[v] || 0) }), el('span', { class: 'k', text: v })));
+    el('span', { class: 'top' }, el('i', { 'aria-hidden': 'true' }),
+      el('span', { class: 'n', text: String(c[v] || 0) })),
+    el('span', { class: 'k', text: v })));
   pad.append(tiles);
 
   const act = c.fail || 0, held = c.finding || 0, rev = c.unmeasurable || 0;
@@ -1066,6 +1117,20 @@ async function reread() {
     : added < 0 ? `${-added} run${added < -1 ? 's' : ''} gone`
       : `no change · ${after} run${after === 1 ? '' : 's'}`);
 }
+// Shut by default, and the reader's own answer is kept. localStorage can throw (a private window,
+// blocked site data) and the page must open either way, so every touch of it is guarded.
+const evRead = () => { try { return localStorage.getItem('uxcli.ev'); } catch { return null; } };
+const evWrite = v => { try { localStorage.setItem('uxcli.ev', v); } catch { /* the page still works */ } };
+function evidence(open, remember = true) {
+  $('#cols').dataset.ev = open ? 'open' : 'shut';
+  $('#evshut').setAttribute('aria-expanded', String(open));
+  for (const b of document.querySelectorAll('.evopen')) b.setAttribute('aria-expanded', String(open));
+  if (remember) evWrite(open ? 'open' : 'shut');
+}
+const evOpen = () => $('#cols').dataset.ev === 'open';
+evidence(evRead() === 'open', false);
+on($('#evshut'), () => { evidence(false); $('.evopen')?.focus(); });
+
 on($('#reload'), reread); on($('#theme'), () => { const r = document.documentElement;
   const now = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   r.setAttribute('data-theme', now === 'dark' ? 'light' : 'dark'); });
