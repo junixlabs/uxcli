@@ -215,10 +215,17 @@
   .sec { margin: var(--s5) 0 var(--s2); font: 500 var(--type-label); letter-spacing: .13em;
     text-transform: uppercase; color: var(--ink-3); }
   /* The chain: a journey read as rows of urls stays abstract, so the frames are shown in order. */
+  .chainwrap { --fade-to: var(--bg); }
   .chain { display: flex; gap: 0; overflow-x: auto; padding-bottom: var(--s1); }
+  .chain:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .link { display: flex; align-items: center; flex: none; }
   .link .arrow { color: var(--ink-3); font: var(--type-data); padding: 0 var(--s1); }
-  .chip { width: 130px; border: 1px solid var(--line); border-radius: var(--r-panel);
+  /* `flex: none` is load-bearing, not tidiness. A flex item shrinks by default, and `overflow: hidden`
+     below sets this one's `min-width: auto` to 0 — so the declared 130px was never a width. Five steps
+     measured 88px each, the thumbnail cropped 1280×800 down to a 74px sliver in which every step looks
+     like every other, and the scroller this was written to be could not scroll because nothing ever
+     exceeded it. The chips hold their width now and the chain scrolls when they no longer fit. */
+  .chip { flex: none; width: 130px; border: 1px solid var(--line); border-radius: var(--r-panel);
     background: var(--panel); overflow: hidden; text-align: left; }
   .chip:hover { border-color: var(--ink-3); }
   .chip[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
@@ -230,8 +237,15 @@
   .chip .n { display: block; font: 600 var(--type-meta); color: var(--ink-2); }
   .chip .u, .chip .st { display: block; font: var(--type-meta); color: var(--ink-3);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip .u { color: var(--ink-2); font-family: var(--mono); }
   .chip.state-error { border-color: var(--fail-edge); } .chip.state-error .st { color: var(--fail); }
-  .chip.state-missed { opacity: .55; }
+  /* A step that was never reached is a fact about the run, so it is set in text that can be read.
+     It was `opacity: .55` over the whole chip, which took --ink-3 down to 2.13:1 and 2.63:1 on this
+     page's own 1.4.3 probe — the instrument failing the instrument. Greyed-out is a look; what is
+     meant here is "there is nothing behind this one", and an empty sunken panel says that without
+     asking anyone to read faded text. */
+  .chip.state-missed { border-style: dashed; background: var(--sunk); }
+  .chip.state-missed .cap { border-top-color: var(--line); }
 
   /* component · cell — one padding for every table cell on the page */
   /* The wrapper is a focusable region: below ~700px the table scrolls sideways inside it, and a
@@ -244,16 +258,18 @@
      a selected row, a hovered row — and a background painted on the wrapper is behind all of it, so
      it showed only in the gaps between rows. `more` is set from the scroll position itself, so the
      fade is there exactly while there is something further right and gone the moment there is not. */
-  .tablewrap { position: relative; }
+  .tablewrap, .chainwrap { position: relative; }
   .tablescroll { overflow-x: auto; border-radius: inherit; }
   .tablescroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   /* The fade overlays the BOX, not the scrolled content: a sticky child of the scroller resolves to
-     height 0, because a scroller sized by its content has no height for a percentage to refer to. */
-  .tablewrap .fade { position: absolute; top: 1px; right: 1px; bottom: 1px; width: var(--s6);
-    pointer-events: none; opacity: 0; transition: opacity .12s linear; border-radius: inherit;
-    background: linear-gradient(to right, transparent, var(--panel)); }
-  .tablewrap.more .fade { opacity: 1; }
-  @media (prefers-reduced-motion: reduce) { .tablewrap .fade { transition: none; } }
+     height 0, because a scroller sized by its content has no height for a percentage to refer to.
+     `--fade-to` is the colour behind whatever is scrolling: the table sits on a panel, the chain on
+     the stage. One rule, two callers — the thing that differs is a colour, so a colour is the knob. */
+  .tablewrap .fade, .chainwrap .fade { position: absolute; top: 1px; right: 1px; bottom: 1px;
+    width: var(--s6); pointer-events: none; opacity: 0; transition: opacity .12s linear;
+    border-radius: inherit; background: linear-gradient(to right, transparent, var(--fade-to, var(--panel))); }
+  .tablewrap.more .fade, .chainwrap.more .fade { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .tablewrap .fade, .chainwrap .fade { transition: none; } }
   /* `details` absorbs the slack and every other column sizes to its own content, so no column width is
      a guess: a hand-picked width for `verdict` was 114px while the `not-applicable` chip measures
      115.3px, and the chip painted 13.3px past its cell and over the sentence next to it. */
@@ -387,6 +403,27 @@
   figure.pair img { display: block; max-width: 100%; max-height: 120px; object-fit: contain; object-position: left top; }
   figure.pair figcaption { padding: 0 var(--s2) var(--s1); font: var(--type-meta); color: var(--ink-3);
     border-top: 1px solid var(--line-2); }
+  /* component · packet — what the probe recorded, as a reader can read it. The JSON stays underneath
+     because it is the thing an agent is handed; what sits on top is the same object, laid out. */
+  .acts { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s4); }
+  .packet { margin-top: var(--s2); border: 1px solid var(--line-2); border-radius: var(--r-panel);
+    background: var(--panel); overflow: hidden; }
+  .packet > div { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--s3);
+    padding: var(--s1) var(--s2); border-top: 1px solid var(--line-2); font: var(--type-meta); }
+  .packet > div:first-child { border-top: 0; }
+  .packet dt { color: var(--ink-3); font-family: var(--mono); }
+  .packet dd { margin: 0; overflow-wrap: anywhere; color: var(--ink); }
+  .packet dd.num { font-family: var(--mono); font-variant-numeric: tabular-nums slashed-zero; }
+  .packet dd.nil { color: var(--ink-3); }
+  .packet table { width: 100%; border-collapse: collapse; font: var(--type-meta); }
+  .packet table th { text-align: left; color: var(--ink-3); font-weight: 400;
+    padding: 0 var(--s2) var(--s1) 0; white-space: nowrap; }
+  .packet table td { padding: 0 var(--s2) 0 0; color: var(--ink-2); overflow-wrap: anywhere;
+    vertical-align: top; }
+  .packet .rows { grid-column: 1 / -1; overflow-x: auto; }
+  .packet .nest { border: 0; border-radius: 0; background: none; }
+  .packet .nest > div { padding-inline: 0; }
+  .packet .andmore { color: var(--ink-3); padding-top: var(--s1); }
   details.raw { margin-top: var(--s3); }
   details.raw summary { font: var(--type-meta); color: var(--ink-3); cursor: pointer; }
   details.raw pre { overflow-x: auto; font: var(--type-meta); background: var(--sunk);
@@ -485,6 +522,9 @@ const sentence = text => { const out = document.createDocumentFragment();
   return out; };
 
 let INDEX = { runs: [] }, RUN = null, ENTRY = null, FILTER = null, Q = '', STEP = 0, PROBE = null;
+// Whichever pager renderEvidence last drew — steps on a journey, probes on a page run. ← and →
+// mean what the pager means, so there is one arrow behaviour and not two that differ by view.
+let PAGE = null;
 
 // The url carries run, probe and step, so Back walks back through what was looked at, and a link to one
 // probe of one run is a link somebody else can open.
@@ -666,13 +706,37 @@ function missing(stage, dir) {
 const probesOrdered = () => (RUN?.probes || []).slice().sort((a, b) => byRank(a.verdict, b.verdict));
 const src = f => '/file?dir=' + encodeURIComponent(ENTRY.dir) + '&f=' + encodeURIComponent(f);
 
+// What to call a step in a box 130px wide. The old line stripped `https://host` and nothing else, so
+// a journey over `file:` urls showed five chips all reading `file:///Us…` — every step named by the
+// part they share and cut off before the part that tells them apart. Two steps: drop the scheme and
+// authority whatever the scheme is, then drop the longest directory prefix every step has in common.
+// `cart.html` / `details.html` / `review.html`, and the whole url still on `title` for the doubter.
+function stepLabels(urls) {
+  const paths = urls.map(u => (u || '').replace(/^[a-z][a-z0-9+.-]*:\/\/[^/]*/i, '') || '/');
+  const segs = paths.map(p => p.split('/'));
+  let common = 0;
+  if (segs.length > 1) while (segs[0][common] !== undefined && segs.every(x => x.length > common + 1 && x[common] === segs[0][common])) common++;
+  return segs.map(x => (common ? x.slice(common).join('/') : x.join('/')) || '/');
+}
+
+// Something that scrolls sideways and does not say so is something nobody scrolls. The wrapper carries
+// the fade because the scroller is sized by its content: a sticky child of it resolves to height 0.
+function sideways(cls, scroll) {
+  const wrap = el('div', { class: cls }, scroll, el('span', { class: 'fade', 'aria-hidden': 'true' }));
+  const more = () => wrap.classList.toggle('more', scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1);
+  scroll.addEventListener('scroll', more, { passive: true });
+  new ResizeObserver(more).observe(scroll);
+  more();
+  return wrap;
+}
+
 function frames() {
   if (!RUN?.steps?.length) return [];
-  const out = RUN.steps.map(s => ({ ...s, state: s.error ? 'error' : 'ran',
-    label: (s.url || '').replace(/^https?:\/\/[^/]+/, '') || '/' }));
-  for (let i = out.length; i < (RUN.stepCount || 0); i++) out.push({ i, state: 'missed', label: 'not reached' });
+  const labels = stepLabels(RUN.steps.map(s => s.url));
+  const out = RUN.steps.map((s, k) => ({ ...s, state: s.error ? 'error' : 'ran', label: labels[k] }));
+  for (let i = out.length; i < (RUN.stepCount || 0); i++) out.push({ i, state: 'missed', label: '' });
   if (RUN.finalShot) out.push({ i: 'final', shot: RUN.finalShot, state: 'ran', final: true,
-    label: 'the screen after the last step', url: RUN.steps[RUN.steps.length - 1]?.url });
+    label: 'after the last step', url: RUN.steps[RUN.steps.length - 1]?.url });
   return out;
 }
 
@@ -698,6 +762,19 @@ function renderRun(stage) {
   pad.append(tiles);
 
   const act = c.fail || 0, held = c.finding || 0, rev = c.unmeasurable || 0;
+  // A journey that stopped early is not a journey that passed. Every probe here read the steps that
+  // ran and nothing else, so "nothing failed" is a true sentence about a page nobody finished — and
+  // read beside the headline verdict it says the opposite of what happened. The verdicts are not
+  // touched (a probe reports what it measured, and it measured a pass); what is corrected is the
+  // summary, which is this page's own sentence and was overstating what the run covers.
+  const ranAll = !RUN.stepCount || (RUN.steps || []).length >= RUN.stepCount;
+  if (!ranAll) {
+    const short = RUN.stepCount - (RUN.steps || []).length;
+    pad.append(el('p', { class: 'stance review' },
+      el('b', { text: `${(RUN.steps || []).length} of ${RUN.stepCount} steps ran. ` }),
+      document.createTextNode(`The journey stopped before the end, so ${short === 1 ? 'the last step was' : `the last ${short} steps were`} never measured. `
+        + `What the probes below say is true of the steps that ran and says nothing about the ${short === 1 ? 'one' : 'ones'} that did not.`)));
+  }
   if (act) {
     const named = probesOrdered().filter(p => p.verdict === 'fail').map(p => p.sc || shortName(p.probe));
     pad.append(el('p', { class: 'stance broken' },
@@ -706,30 +783,42 @@ function renderRun(stage) {
         ? `${held} more measured a failure but may not state one. Both are below.`
         : 'Measured, confirmed, and the probe is licensed to say so.')));
   }
-  else if (!held) pad.append(el('p', { class: 'stance ' + (rev ? 'review' : 'clear') },
+  else if (!held && ranAll) pad.append(el('p', { class: 'stance ' + (rev ? 'review' : 'clear') },
     el('b', { text: rev ? `${rev} declined. ` : 'Nothing failed. ' }),
     document.createTextNode(rev
       ? 'The instrument read these and refused to judge rather than guess. A refusal is not a lesser failure; it is the verdict it is entitled to give.'
       : 'Every probe that applied was satisfied, and none had to decline.')));
-  else pad.append(el('p', { class: 'stance held' },
+  else if (held) pad.append(el('p', { class: 'stance held' },
     el('b', { text: `${held} measured, none stated. ` }),
     document.createTextNode('These probes measured a failure but their method is not validated yet, so they are not allowed to call it one.')));
 
   const fr = frames();
   if (fr.length) {
     pad.append(el('div', { class: 'sec', text: 'The journey, in order' }));
-    const chain = el('div', { class: 'chain' });
+    // A journey that stopped is the most important thing on this page and the chain said it in a border
+    // colour: the step that broke and the steps that never ran after it were told apart by opacity.
+    const broke = RUN.steps.findIndex(x => x.error);
+    if (broke >= 0) {
+      const missed = (RUN.stepCount || 0) - RUN.steps.length;
+      pad.append(el('p', { class: 'aside refused' },
+        el('b', { text: `Step ${broke} did not finish. ` }),
+        document.createTextNode(missed > 0
+          ? `The journey stopped there, so the ${missed === 1 ? 'step' : `${missed} steps`} after it never ran and no probe saw ${missed === 1 ? 'it' : 'them'}.`
+          : 'The journey stopped there.')));
+    }
+    const chain = el('div', { class: 'chain', tabindex: '0', role: 'group', 'aria-label': 'the journey, in order' });
     fr.forEach((f, k) => {
       if (k) chain.append(el('span', { class: 'link' }, el('span', { class: 'arrow', text: '→' })));
-      chain.append(on(el('button', { class: 'chip state-' + f.state, type: 'button', 'aria-current': String(k === STEP) },
+      chain.append(on(el('button', { class: 'chip state-' + f.state, type: 'button',
+        'aria-current': String(k === STEP), title: f.url || (f.state === 'missed' ? 'never reached' : '') },
         f.shot ? el('img', { src: src(f.shot), alt: '', loading: 'lazy' })
           : el('div', { class: 'miss', text: f.state === 'missed' ? 'not reached' : 'no shot' }),
         el('span', { class: 'cap' }, el('span', { class: 'n', text: f.final ? 'outcome' : `step ${f.i}` }),
           el('span', { class: 'u', text: f.label }),
-          el('span', { class: 'st', text: f.state === 'error' ? 'error' : f.ms ? `${f.ms} ms` : '' }))),
+          el('span', { class: 'st', text: f.state === 'error' ? 'did not finish' : f.ms ? `${f.ms} ms` : '' }))),
         () => goStep(ENTRY.dir, k)));
     });
-    pad.append(chain);
+    pad.append(sideways('chainwrap', chain));
   }
 
   pad.append(el('div', { class: 'sec', text: 'Probes' }));
@@ -753,13 +842,8 @@ function renderRun(stage) {
     el('table', { class: 'probes' },
     el('thead', {}, el('tr', {}, ['criterion', 'probe', 'provenance', 'method', 'verdict', 'details']
       .map(h => el('th', { text: h })))), tb));
-  const wrap = el('div', { class: 'tablewrap' }, scroll, el('span', { class: 'fade', 'aria-hidden': 'true' }));
-  pad.append(wrap);
   // The verdict is the last column, so "there is more to the right" is the thing worth saying.
-  const more = () => wrap.classList.toggle('more', scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1);
-  scroll.addEventListener('scroll', more, { passive: true });
-  new ResizeObserver(more).observe(scroll);
-  more();
+  pad.append(sideways('tablewrap', scroll));
 
   const shots = probes.reduce((n, x) => n + (x.proof?.length || 0), 0)
     + (RUN.steps || []).filter(s => s.shot).length + (RUN.finalShot ? 1 : 0);
@@ -772,11 +856,76 @@ function renderRun(stage) {
   stage.append(pad);
 }
 
+// What a probe recorded, laid out. Scalars are a row; a list of records is a small table, because a
+// list of records is what `targets`, `groups` and `controls` all are and a reader comparing three
+// overlaps wants them in columns. Long lists are capped — the raw packet underneath holds them all.
+const ROWS = 12;
+function packet(p, depth = 0) {
+  const box = el('div', { class: depth ? 'packet nest' : 'packet' });
+  const row = (k, ...kids) => box.append(el('div', {}, el('dt', { text: k }), ...kids));
+  const cell = x => typeof x === 'object' && x !== null
+    ? Object.entries(x).map(([a, b]) => `${a} ${typeof b === 'object' ? JSON.stringify(b) : b}`).join(' · ')
+    : String(x ?? '');
+  for (const [k, v] of Object.entries(p)) {
+    if (Array.isArray(v)) {
+      if (!v.length) { row(k, el('dd', { class: 'nil', text: 'none' })); continue; }
+      if (!v.every(x => x && typeof x === 'object' && !Array.isArray(x))) {
+        row(`${k} (${v.length})`, el('dd', { text: v.map(x => String(x).split('/').pop()).join(', ') })); continue;
+      }
+      // One column per key any of the shown records carries, so a record missing one reads as blank
+      // rather than shifting every value one column left.
+      const shown = v.slice(0, ROWS), cols = [...new Set(shown.flatMap(x => Object.keys(x)))];
+      row(`${k} (${v.length})`, el('dd', { class: 'rows' },
+        el('table', {}, el('thead', {}, el('tr', {}, cols.map(c => el('th', { text: c })))),
+          el('tbody', {}, shown.map(x => el('tr', {}, cols.map(c => el('td', { text: c in x ? cell(x[c]) : '' })))))),
+        v.length > ROWS ? el('div', { class: 'andmore', text: `and ${v.length - ROWS} more — in the raw packet below` }) : null));
+      continue;
+    }
+    // A nested object gets the same treatment one level in rather than being flattened to JSON: the
+    // numbers a reader wants are as often inside `branches` or `reread` as at the top of the packet.
+    if (v && typeof v === 'object') {
+      if (depth < 2) row(k, el('dd', { class: 'rows' }, packet(v, depth + 1)));
+      else row(k, el('dd', { text: cell(v) }));
+      continue;
+    }
+    row(k, v === null || v === undefined || v === ''
+      ? el('dd', { class: 'nil', text: '—' })
+      : typeof v === 'number' || typeof v === 'boolean'
+        ? el('dd', { class: 'num', text: String(v) })
+        : el('dd', { text: String(v) }));
+  }
+  return box;
+}
+
+// The thing an agent needs is not a screenshot and not a sentence: it is the packet, and enough of
+// the run around it to go and look for itself. Both lines of the header are commands or paths, so
+// whoever receives this can re-run the measurement rather than take this page's word for it.
+async function copyPacket(p, btn) {
+  const head = [
+    `# uxcli · ${p.sc || shortName(p.probe)} · ${p.verdict}`,
+    `run: ${ENTRY?.dir || ''}`,
+    RUN?.journey ? `journey: ${RUN.journey} · ${(RUN.steps || []).length} of ${RUN.stepCount} steps ran`
+      : `page: ${RUN?.finalUrl || RUN?.url || ''}`,
+    `measured: ${RUN?.ranAt || ''}${RUN?.uxcli ? ` · uxcli ${RUN.uxcli}` : ''}`,
+    p.sc ? `why: npx @junixlabs/uxcli why ${p.sc}` : null,
+    '', '```json', JSON.stringify(p, null, 1), '```', ''].filter(x => x !== null).join('\n');
+  try {
+    await navigator.clipboard.writeText(head);
+    say(`copied · ${p.sc || shortName(p.probe)} packet, ${head.length} chars`);
+  } catch {
+    // Refused (no permission, or the page was opened over something that is not a secure context):
+    // the text is selected instead, so the reader still has one keystroke to go, not a dead button.
+    const pre = btn.closest('.evbody')?.querySelector('details.raw');
+    if (pre) { pre.open = true; getSelection().selectAllChildren(pre.querySelector('pre')); }
+    say('could not reach the clipboard — the packet is selected below');
+  }
+}
+
 // The evidence column. On a journey it pages through the frames the run passed through and the probe
 // sits underneath; on a page run there are no frames, so the probe is the whole column.
 function renderEvidence() {
   const body = $('#evbody'), pager = $('#pager');
-  body.textContent = ''; pager.textContent = '';
+  body.textContent = ''; pager.textContent = ''; PAGE = null;
   if (!RUN) { $('#evtitle').textContent = 'Evidence';
     body.append(el('p', { class: 'hint', text: 'Pick a run on the left.' })); return; }
   const fr = frames();
@@ -787,9 +936,12 @@ function renderEvidence() {
     const f = fr[STEP];
     $('#evtitle').textContent = 'Evidence';
     const stepTo = d => { const n = STEP + d; if (fr[n]) goStep(ENTRY.dir, n); };
-    pager.append(on(el('button', { type: 'button', text: '‹', disabled: STEP === 0 }), () => stepTo(-1)),
+    PAGE = stepTo;
+    pager.append(on(el('button', { type: 'button', text: '‹', disabled: STEP === 0,
+        title: 'previous step (←)', 'aria-label': 'previous step' }), () => stepTo(-1)),
       el('span', { class: 'lbl', text: f.final ? 'outcome' : `step ${f.i} of ${RUN.stepCount}` }),
-      on(el('button', { type: 'button', text: '›', disabled: STEP === fr.length - 1 }), () => stepTo(1)));
+      on(el('button', { type: 'button', text: '›', disabled: STEP === fr.length - 1,
+        title: 'next step (→)', 'aria-label': 'next step' }), () => stepTo(1)));
     const shot = el('div', { class: 'shot' });
     if (f.shot) shot.append(el('img', { src: src(f.shot), alt: `step ${f.i}` }));
     else shot.append(el('div', { class: 'miss', text: f.state === 'missed'
@@ -808,9 +960,12 @@ function renderEvidence() {
   if (!fr.length) {
     const i = list.indexOf(p);
     const to = d => { const n = list[i + d]; if (n) go(ENTRY.dir, n.probe); };
-    pager.append(on(el('button', { type: 'button', text: '‹', disabled: i === 0 }), () => to(-1)),
+    PAGE = to;
+    pager.append(on(el('button', { type: 'button', text: '‹', disabled: i === 0,
+        title: 'previous probe (←)', 'aria-label': 'previous probe' }), () => to(-1)),
       el('span', { class: 'lbl', text: `${i + 1} of ${list.length}` }),
-      on(el('button', { type: 'button', text: '›', disabled: i === list.length - 1 }), () => to(1)));
+      on(el('button', { type: 'button', text: '›', disabled: i === list.length - 1,
+        title: 'next probe (→)', 'aria-label': 'next probe' }), () => to(1)));
   }
 
   box.append(el('div', { class: 'evtitle' }, el('span', { class: 'verdict ' + p.verdict, text: p.verdict }),
@@ -874,7 +1029,14 @@ function renderEvidence() {
     for (const f of loose) box.append(el('figure', { class: 'pair' },
       el('div', { class: 'two' }, el('div', {}, img(f))), el('figcaption', { text: f })));
   }
-  box.append(el('details', { class: 'raw' }, el('summary', { text: 'the packet as measured' }),
+  // The packet was a JSON blob behind a disclosure, which is the right thing to hand an agent and the
+  // wrong thing to hand a reader — the numbers that decided the verdict were in there, unreadable.
+  // Both now: the object laid out, and the same object raw underneath for whoever is going to paste it.
+  box.append(el('div', { class: 'acts' },
+    on(el('button', { class: 'btn', type: 'button', title: 'the whole packet, ready to paste to an agent' },
+      'copy for an agent'), e => copyPacket(p, e.currentTarget))));
+  box.append(packet(p));
+  box.append(el('details', { class: 'raw' }, el('summary', { text: 'the packet as measured, raw' }),
     el('pre', { text: JSON.stringify(p, null, 1) })));
   body.append(box);
 }
@@ -885,19 +1047,24 @@ addEventListener('hashchange', show);
 // and to whoever was testing it. It now always reports, and holds the report long enough to read.
 // A verdict this page will not state about itself is one it has no business stating about a page.
 let saidAt = 0;
+// One place the page speaks from, so a screen reader hears one region and a sighted reader looks in
+// one spot — whether what happened was a re-read, a copy, or nothing at all.
+function say(text) {
+  const el = $('#reloadsay'); el.textContent = text;
+  const mine = ++saidAt;
+  setTimeout(() => { if (saidAt === mine) el.textContent = ''; }, 4000);
+}
 async function reread() {
-  const btn = $('#reload'), say = $('#reloadsay'), before = INDEX ? INDEX.runs.length : 0;
+  const btn = $('#reload'), before = INDEX ? INDEX.runs.length : 0;
   btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
   const t0 = performance.now();
   await boot();
   const after = INDEX.runs.length, added = after - before;
   await new Promise(r => setTimeout(r, Math.max(0, 250 - (performance.now() - t0))));
   btn.disabled = false; btn.removeAttribute('aria-busy');
-  say.textContent = added > 0 ? `${added} new run${added > 1 ? 's' : ''}`
+  say(added > 0 ? `${added} new run${added > 1 ? 's' : ''}`
     : added < 0 ? `${-added} run${added < -1 ? 's' : ''} gone`
-      : `no change · ${after} run${after === 1 ? '' : 's'}`;
-  const mine = ++saidAt;
-  setTimeout(() => { if (saidAt === mine) say.textContent = ''; }, 4000);
+      : `no change · ${after} run${after === 1 ? '' : 's'}`);
 }
 on($('#reload'), reread); on($('#theme'), () => { const r = document.documentElement;
   const now = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -907,7 +1074,25 @@ $('#q').addEventListener('input', e => { Q = e.target.value.trim(); drawRuns(); 
 // folded there rather than made into a glossary the reader scrolls past on every visit.
 const fitLegend = () => { $('.legend').open = innerWidth > 820; };
 addEventListener('resize', fitLegend); fitLegend();
-addEventListener('keydown', e => { if (e.key === '/' && e.target.tagName !== 'INPUT') { e.preventDefault(); $('#q').focus(); } });
+// Everything here is already reachable by click and by Tab. These are for the second hour: the pager
+// is the thing a reader uses most and it sat two Tab stops away from whatever they were reading.
+// PAGE is set by whichever pager renderEvidence just drew, so ← → always mean what the pager means.
+addEventListener('keydown', e => {
+  const t = e.target, typing = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable;
+  if (e.key === 'Escape' && typing) { t.blur(); return; }
+  if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === '/') { e.preventDefault(); $('#q').focus(); return; }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+    if (!PAGE) return; e.preventDefault(); PAGE(e.key === 'ArrowLeft' ? -1 : 1); return;
+  }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    const cards = [...document.querySelectorAll('.runcard')]; if (!cards.length) return;
+    e.preventDefault();
+    const at = cards.findIndex(c => c.getAttribute('aria-current') === 'true');
+    const next = cards[Math.min(cards.length - 1, Math.max(0, (at < 0 ? -1 : at) + (e.key === 'ArrowDown' ? 1 : -1)))];
+    if (next) { go(next.dataset.dir); next.scrollIntoView({ block: 'nearest' }); }
+  }
+});
 boot();
 </script>
 </body>

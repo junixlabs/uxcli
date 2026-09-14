@@ -33,13 +33,17 @@ export async function runJourney(J, { browser, outDir } = {}) {
   const ctx = { J, steps: [], recorded: [], authSteps: new Set(), commitIdx: J.steps.findIndex(s => s.commit), blocked: false, browser };
   const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   bctx.setDefaultTimeout(10000); // a selector that is not on the page fails in 10 s, not 30
+  // Playwright writes its call log for a terminal, so the message arrives with SGR escapes in it.
+  // Stripped here rather than where it is displayed: run.json is read by the dashboard, by `diff`,
+  // and by whoever opens the file — none of them are a terminal, and none of them should each undo it.
+  const said = e => ('' + e).replace(/\x1b\[[0-9;]*m/g, '').slice(0, 160);
   const page = await bctx.newPage();
   for (let i = 0; i < J.steps.length; i++) {
     // When each step began and how long it took. Two fields, and they turn "the page was still changing"
     // from a sentence into a number a reader can check against the 700 ms re-read.
     const t0 = Date.now();
     const step = J.steps[i]; const rec = { i, startedAt: new Date(t0).toISOString(), ms: 0, url: null, arrivedBy: null, title: null, noise: null, inputsOnArrival: [] };
-    try { rec.arrivedBy = await arrive(page, step); } catch (e) { rec.error = 'load: ' + String(e).slice(0, 160); rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
+    try { rec.arrivedBy = await arrive(page, step); } catch (e) { rec.error = 'load: ' + said(e); rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
     rec.url = page.url(); rec.title = await page.title();
     if (BOT.test(rec.title)) { rec.blocked = true; ctx.blocked = true; rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
     rec.noise = await noise(page);
@@ -50,7 +54,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
     // read as a table of urls is a journey nobody can picture; this is the one frame per step that
     // makes the sequence legible, and it is the same frame the probes just read.
     rec.film = await page.screenshot({ type: 'jpeg', quality: 55 }).catch(() => null);
-    try { if (await fillStep(page, step, i, ctx.recorded)) ctx.authSteps.add(i); rec.flowBreak = await act(page, step); } catch (e) { rec.error = 'act: ' + String(e).slice(0, 160); rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
+    try { if (await fillStep(page, step, i, ctx.recorded)) ctx.authSteps.add(i); rec.flowBreak = await act(page, step); } catch (e) { rec.error = 'act: ' + said(e); rec.ms = Date.now() - t0; ctx.steps.push(rec); break; }
     rec.ms = Date.now() - t0; ctx.steps.push(rec);
   }
   // The outcome of the last step belongs to no step's arrival, and on a commit it is the screen that
