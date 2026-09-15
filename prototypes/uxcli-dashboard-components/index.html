@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>uxcli · component contact sheet</title>
+<!-- Served, not opened from disk: it imports the REAL src/dashboard.ui.js and the real stylesheets,
+     so what is on this page is the component and not a copy of it that can quietly drift.
+       cd /path/to/uxcli && python3 -m http.server 4899
+       open http://127.0.0.1:4899/prototypes/uxcli-dashboard-components/ -->
+<link rel="stylesheet" href="/src/dashboard.tokens.css">
+<link rel="stylesheet" href="/src/dashboard.components.css">
+<style>
+  body { padding: var(--s5); }
+  .sheet-head { display: flex; align-items: baseline; gap: var(--s3); flex-wrap: wrap;
+    margin: 0 0 var(--s6); padding-bottom: var(--s3); border-bottom: 1px solid var(--line); }
+  .sheet-head h1 { margin: 0; font: 600 var(--type-title); }
+  .sheet-head p { margin: 0; flex: 1 1 auto; font: var(--type-body); color: var(--ink-3); }
+  .sheet-group { margin: 0 0 var(--s7); }
+  .sheet-group > h2 { margin: 0 0 var(--s1); font: 600 var(--type-lede); }
+  .sheet-group > p { margin: 0 0 var(--s3); max-width: 78ch; font: var(--type-body); color: var(--ink-3); }
+  .sheet-cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1px; background: var(--line-2); border: 1px solid var(--line); border-radius: var(--r-panel);
+    overflow: hidden; }
+  .sheet-cell { background: var(--bg); padding: var(--s3); min-width: 0; }
+  .sheet-cell.is-wide { grid-column: 1 / -1; }
+  .sheet-cell > b { display: block; margin-bottom: var(--s2); font: var(--type-meta);
+    color: var(--ink-3); font-weight: 400; }
+  .sheet-cell .stage-pad { padding: 0; }
+  .sheet-on-panel { background: var(--panel); }
+  .sheet-on-rail { background: var(--rail); }
+</style>
+</head>
+<body>
+<div class="sheet-head">
+  <h1>Component contact sheet</h1>
+  <p>Every component this dashboard is made of, in every state it has, drawn by <code class="code">src/dashboard.ui.js</code> against <code class="code">src/dashboard.components.css</code>. Nothing here is a mock-up of a component — it is the component.</p>
+  <button class="btn" id="theme" type="button">light / dark</button>
+</div>
+<main id="sheet"></main>
+
+<script type="module">
+import * as U from '/src/dashboard.ui.js';
+const { el, on } = U;
+const V = U.ORDER;
+
+const cells = [];
+const cell = (label, node, wide) => cells.push(el('div', { class: 'sheet-cell' + (wide ? ' is-wide' : '') },
+  el('b', { text: label }), node));
+const group = (name, why) => {
+  const box = el('div', { class: 'sheet-cells' }, cells.splice(0));
+  document.getElementById('sheet').append(el('section', { class: 'sheet-group' },
+    el('h2', { text: name }), el('p', { text: why }), box));
+};
+const row = (...kids) => el('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, ...kids);
+
+/* atoms ─ the verdict, at four sizes */
+for (const v of V) cell(v, row(U.Mark(v), U.Dot(v), U.Chip(v)));
+cell('dot · hollow / off / live', row(U.Dot('not-committed', { hollow: true }), U.Dot('pass', { off: true }), U.LiveDot()));
+cell('dot · execution states', row(U.StateDot('ran'), U.StateDot('stopped'), U.StateDot('never')));
+group('Verdict atoms', 'One scheme: a verdict is a class that sets --hue, and the mark, the dot and the chip each read it. A glyph as well as a hue, so the six answers survive a monochrome screen. The execution states borrow a hue but never a verdict class — a step that stopped is not a verdict.');
+
+cell('btn', U.Btn('evidence', {}, () => {}));
+cell('btn · icon', U.Btn(el('span', { text: '↻' }), { kind: 'icon', title: 're-read' }, () => {}));
+cell('btn · icon, busy', U.Btn(el('span', { text: '↻' }), { kind: 'icon', 'aria-busy': 'true' }));
+cell('btn · plain, inside a sentence', el('p', { style: 'margin:0;font:var(--type-meta);color:var(--ink-3)' },
+  document.createTextNode('26 images beside it · '), U.Btn('open the folder', { kind: 'plain' }, () => {})));
+cell('btn · link', U.Link('open full screenshot ↗', '#'));
+cell('btn · disabled', U.Btn('‹', { disabled: true }));
+cell('eyebrow · section / field / kicker', el('div', {}, U.Eyebrow('Probes'), U.Eyebrow('what', 'field'), U.Eyebrow('uxcli · page run', 'kicker')));
+cell('code', el('p', { style: 'margin:0' }, U.Code('~/.uxcli/index.json')));
+cell('status', el('span', { class: 'status', text: 'no change · 24 runs' }));
+group('Controls', 'Every button-shaped thing is one object in four sizes. `plain` is the one that sits inside running text, because a control that is a sentence’s own verb should read as the verb.');
+
+cell('tally · dots (a run card)', U.Tally({ fail: 1, finding: 0, unmeasurable: 0, pass: 2, 'not-applicable': 1, 'not-committed': 0 }));
+cell('tally · chips (a project)', U.Tally({ fail: 6, finding: 11, unmeasurable: 4, pass: 40 }, { mode: 'chips', only: U.LOUD }));
+cell('tally · words (the quiet pair)', U.Tally({ 'not-applicable': 2, 'not-committed': 0 }, { mode: 'words', only: ['not-applicable', 'not-committed'] }));
+cell('tiles', U.Tiles({ fail: 0, finding: 1, unmeasurable: 2, pass: 1 }), true);
+group('Counts', 'The same six numbers at three sizes, from one component. Four of the six read 0 on almost every run, so only the four that can ask something of a person get a tile; the other two are words.');
+
+cell('scope', el('div', { class: 'sheet-on-rail' }, U.Scope({ path: 'uxcli', title: '~/tools/uxcli', runs: 22, counts: { fail: 6, finding: 11, unmeasurable: 4, pass: 40 } })), true);
+for (const [k, v] of [['selected', true], ['not selected', false]])
+  cell('runcard · ' + k, el('div', { class: 'sheet-on-rail' }, U.RunCard({
+    name: 'Toolshop register → checkout (B1 round 2)', verdict: v ? 'finding' : 'fail', kind: 'journey',
+    when: '09-13 02:32', dir: '/x', current: v,
+    counts: { fail: v ? 0 : 1, finding: v ? 1 : 0, unmeasurable: 2, pass: 1, 'not-applicable': 0, 'not-committed': 0 },
+  }, () => {})), true);
+group('The run list', 'A project is a scope over the runs beneath it, stated once. A run card is marked the way a file list marks the open file: a band the full width of the rail, not a rounded card floating inside it.');
+
+for (const tone of ['hint', 'quiet', 'held', 'refused', 'review'])
+  cell('note · ' + tone, U.Note(tone, document.createTextNode(
+    tone === 'review' ? '6 of 8 steps ran. The last 2 steps were never measured.'
+      : tone === 'held' ? 'measured fail, reported finding: this probe’s method is not validated yet, so it may not state a fail.'
+        : tone === 'refused' ? 'read twice 700 ms apart and the page had changed between them, so the first read is not evidence.'
+          : tone === 'quiet' ? 'confirmed by a second read 700 ms later, naming the same elements.'
+            : 'Pick a run on the left.')), true);
+group('Notes', 'Everything the page says in its own voice is one object, and the tone says which voice. There were four of these drawn four ways; what differs between them is a colour and a left edge, so that is all that differs now.');
+
+cell('frame · full', U.Frame({ src: '/src/dashboard.mark.svg', alt: '' }));
+cell('frame · full, nothing captured', U.Frame({ miss: 'No frame was captured for this step.' }));
+cell('frame · thumb', U.Frame({ src: '/src/dashboard.mark.svg', size: 'thumb' }));
+cell('frame · thumb, nothing exists', U.Frame({ size: 'thumb', miss: 'no evidence exists' }));
+cell('caption', U.Caption('https://practicesoftwaretesting.com/auth/register\ncaptured at 02:10:41 · took 812 ms'));
+for (const [state, note] of [['ran', '812 ms'], ['stopped', 'stopped here'], ['never', 'never executed']])
+  cell('step · ' + state, U.Step({ name: 'step 3', path: 'checkout', url: 'https://example.com/checkout', state, note, shot: state === 'never' ? null : '/src/dashboard.mark.svg', current: state === 'ran' }, () => {}));
+cell('chain', U.Chain([
+  { name: 'step 0', path: 'auth/register', url: 'https://example.com/auth/register', state: 'ran', note: '431 ms', shot: '/src/dashboard.mark.svg', current: true },
+  { name: 'step 1', path: 'auth/login', url: 'https://example.com/auth/login', state: 'ran', note: '388 ms', shot: '/src/dashboard.mark.svg' },
+  { name: 'step 2', path: 'checkout', url: 'https://example.com/checkout', state: 'stopped', note: 'stopped here', shot: '/src/dashboard.mark.svg' },
+  { name: 'step 3', path: '—', state: 'never', note: 'never executed' },
+], () => {}), true);
+group('Evidence frames', 'A screenshot at any of the three sizes this page shows one. The picture sits on a mat inside the card and keeps its own radius, so the card never shaves the corners off its own evidence.');
+
+cell('probe table', U.ProbeTable([
+  { criterion: '3.3.7', name: 'redundant entry', provenance: 'spec', method: 'unproven', unproven: true, verdict: 'finding', detail: 'house_number asked again on step 6; first entered on step 0', current: true },
+  { criterion: '3.3.4', name: 'error prevention', provenance: 'spec', method: 'unproven', unproven: true, verdict: 'unmeasurable', detail: 'could not reach a state where the form was submitted with a known-bad value' },
+  { criterion: '3.2.3', name: 'consistent navigation', provenance: 'spec', method: 'validated', verdict: 'pass', detail: '5 of 5 screens carry the same primary navigation, in the same order' },
+  { criterion: '1.4.12', name: 'text spacing', provenance: 'spec', method: 'validated', verdict: 'not-applicable', detail: 'no text whose spacing is locked by an !important style attribute' },
+], () => {}), true);
+cell('cover', U.Cover([
+  { step: 'step 6', probes: [{ verdict: 'finding', name: '3.3.7' }] },
+  { step: 'step 7', none: true },
+]), true);
+group('The probe table and its coverage', 'The table is the run, scanned. The coverage strip says which conclusion belongs to which step, and draws a row only when it carries an answer — a row per step saying “nothing pins here” is one sentence repeated.');
+
+cell('pager', U.Pager({ label: 'step 2 of 8', atStart: false, atEnd: false, what: 'step' }, () => {}));
+cell('pager · at the start', U.Pager({ label: '1 of 4', atStart: true, atEnd: false, what: 'probe' }, () => {}));
+cell('evhead', U.EvHead({ verdict: 'finding', criterion: '3.3.7', name: 'redundant entry' }), true);
+cell('fields · pair (provenance / method)', U.Fields([U.Field('provenance', 'spec'), U.Field('method', 'unproven')], { variant: 'pair' }), true);
+cell('fields · panel', U.Fields([
+  U.Field('colour pair', '#8a8a8a on #ffffff'), U.Field('ratio', '3.54:1', { kind: 'big' }),
+  U.Field('across', '30 text nodes'), U.Field('token', '--muted / --bg'),
+], { variant: 'panel' }), true);
+cell('fields · packet', U.Fields([
+  U.Field('boxes', '181', { kind: 'num' }), U.Field('targets', '3 recorded — in the packet below', { kind: 'nil' }),
+  U.Field('sample', U.Fields([U.Field('a', '3 fields — in the packet below', { kind: 'nil' })], { variant: 'nested' }), { kind: 'rows' }),
+], { variant: 'packet' }), true);
+cell('cite', U.Cite({ what: '3 pairs of text painted over each other: "1" (span.n) over "uxcli init" (code) at 73,154 6×14px', where: 'file:///Users/chuongle/tools/uxcli/src/probes/text-overlap/must-fail/index.html', check: 'Look at span.n and code. Can you read both texts?' }), true);
+cell('why', U.Why('no text whose spacing is locked by an !important style attribute'), true);
+cell('specimen', U.Specimen({ fg: '#8a8a8a', bg: '#ffffff' }), true);
+cell('proof', U.Proof({ caption: 'text-overlap', sides: [{ label: 'before', src: '/src/dashboard.mark.svg' }, { label: 'after', src: '/src/dashboard.mark.svg' }] }), true);
+cell('raw', U.Raw('{\n "probe": "page.text-overlap",\n "verdict": "pass"\n}'), true);
+cell('acts', U.Acts(U.Btn('copy for an agent', {}, () => {})));
+group('The probe packet', 'One label and one value, and every label/value on the page is this: the provenance pair, the contrast table, the packet rows. They were four components that differed in padding and in nothing that was a decision.');
+
+cell('empty', U.Empty('Nothing indexed yet',
+  el('p', {}, document.createTextNode('Every '), U.Code('uxcli run'), document.createTextNode(' adds one line to '), U.Code('~/.uxcli/index.json'), document.createTextNode(' — a pointer to where it left run.json.'))), true);
+cell('foot', U.Foot(document.createTextNode('packet ~/tools/uxcli/.uxcli/page/run.json · 26 images beside it · '), U.Btn('open the folder', { kind: 'plain' }, () => {})), true);
+cell('combo', U.Combo({ label: 'filter by project', at: 0, id: 'sheetcombo', options: [
+  { label: 'all projects (3)', note: '24 runs', selected: true },
+  { label: 'uxcli', note: '6 failing', verdict: 'fail' },
+  { label: 'toolshop', note: '2 runs', verdict: 'pass' },
+] }, () => {}), true);
+group('Shell pieces', 'What the page is made of before any run is chosen.');
+
+on(document.getElementById('theme'), () => {
+  const r = document.documentElement;
+  r.setAttribute('data-theme', r.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+</script>
+</body>
+</html>

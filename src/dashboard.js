@@ -44,6 +44,13 @@ export function registerRun(result, outDir) {
 const under = (dir, f) => { const p = path.resolve(dir, f); return p === dir || p.startsWith(dir + path.sep) ? p : null; };
 const allowed = (idx, dir) => idx.runs.some(r => r.dir === path.resolve(dir || '')) ? path.resolve(dir) : null;
 
+const TIERS = {
+  '/dashboard.tokens.css': 'text/css; charset=utf-8',
+  '/dashboard.components.css': 'text/css; charset=utf-8',
+  '/dashboard.ui.js': 'text/javascript; charset=utf-8',
+  '/dashboard.app.js': 'text/javascript; charset=utf-8',
+};
+
 const mark = () => { try { return fs.readFileSync(path.join(HERE, 'dashboard.mark.svg'), 'utf8'); } catch { return ''; } };
 // Inlined into the page the mark is decorative: the .brand span names the lockup, so a second
 // accessible name here would announce the product twice. As a favicon the file keeps its <title>.
@@ -64,8 +71,12 @@ export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
       if (u.pathname === '/') return send(res, 200, 'text/html; charset=utf-8',
         fs.readFileSync(path.join(HERE, 'dashboard.html'), 'utf8').replace('<!--mark-->', () => markInline()));
       if (u.pathname === '/mark.svg') return send(res, 200, 'image/svg+xml; charset=utf-8', mark());
-      // The palette is a real stylesheet so `uxcli sheet` can read the project's own tokens out of it.
-      if (u.pathname === '/dashboard.tokens.css') return send(res, 200, 'text/css; charset=utf-8', fs.readFileSync(path.join(HERE, 'dashboard.tokens.css')));
+      // The three tiers are three files, served as themselves rather than inlined into the page: the
+      // palette is a real stylesheet so `uxcli sheet` can read the project's own tokens out of it, and
+      // the components are a real stylesheet and a real module for the same reason — something that
+      // can be opened, diffed and measured on its own. Named one by one, not from a directory: this
+      // server's whole discipline is that it serves what is in the index and nothing else.
+      if (TIERS[u.pathname]) return send(res, 200, TIERS[u.pathname], fs.readFileSync(path.join(HERE, u.pathname.slice(1))));
       if (u.pathname === '/api/index') return send(res, 200, 'application/json', JSON.stringify(idx));
       if (u.pathname === '/api/run') {
         const dir = allowed(idx, q.get('dir')); if (!dir) return send(res, 404, 'application/json', '{"error":"not in index"}');

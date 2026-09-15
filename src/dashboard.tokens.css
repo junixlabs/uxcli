@@ -99,6 +99,29 @@
    between things, written down so they stop being re-invented per block. */
 :root { --dot: 8px; --stripe: 3px; --shadow: rgba(16, 24, 40, .16); }
 
+/* Measures. Spacing is the distance between things; a measure is how wide a thing is allowed to be,
+   and every one of these is a decision somebody made for a reason — how much of the window the run
+   list may take, how narrow the probe table may get before it scrolls instead of squeezing, how wide
+   a step thumbnail has to be before every step stops looking like every other step.
+   They lived inside the stylesheet as bare numbers, where the design-system test could not see them:
+   it checked padding, font, radius and colour, and a width was the one axis with no rule on it. That
+   is how `min-width: 700px` and `min-width: 820px` ended up on the same table, eighty lines apart. */
+:root {
+  --w-rail: 320px;          /* the run list; 300 once the window can no longer hold three columns */
+  --w-rail-narrow: 300px;
+  --w-evidence: 400px;      /* fixed, never proportional — see the note on .shell */
+  --w-ev-wide: 720px;       /* evidence as a full-width band under the run, where prose needs a stop */
+  --w-stage: 980px;         /* the longest line the middle column will set */
+  --w-read: 64ch;           /* prose that is meant to be read rather than scanned */
+  --w-tile: 140px;          /* a count tile, before the row wraps */
+  --w-word: 96px;           /* the verdict names in the legend, so the sentences after them align */
+  --w-probes: 820px;        /* seven columns at their own widths; under this the table scrolls */
+  --w-step: 130px;          /* a step thumbnail wide enough to tell two steps apart */
+  --h-step: 70px;
+  --w-search: 260px; --w-search-min: 140px;
+  --h-proof: 120px;         /* a before/after frame in the rail */
+}
+
 /* The names the page is written in — and dark is what they point at.
  *
  * Not a theme: the dashboard is an instrument read beside a terminal, and the runs it indexes carry
