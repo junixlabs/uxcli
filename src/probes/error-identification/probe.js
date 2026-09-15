@@ -18,14 +18,15 @@ export default {
     if (id.described?.length) signals.push(`aria-describedby/aria-errormessage → ${JSON.stringify(id.described[0].trim().slice(0, 80))}`);
     if (id.containerNew?.length) signals.push(`new text in the field's container: ${JSON.stringify(id.containerNew[0].slice(0, 80))}`);
     if (id.labelNew?.length) signals.push(`new text names the field ("${id.label}"): ${JSON.stringify(id.labelNew[0].slice(0, 80))}`);
-    if (signals.length) return { ...ep, verdict: 'pass', signal: signals[0], signals };
+    if (signals.length) return { ...ep, verdict: 'pass', signal: signals[0], signals,
+      why: `the planted ${p.probeKind} on "${p.probedField}" was rejected and identified: ${signals[0]}` };
     const form = p.newTextCount === 0 && !p.nativeValidation ? 'silent' : 'unidentified';
     return { ...ep, verdict: 'fail', form, why: form === 'silent' ? `the submission with ${p.probeKind} was rejected and nothing was said: no new text, no native validation` : `text appeared (${p.newText.slice(0, 2).map(t => JSON.stringify(t.slice(0, 60))).join(', ')}) but none of it is tied to "${p.probedField}" or names it` };
   },
   explain(p) {
-    const pl = p.planted;
+    const pl = p.evidence.planted;
     return {
-      what: `${p.form === 'silent' ? 'submission rejected, nothing said' : 'submission rejected, message not tied to the field'}: ${pl.probeKind} on "${pl.probedField}" (step ${pl.entryStep + 1}); ${p.form === 'silent' ? 'no new text, no native validation' : 'new text: ' + pl.newText.slice(0, 2).map(t => JSON.stringify(t.slice(0, 50))).join(', ')}`,
+      what: `${p.evidence.form === 'silent' ? 'submission rejected, nothing said' : 'submission rejected, message not tied to the field'}: ${pl.probeKind} on "${pl.probedField}" (step ${pl.entryStep + 1}); ${p.evidence.form === 'silent' ? 'no new text, no native validation' : 'new text: ' + pl.newText.slice(0, 2).map(t => JSON.stringify(t.slice(0, 50))).join(', ')}`,
       where: `${pl.urlBefore}  ${pl.probedField}`,
       check: `Submit this form with "${pl.probedField}" ${pl.probeValue ? 'set to ' + JSON.stringify(pl.probeValue) : 'empty'}. Does a text message appear that names that field?`,
     };

@@ -1,6 +1,6 @@
 // uxcli gate: every probe's falsification pair must fail where it must and stay silent where it must, and the fixture hashes must match.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import crypto from 'node:crypto'; import { fileURLToPath, pathToFileURL } from 'node:url';
-import { loadJourney } from './journey.js'; import { runJourney, PROBES } from './run.js'; import { runPage, PAGE_PROBES } from './page.js'; import { launch } from './browser.js';
+import { loadJourney } from './journey.js'; import { runJourney, PROBES } from './run.js'; import { runPage, PAGE_PROBES } from './page.js'; import { launch } from './browser.js'; import { validate } from './packet.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sha = f => crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
@@ -10,9 +10,14 @@ const checkHashes = (dir, sub, expected, problems) => { for (const [f, h] of Obj
 
 export async function gate({ log = console.log } = {}) {
   const browser = await launch(); let ok = true;
+  // The packet is a format, so it is asserted like one — here, where every probe is already being run
+  // against its own fixtures, and not one extra browser is launched for it. A probe that invents a
+  // top-level key, or states a fail it cannot cite, stops the gate the same way a bad verdict does.
+  const shaped = (probe, ...packets) => packets.flatMap(p => p ? validate(p) : []);
   const report = (probe, pair, vf, vp, problems) => {
+    problems.push(...shaped(probe, vf, vp));
     if (problems.length) ok = false;
-    log(`${probe.sc.padEnd(6)} ${probe.id.padEnd(28)} must-fail: ${(vf.rawVerdict || vf.verdict).padEnd(6)} must-pass: ${vp.verdict.padEnd(14)} ${(probe.method?.status || 'method-unproven').padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
+    log(`${probe.sc.padEnd(6)} ${probe.id.padEnd(28)} must-fail: ${(vf.doctrine?.rawVerdict || vf.verdict).padEnd(6)} must-pass: ${vp.verdict.padEnd(14)} ${(probe.method?.status || 'method-unproven').padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
     log(`       operator: ${pair.operator}`);
   };
   // Flow probes: one shared fixture site, the must-fail overlay replaces one file. The clean site must reach every probe's satisfied branch: `pass`, never `not-applicable`.
@@ -26,7 +31,7 @@ export async function gate({ log = console.log } = {}) {
     const build = (overlay) => { const d = fs.mkdtempSync(path.join(tmp, 'v-')); fs.cpSync(site, d, { recursive: true }); if (overlay) fs.cpSync(overlay, d, { recursive: true }); return pathToFileURL(d + '/').href; };
     const jPath = path.join(ROOT, pair.journey);
     let vf;
-    for (const v of variants) { const r = (await runJourney(loadJourney(jPath, { base: build(path.join(dir, v)) }), { browser })).probes.find(p => p.sc === probe.sc); if (v === 'must-fail') vf = r; if ((r.rawVerdict || r.verdict) !== 'fail') problems.push(`${v} returned ${r.verdict}`); }
+    for (const v of variants) { const r = (await runJourney(loadJourney(jPath, { base: build(path.join(dir, v)) }), { browser })).probes.find(p => p.sc === probe.sc); if (v === 'must-fail') vf = r; if ((r.doctrine?.rawVerdict || r.verdict) !== 'fail') problems.push(`${v} returned ${r.verdict}`); }
     // A probe whose satisfied branch the clean site cannot reach ships a must-pass overlay, hashed like the must-fail one.
     const mp = fs.existsSync(path.join(dir, 'must-pass')) ? 'must-pass' : null; if (mp) checkHashes(dir, mp, pair.hashes.mustPass, problems);
     const vp = (await runJourney(loadJourney(jPath, { base: build(mp ? path.join(dir, mp) : null) }), { browser })).probes.find(p => p.sc === probe.sc);
@@ -34,7 +39,7 @@ export async function gate({ log = console.log } = {}) {
     if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
     // The citation belongs to the probe, not to the card: a fail that reaches run.json without one
     // leaves every surface but the terminal unable to say what to do about it.
-    if (!vf?.what || !vf?.check) problems.push('must-fail carries no what/check from probe.explain()');
+    if (!vf?.cite?.what || !vf?.cite?.check) problems.push('must-fail carries no what/check from probe.explain()');
     report(probe, pair, vf, vp, problems);
     for (const v of variants.filter(v => v !== 'must-fail')) log(`       ${v}: ${pair.variants?.[v]?.operator || '(no operator recorded)'}`);
   }
@@ -44,13 +49,13 @@ export async function gate({ log = console.log } = {}) {
     checkHashes(dir, 'must-fail', pair.hashes.mustFail, problems); checkHashes(dir, 'must-pass', pair.hashes.mustPass, problems);
     const one = async sub => (await runPage(pathToFileURL(path.join(dir, sub, 'index.html')).href, { browser, only: [probe.id] })).probes[0];
     const vf = await one('must-fail'), vp = await one('must-pass');
-    if ((vf.rawVerdict || vf.verdict) !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
+    if ((vf.doctrine?.rawVerdict || vf.verdict) !== 'fail') problems.push(`must-fail returned ${vf.verdict}`); if (vp.verdict !== 'pass') problems.push(`must-pass returned ${vp.verdict}`);
     // --prove on the must-pass twin: the probe's own planted defect must reach the measured elements and turn the pass into a fail.
     const pv = (await runPage(pathToFileURL(path.join(dir, 'must-pass', 'index.html')).href, { browser, only: [probe.id], prove: true })).probes[0];
-    if (!pv.prove?.wouldFail) problems.push(`--prove on must-pass: ${pv.prove?.why || 'no counterfactual'}`);
-    if (!vf?.what || !vf?.check) problems.push('must-fail carries no what/check from probe.explain()');
+    if (!pv.doctrine?.prove?.wouldFail) problems.push(`--prove on must-pass: ${pv.doctrine?.prove?.why || 'no counterfactual'}`);
+    if (!vf?.cite?.what || !vf?.cite?.check) problems.push('must-fail carries no what/check from probe.explain()');
     report(probe, pair, vf, vp, problems);
-    log(`       prove: ${pv.prove?.wouldFail ? 'would fail on ' + pv.prove.mutation : 'could not be made to fail: ' + (pv.prove?.why || '')}`);
+    log(`       prove: ${pv.doctrine?.prove?.wouldFail ? 'would fail on ' + pv.doctrine.prove.mutation : 'could not be made to fail: ' + (pv.doctrine?.prove?.why || '')}`);
   }
   // stability: a `fail` read from a page that changed between two reads is not a fail. One pair of
   // twins differing only in whether the defect is the page's resting state.
@@ -59,8 +64,8 @@ export async function gate({ log = console.log } = {}) {
     checkHashes(dir, 'must-fail', pair.hashes.mustFail, problems); checkHashes(dir, 'must-pass', pair.hashes.mustPass, problems);
     const one = async sub => (await runPage(pathToFileURL(path.join(dir, sub, 'index.html')).href, { browser, only: ['1.4.3'] })).probes[0];
     const vf = await one('must-fail'), vp = await one('must-pass');
-    if (vf.verdict !== 'unmeasurable' || vf.reread?.agreed !== false) problems.push(`must-fail returned ${vf.verdict}, expected unmeasurable from a disagreeing re-read`);
-    if (vp.verdict !== 'fail' || vp.reread?.agreed !== true) problems.push(`must-pass returned ${vp.verdict}, expected a fail confirmed by the re-read`);
+    if (vf.verdict !== 'unmeasurable' || vf.doctrine?.reread?.agreed !== false) problems.push(`must-fail returned ${vf.verdict}, expected unmeasurable from a disagreeing re-read`);
+    if (vp.verdict !== 'fail' || vp.doctrine?.reread?.agreed !== true) problems.push(`must-pass returned ${vp.verdict}, expected a fail confirmed by the re-read`);
     if (problems.length) ok = false;
     log(`stable page.reread              must-fail: ${vf.verdict.slice(0, 6).padEnd(6)} must-pass: ${vp.verdict.padEnd(14)} ${'arithmetic'.padEnd(17)} ${problems.length ? 'FAIL  ' + problems.join('; ') : 'ok'}`);
     log(`       operator: ${pair.operator}`);

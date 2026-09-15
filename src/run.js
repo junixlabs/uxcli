@@ -1,6 +1,7 @@
 // Walks a journey once, gives every probe the same observations, returns the verdicts.
 import { launch, arrive, noise, markScope, fillStep, act, evalIn } from './browser.js';
 import { BOT } from './util.js';
+import { packet } from './packet.js';
 import fs from 'node:fs'; import path from 'node:path';
 import errorPrevention from './probes/error-prevention/probe.js';
 import redundantEntry from './probes/redundant-entry/probe.js';
@@ -9,22 +10,15 @@ import errorIdentification from './probes/error-identification/probe.js';
 
 export const PROBES = [errorPrevention, errorIdentification, redundantEntry, consistentNavigation];
 
-// README rule: an unproven method reports `finding` where it would say `fail`. The probe's own verdict is kept as rawVerdict.
-export function withMethod(probe, out) {
-  const r = { probe: probe.id, sc: probe.sc, provenance: probe.provenance || 'spec', method: probe.method?.status || 'method-unproven', ...out };
-  if (r.verdict === 'fail' && r.method !== 'method-validated') { r.rawVerdict = 'fail'; r.verdict = 'finding'; }
-  return r;
-}
-
 // what / where / check — the citation a reader acts on. Written into the result, not composed by the
 // card, so run.json carries it and every surface (card, report, dashboard, MCP) says the same thing.
 // Runs last: contrast can only name a design token after --src has been indexed.
 export function explainAll(result, probes) {
   for (const p of result.probes) {
-    if (p.verdict !== 'fail' && p.rawVerdict !== 'fail') continue;
+    if (p.verdict !== 'fail' && p.doctrine?.rawVerdict !== 'fail') continue;
     const probe = probes.find(x => x.id === p.probe);
     if (!probe?.explain) continue;
-    try { Object.assign(p, probe.explain(p, result)); } catch {}
+    try { p.cite = probe.explain(p, result); } catch {}
   }
 }
 
@@ -63,7 +57,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
   await bctx.close();
   segment(ctx);
   const probes = [];
-  for (const p of PROBES) probes.push(withMethod(p, await p.evaluate(ctx)));
+  for (const p of PROBES) probes.push(packet(p, await p.evaluate(ctx)));
   if (own) await browser.close();
   if (outDir) writeEvidence(ctx, probes, outDir);
   for (const s of ctx.steps) delete s.evidence;
@@ -92,10 +86,15 @@ function writeEvidence(ctx, probes, outDir) {
   const save = (name, buf) => { if (!buf) return null; const f = path.join(outDir, name); fs.writeFileSync(f, buf); return f; };
   for (const s of ctx.steps) { const f = save(`step-${s.i}.jpg`, s.film); if (f) s.shot = path.basename(f); }
   ctx.finalShotFile = (f => f && path.basename(f))(save('step-final.jpg', ctx.finalShot));
+  // A crop is evidence — it is the thing a reader opens to check the verdict — so it is written where
+  // evidence lives. `packet()` has already run by here, which is why both the read and the write are
+  // one level in.
   for (const p of probes) {
     if (p.verdict !== 'fail') continue;
-    if (p.sc === '3.3.7') p.proof = [...new Set(p.reasked.map(m => m.step))].map(i => save(`3.3.7-step${i}.png`, ctx.steps[i]?.evidence?.['3.3.7'])).filter(Boolean);
-    if (p.sc === '3.3.4') p.proof = [save(`3.3.4-step${ctx.commitIdx}.png`, ctx.steps[ctx.commitIdx]?.evidence?.['3.3.4'])].filter(Boolean);
-    if (p.sc === '3.2.3') { const x = p.inversion; p.proof = [x.stepA, x.stepB].map(i => save(`3.2.3-step${i}.png`, ctx.steps[i]?.evidence?.['3.2.3']?.[x.mechanism])).filter(Boolean); }
+    const ev = p.evidence || {};
+    if (p.sc === '3.3.7') ev.proof = [...new Set(ev.reasked.map(m => m.step))].map(i => save(`3.3.7-step${i}.png`, ctx.steps[i]?.evidence?.['3.3.7'])).filter(Boolean);
+    if (p.sc === '3.3.4') ev.proof = [save(`3.3.4-step${ctx.commitIdx}.png`, ctx.steps[ctx.commitIdx]?.evidence?.['3.3.4'])].filter(Boolean);
+    if (p.sc === '3.2.3') { const x = ev.inversion; ev.proof = [x.stepA, x.stepB].map(i => save(`3.2.3-step${i}.png`, ctx.steps[i]?.evidence?.['3.2.3']?.[x.mechanism])).filter(Boolean); }
+    p.evidence = ev;
   }
 }

@@ -76,9 +76,11 @@ export default {
   async measure(page) {
     await settleAnimations(page);
     const r = await page.evaluate(COLLECT, [THIRD, 600]);
-    const base = { provenance: 'opinion', rule: 'visible text is not painted over other visible text', boxes: r.boxes, sample: r.sample };
+    // How many boxes were read and which pair was sampled is the arithmetic; the pairs themselves are
+// what a reader opens.
+    const base = { provenance: 'opinion', rule: 'visible text is not painted over other visible text', measured: { boxes: r.boxes, sample: r.sample } };
     if (r.boxes < 2) return { verdict: 'not-applicable', why: 'fewer than two visible text boxes', ...base };
-    if (r.pairs.length) return { verdict: 'fail', why: `${r.pairs.length} pair${r.pairs.length > 1 ? 's' : ''} of text painted over each other`, targets: r.pairs, ...base };
+    if (r.pairs.length) return { verdict: 'fail', why: `${r.pairs.length} pair${r.pairs.length > 1 ? 's' : ''} of text painted over each other`, evidence: { targets: r.pairs }, ...base };
     return { verdict: 'pass', why: `${r.boxes} text boxes, no two painted over each other`, ...base };
   },
   // --prove: the second sampled text element is moved onto the first with a transform; reached when their boxes intersect on re-read.
@@ -95,7 +97,7 @@ export default {
     return { mutation: `"${s.b.sel}" moved onto "${s.a.sel}"`, reached, ...(reached ? {} : { why: 'the moved text did not land on the other' }) };
   },
   explain(p, result) {
-    const t = p.targets;
+    const t = p.evidence.targets;
     return {
       what: `${t.length} pair${t.length > 1 ? 's' : ''} of text painted over each other: ${t.slice(0, 3).map(x => `"${x.a.text.slice(0, 18)}" (${x.a.sel}) over "${x.b.text.slice(0, 18)}" (${x.b.sel}) at ${x.at.x},${x.at.y} ${x.at.w}×${x.at.h}px`).join('; ')}${t.length > 3 ? '; …' : ''}`,
       where: result.finalUrl || result.url,

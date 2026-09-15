@@ -52,9 +52,15 @@ export default {
     branches.reversible = { holds: !!J.reversible, provenance: 'project', declared: J.reversible || null };
     ep.branches = branches;
     if (conf.reformatted?.length) ep.finding = { kind: 'reformatted', why: `${conf.reformatted.length} value${conf.reformatted.length > 1 ? 's' : ''} shown in another format (${conf.reformatted.slice(0, 2).map(x => JSON.stringify(x.value)).join(', ')}); not counted as missing` };
-    if (conf.holds) return { ...ep, verdict: 'pass', branch: conf.note ? 'confirmed (review on preceding step)' : 'confirmed' };
-    if (branches.checked.holds) return { ...ep, verdict: 'pass', branch: 'checked' };
-    if (J.reversible) return { ...ep, verdict: 'pass', branch: 'reversible (project)' };
+    // 3.3.4 is satisfied by any one of three branches, and which one held is the reason. It was
+    // carried as `branch` alone, which left the card to compose the sentence and the packet with a
+    // verdict and no `why` — a verdict a reader cannot act on, and the one thing this format forbids.
+    if (conf.holds) return { ...ep, verdict: 'pass', branch: conf.note ? 'confirmed (review on preceding step)' : 'confirmed',
+      why: `all ${conf.present.length} entered value${conf.present.length === 1 ? ' is' : 's are'} shown again${conf.note ? ' on the step before the commit' : ' on the commit screen'} with a way to change ${conf.present.length === 1 ? 'it' : 'them'}` };
+    if (branches.checked.holds) return { ...ep, verdict: 'pass', branch: 'checked',
+      why: `the submission is checked before it commits: ${branches.checked.evidence || 'a planted error was rejected'}` };
+    if (J.reversible) return { ...ep, verdict: 'pass', branch: 'reversible (project)',
+      why: `the journey declares this submission reversible: ${J.reversible} (project)` };
     if (branches.checked.tested) return { ...ep, verdict: 'fail', why: 'no branch holds', missing: conf.missing };
     // This sentence used to assert the journey had not declared checkedPass. It is also reached when the
     // journey did declare it and the planted error could not be delivered — and then the sentence was
@@ -65,7 +71,7 @@ export default {
     return { ...ep, verdict: 'unmeasurable', why: `confirmed false; checked untested (${ck}); reversible not declared` };
   },
   explain(p, result) {
-    const c = p.branches.confirmed, ck = p.branches.checked, cm = c.changeMechanism;
+    const c = p.evidence.branches.confirmed, ck = p.evidence.branches.checked, cm = c.changeMechanism;
     return {
       what: `${c.missing.length} of ${c.missing.length + c.present.length} entered values are not shown on the commit screen; ${cm ? `change control "${typeof cm === 'string' ? cm : cm.text}"` : 'no change control'}; validation ${ck.tested ? 'tested: ' + ck.evidence : 'untested'}`,
       where: result.steps.find(s => s.i === c.screen)?.url,

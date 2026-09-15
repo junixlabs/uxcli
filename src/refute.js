@@ -3,16 +3,16 @@
 import { spawnSync } from 'node:child_process';
 
 export function refuteQuestion(p) {
-  if (p.sc === '3.3.7') { const fields = [...new Set(p.reasked.map(m => m.field.name || m.field.id))]; return `The tool claims: on the screen shown, the field(s) ${fields.join(', ')} (outlined in red) are empty although the user typed the value(s) earlier in the same process. Looking only at the image(s), is that claim supported?`; }
+  if (p.sc === '3.3.7') { const fields = [...new Set(p.evidence.reasked.map(m => m.field.name || m.field.id))]; return `The tool claims: on the screen shown, the field(s) ${fields.join(', ')} (outlined in red) are empty although the user typed the value(s) earlier in the same process. Looking only at the image(s), is that claim supported?`; }
   if (p.sc === '3.3.4') { const c = p.branches.confirmed; return `The tool claims: on the screen shown (the one that places the order), the previously entered values ${c.missing.slice(0, 3).map(m => JSON.stringify(m.value)).join(', ')} are not shown and there is no control to change them before committing. Looking only at the image, is that claim supported?`; }
-  if (p.sc === '3.2.3') { const x = p.inversion; return `The tool claims: the two navigation menus shown (from two pages of the same site) list the same items but in a different relative order; specifically ${x.firstInvertedPair.map(s => s.replace(/^[ht]:/, '').split('/').pop()).join(' and ')} are swapped. Looking only at the images, is that claim supported?`; }
-  if (p.sc === '2.4.7') { const t = p.targets[0]; return `The tool claims: the two images are the same crop of one control (${t.sel}${t.text ? ' "' + t.text + '"' : ''}) on a web page, the first before it received keyboard focus and the second after. It claims nothing visible changes between them, so a keyboard user cannot see that this control has focus. Look at both images. Is there any visible focus indicator (outline, ring, glow, underline, colour change) in the second image that is absent from the first?`; }
+  if (p.sc === '3.2.3') { const x = p.evidence.inversion; return `The tool claims: the two navigation menus shown (from two pages of the same site) list the same items but in a different relative order; specifically ${x.firstInvertedPair.map(s => s.replace(/^[ht]:/, '').split('/').pop()).join(' and ')} are swapped. Looking only at the images, is that claim supported?`; }
+  if (p.sc === '2.4.7') { const t = p.evidence.targets[0]; return `The tool claims: the two images are the same crop of one control (${t.sel}${t.text ? ' "' + t.text + '"' : ''}) on a web page, the first before it received keyboard focus and the second after. It claims nothing visible changes between them, so a keyboard user cannot see that this control has focus. Look at both images. Is there any visible focus indicator (outline, ring, glow, underline, colour change) in the second image that is absent from the first?`; }
   return null;
 }
 
 export function refute(p, { cmd = process.env.UXCLI_REFUTER || 'claude -p --model haiku --allowedTools Read --output-format json' } = {}) {
-  const q = refuteQuestion(p); if (!q || !p.proof?.length) return { tested: false, why: 'no question or no proof image' };
-  const prompt = `You are an independent second reader checking one claim made by an automated UI checker. You have not seen the checker. Do not trust the claim.\nOpen each image with the Read tool: ${p.proof.join(' , ')}\nQuestion: ${q}\nReply with JSON only, on one line: {"supported": true|false, "reason": "<one sentence, what you saw>"}`;
+  const q = refuteQuestion(p); if (!q || !p.evidence?.proof?.length) return { tested: false, why: 'no question or no proof image' };
+  const prompt = `You are an independent second reader checking one claim made by an automated UI checker. You have not seen the checker. Do not trust the claim.\nOpen each image with the Read tool: ${p.evidence.proof.join(' , ')}\nQuestion: ${q}\nReply with JSON only, on one line: {"supported": true|false, "reason": "<one sentence, what you saw>"}`;
   const [bin, ...args] = cmd.split(/\s+/); const t0 = Date.now();
   const r = spawnSync(bin, [...args, prompt], { encoding: 'utf8', timeout: 180000, stdio: ['ignore', 'pipe', 'pipe'] });
   const base = { cmd, ms: Date.now() - t0 };
@@ -27,7 +27,7 @@ export function refute(p, { cmd = process.env.UXCLI_REFUTER || 'claude -p --mode
 
 // One line of the card per reader answer: the verdict, the command that produced it, what it cost.
 export function readerLine(p) {
-  const r = p.refute; if (!r) return null;
+  const r = p.evidence?.refute; if (!r) return null;
   const via = ` (via ${r.cmd}${r.costUsd != null ? `, US$${r.costUsd.toFixed(3)}` : ''}${r.ms ? `, ${Math.round(r.ms / 1000)} s` : ''})`;
   if (!r.tested) return `  reader not run: ${r.why}` + (r.cmd ? via : '');
   if (!r.parsed) return `  reader unparsed: ${r.raw}` + via;
@@ -39,5 +39,5 @@ export function refuteAll(probes, { cmd = process.env.UXCLI_REFUTER || 'claude -
   const fails = probes.filter(p => p.verdict === 'fail');
   if (!fails.length) { log('refute: no fail on this run, the second reader is not called'); return; }
   log(`refute: ${fails.length} fail${fails.length > 1 ? 's' : ''} → spawning a fresh process per fail: ${cmd} (default reader is Claude haiku with Read only, about US$0.04 per fail; change with UXCLI_REFUTER)`);
-  for (const p of fails) { p.refute = refute(p, { cmd }); log(`refute: ${p.sc} ${p.probe} →${readerLine(p).replace(/^\s*reader /, ' ')}`); }
+  for (const p of fails) { (p.evidence ||= {}).refute = refute(p, { cmd }); log(`refute: ${p.sc} ${p.probe} →${readerLine(p).replace(/^\s*reader /, ' ')}`); }
 }

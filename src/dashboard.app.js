@@ -185,8 +185,8 @@ const stepName = f => f.final ? 'outcome' : `step ${f.i}`;
 // Which steps a probe pinned itself to. Only what the probe actually recorded — `reasked` and
 // `inversion` name steps, and nothing else here infers one. Inventing an attribution would be the
 // one dishonest pixel on the page.
-const pinnedSteps = p => [...new Set([...(p.reasked || []).map(m => m.step),
-  ...(p.inversion ? [p.inversion.stepA, p.inversion.stepB] : [])])].filter(n => n !== undefined);
+const pinnedSteps = p => [...new Set([...(p.evidence?.reasked || []).map(m => m.step),
+  ...(p.evidence?.inversion ? [p.evidence.inversion.stepA, p.evidence.inversion.stepB] : [])])].filter(n => n !== undefined);
 
 // ── the run ─────────────────────────────────────────────────────────────────
 function renderRun(stage) {
@@ -255,7 +255,7 @@ function renderRun(stage) {
   pad.append(ProbeTable(probesOrdered().map(p => ({
     criterion: p.sc || shortName(p.probe), name: shortName(p.probe), provenance: p.provenance || '',
     method: (p.method || '').replace('method-', ''), unproven: /unproven/.test(p.method || ''),
-    verdict: p.verdict, detail: p.what || p.why || '', current: p.probe === PROBE, probe: p.probe,
+    verdict: p.verdict, detail: p.cite?.what || p.why || '', current: p.probe === PROBE, probe: p.probe,
   })), r => go(ENTRY.dir, r.probe)));
 
   const shots = probes.reduce((n, x) => n + (x.proof?.length || 0), 0)
@@ -357,10 +357,10 @@ function renderEvidence() {
     Field('method', (p.method || '—').replace('method-', ''), { kind: /unproven/.test(p.method || '') ? 'unproven' : '' }),
   ], { variant: 'pair' }));
 
-  if (p.what) box.append(Cite({ what: p.what, where: p.where, check: p.check }));
+  if (p.cite) box.append(Cite(p.cite));
   else if (p.why) box.append(Why(p.why));
 
-  for (const g of (p.groups || []).slice(0, 2)) if (g.fg && g.bg) {
+  for (const g of (p.evidence?.groups || []).slice(0, 2)) if (g.fg && g.bg) {
     box.append(Specimen({ fg: g.fg, bg: g.bg }));
     const rows = [Field('colour pair', `${g.fg} on ${g.bg}`), Field('ratio', g.ratio + ':1', { kind: 'big' }),
       Field('across', `${g.count} text node${g.count === 1 ? '' : 's'}`)];
@@ -369,17 +369,17 @@ function renderEvidence() {
     box.append(Fields(rows, { variant: 'panel' }));
   }
 
-  if (p.rawVerdict && p.rawVerdict !== p.verdict)
-    box.append(Note('held', document.createTextNode(`measured ${p.rawVerdict}, reported ${p.verdict}: this probe's method is not validated yet, so it may not state a fail.`)));
-  if (p.reread && !p.reread.agreed)
-    box.append(Note('refused', document.createTextNode(`read twice ${p.reread.afterMs} ms apart and the page had changed between them, so the first read is not evidence.`)));
-  if (p.reread?.agreed)
-    box.append(Note('quiet', document.createTextNode(`confirmed by a second read ${p.reread.afterMs} ms later, naming the same elements.`)));
+  if (p.doctrine?.rawVerdict && p.doctrine.rawVerdict !== p.verdict)
+    box.append(Note('held', document.createTextNode(`measured ${p.doctrine.rawVerdict}, reported ${p.verdict}: this probe's method is not validated yet, so it may not state a fail.`)));
+  if (p.doctrine?.reread && !p.doctrine.reread.agreed)
+    box.append(Note('refused', document.createTextNode(`read twice ${p.doctrine.reread.afterMs} ms apart and the page had changed between them, so the first read is not evidence.`)));
+  if (p.doctrine?.reread?.agreed)
+    box.append(Note('quiet', document.createTextNode(`confirmed by a second read ${p.doctrine.reread.afterMs} ms later, naming the same elements.`)));
   const pinned = pinnedSteps(p);
   if (pinned.length) box.append(Note('quiet', document.createTextNode(`pointed from step ${pinned.join(', ')} — `),
     Btn('show that frame', { kind: 'plain' }, () => goStep(ENTRY.dir, pinned[0]))));
 
-  const proof = (p.proof || []).map(f => String(f).split('/').pop());
+  const proof = (p.evidence?.proof || []).map(f => String(f).split('/').pop());
   if (proof.length) {
     const pairs = new Map(), loose = [];
     for (const f of proof) { const m = f.match(/^(.*)-(before|after)\.png$/i);
@@ -395,12 +395,12 @@ function renderEvidence() {
   const raw = Raw(JSON.stringify(p, null, 1));
   box.append(Acts(Btn('copy for an agent', { title: 'the whole packet, ready to paste to an agent' },
     () => copyPacket(p, raw))));
-  // Only the fields the rail has not already painted. The verdict is a chip, the provenance and the
-  // method are two boxes, the sentence is `what`/`why` — printing them again four inches lower is how
-  // the same fact ends up with two wordings on one screen.
-  const SAID = new Set(['probe', 'sc', 'verdict', 'rawVerdict', 'provenance', 'method', 'rule',
-    'what', 'where', 'check', 'why', 'proof', 'reread', 'reasked', 'inversion']);
-  box.append(packet(Object.fromEntries(Object.entries(p).filter(([k]) => !SAID.has(k)))));
+  // `evidence` and nothing else. This used to be a denylist of fifteen field names kept in step by
+  // hand — the rail printed whatever a probe happened to return and could not tell `groups` from
+  // `axe: "4.13.0"`, because nothing in the packet said which was which. The packet says it now, so
+  // the screen stops guessing: what a reader opens to check the verdict is here, the arithmetic
+  // behind the sentence is in the raw packet below. See src/probes/packet.md.
+  box.append(packet(p.evidence || {}));
   box.append(raw);
   body.append(box);
 }

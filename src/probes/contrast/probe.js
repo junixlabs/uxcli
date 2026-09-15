@@ -16,11 +16,15 @@ export default {
       const passNodes = nodes(res.passes).filter(n => !n.third);
       return { violations: nodes(res.violations).filter(n => !n.third), incomplete: nodes(res.incomplete).filter(n => !n.third).length, passes: passNodes.length, passTargets: passNodes.slice(0, 30).map(n => ({ target: n.target, bg: n.bg })), inapplicable: res.inapplicable.some(v => v.id === 'color-contrast') };
     }, [THIRD]);
-    const base = { axe: AXE_VERSION, incomplete: r.incomplete, passes: r.passes, passTargets: r.passTargets };
+    // How it was counted, not what decided it: the tool and its version, the totals behind the
+    // sentence, and the sample kept so --prove has something to blend. A reader checking this verdict
+    // opens the colour pairs, never `axe: "4.13.0"`.
+    const base = { measured: { axe: AXE_VERSION, incomplete: r.incomplete, passes: r.passes, passTargets: r.passTargets } };
     if (r.violations.length) {
       const groups = {}; for (const n of r.violations) { const k = `${n.fg} on ${n.bg}`; (groups[k] ||= { fg: n.fg, bg: n.bg, ratio: n.ratio, expected: n.expected, count: 0, example: n.target }).count++; }
       const g = Object.values(groups).sort((a, b) => b.count - a.count);
-      return { verdict: 'fail', why: `${r.violations.length} text nodes below the ratio, ${g.length} colour pair${g.length > 1 ? 's' : ''}`, groups: g, ...base };
+      // The colour pairs as painted are the evidence: a reader looks at them to check the verdict.
+      return { verdict: 'fail', why: `${r.violations.length} text nodes below the ratio, ${g.length} colour pair${g.length > 1 ? 's' : ''}`, evidence: { groups: g }, ...base };
     }
     if (r.inapplicable && !r.passes && !r.incomplete) return { verdict: 'not-applicable', why: 'axe finds no text to measure', ...base };
     if (!r.passes && r.incomplete) return { verdict: 'unmeasurable', why: `axe could not resolve ${r.incomplete} nodes (background image, gradient or overlap) and passed none`, ...base };
@@ -28,7 +32,7 @@ export default {
   },
   // --prove: every passed text node gets its colour blended four fifths of the way into its background (!important), which puts any passing pair below 4.5:1; reached when at least half of the nodes compute to the blended colour.
   async prove(page, prior) {
-    const ts = (prior.passTargets || []).filter(t => t.target && t.bg); if (!ts.length) return { mutation: null, reached: false, why: 'no passed text nodes recorded' };
+    const ts = (prior.measured?.passTargets || []).filter(t => t.target && t.bg); if (!ts.length) return { mutation: null, reached: false, why: 'no passed text nodes recorded' };
     const r = await page.evaluate(ts => {
       const rgb = c => { const d = document.createElement('div'); d.style.color = c; document.body.appendChild(d); const v = getComputedStyle(d).color; d.remove(); const m = v.match(/[\d.]+/g) || [0, 0, 0]; return m.slice(0, 3).map(Number); };
       const blend = (fg, bg) => `rgb(${fg.map((x, i) => Math.round(x * 0.2 + bg[i] * 0.8)).join(', ')})`;
@@ -41,7 +45,7 @@ export default {
     return { mutation: `${r.found} passed text nodes blended four fifths into their background`, reached, why: reached ? null : `${r.hit} of ${r.found} nodes took the colour (selectors stale or overridden)`, found: r.found, hit: r.hit };
   },
   explain(p, result) {
-    const g = p.groups, col = (hex, tok) => tok ? `${hex} (${tok})` : hex;
+    const g = p.evidence.groups, col = (hex, tok) => tok ? `${hex} (${tok})` : hex;
     return {
       what: `${g.reduce((n, x) => n + x.count, 0)} text nodes in ${g.length} colour pair${g.length > 1 ? 's' : ''}: ${g.slice(0, 4).map(x => `${col(x.fg, x.fgToken)} on ${col(x.bg, x.bgToken)} ${x.ratio}:1 ×${x.count} (e.g. ${x.example})`).join('; ')}${g.length > 4 ? '; …' : ''}`,
       where: result.finalUrl || result.url,

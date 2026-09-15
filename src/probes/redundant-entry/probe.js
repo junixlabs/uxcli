@@ -56,17 +56,19 @@ export default {
     re.premiseBroken = broken; re.matched = ok.length + reasked.length + noisy.length;
     if (noisy.length && !reasked.length) return { ...re, verdict: 'unmeasurable', why: 'matched field on a step whose text/values mutate with no interaction', noisy };
     if (broken.length && !reasked.length) return { ...re, verdict: 'unmeasurable', why: 'premise broken at step ' + broken[0].breakAtStep + ': the earlier value belongs to another process segment; declare sameProcess to override', satisfied: ok };
-    if (reasked.length) return { ...re, verdict: 'fail', reasked, satisfied: ok };
-    if (ok.length) return { ...re, verdict: 'pass', satisfied: ok };
+    if (reasked.length) return { ...re, verdict: 'fail', reasked, satisfied: ok,
+      why: `${reasked.length} value${reasked.length === 1 ? '' : 's'} entered earlier in the same process ${reasked.length === 1 ? 'is' : 'are'} asked for again on step ${[...new Set(reasked.map(m => m.step))].join(', ')}` };
+    if (ok.length) return { ...re, verdict: 'pass', satisfied: ok,
+      why: `${ok.length} earlier value${ok.length === 1 ? ' was' : 's were'} offered again rather than asked for (${[...new Set(ok.map(m => m.mechanism))].join(', ')})` };
     return { ...re, verdict: 'not-applicable',
       why: re.matched ? 'no earlier value was asked for again on a later step' : 'no value entered on an earlier step reappeared as a field on a later step' };
   },
   explain(p) {
-    const fields = [...new Set(p.reasked.map(m => m.field.name || m.field.id))];
-    const steps = [...new Set(p.reasked.map(m => m.step))], first = [...new Set(p.reasked.map(m => m.firstEnteredStep))];
+    const fields = [...new Set(p.evidence.reasked.map(m => m.field.name || m.field.id))];
+    const steps = [...new Set(p.evidence.reasked.map(m => m.step))], first = [...new Set(p.evidence.reasked.map(m => m.firstEnteredStep))];
     return {
       what: `${fields.join(', ')} asked again on step ${steps.join(',')}; first entered on step ${first.join(',')}`,
-      where: `${p.reasked[0].url}  ${fields.map(f => '#' + f).join(', ')}`,
+      where: `${p.evidence.reasked[0].url}  ${fields.map(f => '#' + f).join(', ')}`,
       check: `Reach this screen through the earlier steps. ${fields.length > 1 ? 'Are these fields' : 'Is this field'} empty although you typed the value${fields.length > 1 ? 's' : ''} earlier?`,
     };
   },

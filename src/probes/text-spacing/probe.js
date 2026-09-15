@@ -51,14 +51,15 @@ export default {
       return { textEls: textEls.length, newlyClipped: after.filter((a, i) => a.clipped && !before[i].clipped).length, newOverlaps: Math.max(0, ovAfter - ovBefore) };
     }, [THIRD]);
     const finding = (over.newlyClipped || over.newOverlaps) ? { kind: 'override-breakage', why: `with 1.4.12 user styles applied, ${over.newlyClipped} text containers clip and ${over.newOverlaps} new overlaps appear (not asserted by the ACT rules)` } : null;
-    const base = { applicable: act.applicable, locked: act.locked.slice(0, 30), override: over, ...(finding ? { finding } : {}) };
+    const base = { measured: { applicable: act.applicable, locked: act.locked.slice(0, 30) },
+      doctrine: { override: over }, ...(finding ? { evidence: { finding } } : {}) };
     if (act.applicable === 0) return { verdict: 'not-applicable', why: 'no text whose spacing is locked by an !important style attribute', ...base };
-    if (act.fails.length) return { verdict: 'fail', why: `${act.fails.length} locked spacing values below the 1.4.12 minimum`, targets: act.fails, ...base };
+    if (act.fails.length) return { verdict: 'fail', why: `${act.fails.length} locked spacing values below the 1.4.12 minimum`, ...base, evidence: { ...(finding ? { finding } : {}), targets: act.fails } };
     return { verdict: 'pass', why: `${act.applicable} locked spacing values, all at or above the minimum`, ...base };
   },
   // --prove: the first locked element gets its own locked property set below the 1.4.12 minimum (line-height 1, spacing 0.01em) with !important on the style attribute; reached when its computed value changed.
   async prove(page, prior) {
-    const t = (prior.locked || [])[0]; if (!t) return { mutation: null, reached: false, why: 'no locked element recorded' };
+    const t = (prior.measured?.locked || [])[0]; if (!t) return { mutation: null, reached: false, why: 'no locked element recorded' };
     const r = await page.evaluate(([THIRD, t]) => {
       const sel = el => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\s+/).slice(0, 2).join('.') : '');
       const el = [...document.querySelectorAll('body, body *')].find(e => !e.closest(THIRD) && sel(e) === t.sel); if (!el) return { found: false };
@@ -69,7 +70,7 @@ export default {
     return { mutation: `${t.property} on ${t.sel} locked below the minimum`, reached: r.before !== r.after, why: r.before !== r.after ? null : `computed ${t.property} unchanged (${r.before})` };
   },
   explain(p, result) {
-    const t = p.targets;
+    const t = p.evidence.targets;
     return {
       what: `${t.length} locked value${t.length > 1 ? 's' : ''} below the minimum: ${t.slice(0, 3).map(x => `${x.sel} ${x.property} ${x.value}px < ${x.threshold}px (ACT ${x.rule})`).join('; ')}${t.length > 3 ? '; …' : ''}`,
       where: result.finalUrl || result.url,

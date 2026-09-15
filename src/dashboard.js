@@ -9,6 +9,7 @@
 // file:// cannot fetch file://, so a viewer that reads many projects has to be served. It is served on
 // the loopback interface only, and it will only open files under a directory that is in the index.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import http from 'node:http'; import { spawn } from 'node:child_process';
+import { read as readPacket } from './packet.js';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -80,7 +81,12 @@ export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
       if (u.pathname === '/api/index') return send(res, 200, 'application/json', JSON.stringify(idx));
       if (u.pathname === '/api/run') {
         const dir = allowed(idx, q.get('dir')); if (!dir) return send(res, 404, 'application/json', '{"error":"not in index"}');
-        return send(res, 200, 'application/json', fs.readFileSync(path.join(dir, 'run.json')));
+        // Read through the packet contract, so the page only ever sees one shape. A run measured
+        // before the format keeps its evidence — it is lifted into place here rather than left for
+        // the screen to recognise, which is how a screen ends up knowing about two formats.
+        const run = JSON.parse(fs.readFileSync(path.join(dir, 'run.json'), 'utf8'));
+        if (Array.isArray(run.probes)) run.probes = run.probes.map(readPacket);
+        return send(res, 200, 'application/json', JSON.stringify(run));
       }
       if (u.pathname === '/file') {
         const dir = allowed(idx, q.get('dir')); if (!dir) return send(res, 404, 'text/plain', 'not in index');
