@@ -6,6 +6,9 @@
 <title>uxcli runs</title>
 <link rel="icon" href="/mark.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/dashboard.tokens.css">
+<!-- Before the first paint, not after: a page that renders dark and then turns light has already
+     shown the reader a state they did not choose. Three lines, in the head, on purpose. -->
+<script>try{var t=localStorage.getItem('uxcli.theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <style>
   /* Three columns, three questions. Left: which run needs somebody — every run on the machine, worst
      first, with its six counts. Middle: what this run says — the probe table, where provenance and
@@ -19,7 +22,7 @@
      Six components repeat and each is defined once: chip, run card, cell, panel, pager, select.
      This page is measured by the instrument it belongs to: `uxcli run http://127.0.0.1:4717/`. */
   * { box-sizing: border-box; }
-  html { color-scheme: light dark; }
+  html { color-scheme: dark; } html[data-theme="light"] { color-scheme: light; }
   body { margin: 0; background: var(--bg); color: var(--ink); font: var(--type-body);
     -webkit-font-smoothing: antialiased; }
   a { color: var(--accent); }
@@ -50,6 +53,12 @@
      the search, and three controls, and a wrapped row put one control alone on a line of its own. */
   @media (max-width: 620px) { .tag, .search .k { display: none; } .search { flex: 1 1 60px; } .top { flex-wrap: nowrap; } }
   .top .spacer { flex: 1 1 auto; }
+  /* Where this evidence came from, stated in the header because it is the product's whole claim:
+     a run on this machine, read from disk, with nothing asked of the network. */
+  .where { display: flex; align-items: center; gap: var(--s3); font: var(--type-meta); color: var(--ink-3); }
+  .where b { display: inline-flex; align-items: center; gap: var(--s1); font-weight: 400; }
+  .where i { width: var(--dot); height: var(--dot); border-radius: 50%; background: var(--pass); }
+  @media (max-width: 1100px) { .where { display: none; } }
 
   /* component · control — every button-shaped thing on the page */
   .btn, .iconbtn, .select > button, .pager button, .openshot {
@@ -150,18 +159,29 @@
      and a ring drawn inside the row would say they had landed on something smaller than one. It is
      drawn inset so a row at either end of the list keeps all four sides of its ring. */
   .runcard:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 0; }
+  /* A project is a scope over the runs beneath it: stated once, with how much evidence is stored
+     under it and what that evidence found. Not sticky: the rail's own head is already sticky at the
+     top of this scroller, so a second sticky row would pin underneath it and be painted over. */
+  .scope { display: flex; align-items: baseline; gap: var(--s2);
+    padding: var(--s3) var(--s3) var(--s1); border-bottom: 1px solid var(--line); }
+  .scope .p { flex: 1 1 auto; min-width: 0; font: 600 var(--type-meta); color: var(--ink-2);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .scope .n { flex: none; font: var(--type-meta); color: var(--ink-3); white-space: nowrap; }
+  .scope .tally { flex: none; display: flex; gap: var(--s1); }
+  .scope .tally > span { display: inline-flex; align-items: center; gap: 2px; padding: 0 var(--s1);
+    border-radius: var(--r-chip); font: var(--type-meta);
+    font-variant-numeric: tabular-nums slashed-zero; }
+  .scope .t-fail { color: var(--fail); background: var(--fail-bg); }
+  .scope .t-finding { color: var(--finding); background: var(--finding-bg); }
+  .scope .t-unmeasurable { color: var(--unmeas); background: var(--unmeas-bg); }
+  .scope .t-pass { color: var(--pass); background: var(--pass-bg); }
   .runcard .line1 { display: flex; align-items: baseline; gap: var(--s2); }
-  .runcard .proj { flex: 1 1 auto; min-width: 0; font: var(--type-meta); color: var(--ink-3);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .runcard .verdict { flex: none; margin-left: auto; }
-  .runcard .path { display: block; font: var(--type-meta); color: var(--ink-3);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .runcard .path[hidden] { display: none; }
-  /* The run name is what the reader came here to read, so it has the line to itself and wraps to a
-     second rather than being cut: it was ellipsised on every card because the kind label and the
-     timestamp beside it were fixed-width and always won the fight for the row. */
-  .runcard .nm { display: block; margin-top: var(--s1); font: 600 var(--type-lede); color: var(--ink);
+  /* The run name is what the reader came here to read, so it leads the card and wraps rather than
+     being cut: it was ellipsised on every card while the kind label and the timestamp beside it,
+     both fixed-width, always won the fight for the row. */
+  .runcard .nm { flex: 1 1 auto; min-width: 0; font: 600 var(--type-lede); color: var(--ink);
     overflow-wrap: anywhere; }
+  .runcard .verdict { flex: none; }
   .runcard .line2 { display: flex; align-items: baseline; gap: var(--s2); margin-top: var(--s1); }
   .runcard .kind { font: 600 var(--type-label); letter-spacing: .08em; text-transform: uppercase;
     color: var(--ink-3); }
@@ -185,10 +205,11 @@
     text-transform: uppercase; color: var(--ink-3); cursor: pointer; }
   .legend:not([open]) summary { margin: 0; }
   .legend ul { margin: 0; padding: 0; }
-  .legend li { list-style: none; display: grid; grid-template-columns: var(--dot) 96px minmax(0, 1fr);
+  .legend li { list-style: none; display: grid; grid-template-columns: var(--s3) 96px minmax(0, 1fr);
     gap: var(--s2); align-items: baseline; font: var(--type-meta); color: var(--ink-3); }
-  .legend i { width: var(--dot); height: var(--dot); border-radius: 50%; align-self: center; background: var(--na-mark); }
-  .legend i.ring { background: none; box-shadow: inset 0 0 0 2px var(--na-mark); }
+  .legend .mk { align-self: center; color: var(--na-mark); }
+  .legend .v-pass { color: var(--pass); } .legend .v-fail { color: var(--fail); }
+  .legend .v-finding { color: var(--finding); } .legend .v-unmeasurable { color: var(--unmeas); }
   .legend .w { color: var(--ink-2); }
   .legend .doctrine { margin: var(--s2) 0 0; padding-top: var(--s2); border-top: 1px solid var(--line-2);
     font: var(--type-meta); font-family: var(--sans); color: var(--ink-3); }
@@ -221,7 +242,13 @@
      the point (these are measurements, not figures being presented to anyone), but a zero no longer
      takes the same area as a two. Below 620px the row wraps and the grid keeps the dividers aligned. */
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px;
-    background: var(--line-2); margin: var(--s4) 0; overflow: hidden; }
+    background: var(--line-2); margin: var(--s4) 0 var(--s2); overflow: hidden; }
+  /* not-applicable and not-committed are facts about the commitment, not about the page: nothing a
+     person can act on. They are counted, on one line, under the four that can ask for something. */
+  .quiet-counts { display: flex; flex-wrap: wrap; gap: var(--s4); margin: 0 0 var(--s4);
+    font: var(--type-meta); color: var(--ink-3); }
+  .quiet-counts b { font-weight: 400; letter-spacing: .1em; text-transform: uppercase; }
+  .quiet-counts span { font-variant-numeric: tabular-nums slashed-zero; color: var(--ink-2); }
   .tiles > div { padding: var(--s2) var(--s3); background: var(--panel); }
   /* Two fixed lines, so six cells whose labels are four characters or fourteen still align: the mark
      and the number on one, the name under it. A flex row instead let the long labels wrap and every
@@ -273,7 +300,15 @@
   .chip .u, .chip .st { display: block; font: var(--type-meta); color: var(--ink-3);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .chip .u { color: var(--ink-2); font-family: var(--mono); }
-  .chip.state-error { border-color: var(--fail-edge); } .chip.state-error .st { color: var(--fail); }
+  .chip .st { display: flex; align-items: center; gap: var(--s1); }
+  .chip .st i { flex: none; width: var(--dot); height: var(--dot); border-radius: 50%;
+    background: var(--pass); }
+  /* Stopped and never-executed are not verdicts, they are execution states — so neither takes a
+     verdict's hue. Stopped borrows `unmeasurable` because that is exactly what those steps became;
+     never-executed is a hollow mark, because nothing was measured there to colour. */
+  .chip .s-stopped i { background: var(--unmeas); }
+  .chip .s-never i { background: none; box-shadow: inset 0 0 0 2px var(--na-mark); }
+  .chip.state-error { border-color: var(--unmeas-edge); }
   /* A step that was never reached is a fact about the run, so it is set in text that can be read.
      It was `opacity: .55` over the whole chip, which took --ink-3 down to 2.13:1 and 2.63:1 on this
      page's own 1.4.3 probe — the instrument failing the instrument. Greyed-out is a look; what is
@@ -332,16 +367,35 @@
   .cell.crit button { display: block; width: 100%; text-align: left; padding: var(--s2) var(--s3);
     font: 600 var(--type-data); color: var(--ink); font-variant-numeric: tabular-nums slashed-zero; white-space: nowrap; }
   .cell.pname { font: var(--type-body); color: var(--ink); white-space: nowrap; }
+  /* `unproven` is a claim about METHOD, not a verdict — an unproven method sits happily on a `pass`.
+     Painted in the `finding` colour it made every such row read as a problem and spent a verdict's
+     hue on a seventh concept. It is marked, not coloured. */
+  .meth.unproven { text-decoration: underline dotted; text-underline-offset: 3px; }
   .cell.detail { color: var(--ink-3); }
   /* The clamp sits on the text, not on the padded cell: clamping a padded box leaves a sliver of the
      next line showing under the ellipsis. One line — the whole sentence is in the rail. */
   .cell.detail span { display: -webkit-box; -webkit-box-orient: vertical;
     -webkit-line-clamp: 1; line-clamp: 1; overflow: hidden; }
+  /* Seven columns is a decision about what a reader scans a run for, and a decision like that has a
+     width. Below it the table scrolls sideways — which the fade already announces — rather than
+     squeezing `details` to four characters, which is how the last version lost the sentence. */
+  table.probes { min-width: 820px; }
 
-  /* component · chip — the verdict, and the only loud thing on the page */
-  .verdict { font: 700 var(--type-meta); letter-spacing: .06em; padding: var(--s1) var(--s2);
+  /* component · chip — the verdict, and the only loud thing on the page.
+     Colour is never the whole of it: `.mk` carries a glyph per verdict, so the seven answers are
+     still seven answers in monochrome, in a screenshot, and to a reader who does not split red
+     from amber. WCAG 1.4.1 is the floor; this is the reason behind the floor. */
+  .verdict { display: inline-flex; align-items: center; gap: var(--s1);
+    font: 700 var(--type-meta); letter-spacing: .06em; padding: var(--s1) var(--s2);
     border-radius: var(--r-chip); background: var(--na-bg); color: var(--na);
     border: 1px solid var(--na-edge); white-space: nowrap; }
+  /* A ring rather than a filled disc: the glyph has to stay the verdict's own colour, and knocking
+     it out of a fill would need a second colour per verdict — six more tokens for no more meaning.
+     One rule, and it follows whatever colour the verdict beside it already set. */
+  .mk { flex: none; width: var(--s3); height: var(--s3); border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 0 1px currentColor;
+    font-style: normal; line-height: 1; }
   .verdict.fail { background: var(--fail-bg); color: var(--fail); border-color: var(--fail-edge); }
   /* A finding is a fail it measured and may not state: a verdict with its edge left open. */
   .verdict.finding { background: var(--finding-bg); color: var(--finding);
@@ -356,6 +410,19 @@
   .stance b { color: var(--ink); }
   .stance.review { background: var(--unmeas-bg); border-color: var(--unmeas-edge); color: var(--unmeas); }
   .stance.review b { color: var(--unmeas); }
+  /* component · coverage — one row per step, naming the conclusions that belong to it. The rows
+     that say nothing are the point of the component, so they are set in the same ink as the rest
+     rather than faded: "no evidence exists" is a finding about the run, not a disabled control. */
+  .cover { border: 1px solid var(--line); border-radius: var(--r-panel); background: var(--panel);
+    padding: var(--s2) var(--s3); }
+  .cov-row { display: flex; align-items: center; gap: var(--s3); padding: var(--s1) 0; }
+  .cov-step { flex: none; width: var(--s8); font: var(--type-meta); color: var(--ink-3); }
+  .cov-line { flex: 1 1 auto; height: 1px; background: var(--line-2); }
+  .cov-say { flex: none; display: flex; align-items: center; gap: var(--s3);
+    font: var(--type-meta); color: var(--ink-3); }
+  .cov-p { display: inline-flex; align-items: center; gap: var(--s1); color: var(--ink-2); }
+  .cov-row.none .cov-say { color: var(--ink-3); }
+  @media (max-width: 760px) { .cov-row { flex-wrap: wrap; } .cov-line { display: none; } }
   .foot { margin: var(--s4) 0 0; font: var(--type-meta); color: var(--ink-3); overflow-wrap: anywhere; }
   .foot button { color: var(--accent); }
 
@@ -363,6 +430,7 @@
   .evidence { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; }
   .evhead { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3);
     border-bottom: 1px solid var(--line-2); position: sticky; top: 0; background: var(--panel); z-index: 2; }
+  .px { font: var(--type-meta); color: var(--ink-3); font-variant-numeric: tabular-nums slashed-zero; }
   .evhead h2 { margin: 0; flex: 1 1 auto; font: 600 var(--type-lede); }
   /* component · pager */
   .pager { display: flex; align-items: center; gap: var(--s1); font: var(--type-meta); color: var(--ink-2); }
@@ -459,6 +527,7 @@
   <span class="brand" aria-label="UXCLI"><!--mark-->CLI</span>
   <span class="tag">what the page actually painted</span>
   <span class="spacer"></span>
+  <span class="where" id="where"></span>
   <span class="search"><input id="q" type="search" placeholder="search runs" autocomplete="off"><span class="k">/</span></span>
   <button class="iconbtn" id="theme" type="button" title="light / dark" aria-label="switch between light and dark">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -475,7 +544,7 @@
       <path d="M12 1.8a10.2 10.2 0 0 0-3.2 19.9c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 4.9.3.3.7 1 .7 2v2.9c0 .3.2.6.7.5A10.2 10.2 0 0 0 12 1.8z"></path></svg>
   </a>
 </div>
-<div class="cols" id="cols" data-ev="shut">
+<div class="cols" id="cols" data-ev="open">
   <nav class="runs" aria-label="Runs">
     <div class="runshead">
       <div class="colhead"><h2>Recent runs</h2><span class="sub" id="runsub"></span></div>
@@ -485,12 +554,12 @@
     <details class="legend" open>
       <summary>Verdicts</summary>
       <ul>
-        <li><i style="background:var(--pass)"></i><span class="w">pass</span><span>satisfied</span></li>
-        <li><i style="background:var(--fail)"></i><span class="w">fail</span><span>measured and stated</span></li>
-        <li><i style="background:var(--finding)"></i><span class="w">finding</span><span>not stated</span></li>
-        <li><i style="background:var(--unmeas)"></i><span class="w">unmeasurable</span><span>declined</span></li>
-        <li><i></i><span class="w">not-applicable</span><span>nothing to measure</span></li>
-        <li><i class="ring"></i><span class="w">not-committed</span><span>nobody signed it</span></li>
+        <li><i class="mk v-pass">✓</i><span class="w">pass</span><span>satisfied</span></li>
+        <li><i class="mk v-fail">✕</i><span class="w">fail</span><span>measured and stated</span></li>
+        <li><i class="mk v-finding">!</i><span class="w">finding</span><span>not stated</span></li>
+        <li><i class="mk v-unmeasurable">?</i><span class="w">unmeasurable</span><span>declined</span></li>
+        <li><i class="mk">–</i><span class="w">not-applicable</span><span>nothing to measure</span></li>
+        <li><i class="mk">○</i><span class="w">not-committed</span><span>nobody signed it</span></li>
       </ul>
       <p class="doctrine">Evidence stays in each project. This index only knows where to look.</p>
     </details>
@@ -504,7 +573,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
           <path d="M14 6l-6 6 6 6"></path></svg>
       </button>
-      <h2 id="evtitle">Evidence</h2><span class="pager" id="pager"></span></div>
+      <h2 id="evtitle">Evidence</h2><span class="px" id="evpx"></span><span class="pager" id="pager"></span></div>
     <div id="evbody"><p class="hint">Pick a run to see its evidence.</p></div>
   </aside>
 </div>
@@ -518,6 +587,13 @@ const el = (t, a = {}, ...kids) => { const n = document.createElement(t);
 const on = (n, f) => { n.addEventListener('click', f); return n; };
 
 const RANK = { fail: 0, finding: 1, unmeasurable: 2, pass: 3, 'not-applicable': 4, 'not-committed': 4 };
+// The four verdicts that can ask something of a person. The other two are states of the commitment,
+// not of the page, and they are counted on one quiet line rather than given a tile each.
+const LOUD = ['fail', 'finding', 'unmeasurable', 'pass'];
+// Never colour alone: a verdict is a shape as well, so it survives a monochrome screen, a photograph
+// of one, and a reader who does not separate red from amber. One glyph per verdict, drawn once here.
+const MARK = { fail: '✕', finding: '!', unmeasurable: '?', pass: '✓', 'not-applicable': '–', 'not-committed': '○' };
+const mark = v => el('i', { class: 'mk', 'aria-hidden': 'true', text: MARK[v] || '·' });
 const ORDER = ['fail', 'finding', 'unmeasurable', 'pass', 'not-applicable', 'not-committed'];
 const byRank = (a, b) => (RANK[a] ?? 5) - (RANK[b] ?? 5);
 const tallyOf = ps => ps.reduce((a, p) => (a[p.verdict] = (a[p.verdict] || 0) + 1, a), {});
@@ -564,7 +640,17 @@ const listed = () => INDEX.runs.filter(matches).filter(r => !FILTER || r.project
 
 async function boot() {
   try { INDEX = await (await fetch('/api/index')).json(); } catch { INDEX = { runs: [] }; }
-  drawPick(); drawRuns(); show();
+  drawWhere(); drawPick(); drawRuns(); show();
+}
+
+// The claim this product makes is that the numbers were measured here, on this machine. The header
+// says where "here" is, once, in the place a reader looks first — and says only what it can check
+// from where it is standing. "no network" and "single user" were in the mockup and are not here:
+// a page that asserts what it has not measured is the one thing this product is against.
+function drawWhere() {
+  $('#where').append(el('b', {}, el('i', { 'aria-hidden': 'true' }),
+    document.createTextNode(location.host)),
+    el('b', { text: `${INDEX.runs.length} runs on this machine` }));
 }
 
 // APG calls this a select-only combobox, not a listbox: a trigger that owns a popup list.
@@ -648,21 +734,34 @@ function drawRuns() {
     : `${INDEX.runs.length} run${INDEX.runs.length === 1 ? '' : 's'} · ${projects} project${projects === 1 ? '' : 's'}`;
   if (!list.length) { host.append(el('p', { class: 'hint', text: 'Nothing matches.' })); return; }
   const cur = route().dir;
-  // Runs from one project arrive in a row: the name stays on every card, the path is printed once.
-  let last = null;
-  for (const r of list) {
-    const c = r.counts || {}, repeat = r.project === last; last = r.project;
+  // A project is a scope, and its header carries what is stored under it: how many runs, and the
+  // tally of what they found. The path printed again on every card was the same string five times.
+  // Grouping is what makes that header true — sorted worst-first alone, a project's runs arrive in
+  // several separate stretches and the header repeats, which is a heading that heads nothing.
+  // The scopes themselves stay in worst-first order, so the run that needs somebody is still on top.
+  const scopes = new Map();
+  for (const r of list) (scopes.get(r.project) || scopes.set(r.project, []).get(r.project)).push(r);
+  for (const [proj, mine] of scopes) {
+    const t = {};
+    for (const x of mine) for (const v of ORDER) t[v] = (t[v] || 0) + ((x.counts || {})[v] || 0);
+    host.append(el('div', { class: 'scope' },
+      el('span', { class: 'p', title: homey(proj), text: leaf(proj) }),
+      el('span', { class: 'n', text: `${mine.length} run${mine.length > 1 ? 's' : ''}` }),
+      el('span', { class: 'tally' }, LOUD.filter(v => t[v]).map(v =>
+        el('span', { class: 't-' + v, title: `${t[v]} ${v}` }, mark(v), document.createTextNode(String(t[v])))))));
+    for (const r of mine) {
+    const c = r.counts || {};
     host.append(on(el('button', { class: 'runcard', type: 'button', 'data-dir': r.dir,
       'aria-current': String(r.dir === cur) },
-      el('div', { class: 'line1' }, el('span', { class: 'proj', text: repeat ? leaf(r.project) : '' }),
-        el('span', { class: 'verdict ' + r.worst, text: r.worst })),
-      el('span', { class: 'path', title: r.project, hidden: repeat ? 'hidden' : null, text: homey(r.project) }),
-      el('span', { class: 'nm', text: r.name }),
+      el('div', { class: 'line1' },
+        el('span', { class: 'nm', text: r.name }),
+        el('span', { class: 'verdict ' + r.worst }, mark(r.worst), document.createTextNode(r.worst))),
       el('div', { class: 'line2' }, el('span', { class: 'kind', text: r.kind }),
         el('span', { class: 'when', text: `${day(r.ranAt).slice(5)} ${clock(r.ranAt).slice(0, 5)}` })),
       el('div', { class: 'counts' }, ORDER.map(v => el('span',
         { class: 'c-' + v + (c[v] ? '' : ' zero'), title: `${c[v] || 0} ${v}` },
         el('i'), document.createTextNode(String(c[v] || 0)))))), () => go(r.dir)));
+    }
   }
 }
 
@@ -766,7 +865,7 @@ function renderRun(stage) {
   const worst = probesOrdered()[0]?.verdict || 'not-applicable';
   pad.append(el('div', { class: 'kicker', text: `${leaf(ENTRY.project)}  ·  ${ENTRY.kind} run` }),
     el('div', { class: 'titleline' }, el('h1', { text: RUN.journey || RUN.title || RUN.url || ENTRY.name }),
-      el('span', { class: 'verdict ' + worst, text: worst }),
+      el('span', { class: 'verdict ' + worst }, mark(worst), document.createTextNode(worst)),
       on(el('button', { class: 'btn evopen', type: 'button', 'aria-controls': 'evidence',
         'aria-expanded': String(evOpen()), title: 'the frame and the probe packet, on the right' },
         'evidence'), () => { evidence(!evOpen()); if (evOpen()) $('#evshut').focus(); })));
@@ -779,11 +878,13 @@ function renderRun(stage) {
   pad.append(sub);
 
   const tiles = el('div', { class: 'tiles' });
-  for (const v of ORDER) tiles.append(el('div', { class: 'v-' + v + (c[v] ? '' : ' zero') },
+  for (const v of LOUD) tiles.append(el('div', { class: 'v-' + v + (c[v] ? '' : ' zero') },
     el('span', { class: 'top' }, el('i', { 'aria-hidden': 'true' }),
       el('span', { class: 'n', text: String(c[v] || 0) })),
     el('span', { class: 'k', text: v })));
   pad.append(tiles);
+  pad.append(el('p', { class: 'quiet-counts' }, ORDER.filter(v => !LOUD.includes(v)).map(v =>
+    el('span', {}, el('b', { text: v + ' ' }), document.createTextNode(String(c[v] || 0))))));
 
   // A journey that stopped early is not a journey that passed. Every probe here read the steps that
   // ran and nothing else, so "nothing failed" is a true sentence about a page nobody finished — and
@@ -814,16 +915,52 @@ function renderRun(stage) {
     const chain = el('div', { class: 'chain', tabindex: '0', role: 'group', 'aria-label': 'the journey, in order' });
     fr.forEach((f, k) => {
       if (k) chain.append(el('span', { class: 'link' }, el('span', { class: 'arrow', text: '→' })));
+      // Three things happen to a step and they are three different things: it was measured, it
+      // stopped part-way, or it was never reached at all. A reader who cannot tell the last two
+      // apart cannot tell "we looked and found nothing" from "we never looked".
+      const state = f.state === 'error' ? 'stopped' : f.state === 'missed' ? 'never' : 'measured';
+      const said = { measured: 'measured', stopped: 'stopped here', never: 'never executed' }[state];
       chain.append(on(el('button', { class: 'chip state-' + f.state, type: 'button',
         'aria-current': String(k === STEP), title: f.url || (f.state === 'missed' ? 'never reached' : '') },
         f.shot ? el('img', { src: src(f.shot), alt: '', loading: 'lazy' })
-          : el('div', { class: 'miss', text: f.state === 'missed' ? 'not reached' : 'no shot' }),
+          : el('div', { class: 'miss', text: f.state === 'missed' ? 'no evidence exists' : 'no shot' }),
         el('span', { class: 'cap' }, el('span', { class: 'n', text: f.final ? 'outcome' : `step ${f.i}` }),
           el('span', { class: 'u', text: f.label }),
-          el('span', { class: 'st', text: f.state === 'error' ? 'did not finish' : f.ms ? `${f.ms} ms` : '' }))),
+          el('span', { class: 'st s-' + state }, el('i', { 'aria-hidden': 'true' }),
+            document.createTextNode(f.ms && state === 'measured' ? `${f.ms} ms` : said)))),
         () => goStep(ENTRY.dir, k)));
     });
     pad.append(sideways('chainwrap', chain));
+
+    // A conclusion belongs to the steps it was measured on, and on a journey that stopped, saying
+    // so is the difference between "we looked and found nothing" and "we never looked". Built only
+    // from what a probe actually recorded — `reasked` and `inversion` name steps; the rest are
+    // measured across the run and say so. A step nothing points at shows nothing: empty evidence
+    // is evidence, and inventing an attribution here would be the one dishonest pixel on the page.
+    const at = new Map();
+    for (const pr of probesOrdered()) {
+      const steps = [...new Set([...(pr.reasked || []).map(m => m.step),
+        ...(pr.inversion ? [pr.inversion.stepA, pr.inversion.stepB] : [])])].filter(n => n !== undefined);
+      for (const n of steps) (at.get(n) || at.set(n, []).get(n)).push(pr);
+    }
+    // Only the steps that carry an answer: one a probe pinned itself to, or one that has nothing
+    // because it never ran. A row per step saying "nothing pins here" is four copies of a sentence
+    // that means "as usual", which is the noise this component exists to remove.
+    const rows = fr.filter(f => !f.final && (at.has(f.i) || f.state === 'missed'));
+    if (rows.length) {
+      const cov = el('div', { class: 'cover' });
+      for (const f of rows) {
+        const mine = at.get(f.i) || [];
+        cov.append(el('div', { class: 'cov-row' + (f.state === 'missed' ? ' none' : '') },
+          el('span', { class: 'cov-step', text: `step ${f.i}` }),
+          el('span', { class: 'cov-line' }),
+          el('span', { class: 'cov-say' }, f.state === 'missed'
+            ? [mark('not-committed'), document.createTextNode('no evidence exists')]
+            : mine.map(pr => el('span', { class: 'cov-p' }, mark(pr.verdict),
+                document.createTextNode(pr.sc || shortName(pr.probe)))))));
+      }
+      pad.append(el('div', { class: 'sec', text: 'What each conclusion covers' }), cov);
+    }
   }
 
   pad.append(el('div', { class: 'sec', text: 'Probes' }));
@@ -834,7 +971,12 @@ function renderRun(stage) {
     const tr = el('tr', { class: 'v-' + p.verdict, 'aria-current': String(p.probe === PROBE) },
       el('td', {}, el('div', { class: 'cell crit' }, pick)),
       el('td', {}, el('div', { class: 'cell pname', text: shortName(p.probe) })),
-      el('td', {}, el('div', { class: 'cell' }, el('span', { class: 'verdict ' + p.verdict, text: p.verdict }))),
+      el('td', {}, el('div', { class: 'cell', text: p.provenance || '' })),
+      el('td', {}, el('div', { class: 'cell' }, el('span',
+        { class: 'meth' + (/unproven/.test(p.method || '') ? ' unproven' : ''),
+          text: (p.method || '').replace('method-', '') }))),
+      el('td', {}, el('div', { class: 'cell' }, el('span', { class: 'verdict ' + p.verdict },
+        mark(p.verdict), document.createTextNode(p.verdict)))),
       el('td', {}, el('div', { class: 'cell detail' },
         el('span', { title: p.what || p.why || '', text: p.what || p.why || '' }))));
     tr.addEventListener('click', () => go(ENTRY.dir, p.probe));
@@ -842,7 +984,7 @@ function renderRun(stage) {
   }
   const scroll = el('div', { class: 'tablescroll', tabindex: '0', role: 'region', 'aria-label': 'probes, scrolls sideways when narrow' },
     el('table', { class: 'probes' },
-    el('thead', {}, el('tr', {}, ['criterion', 'probe', 'verdict', 'details']
+    el('thead', {}, el('tr', {}, ['criterion', 'probe', 'provenance', 'method', 'verdict', 'details']
       .map(h => el('th', { text: h })))), tb));
   // The verdict is the last column, so "there is more to the right" is the thing worth saying.
   pad.append(sideways('tablewrap', scroll));
@@ -912,6 +1054,7 @@ async function copyPacket(p, btn) {
 // The evidence column. On a journey it pages through the frames the run passed through and the probe
 // sits underneath; on a page run there are no frames, so the probe is the whole column.
 function renderEvidence() {
+  $('#evpx').textContent = '';
   const body = $('#evbody'), pager = $('#pager');
   body.textContent = ''; pager.textContent = ''; PAGE = null;
   if (!RUN) { $('#evtitle').textContent = 'Evidence';
@@ -931,7 +1074,13 @@ function renderEvidence() {
       on(el('button', { type: 'button', text: '›', disabled: STEP === fr.length - 1,
         title: 'next step (→)', 'aria-label': 'next step' }), () => stepTo(1)));
     const shot = el('div', { class: 'shot' });
-    if (f.shot) shot.append(el('img', { src: src(f.shot), alt: `step ${f.i}` }));
+    if (f.shot) {
+      // The size is read off the file once it has loaded rather than stated: a caption that says
+      // 1920 × 1024 because a config said so is a caption that can be wrong about its own evidence.
+      const img = el('img', { src: src(f.shot), alt: `step ${f.i}` });
+      img.addEventListener('load', () => { $('#evpx').textContent = `${img.naturalWidth} × ${img.naturalHeight}`; });
+      shot.append(img);
+    }
     else shot.append(el('div', { class: 'miss', text: f.state === 'missed'
       ? 'This step was never reached, so there is nothing to show.' : 'No frame was captured for this step.' }));
     box.append(shot);
@@ -956,7 +1105,7 @@ function renderEvidence() {
         title: 'next probe (→)', 'aria-label': 'next probe' }), () => to(1)));
   }
 
-  box.append(el('div', { class: 'evtitle' }, el('span', { class: 'verdict ' + p.verdict, text: p.verdict }),
+  box.append(el('div', { class: 'evtitle' }, el('span', { class: 'verdict ' + p.verdict }, mark(p.verdict), document.createTextNode(p.verdict)),
     el('span', { class: 'crit', text: p.sc || '' }), el('span', { class: 'nm', text: shortName(p.probe) })));
   box.append(el('div', { class: 'prov' },
     el('div', {}, el('dt', { text: 'provenance' }), el('dd', { text: p.provenance || '—' })),
@@ -1070,12 +1219,19 @@ function evidence(open, remember = true) {
   if (remember) evWrite(open ? 'open' : 'shut');
 }
 const evOpen = () => $('#cols').dataset.ev === 'open';
-evidence(evRead() === 'open', false);
+// Open unless this reader shut it. Evidence is the product, not a drawer beside it.
+evidence(evRead() !== 'shut', false);
 on($('#evshut'), () => { evidence(false); $('.evopen')?.focus(); });
 
-on($('#reload'), reread); on($('#theme'), () => { const r = document.documentElement;
-  const now = r.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  r.setAttribute('data-theme', now === 'dark' ? 'light' : 'dark'); });
+on($('#reload'), reread);
+// Dark is what the page is; light is a choice, and a choice a tool forgets is a choice it did not
+// offer. Stored beside the rail's state, read before first paint at the top of this script.
+on($('#theme'), () => {
+  const r = document.documentElement, light = r.getAttribute('data-theme') === 'light';
+  r.setAttribute('data-theme', light ? 'dark' : 'light');
+  try { localStorage.setItem('uxcli.theme', light ? 'dark' : 'light'); } catch { /* the page still works */ }
+  say(light ? 'dark' : 'light');
+});
 $('#q').addEventListener('input', e => { Q = e.target.value.trim(); drawRuns(); });
 // Below the three-column layout the legend lands between the run list and the run itself, so it is
 // folded there rather than made into a glossary the reader scrolls past on every visit.
