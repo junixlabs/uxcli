@@ -295,7 +295,14 @@ input { font: inherit; color: inherit; }
   font: var(--type-meta); font-family: var(--sans); color: var(--ink-3); }
 
 /* ── the run ──────────────────────────────────────────────────────────── */
-.stage-pad { max-width: var(--w-stage); padding: var(--s4) var(--s5) var(--s9); }
+/* No measure on the stage. It held a 980px cap, on the reasoning that a column sets a line and a
+   line needs a stop — but the stage sets no lines. It holds four count tiles, a journey chain and a
+   six-column table, and a table is scanned across, not read along. At 1440 the middle column is
+   720px and the cap never engaged, which is why it went unnoticed; at 1920 it left a 220px dead
+   gutter beside a DETAILS column squeezed to 254px, ellipsising its sentences into space that was
+   sitting empty. A measure belongs on the prose that wants one — `.empty` takes --w-read — not on
+   the column that happens to contain it. */
+.stage-pad { padding: var(--s4) var(--s5) var(--s9); }
 /* component · pagehead — what is being looked at, its verdict, and the one control that changes the
    shape of the page. */
 .pagehead { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; margin: var(--s1) 0; }

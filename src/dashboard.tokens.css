@@ -111,7 +111,6 @@
   --w-rail-narrow: 300px;
   --w-evidence: 400px;      /* fixed, never proportional — see the note on .shell */
   --w-ev-wide: 720px;       /* evidence as a full-width band under the run, where prose needs a stop */
-  --w-stage: 980px;         /* the longest line the middle column will set */
   --w-read: 64ch;           /* prose that is meant to be read rather than scanned */
   --w-tile: 140px;          /* a count tile, before the row wraps */
   --w-word: 96px;           /* the verdict names in the legend, so the sentences after them align */
