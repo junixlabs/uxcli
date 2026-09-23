@@ -1,0 +1,8 @@
+{
+  "name": "open the dashboard and find what needs me",
+  "steps": [
+    { "url": "http://127.0.0.1:4749/" },
+    { "url": "http://127.0.0.1:4749/#/runs" },
+    { "url": "http://127.0.0.1:4749/#/projects" }
+  ]
+}

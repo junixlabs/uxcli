@@ -1,0 +1,52 @@
+{
+  "domain": {
+    "value": "An assurance system for products an agent helped build: it drives real Chrome, measures what the page painted against what somebody signed, and returns a verdict with the evidence behind it. It is not a linter and not a test runner — nothing here concludes anything about a claim nobody has put their name to.",
+    "source": ".claude/specs/2026-09-17-business-definitions.md"
+  },
+
+  "audiences": {
+    "value": [
+      {
+        "who": "the person who signs",
+        "does": "signs a promise, grants a waiver with an expiry, decides what is worth measuring at all",
+        "cannot": "hand the signing to the machine",
+        "pain": "what was decided dies at handover, and no instrument says how far it has drifted since",
+        "arrives": "days or weeks after the decision, asking whether it still holds"
+      },
+      {
+        "who": "the agent that writes the interface",
+        "does": "drafts proposals, runs the measurement, fixes what a citation points at",
+        "cannot": "sign its own promise",
+        "pain": "reporting done while holding broken evidence in its hand",
+        "arrives": "straight from a terminal, seconds after a run it already saw"
+      },
+      {
+        "who": "the developer at the pull request",
+        "does": "blocks a merge, reads drift down to the element and the file",
+        "cannot": "turn a finding into a blocking gate on their own",
+        "pain": "an instrument that is wrong three times is switched off for good",
+        "arrives": "from a diff, asking what this change moved"
+      }
+    ],
+    "source": ".claude/specs/2026-09-19-use-cases.html"
+  },
+
+  "constraints": {
+    "value": [
+      "Signing is the one act the machine may not perform for itself; everything else it may propose and run.",
+      "Evidence stays in the project that produced it — the index in ~/.uxcli holds pointers, never proof.",
+      "A rule whose method is unproven may report a finding and may never report a fail.",
+      "Nothing unsigned returns fail; it returns not-committed."
+    ],
+    "source": ".claude/specs/2026-09-17-business-definitions.md"
+  },
+
+  "journeys": {
+    "value": [
+      "open the dashboard and find what needs me",
+      "decide whether this change may be called done",
+      "decide whether this pull request may merge"
+    ],
+    "source": ".claude/specs/2026-09-19-use-cases.html"
+  }
+}

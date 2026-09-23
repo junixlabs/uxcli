@@ -1,5 +1,8 @@
-# local agent workspace, never committed
-.claude/
+# local agent workspace, never committed — except the rules and skills, which are the
+# project's own instructions to whoever (or whatever) works on it next
+.claude/*
+!.claude/rules/
+!.claude/skills/
 
 node_modules
 .DS_Store
@@ -9,3 +12,6 @@ node_modules
 # holds a storefront bearer token
 .mcp.json
 .playwright-mcp/
+
+# regenerable: uxcli propose rewrites these from the last run
+uxcli.*.proposed.json
