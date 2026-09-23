@@ -1,13 +1,18 @@
-// The dashboard's components, in markup. Tier two of three; dashboard.components.css is its other half.
+// The dashboard's components, in markup. Tier two of four; dashboard.components.css is its other half.
 //
 // One rule holds the tier together: **every class name on this page is written in this file**. A
 // screen in dashboard.app.js asks for a Chip or a Field and never for a `<span class="…">`, which is
 // why a verdict can only ever be drawn one way. `test/dashboard-system.mjs` asserts it — app.js is
 // checked for `class` and must not contain one.
 //
-// What a component knows: shapes, states, and the six verdicts. What it does not know: runs, probes,
-// routes or the index. Everything above is normalised by the screen before it gets here, so a
-// component can be read, and changed, without knowing what a probe is.
+// What a component knows: shapes, states, and the seven verdicts. What it does not know: runs,
+// probes, routes or the index. Everything above is normalised by the screen before it gets here, so
+// a component can be read, and changed, without knowing what a probe is.
+//
+// W5 (2026-09-21) rebuilt the vocabulary against the two mockups in .claude/specs/design/mockups/.
+// What it removed is as deliberate as what it added: the halftone, the pull quote, the creed, the
+// doctrine block, the kicker and the two-line heading are gone. Together they were 40% of the words
+// on a page whose job is to say which run needs a person.
 
 export const $ = (s, r = document) => r.querySelector(s);
 export const el = (t, a = {}, ...kids) => { const n = document.createElement(t);
@@ -18,20 +23,23 @@ export const on = (n, f) => { n.addEventListener('click', f); return n; };
 const txt = s => document.createTextNode(s);
 
 // ── the vocabulary ──────────────────────────────────────────────────────────
-// Worst first, always: the list, the table and the tiles are all read for "which one needs somebody".
-export const ORDER = ['fail', 'finding', 'unmeasurable', 'pass', 'not-applicable', 'not-committed'];
-// The four that can ask something of a person. The other two are states of the commitment, not of the
-// page, and they are counted as words rather than given a tile each.
-export const LOUD = ['fail', 'finding', 'unmeasurable', 'pass'];
-const RANK = { fail: 0, finding: 1, unmeasurable: 2, pass: 3, 'not-applicable': 4, 'not-committed': 4 };
-export const byRank = (a, b) => (RANK[a] ?? 5) - (RANK[b] ?? 5);
+// Worst first, always. Re-exported from core/, not restated, so the browser tier and the server sort
+// by one list. `export … from` re-exports without binding the name locally, so import then export.
+import { BY_ATTENTION as ORDER, byAttention as byRank } from './core/verdict/rank.js';
+export { ORDER, byRank };
+// The verdicts that can ask something of a person, in the order they ask it.
+export const LOUD = ['fail', 'finding', 'unmeasurable'];
 export const tallyOf = ps => ps.reduce((a, p) => (a[p.verdict] = (a[p.verdict] || 0) + 1, a), {});
 // Never colour alone: a verdict is a shape as well, so it survives a monochrome screen, a photograph
 // of one, and a reader who does not separate red from amber. One glyph per verdict, drawn once here.
-const GLYPH = { fail: '✕', finding: '!', unmeasurable: '?', pass: '✓', 'not-applicable': '–', 'not-committed': '○' };
-// The one place a verdict becomes a class. Every component that shows one calls this, so there is
-// exactly one naming scheme on the page rather than the four that had grown.
+const GLYPH = { fail: '✕', finding: '!', unmeasurable: '?', pass: '✓', 'not-applicable': '–',
+  'not-committed': '○', suppressed: '⊘' };
+// The one place a verdict becomes a class.
 const v = verdict => 'v-' + verdict;
+// And the one place it becomes a word. The seven names are keys in the packet — lowercase, hyphenated,
+// matched on — and they were printed straight onto the screen, so the page read like a log file
+// quoting itself. Capitalised here and nowhere else, so no two surfaces can disagree about it.
+export const Said = verdict => String(verdict).replace(/-/g, ' ').replace(/^./, c => c.toUpperCase());
 
 // ── formatting ──────────────────────────────────────────────────────────────
 export const homey = p => String(p).replace(/^\/(Users|home)\/[^/]+/, '~');
@@ -44,11 +52,11 @@ export const clock = s => { try { return new Date(s).toTimeString().slice(0, 8);
 export const when = s => { try { const d = new Date(s), m = Math.round((Date.now() - d) / 60000);
   return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : day(s);
 } catch { return String(s); } };
+export const host = u => { try { return new URL(u).host || 'file'; } catch { return ''; } };
 export const shortName = p => (p || '').replace(/^(flow|page)\./, '').replace(/-/g, ' ');
-// What to call a step in a box 130px wide. The old line stripped `https://host` and nothing else, so
-// a journey over `file:` urls showed five steps all reading `file:///Us…` — every one named by the
-// part they share and cut off before the part that tells them apart. Two steps: drop the scheme and
-// authority whatever the scheme is, then drop the longest directory prefix every step has in common.
+// What to call a step in a box 190px wide. Drop the scheme and authority whatever the scheme is,
+// then drop the longest directory prefix every step has in common — a journey over `file:` urls was
+// five steps all reading `file:///Us…`, every one named by the part they share.
 export function stepLabels(urls) {
   const paths = urls.map(u => (u || '').replace(/^[a-z][a-z0-9+.-]*:\/\/[^/]*/i, '') || '/');
   const segs = paths.map(p => p.split('/'));
@@ -71,12 +79,13 @@ export const Dot = (verdict, { hollow = false, off = false } = {}) =>
 // A step's state is not a verdict and does not get a verdict's class — only, in one case, its hue.
 export const StateDot = state => el('i', { class: 'dot is-' + state, 'aria-hidden': 'true' });
 export const LiveDot = () => el('i', { class: 'dot is-live', 'aria-hidden': 'true' });
-export const Chip = verdict => el('span', { class: 'chip ' + v(verdict) }, Mark(verdict), txt(verdict));
+export const Chip = verdict => el('span', { class: 'chip ' + v(verdict), title: MEANS[verdict] || '' }, Mark(verdict), txt(Said(verdict)));
+// What kind of thing was measured. Deliberately colourless: colour on this page means a verdict, and
+// `page` is not a verdict. It is an outline chip so it reads as a category, not as a state.
+export const KindChip = kind => el('span', { class: 'kind', text: kind });
 export const Code = text => el('code', { class: 'code', text });
 export const Eyebrow = (text, kind = 'section') => el('div', { class: 'eyebrow is-' + kind, text });
 
-// Three sizes of one object. `plain` is a button that is a sentence's own verb and sits inside
-// running text; `link` is an anchor that behaves like a control.
 export const Btn = (label, { kind = '', title, ...rest } = {}, click) => {
   const b = el('button', { class: 'btn' + (kind ? ' is-' + kind : ''), type: 'button', title, ...rest });
   b.append(typeof label === 'string' ? txt(label) : label);
@@ -85,60 +94,21 @@ export const Btn = (label, { kind = '', title, ...rest } = {}, click) => {
 export const Link = (label, href, rest = {}) =>
   el('a', { class: 'btn is-link', href, target: '_blank', rel: 'noreferrer', text: label, ...rest });
 
-// ── molecules ───────────────────────────────────────────────────────────────
-// The same six counts at three sizes, from one component: dots in a dense card, small chips in a
-// scope header that is summarising several runs, words for the quiet pair under the tiles.
-export const Tally = (counts, { mode = 'dots', only = ORDER } = {}) => {
-  const box = el('span', { class: 'tally' + (mode === 'dots' ? '' : ' is-' + mode) });
-  for (const verdict of only) {
-    const n = counts[verdict] || 0;
-    if (mode === 'chips' && !n) continue;
-    const item = el('span', { class: 'tally-item ' + v(verdict) + (n || mode !== 'dots' ? '' : ' is-zero'),
-      title: `${n} ${verdict}` });
-    // A zero fades the whole item, dot included; the dot itself keeps its own colour and its ring.
-    // Greying it would make `not-committed 0` and `not-applicable 0` the same swatch, which is the
-    // one thing the two quiet verdicts must never be. Only a tile, which has no word on it, goes grey.
-    if (mode === 'dots') item.append(Dot(verdict, { hollow: verdict === 'not-committed' }), txt(String(n)));
-    else if (mode === 'chips') item.append(Mark(verdict), txt(String(n)));
-    else item.append(el('b', { text: verdict }), txt(String(n)));
-    box.append(item);
-  }
-  return box;
-};
-
-export const Scope = ({ path, title, runs, counts }) => el('div', { class: 'scope' },
-  el('span', { class: 'scope-path', title, text: path }),
-  el('span', { class: 'scope-n', text: `${runs} run${runs > 1 ? 's' : ''}` }),
-  Tally(counts, { mode: 'chips', only: LOUD }));
-
-export const RunCard = ({ name, verdict, kind, when: at, counts, dir, current }, click) =>
-  on(el('button', { class: 'runcard', type: 'button', 'data-dir': dir, 'aria-current': String(current) },
-    el('div', { class: 'runcard-line' }, el('span', { class: 'runcard-name', text: name }), Chip(verdict)),
-    el('div', { class: 'runcard-line' }, el('span', { class: 'runcard-kind', text: kind }),
-      el('span', { class: 'runcard-when', text: at })),
-    Tally(counts)), click);
-
-export const Tiles = counts => {
-  const box = el('div', { class: 'tiles' });
-  for (const verdict of LOUD) {
-    const n = counts[verdict] || 0;
-    box.append(el('div', { class: 'tile ' + v(verdict) + (n ? '' : ' is-zero') },
-      el('span', { class: 'tile-top' }, Dot(verdict, { off: !n }),
-        el('span', { class: 'tile-n', text: String(n) })),
-      el('span', { class: 'tile-k eyebrow is-field', text: verdict })));
-  }
-  return box;
-};
-
 // One object for everything the page says in its own voice; the tone says which voice.
 export const Note = (tone, ...kids) => el('p', { class: 'note is-' + tone }, ...kids);
-export const Hint = text => Note('hint', txt(text));
 
-// Something that scrolls sideways and does not say so is something nobody scrolls. The wrapper carries
-// the fade because the scroller is sized by its content: a sticky child of it resolves to height 0.
+// Something that scrolls sideways and does not say so is something nobody scrolls. The wrapper
+// carries the fade because the scroller is sized by its content: a sticky child resolves to height 0.
 export function Scroller(inner, { tone = 'panel' } = {}) {
   const box = el('div', { class: 'scroller is-' + tone }, inner, el('span', { class: 'scroller-fade', 'aria-hidden': 'true' }));
-  const more = () => box.classList.toggle('is-more', inner.scrollLeft + inner.clientWidth < inner.scrollWidth - 1);
+  const more = () => {
+    const over = inner.scrollWidth > inner.clientWidth + 1;
+    box.classList.toggle('is-more', inner.scrollLeft + inner.clientWidth < inner.scrollWidth - 1);
+    // A scroll region is only a region while it scrolls. At full width the table fits, and an empty
+    // tab stop sat between the navigation and the first row of the thing you came to read.
+    if (over) { inner.setAttribute('tabindex', '0'); inner.setAttribute('role', 'region'); }
+    else { inner.removeAttribute('tabindex'); inner.removeAttribute('role'); }
+  };
   inner.addEventListener('scroll', more, { passive: true });
   new ResizeObserver(more).observe(inner);
   more();
@@ -155,49 +125,244 @@ export const Frame = ({ src, alt = '', miss, size = 'full', onLoad } = {}) => {
   return box;
 };
 
-// Three things happen to a step and they are three different things: it was measured, it stopped
-// part-way, or it was never reached at all. A reader who cannot tell the last two apart cannot tell
-// "we looked and found nothing" from "we never looked".
-export const Step = ({ name, path, url, state, note, shot, current }, click) =>
-  on(el('button', { class: 'step is-' + state, type: 'button', 'aria-current': String(current),
-    title: url || (state === 'never' ? 'never reached' : '') },
-    Frame({ src: shot, size: 'thumb', miss: state === 'never' ? 'no evidence exists' : 'no shot' }),
-    el('span', { class: 'step-cap' },
-      el('span', { class: 'step-name', text: name }),
-      el('span', { class: 'step-url', text: path }),
-      el('span', { class: 'step-state' }, StateDot(state), txt(note)))), click);
+// ── the shell ───────────────────────────────────────────────────────────────
+export const Wrap = (...kids) => el('div', { class: 'wrap' }, ...kids);
+// The four arrangements a screen is allowed to make. A screen composes components; the moment it
+// writes its own `class` the tier is gone and the four naming schemes start growing back, so even
+// a bare flex column is a component with a name.
+export const Hero = (...kids) => el('div', { class: 'hero' }, ...kids);
+export const Band = (title, action) => el('div', { class: 'band' }, el('h2', { text: title }), action || null);
+export const Stack = (...kids) => el('div', { class: 'stack' }, ...kids);
+export const RunBody = (...kids) => el('div', { class: 'runbody' }, ...kids);
+// One sentence saying a thing is absent. Absence is a reading, not a blank.
+export const Nothing = text => el('p', { class: 'nothing', text });
 
-export function Chain(steps, onPick) {
-  const box = el('div', { class: 'chain', tabindex: '0', role: 'group', 'aria-label': 'the journey, in order' });
-  steps.forEach((s, k) => {
-    if (k) box.append(el('span', { class: 'chain-link', text: '→' }));
-    box.append(Step(s, () => onPick(k)));
+// The search box in the top bar. The shortcut printed on it is the shortcut that works — a hint the
+// page does not honour is worse than no hint.
+export const Search = ({ value = '', placeholder, label, hint }, type) => {
+  const input = el('input', { id: 'q', type: 'search', value, placeholder, 'aria-label': label });
+  input.addEventListener('input', e => type(e.target.value.trim()));
+  return el('span', { class: 'search' },
+    el('i', { class: 'search-ico', 'aria-hidden': 'true', text: '⌕' }),
+    input, el('kbd', { class: 'search-key', text: hint }));
+};
+
+// ── molecules ───────────────────────────────────────────────────────────────
+// The same counts at three sizes, from one component: dots in a dense row, small marks in a table
+// cell, words where there is room for them.
+// Two modes, because two are drawn. A third existed — verdict names spelled out — and nothing has
+// built it since the projects screen stopped summarising the log; a variant the page cannot style is
+// a trap for whoever reaches for it next.
+export const Tally = (counts, { mode = 'dots', only = ORDER } = {}) => {
+  const box = el('span', { class: 'tally' + (mode === 'dots' ? '' : ' is-' + mode) });
+  for (const verdict of only) {
+    const n = counts[verdict] || 0;
+    if (mode === 'chips' && !n) continue;
+    const item = el('span', { class: 'tally-item ' + v(verdict) + (n || mode !== 'dots' ? '' : ' is-zero'),
+      title: `${n} ${verdict}` });
+    if (mode === 'dots') item.append(Dot(verdict, { hollow: verdict === 'not-committed' }), txt(String(n)));
+    else item.append(Mark(verdict), txt(String(n)));
+    box.append(item);
+  }
+  return box;
+};
+
+// Three figures at the top right of the home screen: how much there is, across how many projects,
+// and how stale it all is. Each is a label and a value and nothing else.
+export const MetaStrip = items => el('div', { class: 'meta-strip' },
+  items.map(m => el('div', { class: 'meta-one' },
+    el('span', { class: 'meta-k', text: m.label }),
+    el('span', { class: 'meta-v', text: String(m.value) }))));
+
+// Seven tiles, one per verdict, each with the count and what the count asks of a person. The action
+// line is the point of the row: six of the seven verdicts leave the exit code at 0, so a reader
+// scanning numbers alone cannot tell which of them wants them.
+export const VerdictTiles = (counts, says, onPick) => {
+  const box = el('div', { class: 'vtiles' });
+  for (const verdict of ORDER) {
+    const n = counts[verdict] || 0;
+    const tile = el('button', { class: 'vtile ' + v(verdict) + (n ? '' : ' is-zero'), type: 'button',
+      'aria-label': `${n} ${verdict} — ${says[verdict]}` },
+      el('span', { class: 'vtile-n', text: String(n) }),
+      el('span', { class: 'vtile-k', text: Said(verdict) }),
+      el('span', { class: 'vtile-say', text: says[verdict] }));
+    box.append(on(tile, () => onPick(verdict)));
+  }
+  return box;
+};
+
+// A run that wants a person, as a card. Everything on it is a fact from the index: no card is drawn
+// for a run the index cannot describe.
+export const AttentionCards = (cards, onPick) => el('div', { class: 'attend' },
+  cards.map(c => on(el('button', { class: 'acard ' + v(c.verdict), type: 'button' },
+    el('span', { class: 'acard-top' },
+      Dot(c.verdict), KindChip(c.kind), el('span', { class: 'acard-when', text: c.when })),
+    TargetCell(c.label),
+    el('span', { class: 'acard-foot' },
+      el('span', { class: 'acard-proj', title: c.project, text: c.project }),
+      el('span', { class: 'acard-num' }, Tally(c.counts, { mode: 'chips', only: LOUD })))),
+  () => onPick(c))));
+
+// What was measured, in two lines. Line one is identity and it is as short as it can be while
+// still telling this row from its neighbours; line two is where the thing lives. Splitting them is
+// what stops a reader parsing a browser address to learn what was measured — on this machine the
+// raw strings run to a median of 77 characters and 11 slashes, and seven of them are an absolute
+// path percent-encoded inside a hash route. The raw value stays on the element, so it is one hover
+// away and never gone.
+export const TargetCell = ({ head, stem, leaf, context, raw }) =>
+  el('div', { class: 'target', title: raw || leaf },
+    el('span', { class: 'target-id' },
+      head || stem ? el('span', { class: 'target-stem', text: [head, stem].filter(Boolean).join('/') + '/' }) : null,
+      el('b', { class: 'target-leaf', text: leaf })),
+    // Always drawn, even empty. The second line is what keeps every row the same height, and a
+    // table whose rows change height by a few pixels depending on their content is harder to run an
+    // eye down than one that repeats a word.
+    el('span', { class: 'target-ctx', text: context || '' }));
+
+// ── the ledger ──────────────────────────────────────────────────────────────
+const LEDGER_COLS = ['ran at', 'what was measured', 'kind', 'project', 'worst', 'probes', 'exit'];
+export function Ledger(rows, onPick) {
+  const body = el('tbody');
+  for (const r of rows) {
+    const tr = el('tr', { 'aria-current': String(!!r.current) },
+      el('td', { class: 't-when', text: r.when }),
+      el('td', { class: 't-target' }, TargetCell(r.label)),
+      el('td', {}, KindChip(r.kind)),
+      el('td', { class: 't-proj', title: r.projectFull, text: r.project }),
+      el('td', {}, Chip(r.verdict)),
+      el('td', { class: 't-num', text: String(r.probes) }),
+      // Null is what the index holds for every run measured before the exit code was recorded. An
+      // em dash is the truthful glyph for it; a 0 there would be a number nobody stored.
+      el('td', { class: 't-num' }, r.exit === null || r.exit === undefined
+        ? txt('—') : el('b', { class: v(r.verdict), text: String(r.exit) })));
+    tr.addEventListener('click', () => onPick(r));
+    body.append(tr);
+  }
+  const scroll = el('div', { class: 'scroller-box', 'aria-label': 'runs, scrolls sideways when narrow' },
+    el('table', { class: 'ledger' },
+      el('thead', {}, el('tr', {}, LEDGER_COLS.map(h => el('th', { text: h })))), body));
+  return Scroller(scroll);
+}
+
+// A row of controls over a list. More than one control needs a flex parent: a bare span is inline,
+// so the search box and the filters wrapped onto two lines instead of sitting side by side.
+export const Filters = (...kids) => el('div', { class: 'filters' }, ...kids);
+
+export const Panel = ({ title, action, scroll = false, ref }, ...kids) => {
+  const head = el('h2', { text: title });
+  const body = el('div', { class: 'panel-body' + (scroll ? ' panel-scroll' : '') }, ...kids);
+  if (ref) { ref.title = head; ref.body = body; }
+  return el('section', { class: 'panel', 'aria-label': title },
+    el('div', { class: 'panel-head' }, head, action || null), body);
+};
+
+// ── a run ───────────────────────────────────────────────────────────────────
+// The header of one run: where it sits, what it is, and the two things you can do with it from here.
+export const RunHead = ({ back, backTo, title, verdict, kind, project, path, ranAt, actions }) => {
+  const box = el('header', { class: 'runhead' });
+  box.append(on(el('button', { class: 'runhead-back', type: 'button' }, txt('← ' + back)), backTo));
+  box.append(el('div', { class: 'runhead-line' },
+    el('h1', { text: title }), Chip(verdict), KindChip(kind),
+    el('span', { class: 'runhead-proj', title: project, text: project }),
+    el('span', { class: 'runhead-when', text: ranAt }),
+    actions ? el('span', { class: 'runhead-acts' }, actions) : null));
+  if (path) box.append(el('p', { class: 'runhead-path', title: path, text: path }));
+  return box;
+};
+
+// What the run counted, in one band: the plain figures first, then one cell per verdict, then the
+// exit code with the sentence that explains it. The exit cell is the only one that carries a reason,
+// because it is the only number a CI job reads.
+export const StatStrip = ({ figures, counts, exit }) => {
+  const box = el('div', { class: 'strip' });
+  for (const f of figures) box.append(el('div', { class: 'strip-cell' },
+    el('span', { class: 'strip-k', text: f.label }), el('span', { class: 'strip-n', text: String(f.value) })));
+  for (const verdict of ORDER) {
+    const n = counts[verdict] || 0;
+    box.append(el('div', { class: 'strip-cell ' + v(verdict) + (n ? '' : ' is-zero') },
+      el('span', { class: 'strip-n is-hue', text: String(n) }),
+      el('span', { class: 'strip-k', text: Said(verdict) })));
+  }
+  box.append(el('div', { class: 'strip-exit ' + v(exit.verdict) },
+    el('span', { class: 'strip-k', text: 'exit code' }),
+    el('span', { class: 'strip-n', text: exit.code === null ? '—' : String(exit.code) }),
+    el('span', { class: 'strip-why', text: exit.why })));
+  return box;
+};
+
+// One tab bar, used by the run screen and by the evidence pane. The current tab is a real state in
+// the url, so a link to one tab of one run is a link somebody else can open.
+export function Tabs(tabs, current, onPick) {
+  const box = el('div', { class: 'tabs', role: 'tablist' });
+  for (const t of tabs) {
+    const b = el('button', { class: 'tab', type: 'button', role: 'tab',
+      'aria-selected': String(t.id === current) }, txt(t.label));
+    if (t.n !== undefined && t.n !== null) b.append(el('span', { class: 'tab-n', text: String(t.n) }));
+    box.append(on(b, () => onPick(t.id)));
+  }
+  return box;
+}
+
+// The journey, as designers draw it: one node per step, in order, with the frame that was kept and
+// the verdicts that were pinned to it. An arrow is drawn between two nodes only because the run
+// recorded that one followed the other — nothing here infers an edge.
+export function FlowMap(nodes, onPick) {
+  const box = el('div', { class: 'flow', role: 'group', 'aria-label': 'the journey, in order' });
+  nodes.forEach((s, k) => {
+    if (k) box.append(el('span', { class: 'flow-arrow', 'aria-hidden': 'true' },
+      el('span', { class: 'flow-how', text: s.how || '' })));
+    const node = el('button', { class: 'node is-' + s.state, type: 'button',
+      'aria-current': String(!!s.current), title: s.url || '' },
+      el('span', { class: 'node-top' },
+        el('span', { class: 'node-i', text: s.badge }),
+        el('span', { class: 'node-name', text: s.name })),
+      Frame({ src: s.shot, size: 'node',
+        miss: s.state === 'never' ? 'no evidence exists' : 'no frame kept' }),
+      el('span', { class: 'node-sub', text: s.sub }),
+      el('span', { class: 'node-chips' }, s.chips.length
+        ? s.chips.map(c => el('span', { class: 'ministat ' + v(c.verdict) },
+          Mark(c.verdict), txt(c.label)))
+        : el('span', { class: 'node-none', text: s.state === 'never' ? 'never ran' : 'nothing pinned here' })));
+    box.append(on(node, () => onPick(k)));
   });
   return Scroller(box, { tone: 'bare' });
 }
 
-// Which conclusion belongs to which step. A row is drawn only when it carries an answer — one a probe
-// pinned itself to, or one that has nothing because it never ran. A row per step saying "nothing pins
-// here" is one sentence repeated, which is the noise this component exists to remove.
-export function Cover(rows) {
-  const box = el('div', { class: 'cover' });
-  for (const r of rows) box.append(el('div', { class: 'cover-row' },
-    el('span', { class: 'cover-step', text: r.step }),
-    el('span', { class: 'cover-rule' }),
-    el('span', { class: 'cover-say' }, r.none
-      ? [Mark('not-committed'), txt('no evidence exists')]
-      : r.probes.map(p => el('span', { class: 'cover-probe ' + v(p.verdict) }, Mark(p.verdict), txt(p.name))))));
+// The same steps as a column, for the pane under the map. A dot, a number, a name — and the dot is
+// the worst verdict pinned to that step, or the step's own state when nothing is pinned.
+export function StepList(rows, onPick) {
+  const box = el('ol', { class: 'steplist' });
+  rows.forEach((r, k) => box.append(el('li', {},
+    on(el('button', { class: 'steprow', type: 'button', 'aria-current': String(!!r.current) },
+      r.verdict ? Dot(r.verdict) : StateDot(r.state),
+      el('span', { class: 'steprow-i', text: String(r.badge) }),
+      el('span', { class: 'steprow-name', text: r.name })), () => onPick(k)))));
   return box;
 }
 
-const COLUMNS = ['criterion', 'probe', 'provenance', 'method', 'verdict', 'details'];
-export function ProbeTable(rows, onPick) {
+// One probe, as a card rather than a table row. The table survives on the Probe results tab, where
+// the question is "how do these compare"; a card is what answers "what did this one find".
+export const ProbeCard = ({ verdict, criterion, name, provenance, method, unproven, what, why, current }, click) => {
+  const box = el('article', { class: 'pcard ' + v(verdict) + (current ? ' is-current' : '') });
+  box.append(el('header', { class: 'pcard-head' },
+    Chip(verdict),
+    el('b', { class: 'pcard-crit', text: criterion }),
+    el('span', { class: 'pcard-name', text: name }),
+    el('span', { class: 'pcard-tags' },
+      el('span', { class: 'tag', text: provenance }),
+      el('span', { class: 'tag' + (unproven ? ' is-unproven' : ''), text: method }))));
+  if (what) box.append(el('div', { class: 'pcard-row' },
+    el('span', { class: 'pcard-k', text: 'what' }), el('p', { class: 'pcard-v' }, sentence(what))));
+  if (why) box.append(el('div', { class: 'pcard-row' },
+    el('span', { class: 'pcard-k', text: 'why' }), el('p', { class: 'pcard-v is-why', text: why })));
+  return click ? on(box, click) : box;
+};
+
+const PROBE_COLS = ['criterion', 'probe', 'provenance', 'method', 'verdict', 'what'];
+export function ProbeTable(rows, onPick, { focusCurrent = false } = {}) {
   const body = el('tbody');
   for (const r of rows) {
     const tr = el('tr', { class: v(r.verdict), 'aria-current': String(r.current) },
-      // Not a `.btn`: the criterion is the most-scanned column on the page, and a column of framed
-      // controls reads as a toolbar. It is a real button for the keyboard and bare to the eye —
-      // `.cell.is-crit button` is where it gets its type.
       el('td', {}, el('div', { class: 'cell is-crit' },
         on(el('button', { type: 'button', text: r.criterion }),
           e => { e.stopPropagation(); onPick(r); }))),
@@ -210,11 +375,29 @@ export function ProbeTable(rows, onPick) {
     tr.addEventListener('click', () => onPick(r));
     body.append(tr);
   }
-  const scroll = el('div', { class: 'scroller-box', tabindex: '0', role: 'region',
-    'aria-label': 'probes, scrolls sideways when narrow' },
+  const scroll = el('div', { class: 'scroller-box', 'aria-label': 'probes, scrolls sideways when narrow' },
     el('table', { class: 'probes' },
-      el('thead', {}, el('tr', {}, COLUMNS.map(h => el('th', { class: 'eyebrow', text: h })))), body));
-  return Scroller(scroll);
+      el('thead', {}, el('tr', {}, PROBE_COLS.map(h => el('th', { text: h })))), body));
+  const box = Scroller(scroll);
+  if (focusCurrent) requestAnimationFrame(() => {
+    const here = body.querySelector('tr[aria-current="true"] button');
+    if (here) here.focus({ preventScroll: true });
+  });
+  return box;
+}
+
+// What one step re-asked for, and where it was first entered. This is the only screen-to-screen
+// relationship uxcli measures, and it is measured — 3.3.7 records the pair, and this draws the pair.
+export function Rel(rows) {
+  if (!rows.length) return Nothing('No probe recorded a link between two steps in this run.');
+  const box = el('div', { class: 'rel' });
+  for (const r of rows) box.append(el('div', { class: 'rel-row ' + v(r.verdict) },
+    el('span', { class: 'rel-from', text: r.from }),
+    el('span', { class: 'rel-arrow', 'aria-hidden': 'true' }),
+    el('span', { class: 'rel-to', text: r.to }),
+    el('span', { class: 'rel-what', text: r.field }),
+    el('span', { class: 'rel-how', text: r.how })));
+  return box;
 }
 
 export function Pager({ label, atStart, atEnd, what }, move) {
@@ -224,29 +407,16 @@ export function Pager({ label, atStart, atEnd, what }, move) {
     Btn('›', { disabled: atEnd, title: `next ${what} (→)`, 'aria-label': `next ${what}` }, () => move(1)));
 }
 
-// One label and one value, and every label/value on the page is this. Three arrangements, and the
-// arrangement is the only thing that differs between them.
-export const Field = (k, value, { kind = '' } = {}) => el('div', { class: 'field' },
-  el('dt', { text: k }),
+// One label and one value, and every label/value on the page is this.
+// `hint` is the long form, and it belongs on the element rather than on the page: the reading is the
+// number, and the sentence behind it is for whoever stops on it.
+export const Field = (k, value, { kind = '', hint = '' } = {}) => el('div', { class: 'field' },
+  el('dt', { text: k, title: hint || null }),
   typeof value === 'string' || value === null || value === undefined
-    ? el('dd', { class: kind ? 'is-' + kind : '', text: value ?? '—' })
-    : el('dd', { class: kind ? 'is-' + kind : '' }, value));
+    ? el('dd', { class: kind ? 'is-' + kind : '', text: value ?? '\u2014', title: hint || null })
+    : el('dd', { class: kind ? 'is-' + kind : '', title: hint || null }, value));
 export const Fields = (rows, { variant = '' } = {}) =>
   el('dl', { class: 'fields' + (variant ? ' is-' + variant : '') }, rows);
-
-export const EvHead = ({ verdict, criterion, name }) => el('div', { class: 'evhead' },
-  Chip(verdict), el('span', { class: 'evhead-crit', text: criterion }), el('span', { class: 'evhead-name', text: name }));
-
-export function Cite({ what, where, check, whereTitle }) {
-  const box = el('div', { class: 'cite' });
-  box.append(Eyebrow('what', 'field'), el('p', { class: 'cite-what', text: what }));
-  if (where) box.append(Eyebrow('where', 'field'),
-    el('p', { class: 'cite-where' }, el('a', { href: where, target: '_blank', rel: 'noreferrer',
-      title: whereTitle || where, text: shorten(where, 54) })));
-  if (check) box.append(Eyebrow('check', 'field'), el('p', { class: 'cite-check' }, sentence(check)));
-  return box;
-}
-export const Why = text => el('p', { class: 'cite-why', text });
 
 export const Specimen = ({ fg, bg, text = 'The quick brown fox jumps over the lazy dog' }) =>
   el('div', { class: 'specimen' },
@@ -265,28 +435,31 @@ export const Raw = json => el('details', { class: 'raw' },
 export const Acts = (...kids) => el('div', { class: 'acts' }, ...kids);
 export const Caption = text => el('p', { class: 'caption', text });
 export const Foot = (...kids) => el('p', { class: 'foot' }, ...kids);
-export const Pad = (...kids) => el('div', { class: 'stage-pad' }, ...kids);
 export const Empty = (title, ...kids) => el('div', { class: 'empty' }, el('h1', { text: title }), ...kids);
 
-export const PageHead = ({ title, verdict, action }) => {
-  const head = el('div', { class: 'pagehead' }, el('h1', { text: title }), Chip(verdict));
-  if (action) head.append(action);
-  return head;
+// Three columns under the journey map: the steps, what was found at the one you picked, and the
+// evidence for it. On a page run there are no steps, so the screen passes two.
+export const Panes = (...kids) => el('div', { class: 'panes' }, ...kids);
+export const Pane = ({ title, action, grow = false, ref }, ...kids) => {
+  const head = el('h2', { text: title });
+  const body = el('div', { class: 'pane-body' }, ...kids);
+  if (ref) { ref.title = head; ref.body = body; }
+  return el('section', { class: 'pane' + (grow ? ' is-grow' : ''), 'aria-label': title },
+    el('div', { class: 'pane-head' }, head, action || null), body);
 };
-export const PageMeta = (...kids) => el('p', { class: 'pagehead-meta' }, ...kids);
-export const EvPad = (...kids) => el('div', { class: 'evidence-body' }, ...kids);
 
-// APG calls this a select-only combobox, not a listbox: a trigger that owns a popup list. Focus stays
-// on the trigger and `aria-activedescendant` names the option being pointed at, so the whole control
-// is one tab stop and every key the pattern lists is answered.
+// APG's select-only combobox: a trigger that owns a popup list. Focus stays on the trigger and
+// `aria-activedescendant` names the option being pointed at, so the whole control is one tab stop.
 // https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/
-export function Combo({ options, at = 0, label, id = 'combolist' }, choose) {
+let comboSeq = 0;
+export function Combo({ options, at = 0, label }, choose) {
+  const id = 'combo-' + (++comboSeq);
   const btn = el('button', { type: 'button', role: 'combobox', 'aria-controls': id,
     'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': label },
     el('span', { text: options[at].label }), el('span', { class: 'combo-caret', text: '▾' }));
   const ul = el('ul', { id, class: 'combo-list', role: 'listbox', 'aria-label': label, hidden: 'hidden' });
   options.forEach((o, i) => {
-    const li = el('li', { class: 'combo-opt', role: 'option', id: id + '-' + i, 'aria-selected': String(!!o.selected) },
+    const li = el('li', { class: 'combo-opt', role: 'option', id: id + '-' + i, 'aria-selected': String(i === at) },
       o.verdict ? Dot(o.verdict) : el('span', {}),
       el('span', { text: o.label }), el('span', { class: 'combo-note', text: o.note }));
     li.addEventListener('click', () => pick(i));
@@ -299,7 +472,15 @@ export function Combo({ options, at = 0, label, id = 'combolist' }, choose) {
   const open = () => { ul.hidden = false; btn.setAttribute('aria-expanded', 'true'); point(at); };
   const shut = () => { ul.hidden = true; btn.setAttribute('aria-expanded', 'false');
     btn.removeAttribute('aria-activedescendant'); for (const li of ul.children) li.classList.remove('is-here'); };
-  const pick = i => { at = i; shut(); btn.focus(); choose(options[i], i); };
+  // A select-only combobox's trigger IS the selected value, and `aria-selected` is where a screen
+  // reader reads it back. A component keeps its own state: the version that only called `choose`
+  // stated the wrong filter the moment a screen redrew just the list beneath it.
+  const pick = i => {
+    at = i; shut(); btn.focus();
+    btn.firstChild.textContent = options[i].label;
+    for (const [k, li] of [...ul.children].entries()) li.setAttribute('aria-selected', String(k === i));
+    choose(options[i], i);
+  };
   const jump = ch => { const from = at + 1;
     for (let k = 0; k < options.length; k++) { const i = (from + k) % options.length;
       if (options[i].label.toLowerCase().startsWith(ch)) return point(i); } };
@@ -327,3 +508,107 @@ export function Combo({ options, at = 0, label, id = 'combolist' }, choose) {
   addEventListener('click', () => { if (!ul.hidden) shut(); });
   return el('span', { class: 'combo' }, btn, ul);
 }
+
+// The commands, as commands. This server reads an index and serves files out of the directories in
+// it; it starts no browser and runs nothing. A button here would be a button that lies.
+export const Cmds = rows => el('div', { class: 'cmds' },
+  rows.map(r => el('div', { class: 'cmd' },
+    el('code', { class: 'line', text: r.line }),
+    Btn('copy', { kind: 'plain', title: 'copy this line' }, e => r.copy(r.line, e.currentTarget)),
+    el('p', { class: 'what', text: r.what }))));
+
+// The vocabulary, written in the vocabulary, built from the same list the page sorts by so the two
+// can never disagree about how many verdicts there are. Six of these seven leave the exit code at 0;
+// only `fail` changes it, and only `pass` is a pass.
+const MEANS = {
+  fail: 'measured, and the probe is licensed to say so',
+  finding: 'measured, but this method may not state a fail yet',
+  unmeasurable: 'the probe declined — it could not get a reading it trusts',
+  'not-committed': 'nobody signed a commitment, so there is nothing to judge against',
+  suppressed: 'waived on the record, with a reason, never silently skipped',
+  pass: 'satisfied',
+  'not-applicable': 'there was nothing on the page to measure',
+};
+export const Legend = () => el('details', { class: 'legend', id: 'legend' },
+  el('summary', { class: 'eyebrow' }, txt('What the seven verdicts mean')),
+  el('ul', {}, ORDER.map(verdict => el('li', { class: 'legend-row' },
+    Mark(verdict), el('span', { class: 'legend-word', text: Said(verdict) }), el('span', { text: MEANS[verdict] })))));
+
+// ── the overview, rebuilt ───────────────────────────────────────────────────
+// W7 (2026-09-23). What stood here answered "what failed", which the terminal already answers and
+// answers faster. The page is opened for the question `uxcli run` refuses: exit 0 is a floor, four
+// probes found no fail. So these components lead with reach and with what is promised, and the list
+// of failures is fourth — after it has been said how much of the product was never looked at.
+
+// The demand line. One figure, and beside it the runs that are the tool proving itself rather than
+// anything a person ships: 22 of 83 here, 7 of 12 in the queue, which is most of what a reader would
+// otherwise have had to sort by eye.
+export const Demand = ({ need, label, aside, scope }) => el('div', { class: 'demand' },
+  el('div', { class: 'demand-fig' }, el('b', { text: String(need) }), el('span', { text: label })),
+  aside ? el('p', { class: 'demand-aside', text: aside }) : null,
+  el('p', { class: 'demand-scope', text: scope }));
+
+// One row per project: what it has promised, and what shape that promise has. `kinds` is the point —
+// forty-two commitments that are all one kind is a narrow promise, and the count alone reads as
+// breadth it does not have.
+const STAGE = { unmanaged: 'hook-stage is-unmanaged', adopted: 'hook-stage is-adopted', enforced: 'hook-stage is-enforced' };
+export const Hook = rows => el('div', { class: 'hook' }, rows.map(r => el('div', { class: 'hook-row' },
+  el('span', { class: 'hook-name', text: r.name }),
+  el('span', { class: STAGE[r.state] || STAGE.unmanaged }, el('i', { class: 'hook-rung' }), el('i', { class: 'hook-rung' }), el('i', { class: 'hook-rung' }), el('b', { text: r.state })),
+  el('span', { class: 'hook-kinds', text: r.shape }),
+  r.gap ? el('span', { class: 'hook-gap', text: r.gap }) : null,
+  el('span', { class: 'hook-path', text: r.path }))));
+
+// How far the instrument can see. Two facts a verdict tally cannot carry: how much measurement found
+// nothing to measure, and how many rules are licensed to conclude anything at all.
+export const Reach = ({ bars, foot }) => el('div', { class: 'reach' },
+  el('div', { class: 'reach-bar' }, bars.map(b => el('i', { class: 'reach-seg ' + v(b.verdict), style: `flex:${b.n}`, title: `${b.n} ${b.verdict}` }))),
+  el('div', { class: 'reach-keys' }, bars.map(b => el('span', { class: 'reach-key' },
+    Dot(b.verdict), el('b', { text: String(b.n) }), el('span', { text: Said(b.verdict) })))),
+  el('p', { class: 'reach-foot', text: foot }));
+
+// Observed against committed. The bar is mostly empty on purpose: a project can measure a hundred
+// screens and have promised nothing about any of them, and no tally of verdicts will ever say so.
+export const Coverage = ({ observed, committed, foot }) => el('div', { class: 'reach' },
+  el('div', { class: 'reach-bar' },
+    el('i', { class: 'reach-seg v-pass', style: `flex:${committed || 0}` }),
+    el('i', { class: 'reach-seg is-open', style: `flex:${Math.max(0, observed - committed)}` })),
+  el('div', { class: 'reach-keys' },
+    el('span', { class: 'reach-key' }, el('b', { text: String(committed) }), el('span', { text: 'carry a commitment' })),
+    el('span', { class: 'reach-key' }, el('b', { text: String(observed - committed) }), el('span', { text: 'nobody has promised anything about' }))),
+  el('p', { class: 'reach-foot', text: foot }));
+
+// A target's runs, oldest to newest, right-aligned so the newest sits at one x on every row: a
+// column of red down the right edge is the whole scan. One cell alone is a first measurement, and
+// says so by being alone rather than by carrying a word.
+const SLOTS = 7;
+export const HistStrip = history => {
+  const box = el('div', { class: 'hist' });
+  const runs = history.slice(-SLOTS);
+  for (let i = 0; i < SLOTS - runs.length; i++) box.append(el('i', { class: 'hist-gap' }));
+  runs.forEach((r, i) => box.append(el('i', {
+    class: 'hist-cell ' + v(r.verdict) + (i === runs.length - 1 ? ' is-now' : ''),
+    title: `${Said(r.verdict)} · ${r.when}` })));
+  return box;
+};
+
+// One row per target, not per run: a page that failed five times is one thing to fix, and a table
+// that lists it five times has counted the work wrong.
+export const Queue = (rows, onPick) => {
+  const body = el('tbody');
+  for (const r of rows) {
+    const tr = el('tr', { class: r.drift === 'regressed' ? 'is-regressed' : null },
+      el('td', {}, Chip(r.verdict)),
+      el('td', { class: 'q-name' }, el('b', { text: r.name }), r.context ? el('span', { class: 'q-ctx', text: r.context }) : null),
+      el('td', { class: 'q-hist' }, HistStrip(r.history)),
+      el('td', { class: 'q-drift', title: r.drift }, r.drift === 'regressed' ? '▲' : r.drift === 'improved' ? '▼' : ''),
+      el('td', { class: 'q-num', text: r.when }),
+      el('td', { class: 'q-num', text: r.probes }));
+    on(tr, () => onPick(r));
+    body.append(tr);
+  }
+  return Scroller(el('div', { class: 'scroller-box', 'aria-label': 'targets, scrolls sideways when narrow' },
+    el('table', { class: 'queue' },
+      el('thead', {}, el('tr', {}, ['State', 'Target', 'History', '', 'Last run', 'Probes']
+        .map(h => el('th', { text: h })))), body)));
+};

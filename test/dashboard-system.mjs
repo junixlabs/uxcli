@@ -8,6 +8,7 @@
 // Three tiers, and two rules between them:
 //   tokens      dashboard.tokens.css        every value — colour, type, spacing, radius, measure
 //   components  dashboard.components.css    every component, defined once, drawn from tokens only
+//   shell       dashboard.shell.css         the frame those components sit in, same two rules
 //   screens     dashboard.app.js            composed of components only, and naming none of them
 //
 //   node test/dashboard-system.mjs        exit 0 clean, exit 1 with the offending values
@@ -21,7 +22,11 @@ const ui = src('dashboard.ui.js'), app = src('dashboard.app.js');
 // — so a rule that reads the file has to read the rules and not the reasons. Media conditions go the
 // same way: a breakpoint is where the layout changes, not a size the layout is drawn at, and CSS
 // cannot take a custom property in one anyway.
-const css = src('dashboard.components.css').replace(/\/\*[\s\S]*?\*\//g, '');
+// Both stylesheets, checked as one. The shell arrived with the 2026-09-20 rebuild and spent its
+// first hour outside these rules — 26px, 46px, 19px, three radii off the scale — which is exactly
+// how the drift this file exists to stop gets back in: through a file the file does not read.
+const css = [src('dashboard.components.css'), src('dashboard.shell.css')]
+  .join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
 const rules = css.replace(/@media[^{]*/g, '@media ');
 
 // The exceptions, each one a decision recorded in the palette or the brief.

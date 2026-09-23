@@ -1,0 +1,124 @@
+/* The frame the components stand in. Tier three of four.
+ *
+ * Same two rules as dashboard.components.css: every value comes from dashboard.tokens.css, and
+ * every class here is reachable from dashboard.html, dashboard.ui.js or dashboard.app.js.
+ * `test/dashboard-system.mjs` reads this file too — it did not, for one hour on 2026-09-20, and in
+ * that hour the file grew 26px, 46px, 19px and three radii off the scale.
+ *
+ * W5 (2026-09-21) splits the shell in two. The top bar carries the things that are true on every
+ * screen and belong to the machine — the name, the search, the theme, the index. The rail carries
+ * the five destinations and nothing else. Before this, one column carried both, ran 4871px tall on
+ * the runs screen, and put the theme toggle 3651px below the fold.
+ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: var(--type-body); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--accent-soft); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* ── the frame ─────────────────────────────────────────────────────────── */
+.app { display: grid; grid-template-columns: var(--w-nav) minmax(0, 1fr);
+  grid-template-rows: var(--h-top) minmax(0, 1fr); min-height: 100vh; }
+
+/* ── the bar ───────────────────────────────────────────────────────────── */
+.top { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--s4);
+  padding: 0 var(--s4); background: var(--rail); border-bottom: 1px solid var(--line-2);
+  position: sticky; top: 0; z-index: 3; }
+/* The name never shrinks and the search always can. A flex item defaults to `min-width: auto`,
+   which is its content's minimum — so the tools group refused to give back a pixel and the bar ran
+   17px off the right edge of a 390px screen. Measured, not assumed. */
+.top-brand { flex: none; display: inline-flex; align-items: center; gap: var(--s2);
+  font: 600 var(--type-title); color: var(--ink); text-decoration: none; letter-spacing: -0.02em; }
+.top-mark { display: inline-flex; width: var(--s5); height: var(--s5); color: var(--accent); }
+.top-mark svg { width: 100%; height: 100%; }
+.top-tag { flex: 0 1 auto; min-width: 0; margin: 0; font: var(--type-body); color: var(--ink-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.top .search { flex: 0 1 var(--w-search); }
+.top-tools { flex: 1 1 auto; min-width: 0; display: flex; align-items: center;
+  justify-content: flex-end; gap: var(--s2); }
+.top-btn { display: inline-flex; align-items: center; justify-content: center;
+  width: var(--s6); height: var(--s6); color: var(--ink-3); background: none;
+  border: 1px solid transparent; border-radius: var(--r-control); cursor: pointer; }
+.top-btn:hover { color: var(--ink); border-color: var(--line); }
+.top-btn svg { width: var(--w-ico); height: var(--w-ico); }
+.top-btn[aria-busy="true"] { opacity: .5; }
+
+/* ── the rail ──────────────────────────────────────────────────────────── */
+.rail { display: flex; flex-direction: column; gap: var(--s4);
+  padding: var(--s4) var(--s3); background: var(--rail); border-right: 1px solid var(--line-2);
+  position: sticky; top: var(--h-top); align-self: start;
+  height: calc(100dvh - var(--h-top)); overflow-y: auto; }
+.rail-nav { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.rail-link { display: flex; align-items: center; gap: var(--s2);
+  font: var(--type-body); color: var(--ink-2); text-decoration: none;
+  border-radius: var(--r-control); padding: var(--s2); }
+.rail-link:hover { background: var(--sunk); color: var(--ink); }
+.rail-link[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.rail-ico { width: var(--w-ico); height: var(--w-ico); flex: none; }
+.rail-link.is-out { color: var(--ink-3); }
+.rail-link.is-out:hover { color: var(--ink-2); }
+
+.rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: var(--s1); }
+.rail-server { margin: var(--s2) 0 0; display: flex; flex-direction: column; gap: 1px;
+  font: var(--type-meta); color: var(--ink-3); padding: 0 var(--s2); }
+.rail-server b { display: flex; align-items: center; gap: var(--s1); font-weight: 400; color: var(--ink-2); }
+.rail-say { margin: 0; min-height: var(--s3); font: var(--type-meta); color: var(--accent);
+  padding: 0 var(--s2); }
+
+/* ── the stage ─────────────────────────────────────────────────────────── */
+.main { min-width: 0; padding: var(--s5) var(--s5) var(--s8); }
+/* The screen is the measure. There is no reading column here to protect: every band on these
+   screens is a table, a strip of tiles or a row of steps, and all three are read by scanning across
+   rather than down a line of prose. Capping them at 1240 and centring the result left 200px of
+   nothing down each side of a 1440 window while the runs table truncated its own `where` column.
+   The gutter is `.main`'s padding, and that is the whole of it. The one thing that still takes a
+   measure is `.empty p`, which is prose and keeps `--w-read`. */
+.wrap { display: flex; flex-direction: column; gap: var(--s5); }
+
+/* The home screen's opening band: the demand figure on the left, the scope line on the right. */
+.hero { display: flex; align-items: flex-end; flex-wrap: wrap; gap: var(--s5); }
+.hero > :first-child { flex: 1 1 var(--w-attend); }
+
+/* A heading over a band that is not a panel. The screens use it for "Runs that need attention" and
+   for the ledger's own title, so a section can be labelled without being boxed. */
+.band { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s2); }
+.band h2 { margin: 0; flex: 1 1 auto; font: 600 var(--type-lede); color: var(--ink); }
+
+/* A column of things with the same gap between each. Used wherever a screen stacks a heading, a
+   band and a panel — which, after W5, is every screen. */
+.stack { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+
+/* The run screen's own body: head, strip, tabs, then whatever the tab shows. */
+.runbody { display: flex; flex-direction: column; gap: var(--s4); min-width: 0; }
+
+/* ── narrow ────────────────────────────────────────────────────────────── */
+/* Under 1100 the three panes cannot all hold their floor, so the evidence drops under the other
+   two rather than squeezing every column below what it needs. */
+@media (max-width: 1100px) {
+  .panes { grid-template-columns: var(--w-steps) minmax(0, 1fr); }
+  .panes > :last-child { grid-column: 1 / -1; }
+}
+@media (max-width: 900px) {
+  /* Measured, not assumed: a sticky rail here is 171px of a phone screen, not the 48px a row of
+     five links looks like it should be. It scrolls away with the page instead. */
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--h-top) auto minmax(0, 1fr); }
+  .rail { position: static; height: auto; overflow: visible;
+    flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--s2);
+    border-right: 0; border-bottom: 1px solid var(--line-2); }
+  .rail-nav { flex-direction: row; flex-wrap: wrap; }
+  .rail-foot { margin-top: 0; flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .rail-server { flex-direction: row; flex-wrap: wrap; gap: var(--s2); margin: 0; }
+  .panes { grid-template-columns: minmax(0, 1fr); }
+  .panes > :last-child { grid-column: auto; }
+  .main { padding: var(--s4) var(--s3) var(--s6); }
+  .top-tag { display: none; }
+}
+@media (max-width: 600px) {
+  /* A shortcut nobody can press on a phone is a shortcut not worth the width. */
+  .top .search { min-width: 0; }
+  .search-key { display: none; }
+  .meta-strip { gap: var(--s4); }
+  .main { padding: var(--s3) var(--s3) var(--s6); }
+}

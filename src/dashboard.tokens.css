@@ -49,6 +49,59 @@
   --dk-line: #333741; --dk-line-2: #23262f;
 }
 
+/* The mono is shipped, not borrowed. The stack this file used to name resolved to Menlo on macOS,
+   and Menlo is missing 46 of the codepoints Vietnamese needs — ả ấ ầ ẩ ẫ ắ ẳ ẵ ẻ ế ề ể ễ ệ and the
+   rest — so the operating system was quietly substituting another face mid-word. Measured against
+   the cmap table on 2026-09-21, not guessed at. JetBrains Mono covers all 134 of them.
+   Three weights, because the components ask for three: 400, 600 at a step name, 700 at a chip.
+   Three unicode ranges per weight, as Google Fonts cuts them, so a page that never prints a
+   Vietnamese character never fetches that file. The ranges below are theirs, copied whole. */
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/fonts/jetbrains-mono-400-vietnamese.woff2") format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/fonts/jetbrains-mono-400-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("/fonts/jetbrains-mono-400-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("/fonts/jetbrains-mono-600-vietnamese.woff2") format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("/fonts/jetbrains-mono-600-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url("/fonts/jetbrains-mono-600-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("/fonts/jetbrains-mono-700-vietnamese.woff2") format("woff2");
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("/fonts/jetbrains-mono-700-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: "JetBrains Mono"; font-style: normal; font-weight: 700; font-display: swap;
+  src: url("/fonts/jetbrains-mono-700-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Type. Two faces, and the split carries meaning rather than taste: everything the instrument
    measured is set in the mono — criteria, colours, ratios, paths, timestamps — and everything a
    person is meant to read as a sentence is set in the sans. The one sentence a person performs,
@@ -58,7 +111,10 @@
    rhythm makes a page easier to SCAN — which is the whole of what this page is for.
    https://design-system.service.gov.uk/styles/type-scale/  */
 :root {
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Whatever the machine writes with. It is an aside in the margin and it is allowed to be missing:
+     the sans fallback still reads, and nothing on the page is said only here. */
+  --hand: "Snell Roundhand", "Bradley Hand", "Segoe Script", "Brush Script MT", var(--sans);
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   --type-label: 11px/15px var(--sans);  /* section labels, column headers, eyebrows */
@@ -67,7 +123,17 @@
   --type-body: 13px/20px var(--sans);   /* a sentence: probe names, notes, list items */
   --type-lede: 15px/25px var(--sans);   /* `check` — the one sentence a person performs */
   --type-title: 21px/30px var(--sans);  /* the run being looked at */
-  --type-display: 24px/30px var(--mono);/* the six counts, the only large numerals */
+  /* A type role has to be at least as tall as the face it names. These two were not: JetBrains Mono
+     paints a 31.5px text box at 24px and a 44.5px one at 34px, so 30px and 40px lines let the last
+     pixels fall on whatever sat below — text-overlap found it on the exit strip on 2026-09-21.
+     Measured with a Range over the text node, which is what the probe reads, not the element box.
+     35 and 45 are still on the 5px grid. */
+  --type-display: 24px/35px var(--mono);/* the six counts, the only large numerals */
+  /* W4 adds two, and they are the only places the page raises its voice */
+  --type-head: 40px/45px var(--sans);   /* the question the screen is answering */
+  --type-figure: 34px/45px var(--mono); /* a counted thing: 45 runs, exit 0, exit 2 */
+  --type-head-s: 30px/35px var(--sans);  /* the same question, on a phone */
+  --type-hand: 19px/25px var(--hand);    /* the aside in the margin, in whatever hand the machine has */
 }
 
 /* A role carries size and family; the call site carries weight, because one role is deliberately set
@@ -118,31 +184,53 @@
   --w-step: 130px;          /* a step thumbnail wide enough to tell two steps apart */
   --h-step: 70px;
   --w-search: 260px; --w-search-min: 140px;
-  --h-proof: 120px;         /* a before/after frame in the rail */
+  --h-proof: 240px;         /* a before/after frame. 120 was right in the 400px rail it was drawn
+                               for; the evidence is a full-width panel now and the pair had twice the
+                               width and the same height, so every crop lost its bottom half. */
+  /* the rebuild — W4 */
+  --w-nav: 224px;           /* the navigation rail: four words, a status, and nothing scrollable */
+  --w-runtable: 640px;      /* six columns at their own widths; under this the table scrolls. It is
+                               a floor, not a target — the table is width:100% and fills whatever it
+                               is given. At 720 it sat 9px above what the overview column offers at
+                               1440, so the last column scrolled out of sight on the default window. */
+  --w-halftone: 300px;      /* the illustration beside the heading, which carries nothing */
+  --d-wash: 260px;          /* the blur behind the rail — decoration, and the only one */
+  --w-ico: 20px;              /* a nav glyph or a card glyph, on the sans baseline */
+  --w-ico-s: 15px;            /* a glyph inside a 13px control */
+  --w-aside: 360px;         /* verdict distribution and quick actions, beside the run table */
+  --w-probelist: 300px;     /* the probe column beside a run's report */
+  --h-halftone: 210px;      /* the illustration, which is decoration and says so */
+  /* the rebuild — W5. The screens split by what a run is, so the shell grew a top bar and the run
+     screen grew a map. These are the sizes that map needs. */
+  --h-top: 60px;            /* the bar: wordmark, search, two controls, and nothing else */
+  --h-hook: 36px;           /* a project's row on the overview: one line, so ten projects are ten lines */
+  --h-qrow: 30px;           /* a target's row in the queue */
+  --w-hist: 75px;           /* seven history cells and six gaps: the newest sits at one x on every row */
+  --w-hcell: 9px; --h-hcell: 15px;
+  --w-rung: 16px; --h-rung: 5px;   /* the governance ladder, which is not a verdict */
+  --h-reach: 10px;          /* the band showing how much measurement reached anything */
+  --w-node: 190px;          /* a step in the journey map — wide enough to read its path under it */
+  --h-node: 105px;          /* its frame, at roughly the 16:9 a browser window is */
+  --w-steps: 260px;         /* the list of steps beside the probes */
+  --w-evidence-pane: 380px; /* the evidence column at the right of a run */
+  --w-attend: 340px;        /* a card for a run that needs a person; three across at 1240 */
+  --w-tile-7: 120px;        /* seven verdict tiles in a row, narrower than the four-tile W4 row */
+  --w-meta: 110px;          /* one figure in the strip at the top right of the home screen */
 }
 
-/* The names the page is written in — and dark is what they point at.
+/* The names the page is written in — and light is what they point at.
  *
- * Not a theme: the dashboard is an instrument read beside a terminal, and the runs it indexes carry
- * 00:14 and 02:38 timestamps because that is when they were taken. Light is the deliberate other
- * state, chosen at the toggle and remembered there — which is why the operating system's preference
- * does not appear here. Two states, one of them the default, and the page never has to resolve a
- * third one it was not told about.
+ * Dark was the default until 2026-09-20, argued from the timestamps: runs carry 00:14 and 02:38
+ * because that is when they are taken. The rebuild reverses it. The screen is a report before it is
+ * a night console, and a report's resting state is paper. Dark is the deliberate other state, chosen
+ * at the toggle and remembered there — which is why the operating system's preference still does not
+ * appear here. Two states, one of them the default, and the page never has to resolve a third one it
+ * was not told about.
+ *
+ * Neither palette changed. Every primitive above is still declared exactly once, and the 44 entries
+ * in uxcli.commitments.json name those primitives and still measure the same arithmetic.
  */
 :root {
-  --bg: var(--dk-bg); --panel: var(--dk-panel); --sunk: var(--dk-sunk); --rail: var(--dk-rail);
-  --line: var(--dk-line); --line-2: var(--dk-line-2);
-  --ink: var(--dk-ink); --ink-2: var(--dk-ink-2); --ink-3: var(--dk-ink-3);
-  --accent: var(--dk-accent); --accent-soft: var(--dk-accent-bg); --select-soft: var(--dk-select-bg);
-  --check-soft: var(--dk-check-bg);
-  --fail: var(--dk-fail-ink); --fail-bg: var(--dk-fail-bg); --fail-edge: var(--dk-fail-edge);
-  --finding: var(--dk-finding-ink); --finding-bg: var(--dk-finding-bg); --finding-edge: var(--dk-finding-edge);
-  --unmeas: var(--dk-unmeas-ink); --unmeas-bg: var(--dk-unmeas-bg); --unmeas-edge: var(--dk-unmeas-edge);
-  --pass: var(--dk-pass-ink); --pass-bg: var(--dk-pass-bg); --pass-edge: var(--dk-pass-edge);
-  --na: var(--dk-quiet-ink); --na-bg: var(--dk-quiet-bg); --na-edge: var(--dk-quiet-edge);
-  --na-mark: var(--dk-quiet-mark);
-}
-:root[data-theme="light"] {
   --bg: var(--lt-bg); --panel: var(--lt-panel); --sunk: var(--lt-sunk); --rail: var(--lt-rail);
   --line: var(--lt-line); --line-2: var(--lt-line-2);
   --ink: var(--lt-ink); --ink-2: var(--lt-ink-2); --ink-3: var(--lt-ink-3);
@@ -154,4 +242,17 @@
   --pass: var(--lt-pass-ink); --pass-bg: var(--lt-pass-bg); --pass-edge: var(--lt-pass-edge);
   --na: var(--lt-quiet-ink); --na-bg: var(--lt-quiet-bg); --na-edge: var(--lt-quiet-edge);
   --na-mark: var(--lt-quiet-mark);
+}
+:root[data-theme="dark"] {
+  --bg: var(--dk-bg); --panel: var(--dk-panel); --sunk: var(--dk-sunk); --rail: var(--dk-rail);
+  --line: var(--dk-line); --line-2: var(--dk-line-2);
+  --ink: var(--dk-ink); --ink-2: var(--dk-ink-2); --ink-3: var(--dk-ink-3);
+  --accent: var(--dk-accent); --accent-soft: var(--dk-accent-bg); --select-soft: var(--dk-select-bg);
+  --check-soft: var(--dk-check-bg);
+  --fail: var(--dk-fail-ink); --fail-bg: var(--dk-fail-bg); --fail-edge: var(--dk-fail-edge);
+  --finding: var(--dk-finding-ink); --finding-bg: var(--dk-finding-bg); --finding-edge: var(--dk-finding-edge);
+  --unmeas: var(--dk-unmeas-ink); --unmeas-bg: var(--dk-unmeas-bg); --unmeas-edge: var(--dk-unmeas-edge);
+  --pass: var(--dk-pass-ink); --pass-bg: var(--dk-pass-bg); --pass-edge: var(--dk-pass-edge);
+  --na: var(--dk-quiet-ink); --na-bg: var(--dk-quiet-bg); --na-edge: var(--dk-quiet-edge);
+  --na-mark: var(--dk-quiet-mark);
 }
