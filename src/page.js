@@ -2,7 +2,7 @@
 import fs from 'node:fs'; import path from 'node:path';
 import { launch, settle } from './browser.js'; import { tokenIndex, tokenFor } from './tokens.js';
 import { BOT } from './util.js'; import { explainAll } from './run.js';
-import { packet } from './packet.js';
+import { packet, withProof, withTokens, withProofFiles } from './core/verdict/packet.js';
 import focusVisible from './probes/focus-visible/probe.js';
 import textSpacing from './probes/text-spacing/probe.js';
 import contrast from './probes/contrast/probe.js';
@@ -58,33 +58,41 @@ export async function runPage(url, { browser, state, only, outDir, src, prove } 
       catch (e) { result.probes.push(packet(p, { verdict: 'unmeasurable', why: 'probe error: ' + String(e.message || e).slice(0, 160) })); }
     }
     // --prove: for every pass, plant the probe's own defect on a fresh load, check it reached the measured elements, re-measure (definition: .claude/p4-prove in the working notes; card prints the outcome).
-    if (prove && !result.blocked) for (const p of result.probes.filter(p => p.verdict === 'pass')) {
+    if (prove && !result.blocked) for (const [i, p] of result.probes.entries()) {
+      if (p.verdict !== 'pass') continue;
       const probe = probes.find(x => x.id === p.probe); if (!probe.prove) continue;
       const pg = await bctx.newPage();
       try {
         await pg.goto(url, { waitUntil: 'load', timeout: 45000 }); await settle(pg);
         const m = await probe.prove(pg, p);
         if (m.reached) { const again = await probe.measure(pg, result); m.verdictAfter = again.verdict; m.wouldFail = again.verdict === 'fail'; if (!m.wouldFail) m.why = `re-measure returned ${again.verdict}: ${again.why || ''}`.trim(); }
-        (p.doctrine ||= {}).prove = m;
-      } catch (e) { (p.doctrine ||= {}).prove = { reached: false, why: 'prove error: ' + String(e.message || e).slice(0, 160) }; }
+        result.probes[i] = withProof(p, m);
+      } catch (e) { result.probes[i] = withProof(p, { reached: false, why: 'prove error: ' + String(e.message || e).slice(0, 160) }); }
       await pg.close();
     }
   } catch (e) { result.error = 'load: ' + String(e.message || e).slice(0, 160); for (const p of probes) result.probes.push(packet(p, { verdict: 'unmeasurable', why: result.error })); }
   await bctx.close(); if (own) await browser.close();
   writeEvidence(result, outDir);
-  if (src) { const idx = tokenIndex(src); for (const p of result.probes) for (const g of p.evidence?.groups || []) { g.fgToken = tokenFor(idx, g.fg); g.bgToken = tokenFor(idx, g.bg); } result.src = src; }
+  if (src) { const idx = tokenIndex(src); const name = c => tokenFor(idx, c); result.probes = result.probes.map(p => withTokens(p, name)); result.src = src; }
   explainAll(result, probes);
   return result;
 }
 
 // Evidence files are written only for fails: the before and after crops of each cited control.
+// The buffers are the file, not the packet. They used to ride inside `evidence.shots` and be deleted
+// on the way out, which made "a packet serialises" true only after a cleanup step remembered to run.
+// Here the crops are written, their filenames become evidence, and the buffers are dropped by not
+// being copied forward — no packet ever holds one.
 function writeEvidence(result, outDir) {
-  for (const p of result.probes) {
-    if ((p.verdict === 'fail' || p.verdict === 'finding') && p.evidence?.shots?.length && outDir) {
-      fs.mkdirSync(outDir, { recursive: true }); p.evidence.proof = [];
-      p.evidence.shots.forEach((e, k) => { for (const side of ['before', 'after']) { const f = path.join(outDir, `${p.sc}-${k}-${side}.png`); fs.writeFileSync(f, e[side]); p.evidence.proof.push(f); } });
+  result.probes = result.probes.map(p => {
+    const shots = p.evidence?.shots;
+    let proof = null;
+    if ((p.verdict === 'fail' || p.verdict === 'finding') && shots?.length && outDir) {
+      fs.mkdirSync(outDir, { recursive: true }); proof = [];
+      shots.forEach((e, k) => { for (const side of ['before', 'after']) { const f = path.join(outDir, `${p.sc}-${k}-${side}.png`); fs.writeFileSync(f, e[side]); proof.push(f); } });
     }
-    // The buffers are the file, not the packet: once they are on disk they would only bloat run.json.
-    if (p.evidence) delete p.evidence.shots;
-  }
+    if (!shots) return withProofFiles(p, proof);
+    const { shots: _drop, ...evidence } = p.evidence;
+    return withProofFiles({ ...p, evidence }, proof);
+  });
 }

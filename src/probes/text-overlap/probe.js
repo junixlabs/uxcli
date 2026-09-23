@@ -1,5 +1,6 @@
 // page.text-overlap · text painted over text · provenance opinion. Spec in spec.md; falsification pair in pair.json. Origin: junixlabs/uxcli#1.
 import { THIRD } from '../../util.js';
+import { explain } from '../../core/explain/text-overlap.js';
 
 // Collects every visible text box on the page and returns the pairs whose boxes intersect beyond the spec's bounds.
 const COLLECT = ([THIRD, LIMIT]) => {
@@ -9,7 +10,14 @@ const COLLECT = ([THIRD, LIMIT]) => {
   const pinned = el => { for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const ps = getComputedStyle(a).position; if (ps === 'fixed' || ps === 'sticky') return a; } return null; };
   // Nearest block container: two boxes in the same one are lines or inline siblings of one flow (tight leading makes their content boxes touch), not one text painted over another.
   const blockOf = el => { for (let a = el; a && a.nodeType === 1 && a !== document.body; a = a.parentElement) { const cs = getComputedStyle(a); if (!/^inline\b/.test(cs.display) || cs.position === 'absolute' || cs.position === 'fixed') return a; } return document.body; };
-  const shown = el => { for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; if (a.getAttribute('aria-hidden') === 'true') return false; } return true; };
+  // A closed `<details>` hides its content, but not through any of the four properties above: Chrome
+  // skips the subtree with `content-visibility`, and a descendant of it still reports a real
+  // `getClientRects()` — the layout it had, at the place it would have had it. So a run of collapsed
+  // JSON was collected as painted text and reported as overlapping whatever the page draws where the
+  // disclosure would have pushed it. uxcli found this on its own dashboard, where a closed raw packet
+  // "overlapped" the footer two hundred pixels below it. The summary stays visible and stays measured.
+  const folded = el => { for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const p = a.parentElement; if (p && p.tagName === 'DETAILS' && !p.open && a.tagName !== 'SUMMARY') return true; } return false; };
+  const shown = el => { if (folded(el)) return false; for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; if (a.getAttribute('aria-hidden') === 'true') return false; } return true; };
   // Where the text is actually painted, which is not where its box says. A Range rect covers the whole
   // text run; an ancestor whose overflow is not `visible` cuts it, and an ellipsised name reports a
   // width no reader ever sees. Follow the CSS rule for which ancestors do the cutting: a `fixed` box
@@ -96,12 +104,6 @@ export default {
     }, ['[data-uxcli-a]', '[data-uxcli-b]']).catch(() => false);
     return { mutation: `"${s.b.sel}" moved onto "${s.a.sel}"`, reached, ...(reached ? {} : { why: 'the moved text did not land on the other' }) };
   },
-  explain(p, result) {
-    const t = p.evidence.targets;
-    return {
-      what: `${t.length} pair${t.length > 1 ? 's' : ''} of text painted over each other: ${t.slice(0, 3).map(x => `"${x.a.text.slice(0, 18)}" (${x.a.sel}) over "${x.b.text.slice(0, 18)}" (${x.b.sel}) at ${x.at.x},${x.at.y} ${x.at.w}×${x.at.h}px`).join('; ')}${t.length > 3 ? '; …' : ''}`,
-      where: result.finalUrl || result.url,
-      check: `Look at ${t[0].a.sel} and ${t[0].b.sel}. Can you read both texts?`,
-    };
-  },
+  // The pure half lives in core/, where the dependency rule is what keeps it pure.
+  explain,
 };

@@ -2,6 +2,7 @@
 // uxcli — UI/UX review for coding agents. No commitment, no verdict.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import { spawn } from 'node:child_process'; import { fileURLToPath, pathToFileURL } from 'node:url';
 import { registerRun } from '../src/dashboard.js';
+import { exitFor } from '../src/core/verdict/rank.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const [cmd, ...rest] = process.argv.slice(2);
 const flags = new Set(rest.filter(a => a.startsWith('--') && !a.includes('='))); const args = rest.filter(a => !a.startsWith('--'));
@@ -34,27 +35,61 @@ try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
     const url = /^(https?|file):/i.test(args[0]) ? args[0] : pathToFileURL(path.resolve(args[0])).href;
-    const outDir = opt('out') || path.join('.uxcli', new URL(url).hostname || 'page');
+    // Keyed by the target, not by its host. Seven screens of one host used to share one directory
+    // and overwrite each other, packet and index row together; same target now means same directory,
+    // which is what the index always assumed.
+    const { outDirFor } = await import('../src/core/target.js');
+    const outDir = opt('out') || path.join('.uxcli', outDirFor({ url }));
     if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast, text-overlap${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
     const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
+    result.exit = exitFor({ verdicts: result.probes.map(p => p.verdict), couldNotRun: !!result.error });
     saveRun(result, outDir);
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
-    process.exit(result.error ? 1 : result.probes.some(p => p.verdict === 'fail') ? 2 : 0);
+    process.exit(result.exit);
   } else if (cmd === 'run' && args[0]) {
-    const { loadJourney } = await import('../src/journey.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
-    const outDir = opt('out') || path.join('.uxcli', path.basename(args[0], '.json'));
-    const result = await runJourney(loadJourney(path.resolve(args[0]), vars), { outDir });
+    const { readFlow } = await import('../src/adapters/store/flow-file.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
+    const flow = readFlow(path.resolve(args[0]), vars);
+    const { outDirFor } = await import('../src/core/target.js');
+    const outDir = opt('out') || path.join('.uxcli', outDirFor({ journey: flow.name || path.basename(args[0], '.json') }));
+    const result = await runJourney(flow, { outDir });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
+    const couldNotRun = result.steps.some(s => s.error) || result.steps.length < result.stepCount;
+    result.exit = exitFor({ verdicts: result.probes.map(p => p.verdict), couldNotRun });
     saveRun(result, outDir);
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
-    const couldNotRun = result.steps.some(s => s.error) || result.steps.length < result.stepCount;
-    process.exit(result.probes.some(p => p.verdict === 'fail') ? 2 : couldNotRun ? 1 : 0);
+    process.exit(result.exit);
   } else if (cmd === 'sheet') {
     const { findCommitments, evaluate, sheetCard, FILE } = await import('../src/sheet.js'); const root = path.resolve(opt('src') || '.');
     const file = findCommitments(root); if (!file) { console.log(`no ${FILE} under ${root}: nothing committed, nothing to say`); process.exit(0); }
-    const s = evaluate(file, root); console.log(flags.has('--json') ? JSON.stringify(s, null, 1) : sheetCard(s));
+    // A flow commitment is decided by a run, so one can be handed in. Without it those entries come
+    // back `unmeasurable` naming the missing input, rather than looking like bad commitments.
+    const runDir = opt('run');
+    const run = runDir ? (await import('../src/propose.js')).runAt(path.resolve(runDir)).run : null;
+    const s = evaluate(file, root, { run }); console.log(flags.has('--json') ? JSON.stringify(s, null, 1) : sheetCard(s));
     process.exit(s.results.some(r => r.verdict === 'fail') ? 2 : 0);
+  } else if (cmd === 'propose' && args[0]) {
+    const { propose, proposeCard } = await import('../src/propose.js');
+    const out = propose({ root: path.resolve(opt('src') || '.'), at: path.resolve(args[0]),
+      write: flags.has('--write'), as: opt('as') || null });
+    console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : proposeCard(out));
+    process.exit(0);
+  } else if (cmd === 'coverage' && args[0]) {
+    const { coverageOf, coverageCard } = await import('../src/propose.js');
+    const out = coverageOf({ root: path.resolve(opt('src') || '.'), at: path.resolve(args[0]) });
+    console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : coverageCard(out));
+    process.exit(0);
+  } else if (cmd === 'authority') {
+    // What a subject may do here, and what it may not. Without this the registry is a file nobody
+    // can read back, and "you are not authorized" is a message with nowhere to go.
+    const { authorityCard } = await import('../src/authority.js');
+    console.log(authorityCard(path.resolve(opt('src') || '.'), args[0] || null));
+    process.exit(0);
+  } else if (cmd === 'context') {
+    const { contextOf, contextCard } = await import('../src/context.js');
+    const out = contextOf(path.resolve(opt('src') || args[0] || '.'));
+    console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : contextCard(out));
+    process.exit(0);
   } else if (cmd === 'diff' && args[0] && args[1]) {
     const { diff, diffCard, gateExit } = await import('../src/diff.js'); const d = diff(path.resolve(args[0]), path.resolve(args[1]));
     console.log(flags.has('--json') ? JSON.stringify(d, null, 1) : diffCard(d)); process.exit(flags.has('--gate') ? gateExit(d) : 0);
@@ -76,7 +111,7 @@ try {
   } else if (cmd === 'gate') {
     const { gate } = await import('../src/gate.js'); process.exit((await gate()) ? 0 : 1);
   } else if (cmd === 'why' && args[0]) {
-    const dirs = fs.readdirSync(path.join(ROOT, 'src/probes'));
+    const dirs = fs.readdirSync(path.join(ROOT, 'src/probes'), { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name);
     const hit = dirs.find(d => d === args[0] || d.endsWith('-' + args[0]) || fs.readFileSync(path.join(ROOT, 'src/probes', d, 'spec.md'), 'utf8').split('\n')[0].includes('WCAG ' + args[0]));
     if (!hit) { console.error('no probe for ' + args[0] + '; have: ' + dirs.join(', ')); process.exit(1); }
     console.log(fs.readFileSync(path.join(ROOT, 'src/probes', hit, 'spec.md'), 'utf8'));

@@ -1,6 +1,7 @@
 // Second reader. A fresh model that never saw the probe code gets the check question and the proof images, and answers yes/no.
 // Refuter command is pluggable: UXCLI_REFUTER="claude -p --allowedTools Read --model ..." (default: claude -p --model haiku, tools limited to Read; ~US$0.04 per fail).
 import { spawnSync } from 'node:child_process';
+import { withReader } from './core/verdict/packet.js';
 
 export function refuteQuestion(p) {
   if (p.sc === '3.3.7') { const fields = [...new Set(p.evidence.reasked.map(m => m.field.name || m.field.id))]; return `The tool claims: on the screen shown, the field(s) ${fields.join(', ')} (outlined in red) are empty although the user typed the value(s) earlier in the same process. Looking only at the image(s), is that claim supported?`; }
@@ -39,5 +40,9 @@ export function refuteAll(probes, { cmd = process.env.UXCLI_REFUTER || 'claude -
   const fails = probes.filter(p => p.verdict === 'fail');
   if (!fails.length) { log('refute: no fail on this run, the second reader is not called'); return; }
   log(`refute: ${fails.length} fail${fails.length > 1 ? 's' : ''} → spawning a fresh process per fail: ${cmd} (default reader is Claude haiku with Read only, about US$0.04 per fail; change with UXCLI_REFUTER)`);
-  for (const p of fails) { (p.evidence ||= {}).refute = refute(p, { cmd }); log(`refute: ${p.sc} ${p.probe} →${readerLine(p).replace(/^\s*reader /, ' ')}`); }
+  for (const [i, p] of probes.entries()) {
+    if (p.verdict !== 'fail') continue;
+    const next = withReader(p, refute(p, { cmd })); probes[i] = next;
+    log(`refute: ${next.sc} ${next.probe} →${readerLine(next).replace(/^\s*reader /, ' ')}`);
+  }
 }

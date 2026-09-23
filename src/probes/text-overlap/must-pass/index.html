@@ -19,6 +19,15 @@ ins.adsbygoogle i{position:absolute;left:8px;top:8px;font-style:normal;color:#99
 .row:first-child{border-top:0}
 .row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row .when{font-family:ui-monospace,Menlo,monospace;font-size:.85rem;color:#666;flex:none}
+/* A closed disclosure. Chrome hides the content with content-visibility, which none of the four
+   properties the probe used to check will report, and a descendant of it still answers
+   getClientRects() with the layout it would have had. The run of JSON below is therefore collected
+   as painted text sitting exactly where the footer is — the shape uxcli measured on its own
+   run-detail screen. The summary is visible and stays measured. */
+details.raw{margin-top:1rem}
+details.raw pre{margin:4px 0 0;font-family:ui-monospace,Menlo,monospace;font-size:.75rem;
+  background:#f3f4f6;border:1px solid #e5e7eb;border-radius:4px;padding:8px;overflow-x:auto}
+.after-raw{margin-top:8px;color:#666;font-size:.85rem}
 /* A list that scrolls inside its own box: rows above the scroll position are cut away entirely and
    are not text on the page at all. */
 .scroller{margin-top:1rem;height:60px;overflow-y:scroll;border:1px solid #ccc;border-radius:4px}
@@ -36,6 +45,16 @@ ins.adsbygoogle i{position:absolute;left:8px;top:8px;font-style:normal;color:#99
   <div class="row"><span class="nm">Toolshop register to checkout, long enough that the name cannot fit its column</span><span class="when">09-13 00:17</span></div>
   <div class="row"><span class="nm">saucedemo checkout, also far longer than the space the column gives it</span><span class="when">09-13 01:35</span></div>
 </div>
+<details class="raw"><summary>the packet as measured, raw</summary>
+<pre>{
+ "probe": "page.text-overlap",
+ "sc": null,
+ "provenance": "opinion",
+ "method": "method-unproven",
+ "verdict": "pass",
+ "why": "9 text boxes, no two painted over each other"
+}</pre></details>
+<p class="after-raw">packet  ~/tools/uxcli/.uxcli/t-fail/run.json  ·  8 images beside it</p>
 <div class="scroller"><p>First row, scrolled out of sight.</p><p>Second row.</p><p>Third row.</p><p>Fourth row.</p></div>
 <ins class="adsbygoogle"><i>Sponsored</i><i>Sponsored</i></ins>
 </body></html>

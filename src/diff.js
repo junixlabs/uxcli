@@ -4,7 +4,9 @@ import fs from 'node:fs';
 
 const key = p => p.id ? `commitment ${p.id}` : p.sc ? `${p.sc} ${p.probe || ''}`.trim() : null;
 const items = doc => Array.isArray(doc.results) ? doc.results : Array.isArray(doc.probes) ? doc.probes : [];
-const rank = v => ({ pass: 0, 'not-applicable': 0, suppressed: 0, finding: 1, 'not-committed': 1, untested: 1, stale: 1, unmeasurable: 2, fail: 3 })[v] ?? 2;
+// The ladder lives in core/. This file used to keep its own, ranking `untested` and `stale` — a
+// branch field and an init.js file status, neither of them ever a verdict.
+import { regressed, improved } from './core/verdict/rank.js';
 
 export function diff(aPath, bPath) {
   const A = JSON.parse(fs.readFileSync(aPath, 'utf8')), B = JSON.parse(fs.readFileSync(bPath, 'utf8'));
@@ -16,7 +18,7 @@ export function diff(aPath, bPath) {
     let delta;
     if (!pa) delta = 'new'; else if (!pb) delta = 'gone';
     else if (va === vb) delta = 'same';
-    else if (rank(vb) > rank(va)) delta = 'regressed'; else delta = 'improved';
+    else if (regressed(va, vb)) delta = 'regressed'; else if (improved(va, vb)) delta = 'improved'; else delta = 'same';
     rows.push({ key: k, a: va, b: vb, delta, why: pb?.why || pb?.reason || pa?.why || pa?.reason || '' });
   }
   const sameTarget = (A.url || A.file || A.journey || null) === (B.url || B.file || B.journey || null);

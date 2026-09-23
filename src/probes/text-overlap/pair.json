@@ -1,12 +1,12 @@
 {
  "kind": "page",
- "operator": "index.html: the step counter is position:absolute and picks up the description span's padding-left, so 1, 2, 3 are painted over the first letter of each command name (three pairs); the must-pass twin gives the counter its own grid column and names the description span. Both twins carry adjacent two-column text (touching, not overlapping), a <b> inside a paragraph (containment), and an ins.adsbygoogle block whose two children overlap on purpose: the third-party exclusion must keep the probe silent on it. The must-pass twin also carries the two shapes that made the probe report six false pairs on uxcli's own dashboard (v1.3): two run names ellipsised by `overflow:hidden` whose unclipped text would reach the timestamp beside them, and a list scrolling inside its own box whose first rows are cut away entirely. Both were reported as overlaps before text rects were clamped to their clipping ancestors; neither is painted where the probe said it was.",
+ "operator": "index.html: the step counter is position:absolute and picks up the description span's padding-left, so 1, 2, 3 are painted over the first letter of each command name (three pairs); the must-pass twin gives the counter its own grid column and names the description span. Both twins carry adjacent two-column text (touching, not overlapping), a <b> inside a paragraph (containment), and an ins.adsbygoogle block whose two children overlap on purpose: the third-party exclusion must keep the probe silent on it. The must-pass twin also carries the two shapes that made the probe report six false pairs on uxcli's own dashboard (v1.3): two run names ellipsised by `overflow:hidden` whose unclipped text would reach the timestamp beside them, and a list scrolling inside its own box whose first rows are cut away entirely. Both were reported as overlaps before text rects were clamped to their clipping ancestors; neither is painted where the probe said it was. It also carries a CLOSED <details> holding a run of JSON, with a line of text below it where that JSON would have been laid out: Chrome hides a closed disclosure with content-visibility, which no computed property the probe reads will report, and its descendants still answer getClientRects() — so the hidden packet was collected as painted text and \"overlapped\" the footer two hundred pixels below it, on uxcli's own run-detail screen.",
  "hashes": {
   "mustFail": {
    "index.html": "e648dd9c357015bbc63782aaf0d2a3ee203990abab0782a9ac776df9c24af669"
   },
   "mustPass": {
-   "index.html": "75794258c50c9d34be9826c04b41825ffb48888e5e9259e809b3f727086c9bd4"
+   "index.html": "d9185e70060f92c6806570c13dff94972770adaf07caa7b6ec90f8b8db1e6e26"
   }
  }
 }

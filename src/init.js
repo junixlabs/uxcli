@@ -25,7 +25,7 @@ const RULE_BODY = `This project measures its UI with uxcli, a CLI that drives re
 
 Two things only a human signs: \`${COMMITMENTS}\`, and \`confirmedBy\` in a journey. Propose them; never write them yourself.
 
-Never say UI work is finished before uxcli exits 0. The \`before-done\` skill is the sequence.
+Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: four probes found no fail. The \`before-done\` skill is the sequence, and the list of what those probes do not look at.
 `;
 
 // A project already carrying a CLAUDE.md gets a line to paste rather than an edit it did not ask for.
@@ -86,11 +86,20 @@ export function state(project) {
 // what, not the order a setup guide would tell it in: a page run needs nothing signed, `sheet` needs
 // the commitments, and flow probes need a confirmed journey. A product with no flows to commit to is
 // therefore finished without one, and is told so, instead of being sent back to `discover` forever.
-export function next(s) {
+export function next(s, list = []) {
+  // The last rung used to be reached without looking at the four items above it, so a project with no
+  // skills and no rule file was told "setup is done; the `before-done` skill governs from here" — by
+  // the same card that had just printed `would create .claude/skills/before-done/SKILL.md` four lines
+  // up. uxcli's own repo was in exactly that state on 2026-09-20: the discipline it installs in every
+  // other project was never installed where it was being built, and the card said it was.
+  const missing = list.filter(i => i.status === 'create').length;
   if (!s.runs) return ['uxcli run <url of the screen under test>', 'the first measurement; it needs nothing signed'];
   if (!s.commitments) return ['the `principles` skill drafts the proposal', `a human signs ${COMMITMENTS}; until then sheet has nothing to read`];
   if (s.journeys.proposals && !s.journeys.measured) return [`a human sets confirmedBy in ${PROPOSALS}/`, 'run refuses a journey whose provenance is proposal'];
   if (!s.journeys.measured) return [null, 'screens are covered. `uxcli discover .` if the product has flows to commit to'];
+  if (missing) return ['uxcli init --apply', missing === 1
+    ? 'nothing here loads the skills yet: 1 item above is not in the project'
+    : `nothing here loads the skills yet: ${missing} items above are not in the project`];
   return [null, 'setup is done; the `before-done` skill governs from here'];
 }
 
@@ -104,7 +113,12 @@ export function init(project, { apply = false } = {}) {
   }
   const s = state(project);
   // The source path and the rule text are how this module does its job, not part of what it reports.
-  return { project, apply, items: list.map(({ rel, status, note }) => note ? { rel, status, note } : { rel, status }), state: s, next: next(s) };
+  // Two readings, because they answer two questions. `list` is from before the writes and is what the
+  // card reports — it is how `created` can be printed at all. `after` is the state the project is
+  // actually in now, and is what the next step is computed from; reporting the post-write list instead
+  // made `--apply` announce `nothing to create` in the same breath as creating four files.
+  const after = apply ? items(project) : list;
+  return { project, apply, items: list.map(({ rel, status, note }) => note ? { rel, status, note } : { rel, status }), state: s, next: next(s, after) };
 }
 
 export const CI_STEP = `      - name: uxcli

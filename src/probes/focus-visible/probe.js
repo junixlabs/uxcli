@@ -1,6 +1,7 @@
 // page.focus-visible · WCAG 2.4.7. Spec in spec.md; falsification pair in pair.json.
 import { THIRD } from '../../util.js';
 import { PNG } from '../../png.js';
+import { explain } from '../../core/explain/focus-visible.js';
 const PAD = 48, VW = 1280, VH = 800;
 
 // Tabbable candidates, first 80, third-party subtrees excluded; shared by measure and prove.
@@ -125,12 +126,6 @@ export default {
   },
   // The citation a reader acts on. Lives here, not in the card, so every surface that reads run.json
   // (card, report, dashboard, MCP) gets the same sentence instead of re-deriving it.
-  explain(p, result) {
-    const t = p.evidence.targets;
-    return {
-      what: `${t.length} of ${p.measured.controls} measured controls show no pixel change on focus: ${t.slice(0, 4).map(x => x.sel + (x.text ? ` "${x.text.slice(0, 20)}"` : '')).join(', ')}${t.length > 4 ? ', …' : ''}`,
-      where: result.finalUrl || result.url,
-      check: `Press Tab until ${t[0].sel}${t[0].text ? ` "${t[0].text.slice(0, 20)}"` : ''} should have focus. Can you see where focus is?`,
-    };
-  },
+  // The pure half lives in core/, where the dependency rule is what keeps it pure.
+  explain,
 };

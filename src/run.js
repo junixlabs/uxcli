@@ -1,12 +1,14 @@
 // Walks a journey once, gives every probe the same observations, returns the verdicts.
 import { launch, arrive, noise, markScope, fillStep, act, evalIn } from './browser.js';
 import { BOT } from './util.js';
-import { packet } from './packet.js';
+import { packet, withCitation, withProofFiles } from './core/verdict/packet.js';
+import { saw } from './core/verdict/rank.js';
 import fs from 'node:fs'; import path from 'node:path';
 import errorPrevention from './probes/error-prevention/probe.js';
 import redundantEntry from './probes/redundant-entry/probe.js';
 import consistentNavigation from './probes/consistent-navigation/probe.js';
 import errorIdentification from './probes/error-identification/probe.js';
+import { isFlow } from './core/promise/parse.js';
 
 export const PROBES = [errorPrevention, errorIdentification, redundantEntry, consistentNavigation];
 
@@ -14,15 +16,20 @@ export const PROBES = [errorPrevention, errorIdentification, redundantEntry, con
 // card, so run.json carries it and every surface (card, report, dashboard, MCP) says the same thing.
 // Runs last: contrast can only name a design token after --src has been indexed.
 export function explainAll(result, probes) {
-  for (const p of result.probes) {
-    if (p.verdict !== 'fail' && p.doctrine?.rawVerdict !== 'fail') continue;
+  result.probes = result.probes.map(p => {
+    if (saw(p) !== 'fail') return p;
     const probe = probes.find(x => x.id === p.probe);
-    if (!probe?.explain) continue;
-    try { p.cite = probe.explain(p, result); } catch {}
-  }
+    if (!probe?.explain) return p;
+    try { return withCitation(p, probe.explain(p, result)); } catch { return p; }
+  });
 }
 
 export async function runJourney(J, { browser, outDir } = {}) {
+  // What makes the parse boundary load-bearing: a value that did not come through parseFlow does not
+  // get measured. Without this line every rule in parse.js is advice, which is how 104 of 120 packets
+  // came to fail a validator nobody was obliged to obey.
+  if (!isFlow(J)) throw new Error('runJourney needs a Flow from parseFlow(); raw JSON is not a journey');
+  if (J.runnable === false) throw new Error(`${J.name}: nothing is signed yet (${J.unsigned.join(', ')} missing), so it is a proposal, not a promise to measure`);
   const own = !browser; if (own) browser = await launch();
   const ctx = { J, steps: [], recorded: [], authSteps: new Set(), commitIdx: J.steps.findIndex(s => s.commit), blocked: false, browser };
   const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
@@ -59,10 +66,10 @@ export async function runJourney(J, { browser, outDir } = {}) {
   const probes = [];
   for (const p of PROBES) probes.push(packet(p, await p.evaluate(ctx)));
   if (own) await browser.close();
-  if (outDir) writeEvidence(ctx, probes, outDir);
+  const written = outDir ? writeEvidence(ctx, probes, outDir) : probes;
   for (const s of ctx.steps) delete s.evidence;
   for (const s of ctx.steps) delete s.film;
-  const out = { journey: J.name, ranAt: new Date().toISOString(), stepCount: J.steps.length, steps: ctx.steps, recorded: ctx.recorded, probes };
+  const out = { journey: J.name, ranAt: new Date().toISOString(), stepCount: J.steps.length, steps: ctx.steps, recorded: ctx.recorded, probes: written };
   if (ctx.finalShotFile) out.finalShot = ctx.finalShotFile;
   explainAll(out, PROBES);
   return out;
@@ -89,12 +96,12 @@ function writeEvidence(ctx, probes, outDir) {
   // A crop is evidence — it is the thing a reader opens to check the verdict — so it is written where
   // evidence lives. `packet()` has already run by here, which is why both the read and the write are
   // one level in.
-  for (const p of probes) {
-    if (p.verdict !== 'fail') continue;
-    const ev = p.evidence || {};
-    if (p.sc === '3.3.7') ev.proof = [...new Set(ev.reasked.map(m => m.step))].map(i => save(`3.3.7-step${i}.png`, ctx.steps[i]?.evidence?.['3.3.7'])).filter(Boolean);
-    if (p.sc === '3.3.4') ev.proof = [save(`3.3.4-step${ctx.commitIdx}.png`, ctx.steps[ctx.commitIdx]?.evidence?.['3.3.4'])].filter(Boolean);
-    if (p.sc === '3.2.3') { const x = ev.inversion; ev.proof = [x.stepA, x.stepB].map(i => save(`3.2.3-step${i}.png`, ctx.steps[i]?.evidence?.['3.2.3']?.[x.mechanism])).filter(Boolean); }
-    p.evidence = ev;
-  }
+  return probes.map(p => {
+    if (p.verdict !== 'fail') return p;
+    const ev = p.evidence || {}; let proof = null;
+    if (p.sc === '3.3.7') proof = [...new Set(ev.reasked.map(m => m.step))].map(i => save(`3.3.7-step${i}.png`, ctx.steps[i]?.evidence?.['3.3.7'])).filter(Boolean);
+    if (p.sc === '3.3.4') proof = [save(`3.3.4-step${ctx.commitIdx}.png`, ctx.steps[ctx.commitIdx]?.evidence?.['3.3.4'])].filter(Boolean);
+    if (p.sc === '3.2.3') { const x = ev.inversion; proof = [x.stepA, x.stepB].map(i => save(`3.2.3-step${i}.png`, ctx.steps[i]?.evidence?.['3.2.3']?.[x.mechanism])).filter(Boolean); }
+    return withProofFiles(p, proof);
+  });
 }

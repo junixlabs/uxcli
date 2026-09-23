@@ -1,6 +1,7 @@
 // flow.redundant-entry · WCAG 3.3.7. Spec in spec.md; falsification pair in pair.json.
 import { norm } from '../../util.js';
 import { evalIn, shot, fieldSelector } from '../../browser.js';
+import { explain } from '../../core/explain/redundant-entry.js';
 
 function match(inputs, recorded, idx) {
   const matched = [];
@@ -42,7 +43,7 @@ export default {
     if (bare.length) (rec.evidence ||= {})['3.3.7'] = await shot(page, '[data-uxcli-scope]', bare);
   },
   async evaluate(ctx) {
-    const { J, steps, recorded, segOf, breakAfter, blocked } = ctx; const re = {};
+    const { J, steps, recorded, segOf, breakAfter, blocked } = ctx; const ev = {}; const re = { evidence: ev };
     if (blocked) return { verdict: 'blocked' };
     const evald = steps.filter(s => s.redundant);
     if (!recorded.length || !evald.length) return { verdict: 'unmeasurable', why: 'no earlier values recorded / no later step reached' };
@@ -52,24 +53,19 @@ export default {
       if (segOf[m.firstEnteredStep] !== segOf[s.i]) { item.breakAtStep = breakAfter(m.firstEnteredStep, s.i); broken.push(item); continue; }
       if (s.redundant.noise) noisy.push(item); else if (m.mechanism) ok.push(item); else reasked.push(item);
     }
-    if (J.sameProcess) re.override = { sameProcess: J.sameProcess, provenance: 'project' };
-    re.premiseBroken = broken; re.matched = ok.length + reasked.length + noisy.length;
-    if (noisy.length && !reasked.length) return { ...re, verdict: 'unmeasurable', why: 'matched field on a step whose text/values mutate with no interaction', noisy };
+    // The override is the instrument recording that a human overruled its premise — that is doctrine,
+    // not evidence, and `packet.read()` has always classified it there.
+    if (J.sameProcess) re.doctrine = { override: { sameProcess: J.sameProcess, provenance: 'project' } };
+    ev.premiseBroken = broken; re.measured = { matched: ok.length + reasked.length + noisy.length };
+    if (noisy.length && !reasked.length) return { ...re, verdict: 'unmeasurable', why: 'matched field on a step whose text/values mutate with no interaction', evidence: { ...ev, noisy } };
     if (broken.length && !reasked.length) return { ...re, verdict: 'unmeasurable', why: 'premise broken at step ' + broken[0].breakAtStep + ': the earlier value belongs to another process segment; declare sameProcess to override', satisfied: ok };
-    if (reasked.length) return { ...re, verdict: 'fail', reasked, satisfied: ok,
+    if (reasked.length) return { ...re, verdict: 'fail', evidence: { ...ev, reasked, satisfied: ok },
       why: `${reasked.length} value${reasked.length === 1 ? '' : 's'} entered earlier in the same process ${reasked.length === 1 ? 'is' : 'are'} asked for again on step ${[...new Set(reasked.map(m => m.step))].join(', ')}` };
-    if (ok.length) return { ...re, verdict: 'pass', satisfied: ok,
+    if (ok.length) return { ...re, verdict: 'pass', evidence: { ...ev, satisfied: ok },
       why: `${ok.length} earlier value${ok.length === 1 ? ' was' : 's were'} offered again rather than asked for (${[...new Set(ok.map(m => m.mechanism))].join(', ')})` };
     return { ...re, verdict: 'not-applicable',
-      why: re.matched ? 'no earlier value was asked for again on a later step' : 'no value entered on an earlier step reappeared as a field on a later step' };
+      why: re.measured.matched ? 'no earlier value was asked for again on a later step' : 'no value entered on an earlier step reappeared as a field on a later step' };
   },
-  explain(p) {
-    const fields = [...new Set(p.evidence.reasked.map(m => m.field.name || m.field.id))];
-    const steps = [...new Set(p.evidence.reasked.map(m => m.step))], first = [...new Set(p.evidence.reasked.map(m => m.firstEnteredStep))];
-    return {
-      what: `${fields.join(', ')} asked again on step ${steps.join(',')}; first entered on step ${first.join(',')}`,
-      where: `${p.evidence.reasked[0].url}  ${fields.map(f => '#' + f).join(', ')}`,
-      check: `Reach this screen through the earlier steps. ${fields.length > 1 ? 'Are these fields' : 'Is this field'} empty although you typed the value${fields.length > 1 ? 's' : ''} earlier?`,
-    };
-  },
+  // The pure half lives in core/, where the dependency rule is what keeps it pure.
+  explain,
 };

@@ -2,6 +2,7 @@
 import { norm, alnum, normUrl } from '../../util.js';
 import { screen, shot } from '../../browser.js';
 import { plantError } from '../../plant.js';
+import { explain } from '../../core/explain/error-prevention.js';
 
 export default {
   id: 'flow.error-prevention', sc: '3.3.4',
@@ -13,12 +14,13 @@ export default {
     if (i === ctx.commitIdx) (rec.evidence ||= {})['3.3.4'] = await shot(page, 'main', []);
   },
   async evaluate(ctx) {
-    const { J, recorded, segOf, breakAfter, commitIdx, commitScreen, reviewScreen, authSteps, blocked } = ctx; const ep = {};
+    const { J, recorded, segOf, breakAfter, commitIdx, commitScreen, reviewScreen, authSteps, blocked } = ctx; const ev = {}; const ep = { evidence: ev };
     const priorAll = recorded.filter(r => commitIdx >= 0 && r.step < commitIdx && !(authSteps.has(r.step) && r.credentialCandidate));
     const priorVals = priorAll.filter(r => segOf[r.step] === segOf[commitIdx]);
     const priorOutside = priorAll.filter(r => segOf[r.step] !== segOf[commitIdx]);
-    if (J.sameProcess) ep.override = { sameProcess: J.sameProcess, provenance: 'project' };
-    if (priorOutside.length) ep.outsideSegment = priorOutside.map(r => ({ field: r.name || r.label, step: r.step, note: 'recorded in another process segment; not compared' }));
+    // Doctrine, not evidence: a human overruling the probe's premise is the instrument judging itself.
+    if (J.sameProcess) ep.doctrine = { override: { sameProcess: J.sameProcess, provenance: 'project' } };
+    if (priorOutside.length) ev.outsideSegment = priorOutside.map(r => ({ field: r.name || r.label, step: r.step, note: 'recorded in another process segment; not compared' }));
     if (blocked) return { ...ep, verdict: 'blocked' };
     if (commitIdx < 0) return { ...ep, verdict: 'not-committed' };
     if (!commitScreen) return { ...ep, verdict: 'unmeasurable', why: 'commit screen not reached' };
@@ -50,18 +52,18 @@ export default {
     const branches = { confirmed: conf };
     branches.checked = (!conf.holds && J.checkedPass) ? await plantError(ctx) : { holds: null, tested: false, why: conf.holds ? 'not needed' : 'journey does not allow the mutating checked pass' };
     branches.reversible = { holds: !!J.reversible, provenance: 'project', declared: J.reversible || null };
-    ep.branches = branches;
-    if (conf.reformatted?.length) ep.finding = { kind: 'reformatted', why: `${conf.reformatted.length} value${conf.reformatted.length > 1 ? 's' : ''} shown in another format (${conf.reformatted.slice(0, 2).map(x => JSON.stringify(x.value)).join(', ')}); not counted as missing` };
+    ev.branches = branches;
+    if (conf.reformatted?.length) ev.finding = { kind: 'reformatted', why: `${conf.reformatted.length} value${conf.reformatted.length > 1 ? 's' : ''} shown in another format (${conf.reformatted.slice(0, 2).map(x => JSON.stringify(x.value)).join(', ')}); not counted as missing` };
     // 3.3.4 is satisfied by any one of three branches, and which one held is the reason. It was
     // carried as `branch` alone, which left the card to compose the sentence and the packet with a
     // verdict and no `why` — a verdict a reader cannot act on, and the one thing this format forbids.
-    if (conf.holds) return { ...ep, verdict: 'pass', branch: conf.note ? 'confirmed (review on preceding step)' : 'confirmed',
+    if (conf.holds) return { ...ep, verdict: 'pass', evidence: { ...ev, branch: conf.note ? 'confirmed (review on preceding step)' : 'confirmed' },
       why: `all ${conf.present.length} entered value${conf.present.length === 1 ? ' is' : 's are'} shown again${conf.note ? ' on the step before the commit' : ' on the commit screen'} with a way to change ${conf.present.length === 1 ? 'it' : 'them'}` };
-    if (branches.checked.holds) return { ...ep, verdict: 'pass', branch: 'checked',
+    if (branches.checked.holds) return { ...ep, verdict: 'pass', evidence: { ...ev, branch: 'checked' },
       why: `the submission is checked before it commits: ${branches.checked.evidence || 'a planted error was rejected'}` };
-    if (J.reversible) return { ...ep, verdict: 'pass', branch: 'reversible (project)',
+    if (J.reversible) return { ...ep, verdict: 'pass', evidence: { ...ev, branch: 'reversible (project)' },
       why: `the journey declares this submission reversible: ${J.reversible} (project)` };
-    if (branches.checked.tested) return { ...ep, verdict: 'fail', why: 'no branch holds', missing: conf.missing };
+    if (branches.checked.tested) return { ...ep, verdict: 'fail', why: 'no branch holds', evidence: { ...ev, missing: conf.missing } };
     // This sentence used to assert the journey had not declared checkedPass. It is also reached when the
     // journey did declare it and the planted error could not be delivered — and then the sentence was
     // simply false, while the real reason sat unread in branches.checked.why. Say what happened.
@@ -70,12 +72,6 @@ export default {
       : `the planted error could not be delivered (${String(branches.checked.why || 'no reason recorded').replace(/\s+/g, ' ').slice(0, 120)})`;
     return { ...ep, verdict: 'unmeasurable', why: `confirmed false; checked untested (${ck}); reversible not declared` };
   },
-  explain(p, result) {
-    const c = p.evidence.branches.confirmed, ck = p.evidence.branches.checked, cm = c.changeMechanism;
-    return {
-      what: `${c.missing.length} of ${c.missing.length + c.present.length} entered values are not shown on the commit screen; ${cm ? `change control "${typeof cm === 'string' ? cm : cm.text}"` : 'no change control'}; validation ${ck.tested ? 'tested: ' + ck.evidence : 'untested'}`,
-      where: result.steps.find(s => s.i === c.screen)?.url,
-      check: `On this screen, can you see ${c.missing.slice(0, 3).map(m => JSON.stringify(m.value)).join(', ')} and a way to change them before committing?`,
-    };
-  },
+  // The pure half lives in core/, where the dependency rule is what keeps it pure.
+  explain,
 };

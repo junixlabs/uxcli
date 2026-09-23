@@ -24,8 +24,8 @@ Ten keys at the top level, and no others.
 | key | | |
 |---|---|---|
 | `probe` | always | the probe's id, e.g. `page.contrast` |
-| `sc` | always | the criterion, e.g. `1.4.3` — or the short name for an opinion |
-| `provenance` | always | `spec` · `project` · `opinion` |
+| `sc` | always | the criterion, e.g. `1.4.3` — or the short name, when the provenance is not `spec` |
+| `provenance` | always | where the claim gets its standing, strongest first: `spec` · `project` · `research` · `analytics` · `experiment` · `opinion` |
 | `method` | always | `method-validated` · `method-unproven` |
 | `verdict` | always | one of the seven: `pass` `fail` `finding` `not-applicable` `not-committed` `unmeasurable` `suppressed` |
 | `why` | always | what the probe concluded, in one sentence |

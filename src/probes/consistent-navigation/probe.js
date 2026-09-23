@@ -1,6 +1,7 @@
 // flow.consistent-navigation · WCAG 3.2.3. Spec in spec.md; falsification pair in pair.json.
 import { normUrl } from '../../util.js';
 import { evalIn } from '../../browser.js';
+import { explain } from '../../core/explain/consistent-navigation.js';
 
 export default {
   id: 'flow.consistent-navigation', sc: '3.2.3',
@@ -33,26 +34,21 @@ export default {
         for (let k = 0; k < cA.length; k++) if (cA[k] !== cB[k]) { inversion = { mechanism: key, stepA: occ[a].step, stepB: occ[b].step, expected: cA, got: cB, firstInvertedPair: [cA[k], cB[k]] }; break; }
       }
     }
-    const out = { mechanisms: Object.fromEntries(Object.entries(mechanisms).map(([k, v]) => [k, v.map(o => ({ step: o.step, links: o.links.length }))])), comparedPairs: compared };
-    if (navsByStep.some(n => n.origin !== origin0)) out.note = 'steps on another origin excluded';
-    if (inversion) return { ...out, verdict: 'fail', inversion,
+    // `mechanisms` and the inversion are what a reader opens to check the verdict; `comparedPairs` is
+    // the arithmetic behind the sentence they already read. Same object once, two containers.
+    const out = { evidence: { mechanisms: Object.fromEntries(Object.entries(mechanisms).map(([k, v]) => [k, v.map(o => ({ step: o.step, links: o.links.length }))])) }, measured: { comparedPairs: compared } };
+    if (navsByStep.some(n => n.origin !== origin0)) out.evidence.note = 'steps on another origin excluded';
+    if (inversion) return { ...out, verdict: 'fail', evidence: { ...out.evidence, inversion },
       why: `the "${inversion.mechanism}" navigation lists its shared links in a different relative order on step ${inversion.stepA} and step ${inversion.stepB}` };
     // A verdict with no reason is a verdict a reader cannot act on: say which half was missing —
     // the journey never showed the same mechanism twice, or it did but the two copies shared fewer
     // than two links, so there was no order to compare.
-    const seen = Object.values(out.mechanisms).filter(v => v.length > 1).length;
+    const seen = Object.values(out.evidence.mechanisms).filter(v => v.length > 1).length;
     return { ...out, verdict: compared ? 'pass' : 'not-applicable',
       why: compared ? `${compared} pair${compared === 1 ? '' : 's'} of repeated navigation compared across steps; each lists its shared links in the same relative order` : seen
         ? `${seen} navigation mechanism${seen > 1 ? 's were' : ' was'} on more than one step, but no two copies shared two or more links, so there was no order to compare`
         : 'no navigation mechanism appeared on more than one step of this journey; consistency is a claim about repetition' };
   },
-  explain(p, result) {
-    const x = p.evidence.inversion;
-    const short = s => { s = String(s); if (s.startsWith('t:')) return s.slice(2); s = s.slice(2); const i = s.lastIndexOf('/'); return (i >= 0 ? s.slice(i + 1) : s).slice(0, 60) || s.slice(0, 60); };
-    return {
-      what: `${x.mechanism} order differs between steps ${x.stepA} and ${x.stepB}; first inverted pair ${x.firstInvertedPair.map(short).join(' / ')}`,
-      where: [x.stepA, x.stepB].map(i => result.steps.find(s => s.i === i)?.url).filter(Boolean).join('  '),
-      check: `Compare the ${x.mechanism.replace(/^name:/, '')} menu on both pages; are those two items in swapped order?`,
-    };
-  },
+  // The pure half lives in core/, where the dependency rule is what keeps it pure.
+  explain,
 };
