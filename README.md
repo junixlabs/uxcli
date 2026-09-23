@@ -18,6 +18,39 @@
 
 <p align="center"><sub>A real run against the fixture in <code>src/probes/focus-visible/must-fail/</code>. Both clips regenerate with <code>npm run clip</code> — nothing on this page is typed by hand.</sub></p>
 
+## The seven engines
+
+`uxcli` is a UX decision system, not a checker. Seven engines, and the seventh feeds the first: what
+a run learns becomes the context the next proposal is built on, which is why this is a cycle and not
+a pipeline with an end.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/uxcli-engines-dark.svg">
+    <img src="docs/uxcli-engines-light.svg" alt="The seven engines of uxcli drawn as a cycle: context, reasoning, commitment, measurement, evidence, verdict, and an agent loop that feeds what it learned back into context. Verdict is complete; commitment, measurement and evidence are partial; context, reasoning and the agent loop are not built." width="100%">
+  </picture>
+</p>
+
+All seven are closed, each at the narrowest form that still answers its own test. That is a
+deliberate floor, not a finish: one flow kind rather than a language for asserting flows, four
+context fields rather than a domain model. Each row states what made it done in a form that can
+fail, so the claim is disputable rather than decorative — and the last column says what it still
+does not do.
+
+| | Engine | What it holds | Where it stands |
+|---|---|---|---|
+| 1 | **Context** | the domain, the users, the journeys, the constraints | ✅ four sourced fields, read by `propose`; an unsourced field cannot be cited. Not a domain model |
+| 2 | **Reasoning** | patterns, research, hypotheses, risks | ✅ proposals are anchored to places a run reached; one naming no run is refused. It writes no claims |
+| 3 | **Commitment** | proposed → signed, owner, source, lineage | ✅ `signedBy` · authority · `derivedFrom` · `supersededBy` · `expires`, all enforced before measurement |
+| 4 | **Measurement** | probes, methods, targets, environments | ✅ `flow-reachability` is decided by a run and can `fail`. One kind, and it asserts reachability only |
+| 5 | **Evidence** | artifacts, snapshots, replay, provenance | ✅ a directory per target, so no run overwrites another. Runs recorded before this keep their old keys |
+| 6 | **Verdict** | seven closed verdicts, six provenance, two methods | ✅ an unproven method cannot say `fail`; nothing unmeasured can say `pass` |
+| 7 | **Agent loop** | fix, propose, explain, request authority | ✅ `uxcli.authorities.json` scopes subject, action, kind and expiry. Writing the file is the opt-in |
+
+Where each stands today, and the order they are being built in:
+[`.claude/specs/plan/`](.claude/specs/plan/).
+
+
 ## Install
 
 ```bash
@@ -104,14 +137,18 @@ A review tool that lies three times is disabled forever. Five rules keep `2` rig
 Flow probes reach what page-level tools cannot: data entered on step 1 missing from the review on
 step 3, navigation order changing between pages.
 
-## Only a human commits
+## Who commits, and under what authority
 
 - **A journey** is the commitment for a flow — the steps of one process, which step commits, and what
   the human declares ([example](test/journeys/checkout.json)).
 - **`uxcli.commitments.json`** holds a project's own thresholds, each with an `owner` and a `source`.
   No owner means `not-committed`; `"suppressed": "<reason>"` is reported, never silently skipped.
-- **The agent may propose, not commit.** `uxcli discover` writes candidates with `confirmedBy: null`,
-  and `run` refuses them until a human confirms.
+- **Anyone accountable may sign — an agent too, when the person running it says so.** What a
+  signature carries is not a species but accountability: a named `owner` and a written `source`, or
+  the entry is `not-committed`. `uxcli discover` writes candidates with `confirmedBy: null`.
+- **Signing is not the same act as erasing a verdict.** Editing a commitment, a journey or a probe
+  to turn a failing run into a passing one is not deciding what correct means; no permission makes
+  it one.
 
 `init --apply` installs three skills that hold an agent to that boundary, and one four-line file
 Claude Code reads at the start of every session:
@@ -132,7 +169,11 @@ hash. The last row stays empty until it has an arm of its own.
 uxcli run <url>                 # measure one screen      --prove --state=FILE --src=DIR
 uxcli run <journey.json>        # measure one flow        --json --out=DIR --refute --var=k=v
 uxcli discover <repo|url>       # journey candidates, as proposals
-uxcli sheet [--src=DIR]         # the project's own token commitments, no browser
+uxcli coverage <run dir>        # places the browser reached that nobody has committed anything about
+uxcli propose <run dir>         # one skeleton commitment per uncovered place        --write
+uxcli context [dir]             # what this project has said about itself, and what it has not
+uxcli sheet [--src=DIR]         # the project's own commitments, no browser      --run=DIR for flow kinds
+uxcli authority [subject]       # what a subject may propose, sign or supersede here
 uxcli diff <a.json> <b.json>    # drift between two runs   --gate exits 2 on a new fail
 uxcli dashboard                 # one loopback viewer for every run on this machine
 uxcli init [dir]                # where this project stands, and what would be created  --apply
@@ -140,12 +181,23 @@ uxcli gate                      # every falsification pair must hold
 uxcli why <rule>                # a probe's definition: why · applies-when · correct-when
 ```
 
+A commitment kind declares what decides it. `contrast` is decided by the project's stylesheet;
+`flow-reachability` is decided by a run, so `sheet --run=DIR` hands one in — without it those entries
+report `unmeasurable` naming the missing input, rather than looking like bad commitments.
+
+`coverage` and `propose` read a run that already happened, never a journey file: a file says what
+somebody meant to happen, and the map has to come from what did. That is the whole anti-gaming
+mechanism — an agent can narrow what it claims, but narrowing the map means narrowing the product.
+`propose` fills in `derivedFrom` and leaves `claim` empty, because the anchor is the machine's to
+supply and the sentence is not.
+
 `--refute` spawns a fresh second reader per fail (`claude -p`, haiku, Read-only, ~US$0.04) to dispute
 it from the screenshots alone, announcing command, count and cost on stderr first.
 
 ## When it is wrong, say so
 
-Every run leaves `run.json` and its screenshots in `.uxcli/<host or journey>/`. That packet is the
+Every run leaves `run.json` and its screenshots in `.uxcli/<target>-<id>/`, keyed by what was
+measured rather than by its host, so measuring a second screen never overwrites the first. That packet is the
 whole argument — "it looks fine" is not evidence; a screenshot of the same state is. Two forms at
 [issues/new/choose](https://github.com/junixlabs/uxcli/issues/new/choose): a wrong verdict or a miss,
 and an offer of a flow for the unseen list. Twenty confirmed journeys with 0 false fails flip a flow

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Assurance Queue</title>
+<style>
+/* ── reset ─────────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+table{border-collapse:collapse}
+
+/* ── tokens: the product's own signed palette, not a new one ───────────── */
+:root{
+  color-scheme:light dark;
+  --fail-ink:#b42318; --fail-bg:#fee4e2; --fail-edge:#fda29b;
+  --find-ink:#b54708; --find-bg:#fef0c7; --find-edge:#fdb022;
+  --unme-ink:#5925dc; --unme-bg:#ebe9fe; --unme-edge:#bdb4fe;
+  --pass-ink:#067647; --pass-bg:#dcfae6; --pass-edge:#75e0a7;
+  --quiet-ink:#475467; --quiet-bg:#f2f4f7; --quiet-edge:#d0d5dd; --quiet-mark:#7d8898;
+  --accent:#175cd3; --accent-bg:#d1e9ff;
+  --ink:#101828; --ink-2:#475467; --ink-3:#616b7d;
+  --bg:#f6f7f9; --panel:#ffffff; --sunk:#f1f3f5;
+  --line:#dfe3e8; --line-2:#edf0f3;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --row:28px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --fail-ink:#fda29b; --fail-bg:#55160c; --fail-edge:#912018;
+  --find-ink:#fec84b; --find-bg:#4e1d09; --find-edge:#93370d;
+  --unme-ink:#bdb4fe; --unme-bg:#2e125e; --unme-edge:#6938ef;
+  --pass-ink:#75e0a7; --pass-bg:#053321; --pass-edge:#085d3a;
+  --quiet-ink:#94969c; --quiet-bg:#1f242f; --quiet-edge:#333741; --quiet-mark:#717784;
+  --accent:#84caff; --accent-bg:#102a4c;
+  --ink:#f5f5f6; --ink-2:#cecfd2; --ink-3:#94969c;
+  --bg:#0c111d; --panel:#161b26; --sunk:#1f242f;
+  --line:#333741; --line-2:#23262f;
+}}
+:root[data-theme="dark"]{
+  --fail-ink:#fda29b; --fail-bg:#55160c; --fail-edge:#912018;
+  --find-ink:#fec84b; --find-bg:#4e1d09; --find-edge:#93370d;
+  --unme-ink:#bdb4fe; --unme-bg:#2e125e; --unme-edge:#6938ef;
+  --pass-ink:#75e0a7; --pass-bg:#053321; --pass-edge:#085d3a;
+  --quiet-ink:#94969c; --quiet-bg:#1f242f; --quiet-edge:#333741; --quiet-mark:#717784;
+  --accent:#84caff; --accent-bg:#102a4c;
+  --ink:#f5f5f6; --ink-2:#cecfd2; --ink-3:#94969c;
+  --bg:#0c111d; --panel:#161b26; --sunk:#1f242f;
+  --line:#333741; --line-2:#23262f;
+}
+
+body{background:var(--bg);color:var(--ink);font:13px/20px var(--sans);
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1360px;margin:0 auto;padding-inline:16px;padding-block:0 60px}
+
+/* ── the bar ───────────────────────────────────────────────────────────── */
+.bar{display:flex;align-items:center;gap:14px;height:52px;border-bottom:1px solid var(--line)}
+.word{font:600 14px/1 var(--mono);letter-spacing:-.02em}
+.word b{color:var(--accent)}
+.bar .sp{flex:1}
+.ghost{font:11px/1 var(--mono);color:var(--ink-3);border:1px solid var(--line);
+  border-radius:5px;padding:6px 9px}
+.ghost:hover{color:var(--ink);border-color:var(--quiet-edge)}
+
+/* ── demand: the one figure, then what it decomposes into ──────────────── */
+.demand{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-block:12px 10px}
+.fig{display:flex;align-items:baseline;gap:9px}
+.fig b{font:34px/1 var(--mono);font-weight:500;letter-spacing:-.03em}
+.fig span{font:11px/15px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);max-width:66px}
+.splits{display:flex;gap:6px;flex-wrap:wrap}
+.split{display:flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:13px;
+  font:11px/1 var(--mono);border:1px solid transparent}
+.split b{font-weight:600}
+.split[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:1px}
+.split.fail{background:var(--fail-bg);color:var(--fail-ink);border-color:var(--fail-edge)}
+.split.finding{background:var(--find-bg);color:var(--find-ink);border-color:var(--find-edge)}
+.split.unmeasurable{background:var(--unme-bg);color:var(--unme-ink);border-color:var(--unme-edge)}
+.split.pass{background:var(--pass-bg);color:var(--pass-ink);border-color:var(--pass-edge)}
+.scope{margin-left:auto;font:11px/15px var(--mono);color:var(--ink-3);text-align:right}
+
+/* ── section label ─────────────────────────────────────────────────────── */
+.lab{display:flex;align-items:center;gap:10px;font:11px/15px var(--sans);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);
+  padding-block:12px 5px}
+.lab hr{flex:1;border:0;border-top:1px solid var(--line-2)}
+
+/* ── projects: one row each, so ten projects are ten rows ──────────────── */
+.proj{width:100%}
+.proj tr{border-top:1px solid var(--line-2)}
+.proj tr:first-child{border-top:0}
+.proj td{padding:0 12px;height:var(--row);vertical-align:middle;white-space:nowrap}
+.pname{font:600 12px/20px var(--mono)}
+.ppath{font:11px/20px var(--mono);color:var(--ink-3)}
+.pnum{font:12px/20px var(--mono);color:var(--ink-2);text-align:right;width:1%}
+/* governance is a second axis, so it gets a meter — never a verdict chip */
+.meter{display:inline-flex;gap:3px;vertical-align:-1px}
+.meter i{width:16px;height:5px;border-radius:3px;background:var(--quiet-edge)}
+.meter i.on{background:var(--accent)}
+.gstate{font:11px/1 var(--mono);letter-spacing:.06em;color:var(--ink-2)}
+.decl{display:inline-flex;gap:9px;font:11px/20px var(--mono);color:var(--ink-3)}
+.decl b{font-weight:400}
+.decl .no{color:var(--quiet-mark);text-decoration:line-through;text-decoration-thickness:1px}
+.decl .yes{color:var(--pass-ink)}
+.unseat td{color:var(--ink-3);font:11px/20px var(--mono);background:var(--sunk)}
+
+/* ── the queue: one row per target ─────────────────────────────────────── */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.q{width:100%;min-width:640px}
+.proj{min-width:640px}
+.q thead th{font:11px/15px var(--sans);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);
+  background:var(--panel);position:sticky;top:0;z-index:1}
+.q tbody tr{border-top:1px solid var(--line-2)}
+.q tbody tr:hover{background:var(--sunk)}
+.q td{padding:0 12px;height:var(--row);vertical-align:middle;white-space:nowrap}
+.q .num{text-align:right;font:12px/20px var(--mono);color:var(--ink-2);width:1%}
+
+/* The chip's FORM says what kind of conclusion it is; colour only says which one.
+   solid = about the product · outline = about the measurement · dashed = about the commitment */
+.chip{display:inline-flex;align-items:center;gap:5px;height:21px;padding:0 8px;border-radius:5px;
+  font:11px/1 var(--mono);font-weight:600;border:1px solid}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.chip.fail{background:var(--fail-bg);color:var(--fail-ink);border-color:var(--fail-edge)}
+.chip.pass{background:var(--pass-bg);color:var(--pass-ink);border-color:var(--pass-edge)}
+.chip.finding{background:transparent;color:var(--find-ink);border-color:var(--find-edge)}
+.chip.unmeasurable{background:transparent;color:var(--unme-ink);border-color:var(--unme-edge)}
+.chip.finding::before,.chip.unmeasurable::before{background:transparent;
+  border:1.5px solid currentColor;width:7px;height:7px}
+.chip.notcommitted,.chip.suppressed{background:transparent;color:var(--quiet-ink);
+  border-style:dashed;border-color:var(--quiet-edge)}
+
+.name{font:12px/20px var(--mono);font-weight:600}
+.ctx{font:11px/20px var(--mono);color:var(--ink-3);padding-left:8px}
+
+/* History, right-aligned: the newest run always sits at the same x, so a column
+   of red down the right edge is the whole scan. A single cell reads as a first
+   measurement because it is alone, not because a word says so. */
+.hist{display:flex;gap:2px;justify-content:flex-end;width:75px}
+.hist i{flex:0 0 9px;height:15px;border-radius:2px;background:var(--quiet-bg);
+  border:1px solid var(--quiet-edge)}
+.hist i.v-fail{background:var(--fail-bg);border-color:var(--fail-edge)}
+.hist i.v-finding{background:var(--find-bg);border-color:var(--find-edge)}
+.hist i.v-unmeasurable{background:var(--unme-bg);border-color:var(--unme-edge)}
+.hist i.v-pass{background:var(--pass-bg);border-color:var(--pass-edge)}
+.hist i.gap{background:transparent;border-color:transparent}
+.hist i.now{outline:1.5px solid var(--ink);outline-offset:1px}
+
+/* Drift is drawn only when the strip does not already say it. */
+.drift{font:11px/20px var(--mono);width:1%;text-align:center}
+.drift.regressed{color:var(--fail-ink);font-weight:700}
+.drift.improved{color:var(--pass-ink)}
+
+.legend{margin-top:14px;display:flex;gap:26px;flex-wrap:wrap;
+  font:11px/18px var(--mono);color:var(--ink-3)}
+.legend div{display:flex;gap:8px;align-items:flex-start}
+.legend b{font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.06em;
+  font:11px/18px var(--sans)}
+.note{margin-top:22px;font:11px/18px var(--mono);color:var(--ink-3);max-width:70ch}
+
+@media (max-width:900px){
+  .scope{margin-left:0;text-align:left;width:100%}
+  .hide-s{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="bar">
+    <span class="word">u<b>x</b>cli</span>
+    <span class="sp"></span>
+    <button class="ghost" id="theme" type="button">theme</button>
+  </header>
+
+  <!-- The demand: one figure, and what it decomposes into. No greeting. -->
+  <section class="demand">
+    <div class="fig"><b id="need">0</b><span>need<br>action</span></div>
+    <div class="splits" id="splits"></div>
+    <div class="scope" id="scope"></div>
+  </section>
+
+  <div class="lab">Projects<hr></div>
+  <div class="scroll"><table class="proj"><tbody id="projects"></tbody></table></div>
+
+  <div class="lab"><span id="qlab">Targets</span><hr><span id="qcount"></span></div>
+  <div class="scroll"><table class="q">
+    <thead><tr>
+      <th style="width:1%">State</th>
+      <th>Target</th>
+      <th class="hide-s" style="width:75px;text-align:right">History</th>
+      <th style="width:1%"></th>
+      <th class="hide-s" style="width:1%;text-align:right">Last run</th>
+      <th style="width:1%;text-align:right">Probes</th>
+    </tr></thead>
+    <tbody id="queue"></tbody>
+  </table></div>
+
+  <div class="legend">
+    <div><b>Shape</b><span>solid = a conclusion about the product &nbsp;·&nbsp; outline = about the measurement &nbsp;·&nbsp; dashed = about the commitment</span></div>
+    <div><b>History</b><span>one cell per run, oldest to newest; the newest is outlined and always in the same column</span></div>
+  </div>
+
+  <p class="note">34 targets over 80 runs, 13–23 Sep. The queue counts targets, not runs: one page that
+  failed five times is one thing to fix, not five.</p>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const NEEDS = ['fail','finding','unmeasurable','not-committed'];
+const RANK = { fail:0, finding:1, unmeasurable:2, 'not-committed':3, suppressed:4, 'not-applicable':5, pass:6 };
+const SLOTS = 7;
+
+// `index.html` is never the name of anything: for a path ending in one, the folder is the name.
+// The ladder answers uniqueness; this answers what a person calls it.
+const nameOf = l => {
+  const stem = l.stem ? l.stem.split('/') : [];
+  if (/^index\.\w+$/.test(l.leaf) && stem.length) return { name: stem[stem.length - 1], ctx: [l.head, ...stem.slice(0, -1), l.context].filter(Boolean).join(' · ') };
+  return { name: l.leaf, ctx: [l.head, l.stem, l.context].filter(Boolean).join(' · ') };
+};
+
+const ago = iso => {
+  const h = (Date.now() - new Date(iso)) / 36e5;
+  if (h < 1) return Math.max(1, Math.round(h * 60)) + 'm';
+  if (h < 48) return Math.round(h) + 'h';
+  return Math.round(h / 24) + 'd';
+};
+const cls = v => v.replace(/-/g, '');
+const el = (t, a = {}, ...kids) => { const n = document.createElement(t);
+  for (const [k, v] of Object.entries(a)) k === 'class' ? n.className = v : n.setAttribute(k, v);
+  for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : String(k));
+  return n; };
+
+let FILTER = null;
+
+function strip(history) {
+  const box = el('div', { class: 'hist' });
+  const runs = history.slice(-SLOTS);
+  for (let i = 0; i < SLOTS - runs.length; i++) box.append(el('i', { class: 'gap' }));
+  runs.forEach((r, i) => box.append(el('i', {
+    class: 'v-' + cls(r.v) + (i === runs.length - 1 ? ' now' : ''),
+    title: r.v + ' · ' + r.at.slice(0, 16).replace('T', ' ') })));
+  return box;
+}
+
+function drawQueue() {
+  const rows = DATA
+    .filter(t => FILTER ? t.verdict === FILTER : true)
+    .sort((a, b) => (RANK[a.verdict] ?? 9) - (RANK[b.verdict] ?? 9)
+      || String(b.ranAt).localeCompare(String(a.ranAt)));
+  const body = document.getElementById('queue');
+  body.textContent = '';
+  for (const t of rows) {
+    const { name, ctx } = nameOf(t.label);
+    const probes = Object.values(t.counts).reduce((a, b) => a + b, 0);
+    const bad = (t.counts[t.verdict] || 0);
+    body.append(el('tr', {},
+      el('td', {}, el('span', { class: 'chip ' + cls(t.verdict) }, t.verdict)),
+      el('td', {}, el('span', { class: 'name' }, name), ctx ? el('span', { class: 'ctx' }, ctx) : null),
+      el('td', { class: 'hide-s', style: 'width:75px' }, strip(t.history)),
+      el('td', { class: 'drift ' + t.drift, title: t.drift },
+        t.drift === 'regressed' ? '▲' : t.drift === 'improved' ? '▼' : ''),
+      el('td', { class: 'num hide-s' }, ago(t.ranAt)),
+      el('td', { class: 'num' }, (NEEDS.includes(t.verdict) ? bad + '/' : '') + probes)));
+  }
+  document.getElementById('qcount').textContent = rows.length + (FILTER ? ' of ' + DATA.length : '') + ' targets';
+  document.getElementById('qlab').textContent = FILTER ? FILTER : 'Targets, worst first';
+}
+
+function draw() {
+  const need = DATA.filter(t => NEEDS.includes(t.verdict));
+  document.getElementById('need').textContent = need.length;
+
+  // Only states that occur get area. Four empty tiles beside three full ones is
+  // four sevenths of the band spent on nothing.
+  const by = {};
+  for (const t of DATA) by[t.verdict] = (by[t.verdict] || 0) + 1;
+  const splits = document.getElementById('splits');
+  splits.textContent = '';
+  for (const v of Object.keys(RANK).filter(v => by[v]))
+    splits.append(el('button', { class: 'split ' + cls(v), type: 'button',
+      'aria-pressed': String(FILTER === v) },
+    el('b', {}, by[v]), v));
+  splits.addEventListener('click', e => { const b = e.target.closest('.split'); if (!b) return;
+    const v = b.textContent.replace(/^\d+/, ''); FILTER = FILTER === v ? null : v; draw(); });
+
+  const last = DATA.map(t => t.ranAt).sort().pop();
+  // Counting distinct `project` strings off the targets calls a deleted directory a project. Only
+  // the paths that still seat one are projects; the rest are named as what they are, below.
+  document.getElementById('scope').textContent =
+    DATA.length + ' targets · ' + Object.keys(GOV).length + ' project · last run ' + ago(last) + ' ago';
+
+  drawQueue();
+}
+
+// Projects, one row each. Governance is a meter because it is a second axis:
+// a project that has declared nothing is not failing, and must not wear a verdict.
+const GOV = {
+  '/Users/chuongle/tools/uxcli': { state: 'ADOPTED', steps: 2, has: { context: 0, authorities: 0, commitments: 1 } },
+};
+function drawProjects() {
+  const body = document.getElementById('projects');
+  const counts = {};
+  for (const t of DATA) counts[t.project] = (counts[t.project] || 0) + 1;
+  for (const p of Object.keys(counts)) {
+    const g = GOV[p] || { state: 'UNMANAGED', steps: 0, has: { context: 0, authorities: 0, commitments: 0 } };
+    const meter = el('span', { class: 'meter' });
+    for (let i = 0; i < 3; i++) meter.append(el('i', { class: i < g.steps ? 'on' : '' }));
+    const decl = el('span', { class: 'decl' });
+    for (const [k, v] of Object.entries(g.has))
+      decl.append(el('b', { class: v ? 'yes' : 'no' }, k));
+    body.append(el('tr', {},
+      el('td', {}, el('span', { class: 'pname' }, p.split('/').pop())),
+      el('td', {}, meter, ' ', el('span', { class: 'gstate' }, g.state)),
+      el('td', {}, decl),
+      el('td', { class: 'ppath' }, p.replace(/^\/Users\/[^/]+/, '~').replace(/^\/private\/tmp\/.*\//, '…/')),
+      el('td', { class: 'pnum' }, counts[p] + ' targets')));
+  }
+  body.append(el('tr', { class: 'unseat' },
+    el('td', { colspan: '5' }, '2 paths seat no project — 1 written before the project-root rule, 1 whose directory is gone')));
+}
+
+document.getElementById('theme').addEventListener('click', () => {
+  const now = document.documentElement.getAttribute('data-theme');
+  const dark = now ? now === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+});
+
+drawProjects();
+draw();
+</script>
+</body>
+</html>
