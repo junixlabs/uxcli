@@ -26,7 +26,15 @@
 // Top level is a closed set. A probe that returns anything else fails `uxcli gate`.
 
 export const VERDICTS = ['pass', 'fail', 'finding', 'not-applicable', 'not-committed', 'unmeasurable', 'suppressed'];
-export const PROVENANCE = ['spec', 'project', 'opinion'];
+// Provenance is where a claim gets its standing, never how confident anyone is of it, and the order
+// is that standing — strongest claim first, weakest last. Three values could not hold the difference
+// that matters: "an AI says users prefer this" was landing beside "WCAG says contrast is 4.5:1" as
+// though the two were the same kind of statement. `research` is a written study or a recorded user
+// session, `analytics` is measured product data, `experiment` is a recorded A/B or the like. Each of
+// the three carries evidence somebody can go and read, which is why they outrank `opinion`, which
+// carries none; none of the three is an external standard or a promise the project's owner signed,
+// which is why they sit under `spec` and `project`.
+export const PROVENANCE = ['spec', 'project', 'research', 'analytics', 'experiment', 'opinion'];
 export const METHODS = ['method-validated', 'method-unproven'];
 // The four the doctrine calls loud — a verdict that asks something of a person.
 // `rule` is the statement an opinion probe checks — what `sc` names in one word. Not evidence and
@@ -62,14 +70,24 @@ export function packet(probe, out = {}) {
   if (p.verdict === 'fail' && p.method !== 'method-validated') { dr.rawVerdict = 'fail'; p.verdict = 'finding'; }
   if (rule) p.rule = rule;
   if (cite) p.cite = cite;
-  // A probe still returning a bare tail is not silently reshaped — that would be the leaf fix wearing
-  // a root's clothes, and the drift would just move one level down. It is left where it is and the
-  // validator names it.
-  const ev = { ...evidence, ...rest };
+  const ev = { ...evidence };
   if (Object.keys(ev).length) p.evidence = ev;
   if (measured && Object.keys(measured).length) p.measured = measured;
   if (Object.keys(dr).length) p.doctrine = dr;
-  return p;
+  // A probe still returning a bare tail is not silently reshaped — that would be the leaf fix wearing
+  // a root's clothes, and the drift would just move one level down. It is left where it is and the
+  // validator names it.
+  //
+  // The line above used to read `{ ...evidence, ...rest }`, which swept the tail into `evidence` before
+  // `validate()` ever saw it: the rule "top level is a closed set" was being enforced by a function that
+  // had already tidied the scene. Four flow probes were returning fourteen bare keys that way and
+  // nothing said so. Absorbing is what a format does instead of having a boundary.
+  Object.assign(p, rest);
+  // Frozen, and this is the whole point of the pattern rather than a nicety. Six call sites used to
+  // reach in and amend a finished packet; the combinators below replace them, and the freeze is what
+  // stops a seventh being added quietly. Cockburn's warning is about exactly this — a layer with a
+  // promise and no mechanism to detect when the promise is broken.
+  return Object.freeze(p);
 }
 
 // A packet as the contract describes it, whatever version it was written in. Runs written before the
@@ -92,7 +110,7 @@ export function read(p) {
   return out;
 }
 
-// What `gate` asserts about every packet every probe produces, and what `uxcli packet --check` runs
+// What `gate` asserts about every packet every probe produces.
 // over a run.json that already exists. Returns a list of sentences; empty means the packet holds.
 export function validate(p, { probes } = {}) {
   const bad = [];
@@ -121,3 +139,42 @@ export function validate(p, { probes } = {}) {
   if (probes && p.probe && !probes.some(x => x.id === p.probe)) bad.push(`${at}: no probe with id \`${p.probe}\``);
   return bad;
 }
+
+// ---------------------------------------------------------------------------
+// Combinators — the six places that used to reach into a finished packet.
+//
+// `packet()` being "the one place a packet is built" was already false: six call sites built a packet
+// and then changed it afterwards, each one a small private amendment to a format that claims to be
+// closed. These are those six, named. Each returns a NEW frozen packet, so the rule survives the
+// amendment instead of being suspended by it, and a mutation anyone adds later throws instead of
+// landing quietly.
+//
+// They are one line each on purpose. The expensive part of this pattern was never the constructor; it
+// is `read()` becoming a versioned parser, and that is the input boundary's job, not this file's.
+
+const next = (p, patch) => Object.freeze({ ...p, ...patch });
+
+// run.js: the citation a reader acts on, produced by the probe's own pure `explain`.
+export const withCitation = (p, cite) => next(p, { cite });
+
+// page.js --prove: the probe planting its own defect and re-measuring. Doctrine — the instrument
+// judging itself — never evidence.
+export const withProof = (p, prove) => next(p, { doctrine: { ...p.doctrine, prove } });
+
+// page.js confirmFail: the re-read guard, and anything else the doctrine records about a verdict.
+export const withDoctrine = (p, d) => next(p, { doctrine: { ...p.doctrine, ...d } });
+
+// page.js: name the colours the design system already named. Evidence gains two labels; nothing else
+// about the packet changes, and the groups are copied rather than written through.
+export const withTokens = (p, name) => p.evidence?.groups
+  ? next(p, { evidence: { ...p.evidence, groups: p.evidence.groups.map(g => ({ ...g, fgToken: name(g.fg), bgToken: name(g.bg) })) } })
+  : p;
+
+// refute.js: the second reader's answer, kept beside the first reader's evidence because that is what
+// it disputes.
+export const withReader = (p, refute) => next(p, { evidence: { ...p.evidence, refute } });
+
+// The crops a reader opens, once they are files on disk rather than buffers in memory. The buffers
+// themselves never enter a packet: `measure` hands them back separately, so "a packet serialises" is
+// true by construction instead of by a `delete` that runs afterwards.
+export const withProofFiles = (p, proof) => proof?.length ? next(p, { evidence: { ...p.evidence, proof } }) : p;
