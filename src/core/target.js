@@ -31,24 +31,24 @@ export function canonical({ url, finalUrl, journey, file } = {}) {
 
 export const targetId = t => { const c = canonical(t); return c ? hash6(c) : ''; };
 
-// Lossy on purpose: the hash guarantees uniqueness, this half only helps a person find the
-// directory by eye.
-function readable(t) {
-  const c = canonical(t);
-  if (!c) return 'run';
-  if (c.startsWith('journey:')) return slugify(c.slice(8)) || 'journey';
-  let u;
-  try { u = new URL(c); } catch { return slugify(c) || 'run'; }
-  const segs = [
-    ...u.pathname.split('/'),
-    ...decodeSafe(u.hash.replace(/^#\/?/, '')).split('/'),
-  ].map(slugify).filter(Boolean);
-  const host = slugify(u.host);
-  const tail = segs.slice(host ? -2 : -3).join('-');
-  return [host, tail].filter(Boolean).join('-').slice(0, 48) || 'run';
-}
+// Where a run's evidence goes, as a fixed shape rather than a name derived from the address.
+//
+// It used to be `<readable-slug>-<targetId>`, and the slug half was the whole problem: it put a
+// presentational decision — how a URL reads when flattened — into the path evidence lives at, so a
+// change in how slugify treats a character relocates a packet. The address is inside run.json, which
+// is where a reader who wants it should look. The path only has to be the same one every time.
+//
+// One target, one directory, and the directory holds the current run beside its own screenshots.
+// A run that is replaced moves under `history/` with its shots, keyed by when it ran: a packet whose
+// `shot` field names a file must name the picture taken on that run, and overwriting step-0.jpg in
+// place would leave three-day-old packets pointing at today's image.
+export const RUNS = 'runs';
+export const HISTORY = 'history';
 
-const decodeSafe = s => { try { return decodeURIComponent(s); } catch { return s; } };
-const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+export const outDirFor = t => `${RUNS}/${targetId(t) || 'unidentified'}`;
 
-export const outDirFor = t => `${readable(t)}-${targetId(t)}`;
+// Filesystem-safe and still sortable as a string: an ISO instant with the colons taken out, which is
+// the form Windows and every archive tool accept.
+export const stampOf = ranAt => String(ranAt || '').replace(/[:]/g, '-').replace(/\.\d+Z$/, 'Z') || 'undated';
+
+export const historyDirFor = (t, ranAt) => `${outDirFor(t)}/${HISTORY}/${stampOf(ranAt)}`;

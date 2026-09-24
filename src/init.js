@@ -11,7 +11,7 @@
 // never remembered, because the whole instrument is built on not taking its own word for anything.
 import fs from 'node:fs'; import path from 'node:path';
 import { findCommitments, FILE as COMMITMENTS } from './sheet.js';
-import { INDEX } from './dashboard.js';
+import { readIndex } from './adapters/store/runs.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const RULE = path.join('.claude', 'rules', 'uxcli.md');
@@ -72,7 +72,7 @@ function proposals(project) {
 
 function recorded(project) {
   try {
-    const here = (JSON.parse(fs.readFileSync(INDEX, 'utf8')).runs || []).filter(r => r.project === project);
+    const here = readIndex(project).runs;
     return { runs: here.length, journeysRan: new Set(here.filter(r => r.kind === 'journey').map(r => r.name)).size };
   } catch { return { runs: 0, journeysRan: 0 }; }
 }

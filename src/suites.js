@@ -20,4 +20,5 @@ export const SUITES = [
   { tag: 'moved', title: 'who turned a fail into a finding', file: 'finding-pairs.mjs', miss: 'named' },
   { tag: 'pin', title: 'signed over evidence that moved', file: 'anchor-pairs.mjs', miss: 'differs' },
   { tag: 'cite', title: 'the document still says it', file: 'context-pairs.mjs', miss: 'drifted' },
+  { tag: 'disk', title: 'a packet keeps its own pictures', file: 'runs-layout-pairs.mjs', miss: 'archived' },
 ];

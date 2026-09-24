@@ -30,6 +30,16 @@ exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could no
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 const isUrl = s => /^https?:\/\//i.test(s) || /\.html?$/i.test(s) || s.startsWith('file:');
 // Every run leaves run.json next to its screenshots: the packet to attach when disputing a verdict.
+// Rotation happens before the run opens a browser, not at save time: the run writes its screenshots
+// into the directory as it goes, so by the time saveRun is reached the previous run's images have
+// already been overwritten. Called once per run, and a directory with nothing in it does nothing.
+const prepare = async outDir => {
+  const { rotate } = await import('../src/adapters/store/runs.js');
+  rotate(outDir);
+  fs.mkdirSync(outDir, { recursive: true });
+  return outDir;
+};
+
 const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; result.screenshots = fs.readdirSync(outDir).filter(f => /\.(png|jpe?g)$/i.test(f)).length; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); registerRun(result, outDir); };
 try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
@@ -39,7 +49,7 @@ try {
     // and overwrite each other, packet and index row together; same target now means same directory,
     // which is what the index always assumed.
     const { outDirFor } = await import('../src/core/target.js');
-    const outDir = opt('out') || path.join('.uxcli', outDirFor({ url }));
+    const outDir = await prepare(opt('out') || path.join('.uxcli', outDirFor({ url })));
     if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast, text-overlap${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
     const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
@@ -51,7 +61,7 @@ try {
     const { readFlow } = await import('../src/adapters/store/flow-file.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
     const flow = readFlow(path.resolve(args[0]), vars);
     const { outDirFor } = await import('../src/core/target.js');
-    const outDir = opt('out') || path.join('.uxcli', outDirFor({ journey: flow.name || path.basename(args[0], '.json') }));
+    const outDir = await prepare(opt('out') || path.join('.uxcli', outDirFor({ journey: flow.name || path.basename(args[0], '.json') })));
     const result = await runJourney(flow, { outDir });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     const couldNotRun = result.steps.some(s => s.error) || result.steps.length < result.stepCount;
@@ -100,11 +110,12 @@ try {
     props.forEach((j, i) => fs.writeFileSync(path.join(outDir, `${String(i + 1).padStart(2, '0')}-${j.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 50)}.json`), JSON.stringify(j, null, 1) + '\n'));
     console.log(flags.has('--json') ? JSON.stringify({ ...d, proposals: props }, null, 1) : discoverCard(d, props));
   } else if (cmd === 'dashboard') {
-    const { serve, indexCard, INDEX } = await import('../src/dashboard.js');
+    const { serve, indexCard } = await import('../src/dashboard.js');
+    const { SEEN } = await import('../src/adapters/store/runs.js');
     if (flags.has('--list')) { console.log(indexCard()); process.exit(0); }
     const port = parseInt(opt('port') || '4717', 10);
     const { url } = await serve({ port });
-    console.log(`${indexCard()}\n\n  serving ${url} (loopback only) · index ${INDEX.replace(os.homedir(), '~')} · ctrl-c to stop`);
+    console.log(`${indexCard()}\n\n  serving ${url} (loopback only) · projects ${SEEN.replace(os.homedir(), '~')} · ctrl-c to stop`);
     if (!flags.has('--no-open')) spawn(process.platform === 'darwin' ? 'open' : 'xdg-open', [url], { stdio: 'ignore', detached: true }).unref();
   } else if (cmd === 'init') {
     const { init, initCard } = await import('../src/init.js'); const r = init(path.resolve(args[0] || '.'), { apply: flags.has('--apply') }); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : initCard(r));

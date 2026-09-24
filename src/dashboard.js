@@ -17,6 +17,7 @@ import { targetId } from './core/target.js';
 // Which tree a run belongs to. The store owns it, because deciding it means knowing what file marks
 // a project, and that name lives in exactly one place.
 import { projectRoot, readContext, readAuthorities, readCommitments, NAMES } from './adapters/store/project-files.js';
+import { allRows, putRow, dropRow, noteProject, indexPath, SEEN, HOME } from './adapters/store/runs.js';
 import { governance } from './core/governance.js';
 import { partitionIndex } from './core/lineage.js';
 import { purposeOf } from './core/purpose.js';
@@ -135,22 +136,26 @@ function projection(idx) {
 }
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-export const HOME = path.join(os.homedir(), '.uxcli');
-export const INDEX = path.join(HOME, 'index.json');
 
-const read = () => { try { const j = JSON.parse(fs.readFileSync(INDEX, 'utf8')); return Array.isArray(j.runs) ? j : { runs: [] }; } catch { return { runs: [] }; } };
+// Where the rows come from is the store's decision, not this file's: each project keeps its own
+// index and the home file holds only the list of projects. This used to read one home file holding
+// every run of every project, which made the home copy the only record — clone the repo elsewhere
+// and its evidence arrived with nothing naming it.
+const read = () => ({ runs: allRows() });
 
-// One line per outDir, replaced in place: the index lists where runs are, not their history. A
-// machine with no writable home (CI) simply has no index; that must never fail a run.
+// One line per target, written into the project that owns it, and the project noted in the home
+// list so one viewer can find it later. A machine with no writable home (CI) simply has no list;
+// that must never fail a run.
 export function registerRun(result, outDir) {
   try {
-    const dir = path.resolve(outDir); const idx = read();
+    const dir = path.resolve(outDir);
+    const root = projectRoot(process.cwd(), os.homedir());
     const probes = result.probes || [];
     const entry = {
       kind: result.journey ? 'journey' : 'page',
       name: result.journey || result.title || result.url || path.basename(dir),
       where: result.finalUrl || result.url || null,
-      project: projectRoot(process.cwd(), os.homedir()), dir, ranAt: result.ranAt || new Date().toISOString(),
+      project: root, dir, ranAt: result.ranAt || new Date().toISOString(),
       // Which thing was measured, decided once at write time. The dashboard used to re-derive this
       // on every draw from whatever string it found, so two screens agreeing was a coincidence.
       targetId: targetId(result),
@@ -165,8 +170,8 @@ export function registerRun(result, outDir) {
       // overview counts what was recorded and says so, rather than deriving a number nobody stored.
       exit: Number.isInteger(result.exit) ? result.exit : null,
     };
-    idx.runs = [entry, ...idx.runs.filter(r => r.dir !== dir)];
-    fs.mkdirSync(HOME, { recursive: true }); fs.writeFileSync(INDEX, JSON.stringify(idx, null, 1) + '\n');
+    putRow(root, entry);
+    noteProject(root);
   } catch { /* no index is a fine state; a run is not worth failing over one */ }
 }
 
@@ -257,8 +262,11 @@ export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
         return send(res, 200, 'application/json', '{"ok":true}');
       }
       if (u.pathname === '/api/forget') {
-        const dir = path.resolve(q.get('dir') || ''); idx.runs = idx.runs.filter(r => r.dir !== dir);
-        fs.writeFileSync(INDEX, JSON.stringify(idx, null, 1) + '\n'); return send(res, 200, 'application/json', JSON.stringify(idx));
+        // Dropped from the project that owns the row, which is the only place it exists.
+        const dir = path.resolve(q.get('dir') || '');
+        const owner = idx.runs.find(r => r.dir === dir)?.project;
+        if (owner) dropRow(owner, dir);
+        return send(res, 200, 'application/json', JSON.stringify({ runs: allRows() }));
       }
     } catch (e) { return send(res, 404, 'text/plain', String(e.message || e).slice(0, 120)); }
     send(res, 404, 'text/plain', 'no such route');
@@ -275,11 +283,13 @@ export function serve({ port = 4717, host = '127.0.0.1' } = {}) {
 }
 
 export function indexCard() {
-  const idx = read(); const L = [`uxcli dashboard · ${INDEX}`, ''];
+  const idx = read(); const L = [`uxcli dashboard · ${SEEN.replace(os.homedir(), '~')}`, ''];
   if (!idx.runs.length) return L.concat(['  no run recorded yet. Every `uxcli run` adds one line here; the evidence stays in its project.']).join('\n');
   const gone = idx.runs.filter(r => !fs.existsSync(path.join(r.dir, 'run.json'))).length;
   for (const r of idx.runs.slice(0, 12)) L.push(`  ${r.worst.padEnd(13)} ${r.kind.padEnd(8)} ${String(r.name).slice(0, 46).padEnd(46)} ${r.dir.replace(os.homedir(), '~')}`);
   if (idx.runs.length > 12) L.push(`  … ${idx.runs.length - 12} more`);
   if (gone) L.push('', `  ${gone} run${gone > 1 ? 's are' : ' is'} listed but no longer on disk: the index points, it does not keep a copy.`);
+  const roots = [...new Set(idx.runs.map(r => r.project))];
+  L.push('', `  ${roots.length} project${roots.length === 1 ? '' : 's'}, each keeping its own .uxcli/index.json. This file holds the list of places and nothing else.`);
   return L.join('\n');
 }

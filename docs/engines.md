@@ -1,5 +1,29 @@
 # Engine outputs
 
+## Where results live
+
+```
+<project>/.uxcli/
+  index.json                     one row per target, this project's own
+  runs/<targetId>/
+    run.json                     the current run
+    step-0.jpg …                 its screenshots
+    history/<ranAt>/
+      run.json                   a run it replaced
+      step-0.jpg …               and that run's own screenshots
+
+~/.uxcli/projects.json           the list of projects this machine has seen. Nothing else.
+```
+
+`run.json` is the root: every verdict is read out of it, and `~/.uxcli` keeps no copy of anything.
+The directory is `runs/<targetId>` and nothing more — the address is inside the packet, and a
+readable slug in the path put a presentational decision where evidence lives.
+
+A run that is replaced moves under `history/` **with its own screenshots**, because a packet's
+`shot` field names a file: overwriting `step-0.jpg` in place would leave last week's packet pointing
+at today's picture. `KEEP` is 7, the number of slots the dashboard's history strip draws.
+
+
 What each engine returns, and the type of every field. Measured by calling each one on this
 project's real data, not transcribed from the source.
 
