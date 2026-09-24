@@ -19,4 +19,5 @@ export const SUITES = [
   { tag: 'why', title: 'the instrument is not the product', file: 'purpose-pairs.mjs', miss: 'demoted' },
   { tag: 'moved', title: 'who turned a fail into a finding', file: 'finding-pairs.mjs', miss: 'named' },
   { tag: 'pin', title: 'signed over evidence that moved', file: 'anchor-pairs.mjs', miss: 'differs' },
+  { tag: 'cite', title: 'the document still says it', file: 'context-pairs.mjs', miss: 'drifted' },
 ];

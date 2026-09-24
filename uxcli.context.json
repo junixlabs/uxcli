@@ -1,52 +1,57 @@
 {
+  "$comment": "Rewritten 2026-09-24. The previous version named a document beside each field and was never checked against it; four fields carried wording the cited documents do not contain — an invented `arrives` column on every audience, a `cannot` for the first role where the source table has a dash, and a `domain` describing the mechanism rather than the moment the business paragraph names. Every field below quotes the words it was taken from, and `uxcli context` now reads that quote back out of the document.",
   "domain": {
-    "value": "An assurance system for products an agent helped build: it drives real Chrome, measures what the page painted against what somebody signed, and returns a verdict with the evidence behind it. It is not a linter and not a test runner — nothing here concludes anything about a claim nobody has put their name to.",
-    "source": ".claude/specs/2026-09-17-business-definitions.md"
+    "value": "Một agent vừa đổi giao diện. Trước khi nó được phép nói \"xong\", sản phẩm đang chạy phải được đối chiếu với những gì đã được hứa. Lời hứa chỉ có giá trị khi một con người đứng tên. Máy có thể soạn lời hứa, nhưng máy không ký được lời hứa của chính nó.",
+    "source": {
+      "doc": ".claude/specs/2026-09-17-business-definitions.md",
+      "quote": "Một agent vừa đổi giao diện. Trước khi nó được phép nói"
+    }
   },
-
   "audiences": {
     "value": [
       {
-        "who": "the person who signs",
-        "does": "signs a promise, grants a waiver with an expiry, decides what is worth measuring at all",
-        "cannot": "hand the signing to the machine",
-        "pain": "what was decided dies at handover, and no instrument says how far it has drifted since",
-        "arrives": "days or weeks after the decision, asking whether it still holds"
+        "who": "Người đứng tên, vận hành agent",
+        "does": "ký lời hứa · miễn trừ có hạn · quyết cái gì đáng đo",
+        "cannot": null,
+        "pain": "cái đã quyết chết ở bước bàn giao; không dụng cụ nào nói nó trôi bao xa"
       },
       {
-        "who": "the agent that writes the interface",
-        "does": "drafts proposals, runs the measurement, fixes what a citation points at",
-        "cannot": "sign its own promise",
-        "pain": "reporting done while holding broken evidence in its hand",
-        "arrives": "straight from a terminal, seconds after a run it already saw"
+        "who": "Agent viết giao diện",
+        "does": "soạn đề xuất · chạy phép đo · sửa theo trích dẫn",
+        "cannot": "ký lời hứa của chính mình",
+        "pain": "báo xong trong khi đang cầm bằng chứng hỏng trong tay"
       },
       {
-        "who": "the developer at the pull request",
-        "does": "blocks a merge, reads drift down to the element and the file",
-        "cannot": "turn a finding into a blocking gate on their own",
-        "pain": "an instrument that is wrong three times is switched off for good",
-        "arrives": "from a diff, asking what this change moved"
+        "who": "Developer ở PR",
+        "does": "chặn merge · đọc drift tới element và file",
+        "cannot": "biến finding thành cổng chặn",
+        "pain": "dụng cụ nói sai ba lần là bị tắt vĩnh viễn"
       }
     ],
-    "source": ".claude/specs/2026-09-19-use-cases.html"
+    "source": {
+      "doc": ".claude/specs/2026-09-19-use-cases.html",
+      "quote": "Người đứng tên vận hành agent ký lời hứa · miễn trừ có hạn · quyết cái gì đáng đo"
+    }
   },
-
   "constraints": {
     "value": [
-      "Signing is the one act the machine may not perform for itself; everything else it may propose and run.",
-      "Evidence stays in the project that produced it — the index in ~/.uxcli holds pointers, never proof.",
-      "A rule whose method is unproven may report a finding and may never report a fail.",
-      "Nothing unsigned returns fail; it returns not-committed."
+      "Máy có thể soạn lời hứa, nhưng máy không ký được lời hứa của chính nó.",
+      "Thứ chưa ai ký không trả về fail, nó trả về not-committed.",
+      "Một rule chưa chứng minh phương pháp chỉ được nói finding, không được nói fail."
     ],
-    "source": ".claude/specs/2026-09-17-business-definitions.md"
+    "source": {
+      "doc": ".claude/specs/2026-09-19-use-cases.html",
+      "quote": "Thứ chưa ai ký không trả về"
+    }
   },
-
   "journeys": {
     "value": [
-      "open the dashboard and find what needs me",
-      "decide whether this change may be called done",
-      "decide whether this pull request may merge"
+      "Tôi cần một phép đo trước khi được nói \"xong\", vì tôi không được tự phán mình đúng.",
+      "Tôi cần chặn merge khi có fail mới, và chỉ khi đó."
     ],
-    "source": ".claude/specs/2026-09-19-use-cases.html"
+    "source": {
+      "doc": ".claude/specs/2026-09-19-use-cases.html",
+      "quote": "Tôi cần một phép đo trước khi được nói"
+    }
   }
 }

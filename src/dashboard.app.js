@@ -319,8 +319,7 @@ function projects() {
     Stack(seated.map(p => {
       const rows = runsBy[p.project] || [];
       const pur = purposeBy[p.project] || { product: 0, instrument: 0 };
-      const c = p.context || { said: [], missing: [], complete: false };
-      const said = c.said.length, fields = said + c.missing.length;
+      const c = p.context || { said: [], standing: {}, portable: [], undeclared: [], checked: 0, fields: 0 };
       const kinds = Object.entries(p.kinds || {});
       const a = p.anchors || { pinned: 0, unanchored: 0, unverifiable: 0, differs: [] };
       const reach = p.reach;
@@ -339,9 +338,10 @@ function projects() {
       Fields([
         Field('governance', p.governance.state,
           { hint: p.governance.next.length ? 'next: ' + p.governance.next.join('; ') : 'everything a project can declare is declared and signed' }),
-        Field('declared', said + ' of ' + fields + ' fields',
-          { kind: 'num', hint: [...c.said.map(x => x.field + ' — ' + x.means + ' (source: ' + x.source + ')'),
-            ...c.missing.map(x => x.field + ' — not declared: ' + x.means)].join('\n') }),
+        Field('declared', c.checked + ' of ' + c.fields + ' fields checked',
+          { kind: 'num', hint: c.said.map(x => x.field + ' — ' + x.standing
+            + (x.doc ? ': ' + x.doc + (x.portable ? '' : ' (not in the repository)') : ': ' + x.means)).join('\n')
+            + '\n\nquoted means the words are in the document, not that the field follows from them.' }),
         Field('may sign', p.authority.length
           ? p.authority.map(x => x.subject).join(', ')
           : 'nobody registered',

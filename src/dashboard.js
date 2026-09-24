@@ -23,7 +23,7 @@ import { purposeOf } from './core/purpose.js';
 import { admit } from './core/commitment/admit.js';
 import { anchorOf, anchorState } from './core/commitment/anchor.js';
 import { runHash } from './adapters/store/run-hash.js';
-import { readContext as parseContext, FIELDS } from './core/context.js';
+import { contextOf as resolveContext } from './context.js';
 import { capabilityOf, ACTIONS } from './core/authority.js';
 import { coverage as coverageOf } from './core/reality.js';
 import { observedFlow } from './core/reality.js';
@@ -39,14 +39,18 @@ import { observedFlow } from './core/reality.js';
 const MARKERS = [NAMES.commitments, '.git', 'package.json'];
 const isRoot = p => { try { return MARKERS.some(m => fs.existsSync(path.join(p, m))); } catch { return false; } };
 
-// E1, on the screen rather than only in `uxcli context`. The four fields and what each one is for
-// come from the engine, so a field it grows appears here without this file learning its name; the
-// source travels with the value because a claim nobody can trace to a document is not a declaration.
-const contextOf = raw => {
-  const c = parseContext(raw);
-  const said = Object.entries(c.known).map(([field, v]) => ({ field, means: FIELDS[field], source: v.source,
-    value: v.value, count: Array.isArray(v.value) ? v.value.length : null }));
-  return { said, missing: c.missing.map(k => ({ field: k, means: FIELDS[k] })), unsourced: c.unsourced, complete: c.complete };
+// E1, on the screen rather than only in `uxcli context`. Asked of the adapter, not re-derived here:
+// the standing of a field depends on a document being read, and there is one place that reads it.
+// A field's word is what the engine called it — `quoted` is the ceiling, and it means the words are
+// in the document, not that the field follows from them.
+const contextOf = root => {
+  const c = resolveContext(root);
+  if (!c.exists) return null;
+  const said = Object.values(c.fields).map(f => ({ field: f.field, means: f.means, standing: f.standing,
+    doc: f.doc || null, quote: f.quote || null, portable: f.portable !== false,
+    count: Array.isArray(f.value) ? f.value.length : null }));
+  return { said, standing: c.standing, portable: c.portable, undeclared: c.undeclared,
+    checked: c.standing.quoted.length, fields: said.length };
 };
 
 // Who may do what, asked of the engine per subject rather than read off the registry by eye. The
@@ -115,7 +119,7 @@ function projection(idx) {
     const raw = readContext(root);
     return { project: root, commitments: entries.length, kinds, placeful,
       admitted: seats.length - refused.length, refused,
-      context: contextOf(raw), authority: authorityOf(authorities),
+      context: contextOf(root), authority: authorityOf(authorities),
       reach: reachOf(idx.runs, root, entries),
       anchors: anchorsOf(entries, root),
       governance: governance({ context: raw, authorities, entries, doc: doc || {} }) };

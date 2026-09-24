@@ -10,8 +10,11 @@ import { runHash } from './adapters/store/run-hash.js';
 import { observedFlow, coverage } from './core/reality.js';
 import { targetId } from './core/target.js';
 import { may } from './core/authority.js';
-import { readContext as parseContext, citable } from './core/context.js';
-import { readEntries, readProposedCommitments, writeProposedCommitments, pathTo, found, readAuthorities, readContext as loadContext } from './adapters/store/project-files.js';
+import { citable } from './core/context.js';
+// Through the adapter, never the core directly: a citation is checked against a document, and the
+// one place that reads a document is the disk half.
+import { contextOf } from './context.js';
+import { readEntries, readProposedCommitments, writeProposedCommitments, pathTo, found, readAuthorities } from './adapters/store/project-files.js';
 
 const readJSON = p => JSON.parse(fs.readFileSync(p, 'utf8'));
 
@@ -38,7 +41,7 @@ export function proposeAuthority({ registry = [], hasRegistry = false, subject =
 // What a claim, once somebody writes it, is entitled to lean on. Unsourced fields are left out: a
 // proposal that could cite one would let the claim inherit standing from a sentence nobody will put
 // a name to. No context file is an ordinary state, not an error — it yields nothing to cite.
-const citableFor = root => { const doc = loadContext(root); return doc ? citable(parseContext(doc)) : []; };
+const citableFor = root => { const ctx = contextOf(root); return ctx.exists ? citable(ctx) : []; };
 
 const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'step';
 

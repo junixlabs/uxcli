@@ -8,7 +8,7 @@
 // opt-in, so a project that never wrote one must keep working exactly as it did, and a refusal must
 // arrive as a refusal rather than as an empty list that reads like full coverage.
 //
-// The context half is asserted the same way: a sourced field is citable and an unsourced one is not,
+// The context half is asserted the same way: a field whose quote is in the document is citable, and
 // because the whole point of citing context is that the claim cannot inherit standing from a
 // sentence nobody will put a name to.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
@@ -18,7 +18,9 @@ export const OPERATOR =
   'an agent proposing outside its recorded scope, one nobody registered, one whose authority has '
   + 'expired and a command run as nobody, against the same agent inside its scope and a project that '
   + 'never wrote a registry at all; a refusal that arrives as a refusal rather than as nothing to '
-  + 'propose; and a context whose sourced field a proposal may cite and whose unsourced field it may not';
+  + 'propose; and a context whose field a proposal may cite because the document it quotes really says '
+  + 'those words, against three it may not — one quoting words the document does not contain, one naming '
+  + 'the document and quoting nothing, and one with no source at all';
 
 const REGISTRY = [
   { subject: 'agent-a', owner: 'Ashley', scope: { action: ['propose', 'sign'], journey: 'browse → buy' }, expires: '2099-01-01' },
@@ -36,10 +38,15 @@ const RUN = {
     { i: 2, url: 'http://shop.test/checkout', arrivedBy: 'submit', title: 'Checkout' },
   ],
 };
+// The brief a proposal may lean on, and what each field does with it. Naming the document is no
+// longer enough: `audiences` quotes words the brief does not contain, which is the failure this
+// project found in its own declaration, and `journeys` names the brief and quotes nothing at all.
+const BRIEF = 'A hardware shop selling to trade buyers, counter and van stock.';
 const CONTEXT = {
-  // One field somebody will name a source for, and one nobody will. Only the first may be cited.
-  domain: { value: 'a hardware shop', source: 'product-brief.md' },
-  audiences: { value: 'trade buyers' },
+  domain: { value: 'a hardware shop', source: { doc: 'product-brief.md', quote: 'A hardware shop selling to trade buyers' } },
+  audiences: { value: 'weekend hobbyists', source: { doc: 'product-brief.md', quote: 'weekend hobbyists' } },
+  journeys: { value: ['buy a thing'], source: 'product-brief.md' },
+  constraints: { value: 'none' },
 };
 
 // A project on disk, because `propose` is the command and the store reads files; torn down whichever
@@ -51,7 +58,10 @@ function inProject({ authorities, context }, fn) {
     fs.mkdirSync(at);
     fs.writeFileSync(path.join(at, 'run.json'), JSON.stringify(RUN));
     if (authorities) fs.writeFileSync(path.join(root, 'uxcli.authorities.json'), JSON.stringify({ authorities }));
-    if (context) fs.writeFileSync(path.join(root, 'uxcli.context.json'), JSON.stringify(context));
+    if (context) {
+      fs.writeFileSync(path.join(root, 'uxcli.context.json'), JSON.stringify(context));
+      fs.writeFileSync(path.join(root, 'product-brief.md'), BRIEF);
+    }
     return fn({ root, at });
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -129,8 +139,10 @@ export function pair() {
 
   inProject({ context: CONTEXT }, ({ root, at }) => {
     const out = propose({ root, at });
-    check('a sourced field is citable', out.citable.map(c => `${c.field} ${c.source}`).join(' '), 'domain product-brief.md');
-    check('an unsourced field is not', out.citable.some(c => c.field === 'audiences'), false);
+    check('a field whose quote is in the document is citable', out.citable.map(c => `${c.field} ${c.source}`).join(' '), 'domain product-brief.md');
+    check('a field quoting words the document does not contain is not', out.citable.some(c => c.field === 'audiences'), false);
+    check('a field that names the document and quotes nothing is not', out.citable.some(c => c.field === 'journeys'), false);
+    check('a field with no source at all is not', out.citable.some(c => c.field === 'constraints'), false);
     check('and each proposal carries what it may lean on', out.proposals[0]?.mayCite?.length, 1);
     // The command ships no UX knowledge. Attaching what a claim may cite must not become the claim.
     check('the claim is still nobody’s but the author’s to write', out.proposals.every(p => p.claim === null), true);
