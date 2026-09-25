@@ -1,0 +1,4 @@
+# observed và derived không đi theo repo — chỉ declarations đi theo
+.uxcli/runs/
+.uxcli/proposals/
+.uxcli/index.json

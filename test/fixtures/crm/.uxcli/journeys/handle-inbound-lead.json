@@ -1,0 +1,175 @@
+{
+  "id": "handle-inbound-lead",
+  "goal": "Gọi được cho khách ngay khi nhận lead mới",
+  "actor": "real_estate_agent",
+  "requires": {
+    "identityProfile": "agent-basic",
+    "dataProfiles": [
+      "lead-new-unassigned"
+    ]
+  },
+  "trace": [
+    "understanding/real-estate-agent.json#I-001"
+  ],
+  "states": {
+    "agent.workspace_ready": {
+      "$ref": "journeys/authenticate.json#/states/agent.workspace_ready"
+    },
+    "agent.lead_detail": {
+      "signals": [
+        {
+          "observer": "url",
+          "path": "/leads/{leadId}"
+        },
+        {
+          "observer": "dom",
+          "selector": "[data-uxcli=lead-phone]",
+          "visible": true
+        },
+        {
+          "observer": "text",
+          "selector": "[data-uxcli=lead-phone]",
+          "equalsField": "response.phone",
+          "normalize": "e164"
+        }
+      ],
+      "strength": "strong",
+      "mustMatch": [
+        "/leads/*"
+      ],
+      "mustNotMatch": [
+        "/workspace/*",
+        "/leads/* khi [data-uxcli=lead-phone] rỗng"
+      ]
+    },
+    "agent.call_started": {
+      "signals": [
+        {
+          "observer": "dom",
+          "selector": "[data-uxcli=call-status]",
+          "visible": true
+        },
+        {
+          "observer": "text",
+          "selector": "[data-uxcli=call-status]",
+          "contains": "Đang gọi"
+        }
+      ],
+      "strength": "medium",
+      "mustMatch": [
+        "/leads/*"
+      ],
+      "mustNotMatch": [
+        "/leads/* trước khi bấm gọi"
+      ],
+      "note": "lên strong khi app emit event uxcli:call-started — xem proposals/P-0004 (instrumentation)"
+    }
+  },
+  "workflows": [
+    {
+      "id": "open-and-call",
+      "kind": "happy",
+      "steps": [
+        {
+          "id": "f0",
+          "kind": "fixture",
+          "profile": "lead-new-unassigned",
+          "params": {
+            "createdMinutesAgo": 10
+          },
+          "produces": [
+            "lead.id",
+            "lead.phone"
+          ]
+        },
+        {
+          "id": "s1",
+          "before": "agent.workspace_ready",
+          "action": "bấm vào dòng lead mới",
+          "interactions": [
+            {
+              "type": "ui",
+              "target": "[data-uxcli=lead-row][data-id={leadId}]",
+              "consumes": [
+                "lead.id"
+              ]
+            },
+            {
+              "type": "navigation",
+              "to": "/leads/{leadId}",
+              "consumes": [
+                "lead.id"
+              ]
+            },
+            {
+              "type": "api",
+              "request": "GET /api/leads/{leadId}",
+              "consumes": [
+                "lead.id"
+              ],
+              "expect": {
+                "status": 200
+              },
+              "produces": [
+                "response.phone",
+                "response.status"
+              ]
+            }
+          ],
+          "expectations": [
+            {
+              "kind": "timing",
+              "expr": "toStable <= 1000ms, nếu không phải có chỉ báo tiến trình"
+            }
+          ],
+          "after": "agent.lead_detail",
+          "next": "s2"
+        },
+        {
+          "id": "s2",
+          "before": "agent.lead_detail",
+          "action": "bấm Gọi khách",
+          "interactions": [
+            {
+              "type": "ui",
+              "target": "[data-uxcli=call-action]",
+              "expect": {
+                "inViewportWithoutScroll": true
+              }
+            },
+            {
+              "type": "api",
+              "request": "POST /api/calls",
+              "effect": "database_write",
+              "expect": {
+                "status": 201
+              }
+            },
+            {
+              "type": "system",
+              "expr": "mở tel:{response.phone}",
+              "consumes": [
+                "response.phone"
+              ]
+            }
+          ],
+          "expectations": [
+            {
+              "kind": "count",
+              "expr": "tương tác từ agent.lead_detail tới agent.call_started == 1"
+            }
+          ],
+          "after": "agent.call_started",
+          "next": null
+        }
+      ]
+    },
+    {
+      "id": "lead-without-phone",
+      "kind": "recovery",
+      "status": "unmeasurable",
+      "reason": "chưa có profile lead-new-unassigned-no-phone — xem proposals/P-0007.json",
+      "steps": []
+    }
+  ]
+}

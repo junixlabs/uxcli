@@ -1,0 +1,61 @@
+{
+  "id": "C-001",
+  "statement": "Trên màn chi tiết lead, hành động Gọi khách nằm trong viewport mà không cần cuộn, ở mọi viewport từ 390px",
+  "scope": {
+    "journey": "handle-inbound-lead",
+    "workflow": "open-and-call",
+    "step": "s2",
+    "viewports": [
+      "390x844",
+      "768x1024",
+      "1440x900"
+    ]
+  },
+  "owner": {
+    "type": "role",
+    "ref": "product-owner"
+  },
+  "approvedBy": {
+    "type": "person",
+    "ref": "chuongld",
+    "at": "2026-09-24T10:02:00Z"
+  },
+  "proposedBy": {
+    "type": "agent",
+    "ref": "claude",
+    "onBehalfOf": "chuongld",
+    "proposal": "proposals/P-0003.json"
+  },
+  "source": {
+    "doc": "understanding/real-estate-agent.json",
+    "quote": "hành động nằm cạnh dữ liệu đang xem"
+  },
+  "status": "ACTIVE",
+  "measurements": [
+    {
+      "target": "agent.lead_detail",
+      "predicate": {
+        "observer": "dom",
+        "selector": "[data-uxcli=call-action]",
+        "inViewportWithoutScroll": true
+      },
+      "observer": "dom+visual",
+      "method": "method-validated",
+      "failureSurface": {
+        "condition": "agent.lead_detail held",
+        "consequence": "[data-uxcli=call-action] trong viewport"
+      }
+    }
+  ],
+  "anchor": {
+    "run": "runs/j-handle-inbound-lead/history/2026-09-24T09-12-03Z",
+    "hash": "sha256:349035a24438f4dba1b50f48c54b9fdf490fb2cb1a98f09eb37994001ac476fc"
+  },
+  "trace": [
+    "understanding/real-estate-agent.json#I-001",
+    "proposals/P-0003.json"
+  ],
+  "createdAt": "2026-09-24T10:02:00Z",
+  "reviewAfter": "2027-03-24",
+  "retiredAt": null
+}

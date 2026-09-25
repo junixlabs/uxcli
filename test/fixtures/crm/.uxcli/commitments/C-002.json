@@ -1,0 +1,67 @@
+{
+  "id": "C-002",
+  "statement": "Mở chi tiết lead: quá 1s phải có chỉ báo tiến trình; quá 10s phải cho phép quay lại danh sách mà không mất lead đang chọn",
+  "scope": {
+    "journey": "handle-inbound-lead",
+    "workflow": "open-and-call",
+    "step": "s1"
+  },
+  "owner": {
+    "type": "role",
+    "ref": "engineering-lead"
+  },
+  "approvedBy": {
+    "type": "person",
+    "ref": "chuongld",
+    "at": "2026-09-24T10:15:00Z"
+  },
+  "proposedBy": {
+    "type": "person",
+    "ref": "chuongld"
+  },
+  "source": {
+    "doc": "understanding/real-estate-agent.json",
+    "quote": "mạng 4G không ổn định khi ở công trình"
+  },
+  "status": "ACTIVE",
+  "measurements": [
+    {
+      "target": "s1",
+      "predicate": {
+        "observer": "timing",
+        "field": "toStable",
+        "gt": 1000,
+        "then": {
+          "observer": "dom",
+          "selector": "[role=progressbar]",
+          "visible": true
+        }
+      },
+      "observer": "timing+a11y",
+      "method": "method-unproven",
+      "note": "chưa có cặp phản chứng với network throttling → chỉ được finding"
+    },
+    {
+      "target": "s1",
+      "predicate": {
+        "observer": "timing",
+        "field": "toStable",
+        "gt": 10000,
+        "then": {
+          "observer": "dom",
+          "selector": "[data-uxcli=back-to-list]",
+          "visible": true
+        }
+      },
+      "observer": "timing+dom+url",
+      "method": "method-unproven"
+    }
+  ],
+  "anchor": null,
+  "trace": [
+    "understanding/real-estate-agent.json"
+  ],
+  "createdAt": "2026-09-24T10:15:00Z",
+  "reviewAfter": "2027-03-24",
+  "retiredAt": null
+}

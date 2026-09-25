@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lead của tôi – Địa Ốc CRM</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true">Đ</span> Địa Ốc CRM</a>
+    <nav aria-label="Tài khoản">
+      <span class="who" id="who"></span>
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+      <button class="btn ghost" type="button" id="logout">Đăng xuất</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="eyebrow" id="tenant-name">&nbsp;</p>
+  <h1>Lead của tôi</h1>
+
+  <div class="stats" aria-label="Tổng quan">
+    <div class="stat"><b id="stat-new">–</b><span>Lead mới</span></div>
+    <div class="stat"><b id="stat-late">–</b><span>Quá SLA phản hồi</span></div>
+    <div class="stat"><b id="stat-mine">–</b><span>Đang phụ trách</span></div>
+  </div>
+
+  <section class="card" data-uxcli="lead-board" data-view="list" aria-labelledby="board-title">
+    <div class="toolbar">
+      <h2 id="board-title" style="margin:0">Danh sách lead</h2>
+      <div class="seg" role="group" aria-label="Kiểu hiển thị">
+        <button type="button" aria-pressed="true">Danh sách</button>
+        <button type="button" aria-pressed="false" aria-disabled="true" title="Sắp có">Kanban</button>
+      </div>
+    </div>
+    <div class="progress" role="progressbar" aria-label="Đang tải lead" id="loading"></div>
+    <div class="table-wrap">
+      <table class="table" data-uxcli="lead-list" id="lead-list" hidden>
+        <thead>
+          <tr>
+            <th scope="col">Khách hàng</th>
+            <th scope="col">Điện thoại</th>
+            <th scope="col">Nhu cầu</th>
+            <th scope="col">Trạng thái</th>
+            <th scope="col">Tiếp nhận</th>
+            <th scope="col">Phụ trách</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="muted small" id="empty" hidden>Chưa có lead nào trong không gian làm việc này.</p>
+  </section>
+</main>
+
+<script>
+  const STATUS = { new: 'Mới', contacted: 'Đang liên hệ', qualified: 'Tiềm năng', lost: 'Đã mất' };
+  const fmtPhone = (e164) => { const d = e164.replace(/^\+84/, '0'); return d.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3'); };
+  const ago = (iso) => { const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000)); if (m < 60) return m + ' phút trước'; const h = Math.round(m / 60); if (h < 24) return h + ' giờ trước'; return Math.round(h / 24) + ' ngày trước'; };
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const authHeaders = () => { const t = localStorage.getItem('session.token'); return t ? { authorization: 'Bearer ' + t } : {}; };
+
+  async function boot() {
+    const meRes = await fetch('/api/me', { headers: authHeaders() });
+    if (meRes.status === 401) { localStorage.removeItem('session.token'); location.replace('/login'); return; }
+    const me = await meRes.json();
+    const wanted = decodeURIComponent(location.pathname.split('/')[2] || '');
+    if (wanted !== me.workspaceId) { location.replace('/workspace/' + encodeURIComponent(me.workspaceId)); return; }
+
+    document.getElementById('who').textContent = me.name;
+    document.getElementById('avatar').textContent = me.name.split(' ').pop()[0];
+    document.getElementById('tenant-name').textContent = me.tenant.name;
+
+    const { leads, users, responseSlaMinutes } = await (await fetch('/api/leads', { headers: authHeaders() })).json();
+    const byId = Object.fromEntries(users.map((u) => [u.id, u.name]));
+    const late = (l) => l.status === 'new' && (Date.now() - Date.parse(l.createdAt)) / 60000 > responseSlaMinutes;
+
+    document.getElementById('stat-new').textContent = leads.filter((l) => l.status === 'new').length;
+    document.getElementById('stat-late').textContent = leads.filter(late).length;
+    document.getElementById('stat-mine').textContent = leads.filter((l) => l.assignedTo === me.id && l.status !== 'lost').length;
+
+    const rows = document.getElementById('rows');
+    rows.innerHTML = leads.map((l) => `
+      <tr data-uxcli="lead-row" data-id="${esc(l.id)}" tabindex="0">
+        <td><span class="name"><a href="/leads/${esc(l.id)}">${esc(l.name)}</a></span><span class="sub">${esc(l.source)}</span></td>
+        <td>${esc(fmtPhone(l.phone))}</td>
+        <td>${esc(l.requirements.type)}<span class="sub">${esc(l.requirements.area)}</span></td>
+        <td><span class="badge ${esc(l.status)}">${esc(STATUS[l.status] || l.status)}</span></td>
+        <td>${esc(ago(l.createdAt))}${l.status === 'new' ? `<span class="sub"><span class="badge ${late(l) ? 'sla-late' : 'sla-ok'}">${late(l) ? 'Quá SLA' : 'Trong SLA'}</span></span>` : ''}</td>
+        <td>${l.assignedTo ? esc(byId[l.assignedTo] || l.assignedTo) : '<span class="muted">Chưa ai nhận</span>'}</td>
+      </tr>`).join('');
+
+    document.getElementById('loading').hidden = true;
+    document.getElementById('lead-list').hidden = leads.length === 0;
+    document.getElementById('empty').hidden = leads.length > 0;
+
+    rows.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      const tr = e.target.closest('[data-uxcli=lead-row]');
+      if (tr) location.assign('/leads/' + encodeURIComponent(tr.dataset.id));
+    });
+    rows.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const tr = e.target.closest('[data-uxcli=lead-row]');
+      if (tr) location.assign('/leads/' + encodeURIComponent(tr.dataset.id));
+    });
+  }
+
+  document.getElementById('logout').addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST', headers: authHeaders() });
+    localStorage.removeItem('session.token');
+    localStorage.removeItem('session.workspaceId');
+    location.assign('/login');
+  });
+
+  boot().catch((err) => { document.getElementById('loading').hidden = true; document.getElementById('empty').hidden = false; document.getElementById('empty').textContent = 'Không tải được danh sách: ' + err.message; });
+</script>
+</body>
+</html>

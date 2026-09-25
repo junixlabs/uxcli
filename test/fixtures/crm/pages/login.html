@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập – Địa Ốc CRM</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<main class="auth">
+  <section class="card" aria-labelledby="title">
+    <a class="brand" href="/login"><span class="mark" aria-hidden="true">Đ</span> Địa Ốc CRM</a>
+    <h1 id="title">Đăng nhập</h1>
+    <p class="lead">Vào không gian làm việc để nhận lead mới.</p>
+
+    <div role="alert" data-uxcli="login-alert" class="alert error" hidden></div>
+
+    <form data-uxcli="login-form" id="login" novalidate>
+      <label class="field">
+        <span>Email</span>
+        <input class="input" type="email" name="email" autocomplete="username" inputmode="email" placeholder="ten@congty.vn" required>
+      </label>
+      <label class="field">
+        <span>Mật khẩu</span>
+        <input class="input" type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn primary block" type="submit" data-uxcli="login-submit">Đăng nhập</button>
+    </form>
+
+    <p class="hint">Tài khoản thử: <code>agent@example.invalid</code> / <code>matkhau123</code></p>
+  </section>
+</main>
+<script>
+  const form = document.getElementById('login');
+  const alertBox = document.querySelector('[data-uxcli=login-alert]');
+  const submit = document.querySelector('[data-uxcli=login-submit]');
+
+  function showAlert(text) { alertBox.textContent = text; alertBox.hidden = false; }
+  function clearAlert() { alertBox.hidden = true; alertBox.textContent = ''; }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearAlert();
+    const email = form.elements.email.value.trim();
+    const password = form.elements.password.value;
+    if (!email || !password) { showAlert('Nhập email và mật khẩu để tiếp tục.'); return; }
+
+    submit.disabled = true;
+    submit.textContent = 'Đang đăng nhập…';
+    try {
+      const res = await fetch('/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, password }) });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem('session.token', data.token);
+        localStorage.setItem('session.workspaceId', data.workspaceId);
+        location.assign('/workspace/' + encodeURIComponent(data.workspaceId));
+        return;
+      }
+      if (res.status === 401) {
+        const data = await res.json().catch(() => ({}));
+        showAlert(data.error || 'Email hoặc mật khẩu không đúng');
+        form.elements.password.value = '';
+        form.elements.password.focus();
+      } else {
+        showAlert('Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.');
+        // Bắt đầu lại từ trạng thái sạch sau lỗi hệ thống.
+        form.reset();
+        form.elements.email.focus();
+      }
+    } catch (err) {
+      showAlert('Không kết nối được máy chủ. Kiểm tra mạng và thử lại.');
+      form.reset();
+    } finally {
+      submit.disabled = false;
+      submit.textContent = 'Đăng nhập';
+    }
+  });
+</script>
+</body>
+</html>

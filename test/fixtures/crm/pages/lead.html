@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chi tiết lead – Địa Ốc CRM</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true">Đ</span> Địa Ốc CRM</a>
+    <nav aria-label="Tài khoản">
+      <span class="who" id="who"></span>
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <a class="btn ghost" data-uxcli="back-to-list" id="back" href="/">← Danh sách lead</a>
+  <div class="progress" role="progressbar" aria-label="Đang tải lead" id="loading"></div>
+
+  <div id="error" class="alert error" role="alert" hidden></div>
+
+  <article id="lead" hidden>
+    <div class="lead-head">
+      <h1 id="name"></h1>
+      <span class="badge" id="status"></span>
+      <span class="muted small" id="meta"></span>
+    </div>
+
+    <div class="detail">
+      <div class="main">
+        <section class="card" aria-labelledby="h-contact">
+          <h2 id="h-contact">Liên hệ</h2>
+          <div class="contact-row">
+            <div>
+              <div class="muted small">Số điện thoại</div>
+              <div class="phone" data-uxcli="lead-phone" id="phone"></div>
+            </div>
+            <span class="badge qualified" id="phone-verified">Đã xác minh</span>
+          </div>
+          <div class="contact-row">
+            <div><div class="muted small">Email</div><div id="email"></div></div>
+          </div>
+          <div class="contact-row">
+            <div><div class="muted small">Kênh ưu tiên</div><div>Gọi điện sau 18h, Zalo trong giờ làm việc</div></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="h-req">
+          <h2 id="h-req">Nhu cầu</h2>
+          <dl class="kv" id="req"></dl>
+        </section>
+
+        <section class="card" aria-labelledby="h-timeline">
+          <h2 id="h-timeline">Lịch sử tương tác</h2>
+          <ol class="timeline" id="timeline"></ol>
+        </section>
+
+        <section class="card" aria-labelledby="h-note">
+          <h2 id="h-note">Ghi chú nội bộ</h2>
+          <p id="note" style="margin:0 0 10px"></p>
+          <p class="muted small" style="margin:0">Điểm ưu tiên nội bộ: <b id="score"></b>/100 — tính từ ngân sách, độ rõ nhu cầu và thời điểm mua.</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-listings">
+          <h2 id="h-listings">Bất động sản phù hợp</h2>
+          <ul class="listings" id="listings"></ul>
+        </section>
+      </div>
+
+      <aside class="card aside actions" aria-labelledby="h-actions">
+        <h2 id="h-actions">Hành động</h2>
+        <button class="btn primary block" type="button" data-uxcli="call-action" id="call">📞 Gọi khách</button>
+        <button class="btn block" type="button" id="zalo">Nhắn Zalo</button>
+        <label class="field" style="margin:12px 0 0">
+          <span>Đổi trạng thái</span>
+          <select class="input" id="status-select">
+            <option value="new">Mới</option>
+            <option value="contacted">Đang liên hệ</option>
+            <option value="qualified">Tiềm năng</option>
+            <option value="lost">Đã mất</option>
+          </select>
+        </label>
+        <div class="alert ok status" data-uxcli="call-status" id="call-status" role="status" hidden></div>
+      </aside>
+    </div>
+  </article>
+</main>
+
+<script>
+  const STATUS = { new: 'Mới', contacted: 'Đang liên hệ', qualified: 'Tiềm năng', lost: 'Đã mất' };
+  const LABEL = { type: 'Loại bất động sản', area: 'Khu vực', budget: 'Ngân sách', size: 'Diện tích', bedrooms: 'Phòng ngủ', timeline: 'Thời điểm mua', purpose: 'Mục đích', legal: 'Pháp lý mong muốn' };
+  const fmtPhone = (e164) => { const d = e164.replace(/^\+84/, '0'); return d.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3'); };
+  const fmtTime = (iso) => new Date(iso).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const authHeaders = () => { const t = localStorage.getItem('session.token'); return t ? { authorization: 'Bearer ' + t } : {}; };
+  const leadId = decodeURIComponent(location.pathname.split('/')[2] || '');
+
+  let me = null, lead = null;
+
+  function render() {
+    document.getElementById('name').textContent = lead.name;
+    const st = document.getElementById('status'); st.textContent = STATUS[lead.status] || lead.status; st.className = 'badge ' + lead.status;
+    document.getElementById('meta').textContent = `Nguồn: ${lead.source} · Vào lúc ${fmtTime(lead.createdAt)}`;
+    document.getElementById('phone').textContent = fmtPhone(lead.phone);
+    document.getElementById('email').textContent = lead.email || 'Chưa có';
+    document.getElementById('req').innerHTML = Object.entries(lead.requirements).map(([k, v]) => `<div><dt>${esc(LABEL[k] || k)}</dt><dd>${esc(v === 0 ? '—' : v)}</dd></div>`).join('');
+    document.getElementById('timeline').innerHTML = [...lead.timeline].reverse().map((t) => `<li class="${esc(t.kind)}"><time datetime="${esc(t.at)}">${esc(fmtTime(t.at))}</time>${esc(t.text)}</li>`).join('');
+    document.getElementById('note').textContent = lead.note;
+    document.getElementById('listings').innerHTML = lead.suggestions.map((s) => `<li><div><b>${esc(s.title)}</b><span class="sub">${esc(s.code)} · ${esc(s.size)} · ${esc(s.status)}</span></div><div class="right"><b>${esc(s.price)}</b><span class="sub">khớp ${esc(s.match)}%</span></div></li>`).join('');
+    document.getElementById('score').textContent = lead.internalScore;
+    document.getElementById('status-select').value = lead.status;
+  }
+
+  async function boot() {
+    const meRes = await fetch('/api/me', { headers: authHeaders() });
+    if (meRes.status === 401) { location.replace('/login'); return; }
+    me = await meRes.json();
+    document.getElementById('who').textContent = me.name;
+    document.getElementById('avatar').textContent = me.name.split(' ').pop()[0];
+    document.getElementById('back').href = '/workspace/' + encodeURIComponent(me.workspaceId) + '?lead=' + encodeURIComponent(leadId);
+
+    const res = await fetch('/api/leads/' + encodeURIComponent(leadId), { headers: authHeaders() });
+    document.getElementById('loading').hidden = true;
+    if (!res.ok) { const e = document.getElementById('error'); e.textContent = res.status === 404 ? 'Lead không tồn tại hoặc không thuộc không gian làm việc của bạn.' : 'Không tải được lead (' + res.status + ').'; e.hidden = false; return; }
+    lead = await res.json();
+    render();
+    document.getElementById('lead').hidden = false;
+  }
+
+  document.getElementById('call').addEventListener('click', async () => {
+    const btn = document.getElementById('call'); const status = document.getElementById('call-status');
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/calls', { method: 'POST', headers: { 'content-type': 'application/json', 'x-tenant-id': me.tenantId, ...authHeaders() }, body: JSON.stringify({ leadId: lead.id }) });
+      if (res.status !== 201) { const d = await res.json().catch(() => ({})); status.className = 'alert error status'; status.textContent = 'Không tạo được cuộc gọi: ' + (d.error || res.status); status.hidden = false; return; }
+      status.className = 'alert ok status';
+      status.innerHTML = `Đang gọi… <a href="tel:${esc(lead.phone)}">${esc(fmtPhone(lead.phone))}</a>`;
+      status.hidden = false;
+      location.assign('tel:' + lead.phone);
+    } catch (err) {
+      status.className = 'alert error status'; status.textContent = 'Không tạo được cuộc gọi: ' + err.message; status.hidden = false;
+    } finally { btn.disabled = false; }
+  });
+  document.getElementById('zalo').addEventListener('click', () => { const s = document.getElementById('call-status'); s.className = 'alert ok status'; s.textContent = 'Mở Zalo với ' + fmtPhone(lead.phone) + '…'; s.hidden = false; });
+
+  boot().catch((err) => { document.getElementById('loading').hidden = true; const e = document.getElementById('error'); e.textContent = 'Lỗi: ' + err.message; e.hidden = false; });
+</script>
+</body>
+</html>

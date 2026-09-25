@@ -1,0 +1,33 @@
+{
+  "id": "agent-basic",
+  "kind": "identity",
+  "meaning": "Môi giới thường, một tenant synthetic, không quyền quản lý",
+  "mode": "provision",
+  "provisioner": {
+    "command": "./scripts/provision-agent.sh",
+    "cleanup": "./scripts/delete-agent.sh",
+    "outputs": {
+      "userId": "$.user.id",
+      "tenantId": "$.tenant.id",
+      "email": "$.user.email",
+      "permissions": "$.user.permissions",
+      "expiresAt": "$.expiresAt"
+    },
+    "effects": [
+      "database_write"
+    ],
+    "secrets": {
+      "password": "$.user.password"
+    }
+  },
+  "verify": {
+    "tenantId": "∈ policy.environments[env].syntheticTenants",
+    "email": "domain ∈ policy.environments[env].sinkDomains",
+    "permissions": "⊆ [agent]",
+    "expiresAt": "bắt buộc, <= 24h"
+  },
+  "owner": {
+    "type": "role",
+    "ref": "backend-lead"
+  }
+}

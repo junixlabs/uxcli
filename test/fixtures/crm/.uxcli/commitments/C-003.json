@@ -1,0 +1,59 @@
+{
+  "id": "C-003",
+  "statement": "Bảng lead mặc định hiển thị dạng kanban theo trạng thái",
+  "scope": {
+    "journey": "authenticate",
+    "state": "agent.workspace_ready"
+  },
+  "owner": {
+    "type": "role",
+    "ref": "product-owner"
+  },
+  "approvedBy": {
+    "type": "person",
+    "ref": "chuongld",
+    "at": "2026-06-02T09:00:00Z"
+  },
+  "proposedBy": {
+    "type": "person",
+    "ref": "chuongld"
+  },
+  "source": {
+    "doc": "understanding/real-estate-agent.json",
+    "quote": "Môi giới thích xem lead dạng kanban hơn dạng danh sách"
+  },
+  "status": "RETIREMENT_PROPOSED",
+  "retirement": {
+    "proposal": "proposals/P-0006.json",
+    "proposedBy": {
+      "type": "agent",
+      "ref": "uxcli"
+    },
+    "at": "2026-09-24T09:12:03Z",
+    "reason": "insight I-002 mà commitment này trace tới đã bị demote: wouldChangeIf kích hoạt (list view 71% > 60%)",
+    "requires": {
+      "type": "role",
+      "ref": "product-owner"
+    },
+    "decidedBy": null
+  },
+  "measurements": [
+    {
+      "target": "agent.workspace_ready",
+      "predicate": {
+        "observer": "dom",
+        "selector": "[data-uxcli=lead-board][data-view=kanban]",
+        "visible": true
+      },
+      "observer": "dom",
+      "method": "method-validated"
+    }
+  ],
+  "anchor": null,
+  "trace": [
+    "understanding/real-estate-agent.json#I-002"
+  ],
+  "createdAt": "2026-06-02T09:00:00Z",
+  "reviewAfter": "2026-12-02",
+  "retiredAt": null
+}

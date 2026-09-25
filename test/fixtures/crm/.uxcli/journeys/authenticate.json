@@ -1,0 +1,257 @@
+{
+  "id": "authenticate",
+  "goal": "Vào được không gian làm việc của mình",
+  "actor": "real_estate_agent",
+  "requires": {
+    "identityProfile": "agent-basic",
+    "dataProfiles": []
+  },
+  "trace": [],
+  "states": {
+    "anon.login_page": {
+      "signals": [
+        {
+          "observer": "url",
+          "path": "/login"
+        },
+        {
+          "observer": "dom",
+          "selector": "[data-uxcli=login-form]",
+          "visible": true
+        }
+      ],
+      "strength": "strong",
+      "mustMatch": [
+        "/login"
+      ],
+      "mustNotMatch": [
+        "/workspace/*",
+        "/onboarding"
+      ]
+    },
+    "agent.workspace_ready": {
+      "signals": [
+        {
+          "observer": "url",
+          "path": "/workspace/{workspaceId}"
+        },
+        {
+          "observer": "network",
+          "request": "GET /api/me",
+          "status": 200
+        },
+        {
+          "observer": "dom",
+          "selector": "[data-uxcli=lead-board]",
+          "visible": true
+        }
+      ],
+      "strength": "strong",
+      "mustMatch": [
+        "/workspace/*"
+      ],
+      "mustNotMatch": [
+        "/login",
+        "/onboarding",
+        "/workspace/* khi GET /api/me → 401"
+      ],
+      "note": "Sửa 2026-09-25: lead-list ẩn khi tenant chưa có lead, nên nó đo \"có dữ liệu\" chứ không đo \"đã vào workspace\"; lead-board luôn hiện. Đổi vì declaration sai, không phải để run pass."
+    },
+    "anon.login_rejected": {
+      "signals": [
+        {
+          "observer": "a11y",
+          "role": "alert",
+          "visible": true
+        },
+        {
+          "observer": "text",
+          "selector": "[role=alert]",
+          "contains": "không đúng"
+        },
+        {
+          "observer": "dom",
+          "selector": "[data-uxcli=login-form]",
+          "visible": true
+        }
+      ],
+      "strength": "medium",
+      "mustMatch": [
+        "/login"
+      ],
+      "mustNotMatch": [
+        "/workspace/*"
+      ]
+    },
+    "anon.login_failed_retryable": {
+      "signals": [
+        {
+          "observer": "a11y",
+          "role": "alert",
+          "visible": true
+        },
+        {
+          "observer": "dom",
+          "selector": "[data-uxcli=login-submit]",
+          "enabled": true
+        },
+        {
+          "observer": "dom",
+          "selector": "input[name=email]",
+          "valueUnchanged": true
+        }
+      ],
+      "strength": "medium",
+      "mustMatch": [
+        "/login"
+      ],
+      "mustNotMatch": [
+        "/workspace/*"
+      ]
+    }
+  },
+  "workflows": [
+    {
+      "id": "email-password",
+      "kind": "happy",
+      "steps": [
+        {
+          "id": "s1",
+          "before": "anon.login_page",
+          "action": "nhập email + mật khẩu, bấm Đăng nhập",
+          "interactions": [
+            {
+              "type": "ui",
+              "target": "input[name=email]",
+              "fill": "{identity.email}"
+            },
+            {
+              "type": "ui",
+              "target": "input[name=password]",
+              "fill": "{identity.password}"
+            },
+            {
+              "type": "ui",
+              "target": "[data-uxcli=login-submit]"
+            },
+            {
+              "type": "api",
+              "request": "POST /api/login",
+              "expect": {
+                "status": 200
+              },
+              "produces": [
+                "response.workspaceId",
+                "response.user.id"
+              ]
+            },
+            {
+              "type": "data",
+              "expr": "session.token set",
+              "produces": [
+                "session.token"
+              ]
+            },
+            {
+              "type": "navigation",
+              "to": "/workspace/{workspaceId}",
+              "consumes": [
+                "response.workspaceId"
+              ]
+            }
+          ],
+          "expectations": [
+            {
+              "kind": "timing",
+              "expr": "toStable <= 3000ms"
+            }
+          ],
+          "after": "agent.workspace_ready",
+          "next": null
+        }
+      ]
+    },
+    {
+      "id": "wrong-password",
+      "kind": "recovery",
+      "mode": "real",
+      "steps": [
+        {
+          "id": "r1",
+          "before": "anon.login_page",
+          "action": "nhập mật khẩu sai, bấm Đăng nhập",
+          "interactions": [
+            {
+              "type": "ui",
+              "target": "input[name=email]",
+              "fill": "{identity.email}"
+            },
+            {
+              "type": "ui",
+              "target": "input[name=password]",
+              "fill": "sai-mat-khau"
+            },
+            {
+              "type": "ui",
+              "target": "[data-uxcli=login-submit]"
+            },
+            {
+              "type": "api",
+              "request": "POST /api/login",
+              "expect": {
+                "status": 401
+              }
+            }
+          ],
+          "after": "anon.login_rejected",
+          "next": null
+        }
+      ]
+    },
+    {
+      "id": "server-error",
+      "kind": "recovery",
+      "mode": "intercept",
+      "requiresReach": "interact",
+      "steps": [
+        {
+          "id": "r1",
+          "before": "anon.login_page",
+          "action": "bấm Đăng nhập; chặn POST /api/login tại browser, trả 500",
+          "interactions": [
+            {
+              "type": "ui",
+              "target": "input[name=email]",
+              "fill": "{identity.email}"
+            },
+            {
+              "type": "ui",
+              "target": "input[name=password]",
+              "fill": "{identity.password}"
+            },
+            {
+              "type": "ui",
+              "target": "[data-uxcli=login-submit]"
+            },
+            {
+              "type": "api",
+              "request": "POST /api/login",
+              "intercept": {
+                "status": 500,
+                "blockAllOfEffect": true
+              }
+            }
+          ],
+          "expectations": [
+            {
+              "kind": "timing",
+              "expr": "alert visible <= 1000ms sau response"
+            }
+          ],
+          "after": "anon.login_failed_retryable",
+          "next": null
+        }
+      ]
+    }
+  ]
+}

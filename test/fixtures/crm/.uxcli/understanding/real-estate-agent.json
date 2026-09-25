@@ -1,0 +1,100 @@
+{
+  "actor": "real_estate_agent",
+  "roles": [
+    "agent"
+  ],
+  "contexts": [
+    "mobile-heavy, thường đang di chuyển",
+    "xử lý nhiều lead song song",
+    "context switching cao"
+  ],
+  "jobs": [
+    "xem lead mới",
+    "gọi / nhắn khách nhanh",
+    "tìm property phù hợp",
+    "cập nhật kết quả follow-up"
+  ],
+  "behaviors": [
+    "tìm bằng tên / số điện thoại",
+    "quay lại lead gần nhất"
+  ],
+  "habits": [
+    "hành động ngay từ màn chi tiết, không quay ra danh sách"
+  ],
+  "expectations": [
+    "tìm nhanh",
+    "giữ ngữ cảnh khi chuyển màn",
+    "hành động nằm cạnh dữ liệu đang xem"
+  ],
+  "pains": [
+    "nhập lại dữ liệu",
+    "mất ngữ cảnh khi chuyển màn hình",
+    "quá nhiều bước trước khi gọi được khách"
+  ],
+  "constraints": [
+    "mạng 4G không ổn định khi ở công trình"
+  ],
+  "insights": [
+    {
+      "id": "I-001",
+      "claim": "Môi giới xử lý lead trong khoảng thời gian rất ngắn và chủ yếu trên mobile",
+      "source": {
+        "type": "analytics",
+        "ref": "ga4:sessions-2026-08"
+      },
+      "evidence": [
+        "71% phiên là mobile (30 ngày, 2026-08)",
+        "4 phỏng vấn 2026-08-12..19: cả 4 gọi khách trong <5 phút sau khi nhận lead"
+      ],
+      "confidence": "high",
+      "wouldChangeIf": {
+        "kind": "predicate",
+        "text": "runs[viewport=desktop] / runs[*] > 0.4 trong 30 ngày"
+      },
+      "lastCheck": {
+        "at": "2026-09-25T08:41:12Z",
+        "fired": false,
+        "observed": 0.23
+      },
+      "reviewAfter": null
+    },
+    {
+      "id": "I-002",
+      "claim": "Môi giới thích xem lead dạng kanban hơn dạng danh sách",
+      "source": {
+        "type": "opinion",
+        "ref": "decision-2026-06-02"
+      },
+      "evidence": [
+        "ý kiến PO, không có số"
+      ],
+      "confidence": "hypothesis",
+      "wouldChangeIf": {
+        "kind": "predicate",
+        "text": "phiên dùng list view > 60% trong 30 ngày"
+      },
+      "lastCheck": {
+        "at": "2026-09-24T09:12:03Z",
+        "fired": true,
+        "observed": 0.71
+      },
+      "demotedAt": "2026-09-24T09:12:03Z",
+      "propagatedTo": [
+        "commitments/C-003.json"
+      ]
+    },
+    {
+      "id": "I-003",
+      "claim": "Một môi giới xử lý ~30 lead/ngày",
+      "source": null,
+      "evidence": [],
+      "confidence": "hypothesis",
+      "wouldChangeIf": null
+    }
+  ],
+  "unknowns": [
+    "tỷ lệ mobile chính xác theo vai (agent vs manager)",
+    "lead volume trung bình/ngày/agent",
+    "họ có dùng app gọi ngoài (Zalo) thay tel: không"
+  ]
+}

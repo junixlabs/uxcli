@@ -1,0 +1,17 @@
+{
+  "id": "crm-real-estate",
+  "name": "CRM môi giới bất động sản",
+  "rules": {
+    "leads.responseSlaMinutes": {
+      "file": "domain/leads-policy.json",
+      "path": "$.responseSlaMinutes"
+    },
+    "leads.maxOpenPerAgent": {
+      "file": "domain/leads-policy.json",
+      "path": "$.maxOpenPerAgent"
+    }
+  },
+  "locale": {
+    "dialCode": "84"
+  }
+}

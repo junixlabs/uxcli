@@ -7,7 +7,11 @@
 node_modules
 .DS_Store
 *.log
-.uxcli/
+# the repo's own .uxcli/ (old runs, index) stays out; in a nested project only observed/derived stay out — declarations travel with the repo
+/.uxcli/
+.uxcli/runs/
+.uxcli/proposals/
+.uxcli/index.json
 
 # holds a storefront bearer token
 .mcp.json
