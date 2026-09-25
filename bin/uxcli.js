@@ -9,6 +9,9 @@ const flags = new Set(rest.filter(a => a.startsWith('--') && !a.includes('=')));
 const opt = k => (rest.find(a => a.startsWith('--' + k + '=')) || '').split('=').slice(1).join('=') || null;
 const vars = Object.fromEntries(rest.filter(a => a.startsWith('--var=')).map(a => a.slice(6).split('=')).map(([k, ...v]) => [k, v.join('=')]));
 const usage = `usage:
+  uxcli run <.uxcli/journeys/x.json> [--env=NAME] [--origin=URL] [--viewport=WxH] [--json] [--out=DIR]
+      a schema-2 journey: states as predicates, run in Chrome against the environment's origin (default: the first non-production one);
+      identity and fixtures come from the project's provisioner under its policy; run.json + shots under .uxcli/runs/<id>/, index.json recomputed
   uxcli run <journey.json> [--json] [--out=DIR] [--refute] [--var=k=v ...]
       measure one flow; card by default, --json for the evidence packet; run.json and screenshots for fails in DIR (default .uxcli/<journey>);
       --var substitutes {{k}} in the journey; --refute spawns a fresh second reader per fail (UXCLI_REFUTER, default: claude -p, haiku, Read only) to confirm or dispute it from the images alone; the command, count and cost are printed on stderr before it runs, and on the card
@@ -57,6 +60,13 @@ try {
     saveRun(result, outDir);
     console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
     process.exit(result.exit);
+  } else if (cmd === 'run' && args[0] && (await import('../src/journey.js')).isSchema2(JSON.parse(fs.readFileSync(path.resolve(args[0]), 'utf8')))) {
+    const { runJourney } = await import('../src/journey.js'); const { journeyCard, why } = await import('../src/core/report/index.js');
+    const r = await runJourney(path.resolve(args[0]), { env: opt('env'), origin: opt('origin'), viewport: opt('viewport') || undefined, out: opt('out') });
+    if (r.problems) { console.error('uxcli: the declarations do not parse —\n  ' + r.problems.join('\n  ')); process.exit(1); }
+    if (flags.has('--json')) console.log(JSON.stringify({ ...r.run, next: r.run.verdicts.filter(v => v.value !== 'pass').map(v => why(v, r.commitments)) }, null, 1));
+    else { console.log(journeyCard(r.run, r.commitments)); const acts = r.run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding').map(v => '  next   ' + why(v, r.commitments)); if (acts.length) console.log('\n' + acts.join('\n')); console.log('  packet ' + path.relative(process.cwd(), path.join(r.dir, 'run.json'))); }
+    process.exit(r.run.exit);
   } else if (cmd === 'run' && args[0]) {
     const { readFlow } = await import('../src/adapters/store/flow-file.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
     const flow = readFlow(path.resolve(args[0]), vars);
@@ -117,6 +127,11 @@ try {
     const { url } = await serve({ port });
     console.log(`${indexCard()}\n\n  serving ${url} (loopback only) · projects ${SEEN.replace(os.homedir(), '~')} · ctrl-c to stop`);
     if (!flags.has('--no-open')) spawn(process.platform === 'darwin' ? 'open' : 'xdg-open', [url], { stdio: 'ignore', detached: true }).unref();
+  } else if (cmd === 'init' && (await import('../src/journey.js')).findRoot(path.resolve(args[0] || '.'))) {
+    const { findRoot, loadProject, writeProjection } = await import('../src/journey.js'); const { initCard } = await import('../src/core/report/index.js');
+    const P = loadProject(findRoot(path.resolve(args[0] || '.'))); const idx = writeProjection(P);
+    if (P.problems.length) idx.problems = P.problems;
+    console.log(flags.has('--json') ? JSON.stringify(idx, null, 1) : initCard(idx) + (P.problems.length ? '\n\n  declarations with problems\n' + P.problems.map(p => '    - ' + p).join('\n') : ''));
   } else if (cmd === 'init') {
     const { init, initCard } = await import('../src/init.js'); const r = init(path.resolve(args[0] || '.'), { apply: flags.has('--apply') }); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : initCard(r));
   } else if (cmd === 'gate') {

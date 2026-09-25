@@ -21,4 +21,11 @@ export const SUITES = [
   { tag: 'pin', title: 'signed over evidence that moved', file: 'anchor-pairs.mjs', miss: 'differs' },
   { tag: 'cite', title: 'the document still says it', file: 'context-pairs.mjs', miss: 'drifted' },
   { tag: 'disk', title: 'a packet keeps its own pictures', file: 'runs-layout-pairs.mjs', miss: 'archived' },
+  { tag: 'model', title: 'a declaration says what it can hold', file: 'model-pairs.mjs', miss: 'refused' },
+  { tag: 'pred', title: 'a state that can be false', file: 'predicate-pairs.mjs', miss: 'seen' },
+  { tag: 'prov', title: 'a provisioner is testimony, checked', file: 'provision-pairs.mjs', miss: 'refused' },
+  { tag: 'run', title: 'blocked is not a verdict', file: 'run-pairs.mjs', miss: 'seen' },
+  { tag: 'level', title: 'the level is computed, not read', file: 'level-pairs.mjs', miss: 'lowered' },
+  { tag: 'meas', title: 'a measurement reads the page it was made for', file: 'measure-pairs.mjs', miss: 'seen' },
+  { tag: 'card', title: 'a blocked run says no pass, a cap is spoken', file: 'report-pairs.mjs', miss: 'seen' },
 ];
