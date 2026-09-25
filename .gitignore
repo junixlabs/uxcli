@@ -9,9 +9,9 @@ node_modules
 *.log
 # the repo's own .uxcli/ (old runs, index) stays out; in a nested project only observed/derived stay out — declarations travel with the repo
 /.uxcli/
-.uxcli/runs/
-.uxcli/proposals/
-.uxcli/index.json
+**/.uxcli/runs/
+**/.uxcli/proposals/
+**/.uxcli/index.json
 
 # holds a storefront bearer token
 .mcp.json
