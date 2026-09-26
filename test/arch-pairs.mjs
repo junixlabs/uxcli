@@ -4,7 +4,7 @@
 // one is shown failing on a planted violation and silent when the violation is removed — which is the
 // standard this repo applies to everything else it asserts, and the reason `uxcli gate` exists.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import { fileURLToPath } from 'node:url';
-import { dependencyRule, lifecycleRule, registryRule, storeRule, suiteRule, tierRule, kindRule } from '../src/arch.js';
+import { dependencyRule, lifecycleRule, registryRule, storeRule, suiteRule, kindRule } from '../src/arch.js';
 import { SUITES } from '../src/suites.js';
 import { kindNames } from '../src/core/commitment/kinds.js';
 
@@ -98,25 +98,6 @@ export function pair() {
       kindRule(['__kind-pair-plant'], kindDir).length === 1);
   } finally { fs.rmSync(kindDir, { recursive: true, force: true }); }
   must('kind rule does not hold on the repository as it stands', kindRule(kindNames()).length === 0);
-
-  // Rule 6 — what the dashboard serves the browser. The planted map is a real file because the rule
-  // reads a file; the modules it names are the real ones, because an import graph that does not
-  // exist proves nothing about resolving one that does.
-  const tierDir = fs.mkdtempSync(path.join(os.tmpdir(), 'uxcli-tier-'));
-  const tiers = (...routes) => {
-    const f = path.join(tierDir, 'd.js');
-    fs.writeFileSync(f, `const TIERS = {\n${routes.map(r => `  '${r}': 'text/javascript',`).join('\n')}\n};\n`);
-    return tierRule(f);
-  };
-  try {
-    must('tier rule missed a served module whose own import is not served',
-      tiers('/core/timeline.js').some(s => s.includes('/core/target.js')));
-    must('tier rule objected once the import was served too',
-      tiers('/core/timeline.js', '/core/target.js', '/core/verdict/rank.js').length === 0);
-    must('tier rule missed a route with no file behind it', tiers('/core/__nope.js').length > 0);
-    must('tier rule objected to a served module that imports nothing', tiers('/core/target.js').length === 0);
-  } finally { fs.rmSync(tierDir, { recursive: true, force: true }); }
-  must('tier rule does not hold on the dashboard as it stands', tierRule().length === 0);
 
   return { ok: problems.length === 0, problems, checks };
 }

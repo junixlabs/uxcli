@@ -12,8 +12,8 @@
 // otherwise all render as `file:///Us…` — every one named by the part they share and cut off before
 // the part that tells them apart.
 //
-// Pure, and in core/ because it is a decision about meaning rather than a way of drawing: the card,
-// the dashboard and anything else that has to name a target should name it the same way.
+// Pure, and in core/ because it is a decision about meaning rather than a way of drawing: the card
+// and anything else that has to name a target should name it the same way.
 
 const decode = s => { try { return decodeURIComponent(s); } catch { return s; } };
 
@@ -34,7 +34,7 @@ export function parts({ where, project = '', name = '' }) {
     return { host: '', segs: rel.split('/').filter(Boolean), kind: 'file', raw: where, name };
   }
 
-  // uxcli measuring its own dashboard. A run is addressed by its directory, so the route carries an
+  // uxcli measuring a page of its own. A run is addressed by its directory, so the route carries an
   // absolute path percent-encoded after `#/` — 93 characters of storage address for a thing whose
   // name is its last segment. The directory is where the packet sits; it is not what was measured.
   const hash = decode(u.hash.replace(/^#\/?/, ''));
@@ -46,7 +46,7 @@ export function parts({ where, project = '', name = '' }) {
   const path = u.pathname.replace(/^\//, '');
   const segs = [...path.split('/'), ...(hash ? hash.split('/') : [])].filter(Boolean);
   // A url with no path is not a page called "/" inside a host; it is the host. Named any other way
-  // it prints as `127.0.0.1:4717//`, a separator standing next to nothing.
+  // it prints as `127.0.0.1:3000//`, a separator standing next to nothing.
   if (!segs.length) return { host: '', segs: [u.host], kind: 'web', raw: where, name };
   return { host: u.host, segs, kind: 'web', raw: where, name };
 }
@@ -69,7 +69,7 @@ const seen = l => [l.head, l.stem, l.leaf].filter(Boolean).join('/');
 
 // Line two. Uniqueness decides how much of the address line one must carry; meaning decides line
 // two, and it is not the same question. `fx-flow` is a unique label and it is also a cryptic one —
-// it needs `127.0.0.1:4717 · run detail` under it to say what kind of thing it names. So the
+// it needs `127.0.0.1:3000 · run detail` under it to say what kind of thing it names. So the
 // context is everything that locates the target and is not already printed above it.
 function context(p, line1) {
   const bits = [];

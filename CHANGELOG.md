@@ -19,8 +19,17 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Changed
 
-- The dashboard was rebuilt: dark ground, evidence open by default, and the journey chain reads as a
-  line rather than a paragraph of JSON.
+- `uxcli init` at zero: `--apply --origin=URL` writes `.uxcli/project.json` and a floor policy
+  (reach observe, one environment, no identity, no effect) signed by the person who ran it; after
+  that the card names the first thing still undone. Runs record their viewport, and a commitment
+  scoped to other viewports is not measured by them. Trust cannot reach `gate` until every ACTIVE
+  commitment has a corpus label on its step.
+
+### Removed
+
+- The dashboard, and everything that served it: `uxcli dashboard`, the browser modules, the bundled
+  fonts, the per-machine project list under `~/.uxcli/`, the index rows the runner used to register,
+  and the prototypes. The card, `run.json` and the screenshots beside it are the whole reading surface.
 
 ### Fixed
 

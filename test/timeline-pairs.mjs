@@ -16,8 +16,8 @@ export const OPERATOR =
   + 'target measured once, which is not stability';
 
 const run = o => ({ kind: 'page', project: '/p', exit: 0, ...o });
-const RUNS = 'http://127.0.0.1:4717/#/runs';
-const HOME = 'http://127.0.0.1:4717/#/home';
+const RUNS = 'http://127.0.0.1:3000/#/runs';
+const HOME = 'http://127.0.0.1:3000/#/home';
 
 // One target, five runs. The name drifts because `label.js` shortens against whatever else is on
 // screen; the directory drifts because these rows straddle the hostname-key era; the id is absent
@@ -25,7 +25,7 @@ const HOME = 'http://127.0.0.1:4717/#/home';
 const FIVE = [
   run({ ranAt: '2026-09-20T10:00:00.000Z', where: RUNS, name: 'uxcli runs', dir: '/p/.uxcli/127.0.0.1', worst: 'pass' }),
   run({ ranAt: '2026-09-21T10:00:00.000Z', where: RUNS, name: 'runs', dir: '/p/.uxcli/127.0.0.1', worst: 'pass' }),
-  run({ ranAt: '2026-09-22T10:00:00.000Z', where: RUNS, name: '127.0.0.1:4717/#/runs', dir: '/p/.uxcli/runs-x', worst: 'pass' }),
+  run({ ranAt: '2026-09-22T10:00:00.000Z', where: RUNS, name: '127.0.0.1:3000/#/runs', dir: '/p/.uxcli/runs-x', worst: 'pass' }),
   run({ ranAt: '2026-09-23T10:00:00.000Z', where: RUNS, name: 'runs', dir: '/p/.uxcli/runs-x', targetId: targetId({ url: RUNS }), worst: 'pass' }),
   run({ ranAt: '2026-09-23T18:00:00.000Z', where: RUNS, name: 'runs', dir: '/p/.uxcli/runs-x', targetId: targetId({ url: RUNS }), worst: 'fail' }),
 ];
@@ -39,8 +39,8 @@ const REST = [
   run({ ranAt: '2026-09-19T08:00:00.000Z', where: 'file:///p/src/probes/contrast/must-pass/index.html', name: 'index.html', dir: '/p/.uxcli/contrast-z', worst: 'pass' }),
   run({ kind: 'journey', ranAt: '2026-09-18T08:00:00.000Z', where: null, name: 'checkout fixture', dir: '/p/.uxcli/checkout-a', worst: 'pass' }),
   run({ kind: 'journey', ranAt: '2026-09-19T08:00:00.000Z', where: null, name: 'checkout fixture', dir: '/p/.uxcli/checkout-a', worst: 'unmeasurable' }),
-  run({ ranAt: '2026-09-21T12:00:00.000Z', where: 'http://127.0.0.1:4717/pages', name: 'pages', dir: '/p/.uxcli/pages-b', worst: 'pass', counts: { pass: 3 } }),
-  run({ ranAt: '2026-09-21T12:00:00.000Z', where: 'http://127.0.0.1:4717/pages', name: 'pages', dir: '/p/.uxcli/pages-c', worst: 'pass' }),
+  run({ ranAt: '2026-09-21T12:00:00.000Z', where: 'http://127.0.0.1:3000/pages', name: 'pages', dir: '/p/.uxcli/pages-b', worst: 'pass', counts: { pass: 3 } }),
+  run({ ranAt: '2026-09-21T12:00:00.000Z', where: 'http://127.0.0.1:3000/pages', name: 'pages', dir: '/p/.uxcli/pages-c', worst: 'pass' }),
   run({ ranAt: '2026-09-17T08:00:00.000Z', where: null, name: null, dir: '/p/.uxcli/orphan', worst: 'pass' }),
 ];
 
@@ -85,7 +85,7 @@ export function pair() {
   const all = timelines(ALL);
   check('pass → fail is a regression', find(all, targetId({ url: RUNS }))?.drift, 'regressed');
   check('fail → pass is a recovery', find(all, targetId({ url: HOME }))?.drift, 'improved');
-  check('pass → pass has not moved', find(all, targetId({ url: 'http://127.0.0.1:4717/pages' }))?.drift, 'held');
+  check('pass → pass has not moved', find(all, targetId({ url: 'http://127.0.0.1:3000/pages' }))?.drift, 'held');
   check('and pass → unmeasurable is a regression, by the one ladder',
     find(all, targetId({ journey: 'checkout fixture' }))?.drift, 'regressed');
 

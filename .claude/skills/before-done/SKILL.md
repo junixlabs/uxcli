@@ -23,7 +23,7 @@ uxcli measures layout at other window sizes, what scrolls and what stays put, wh
 visible label agrees with the state it reports, where focus lands after an action, whether feedback
 appears where the person is looking, the heading outline, the tab order, or whether something that
 can be clicked looks like it can. A page can return exit 0 with its navigation scrolling off the top
-of the screen and a filter naming the wrong project — measured, on this instrument's own dashboard,
+of the screen and a filter naming the wrong project — measured on a page of this instrument's own,
 on 2026-09-20.
 
 Report exit 0 as what it is: the probes that ran, and what they found. If you are asked whether the

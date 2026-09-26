@@ -11,7 +11,8 @@
 // never remembered, because the whole instrument is built on not taking its own word for anything.
 import fs from 'node:fs'; import path from 'node:path';
 import { findCommitments, FILE as COMMITMENTS } from './sheet.js';
-import { readIndex } from './adapters/store/runs.js';
+import { UXCLI, currentRuns } from './adapters/store/runs.js';
+import { execSync } from 'node:child_process'; import os from 'node:os';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const RULE = path.join('.claude', 'rules', 'uxcli.md');
@@ -23,7 +24,9 @@ const RULE_BODY = `This project measures its UI with uxcli, a CLI that drives re
 
 \`npx @junixlabs/uxcli init\` prints where setup stands and what the next step is.
 
-Two things only a human signs: \`${COMMITMENTS}\`, and \`confirmedBy\` in a journey. Propose them; never write them yourself.
+Anyone can sign \`${COMMITMENTS}\` and \`confirmedBy\` in a journey — an agent too, when the person running it says so. What a signature has to carry is not a species but accountability: \`owner\` names who stands behind it and \`source\` names the document it came from, and \`uxcli sheet\` returns \`not-committed\` without both. Say in the entry that an agent signed it and on whose say-so.
+
+Signing is not the same act as erasing a verdict. Do not edit a commitment, a journey or a probe in order to turn a run that is failing into one that passes: that is not deciding what correct means, it is deleting the finding. Change a commitment because the commitment was wrong, and say so in \`source\`.
 
 Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: four probes found no fail. The \`before-done\` skill is the sequence, and the list of what those probes do not look at.
 `;
@@ -38,7 +41,7 @@ const same = (a, b) => { try { return fs.readFileSync(a, 'utf8') === fs.readFile
 
 // create / kept / stale. `stale` is the one Playwright's CLI taught us to report: a skill copied by an
 // older uxcli sits in the project unchanged forever, and init used to say `kept` and fall silent.
-function items(project) {
+function items(project, origin) {
   const out = [];
   for (const name of skillNames()) {
     const rel = path.join('.claude', 'skills', name, 'SKILL.md'); const src = path.join(ROOT, 'skills', name, 'SKILL.md'); const dst = path.join(project, rel);
@@ -47,8 +50,36 @@ function items(project) {
   const rule = path.join(project, RULE);
   const ruleNow = fs.existsSync(rule) ? fs.readFileSync(rule, 'utf8') : null;
   out.push({ rel: RULE, body: RULE_BODY, status: ruleNow == null ? 'create' : ruleNow === RULE_BODY ? 'kept' : 'stale', note: 'loaded at the start of every session' });
-  const outDir = path.join(project, '.uxcli');
-  out.push({ rel: '.uxcli/', dir: true, status: fs.existsSync(outDir) ? 'kept' : 'create' });
+  const outDir = path.join(project, UXCLI);
+  out.push({ rel: UXCLI + '/', dir: true, status: fs.existsSync(outDir) ? 'kept' : 'create' });
+  for (const d of declarations(project, origin)) out.push(d);
+  return out;
+}
+
+// The two files every run reads first. project.json names the project; policy.json is the floor:
+// reach `observe` in one environment, no identity, no fixture, no effect — the level a project starts
+// at, and the one that grants nothing. Its signer is whoever runs `--apply`: that is the say-so.
+const PROJECT = path.join(UXCLI, 'project.json'), POLICY = path.join(UXCLI, 'policy', 'policy.json');
+const who = () => { try { return execSync('git config user.name', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || os.userInfo().username; } catch { return os.userInfo().username; } };
+const projectId = project => { try { return JSON.parse(fs.readFileSync(path.join(project, 'package.json'), 'utf8')).name.replace(/^@[^/]+\//, ''); } catch { return path.basename(project); } };
+export const floorPolicy = (origin, signer, at = new Date().toISOString()) => ({
+  note: `written by uxcli init --apply on ${at}, on ${signer.ref}'s say-so; the floor — raise reachMax only by editing this file`,
+  defaultEnvironment: 'local',
+  project: { reachMax: 'observe', constraints: [] },
+  environments: { local: { origin, reachMax: 'observe', constraints: [] } },
+  workflows: {},
+  effects: { core: ['database_write', 'external_email', 'external_sms', 'payment', 'webhook', 'file_write', 'file_delete', 'account_mutation', 'external_api'] },
+  testIdentity: { mode: 'provided' },
+  authority: { project: signer, environments: signer, workflows: signer },
+});
+// A body is only built for an item that would be created; a kept file is never read back or re-signed.
+function declarations(project, origin) {
+  const hasProject = fs.existsSync(path.join(project, PROJECT)), hasPolicy = fs.existsSync(path.join(project, POLICY));
+  const out = [{ rel: PROJECT, status: hasProject ? 'kept' : 'create', note: 'names the project; add rules{} when a journey needs a business number' }];
+  if (!hasProject) { const id = projectId(project); out[0].body = JSON.stringify({ id, name: id }, null, 2) + '\n'; }
+  // Without --origin the policy is not an item — nothing can be written — so `next` sends the person to it.
+  if (origin || hasPolicy) out.push({ rel: POLICY, status: hasPolicy ? 'kept' : 'create', note: 'the floor: reach observe, no identity, no effect; you are its signer',
+    ...(!hasPolicy && { body: JSON.stringify(floorPolicy(origin, { type: 'person', ref: who() }), null, 2) + '\n' }) });
   return out;
 }
 
@@ -70,10 +101,11 @@ function proposals(project) {
   }).length;
 }
 
+// Counted from the run directories themselves: a page run has a url, a journey run names its journey.
 function recorded(project) {
   try {
-    const here = readIndex(project).runs;
-    return { runs: here.length, journeysRan: new Set(here.filter(r => r.kind === 'journey').map(r => r.name)).size };
+    const here = currentRuns(project).map(r => r.run);
+    return { runs: here.length, journeysRan: new Set(here.filter(r => r.journey).map(r => typeof r.journey === 'string' ? r.journey : r.journey.ref)).size };
   } catch { return { runs: 0, journeysRan: 0 }; }
 }
 
@@ -93,6 +125,7 @@ export function next(s, list = []) {
   // up. uxcli's own repo was in exactly that state on 2026-09-20: the discipline it installs in every
   // other project was never installed where it was being built, and the card said it was.
   const missing = list.filter(i => i.status === 'create').length;
+  if (!list.some(i => i.rel === POLICY && i.status === 'kept')) return ['uxcli init --apply --origin=<url the screen under test is served at>', 'writes project.json and the floor policy (reach observe, no identity) with you as signer; every run reads it first'];
   if (!s.runs) return ['uxcli run <url of the screen under test>', 'the first measurement; it needs nothing signed'];
   if (!s.commitments) return ['the `principles` skill drafts the proposal', `a human signs ${COMMITMENTS}; until then sheet has nothing to read`];
   if (s.journeys.proposals && !s.journeys.measured) return [`a human sets confirmedBy in ${PROPOSALS}/`, 'run refuses a journey whose provenance is proposal'];
@@ -103,8 +136,8 @@ export function next(s, list = []) {
   return [null, 'setup is done; the `before-done` skill governs from here'];
 }
 
-export function init(project, { apply = false } = {}) {
-  const list = items(project);
+export function init(project, { apply = false, origin = null } = {}) {
+  const list = items(project, origin);
   if (apply) for (const it of list.filter(i => i.status === 'create')) {
     const dst = path.join(project, it.rel);
     if (it.dir) { fs.mkdirSync(dst, { recursive: true }); continue; }
@@ -117,7 +150,7 @@ export function init(project, { apply = false } = {}) {
   // card reports — it is how `created` can be printed at all. `after` is the state the project is
   // actually in now, and is what the next step is computed from; reporting the post-write list instead
   // made `--apply` announce `nothing to create` in the same breath as creating four files.
-  const after = apply ? items(project) : list;
+  const after = apply ? items(project, origin) : list;
   return { project, apply, items: list.map(({ rel, status, note }) => note ? { rel, status, note } : { rel, status }), state: s, next: next(s, after) };
 }
 
@@ -145,10 +178,21 @@ export function initCard(r) {
   L.push(row('journeys', `${j.measured} measured · ${j.proposals} proposal${j.proposals === 1 ? '' : 's'}`, j.proposals && !j.measured ? '← only a human sets confirmedBy' : null));
   L.push(row('runs', s.runs ? `${s.runs} recorded for this project` : 'none recorded for this project'));
   L.push('', '  next step');
-  L.push(r.next[0] ? `    ${r.next[0].padEnd(52)}${r.next[1]}` : `    ${r.next[1]}`);
+  L.push(r.next[0] ? `    ${r.next[0]}\n      ${r.next[1]}` : `    ${r.next[1]}`);
   if (!r.apply && made.length) L.push('', `  uxcli init --apply          create the ${made.length} item${made.length === 1 ? '' : 's'} above. Nothing is overwritten.`);
   L.push('', '  CI step to add to the job that serves the app:', CI_STEP);
   L.push('', `  On Claude Code older than 2.0.64, which does not read .claude/rules/, paste this one line into the project's CLAUDE.md:`, `      ${IMPORT_LINE}`);
   L.push('', `  Nothing is ever edited or overwritten. ${COMMITMENTS} and journeys are yours to sign; the principles and journey skills draft them as proposals.`);
   return L.join('\n');
+}
+
+// After the floor policy exists: the first thing still undone, in the order the model gates it.
+// An understanding before a journey (a journey traces to an insight), a journey before a run, a run
+// before a commitment can be measured. Stops at the first.
+export function firstStep(P, idx = {}) {
+  if (!P.userModel) return ['.uxcli/understanding/<actor>.json', 'who uses this screen and what they expect; unknowns[] is the most important field'];
+  if (!P.journeys.length) return ['.uxcli/journeys/<name>.json', 'one journey: states as signals an observer can check, one happy workflow'];
+  if (!(idx.rows || []).length) return [`uxcli run .uxcli/journeys/${P.journeys[0].value?.id || '<name>'}.json`, 'the first run; at reach observe nothing is provisioned or mutated'];
+  if (!P.commitments.length) return ['.uxcli/commitments/C-001.json', 'a commitment with owner and source; until one is signed every would-be fail is a finding'];
+  return [null, 'declared and measured; the projection above is the state'];
 }

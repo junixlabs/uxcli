@@ -14,7 +14,7 @@ const COLLECT = ([THIRD, LIMIT]) => {
   // skips the subtree with `content-visibility`, and a descendant of it still reports a real
   // `getClientRects()` — the layout it had, at the place it would have had it. So a run of collapsed
   // JSON was collected as painted text and reported as overlapping whatever the page draws where the
-  // disclosure would have pushed it. uxcli found this on its own dashboard, where a closed raw packet
+  // disclosure would have pushed it. uxcli found this on a page of its own, where a closed raw packet
   // "overlapped" the footer two hundred pixels below it. The summary stays visible and stays measured.
   const folded = el => { for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const p = a.parentElement; if (p && p.tagName === 'DETAILS' && !p.open && a.tagName !== 'SUMMARY') return true; } return false; };
   const shown = el => { if (folded(el)) return false; for (let a = el; a && a.nodeType === 1; a = a.parentElement) { const cs = getComputedStyle(a); if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return false; if (a.getAttribute('aria-hidden') === 'true') return false; } return true; };

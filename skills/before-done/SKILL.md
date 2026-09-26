@@ -23,7 +23,7 @@ uxcli measures layout at other window sizes, what scrolls and what stays put, wh
 visible label agrees with the state it reports, where focus lands after an action, whether feedback
 appears where the person is looking, the heading outline, the tab order, or whether something that
 can be clicked looks like it can. A page can return exit 0 with its navigation scrolling off the top
-of the screen and a filter naming the wrong project — measured, on this instrument's own dashboard,
+of the screen and a filter naming the wrong project — measured on a page of this instrument's own,
 on 2026-09-20.
 
 Report exit 0 as what it is: the probes that ran, and what they found. If you are asked whether the
@@ -41,6 +41,6 @@ UI is good, that is a different question and this instrument did not answer it.
 
 - Say done without a run in this session on the final files.
 - Call a `finding`, `unmeasurable`, or `not-applicable` a pass.
-- Edit the journey, the commitments file, or a probe **in order to make a failing run pass**. Signing a commitment is open to you when the person running you says so; erasing a verdict is not the same act, and no permission makes it one. If a commitment is wrong, change it because it is wrong, record why in `source`, and re-run.
+- Edit the journey, the commitments file, or a probe to make a run pass. Those belong to the human.
 - Skip a screen because "it looked right in the browser". The browser shows you one state; the probe presses Tab, plants a defect, and reads the pixels back. That is where the probe is stronger than your eye — and only there. For everything under "What exit 0 does not cover", your eye is the only instrument there is, and a clean card is not a reason to skip looking.
 - Argue a verdict down. If you can show the card is wrong, say so to the owner with the run directory (`run.json` and the screenshots); the owner disputes it where the card says. Until then the verdict stands.

@@ -175,7 +175,6 @@ uxcli context [dir]             # what this project has said about itself, and w
 uxcli sheet [--src=DIR]         # the project's own commitments, no browser      --run=DIR for flow kinds
 uxcli authority [subject]       # what a subject may propose, sign or supersede here
 uxcli diff <a.json> <b.json>    # drift between two runs   --gate exits 2 on a new fail
-uxcli dashboard                 # one loopback viewer for every run on this machine
 uxcli init [dir]                # where this project stands, and what would be created  --apply
 uxcli gate                      # every falsification pair must hold
 uxcli why <rule>                # a probe's definition: why · applies-when · correct-when

@@ -22,7 +22,7 @@
 // that file was written to end, and a fourth ordering here would reopen it.
 //
 // `first` exists because a single run is not the fourth case of the same comparison, it is the
-// absence of one. A dashboard that paints it `held` is claiming a stability it has never observed:
+// absence of one. A surface that paints it `held` is claiming a stability it has never observed:
 // the run may be the first of a screen that is about to fail every day after. Nothing measured once
 // has been steady, so the word says only that it is a beginning.
 //

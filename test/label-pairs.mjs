@@ -32,7 +32,7 @@ export function pair() {
 
   // must-pass: leaves that already differ must not be padded with path nobody needed.
   const apart = [
-    { where: 'http://127.0.0.1:4717/runs' },
+    { where: 'http://127.0.0.1:3000/runs' },
     { where: 'https://uxcli.thejunix.com/pages/docs' },
   ];
   const bare = labelTargets(apart);
@@ -42,7 +42,7 @@ export function pair() {
 
   // The three shapes this index actually holds, each of which used to print in full.
   check('a percent-encoded path is decoded',
-    parts({ where: 'http://127.0.0.1:4717/#/%2FUsers%2Fx%2F.uxcli%2Ffx-flow' }).segs.join('/'),
+    parts({ where: 'http://127.0.0.1:3000/#/%2FUsers%2Fx%2F.uxcli%2Ffx-flow' }).segs.join('/'),
     'run detail/fx-flow');
   check('the project root is not repeated on every row',
     parts({ where: 'file:///Users/x/proj/src/card.js', project: ROOT }).segs.join('/'),

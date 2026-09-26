@@ -125,7 +125,7 @@ export default {
     return { mutation: `focus styles of the ${idx.length} measured controls set equal to their unfocused styles`, reached, why: reached ? null : r.checked === 0 ? 'no measured control took programmatic focus' : `${r.checked - r.same} of ${r.checked} controls still change computed style on focus (indicator drawn by an ancestor, a script, or a pseudo-element)`, checked: r.checked, same: r.same };
   },
   // The citation a reader acts on. Lives here, not in the card, so every surface that reads run.json
-  // (card, report, dashboard, MCP) gets the same sentence instead of re-deriving it.
+  // (card, report, MCP) gets the same sentence instead of re-deriving it.
   // The pure half lives in core/, where the dependency rule is what keeps it pure.
   explain,
 };

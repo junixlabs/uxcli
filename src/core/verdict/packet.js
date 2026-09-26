@@ -2,7 +2,7 @@
 //
 // A packet used to be five fixed keys and whatever else the probe felt like returning. That is not a
 // format, it is a habit, and it cost what habits cost: across 48 packets on disk, 29 different tail
-// keys, 15 of which no surface ever asked for by name. The dashboard could not tell those 15 from
+// keys, 15 of which no surface ever asked for by name. A reader could not tell those 15 from
 // evidence — nothing said which was which — so it printed all of them, and the page filled with
 // numbers nobody chose to show. Meanwhile `card.js` curated the same tail by hand, per criterion,
 // with a `p.sc === '3.3.4' ? … : p.sc === '3.3.7' ? …` ladder. Two surfaces, two curations of one
@@ -93,8 +93,8 @@ export function packet(probe, out = {}) {
 // A packet as the contract describes it, whatever version it was written in. Runs written before the
 // format carry their evidence loose at the top level; it is lifted into `evidence` rather than
 // hidden, because the classification did not exist when they were measured and a reader opening an
-// old run should still see what decided it. One function, so every reader — the dashboard server,
-// `diff`, anything later — agrees about what an old packet meant.
+// old run should still see what decided it. One function, so every reader — `diff`,
+// anything later — agrees about what an old packet meant.
 export function read(p) {
   if (!p || typeof p !== 'object') return p;
   const loose = Object.keys(p).filter(k => !KEYS.includes(k));

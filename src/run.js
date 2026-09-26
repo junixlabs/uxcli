@@ -13,7 +13,7 @@ import { isFlow } from './core/promise/parse.js';
 export const PROBES = [errorPrevention, errorIdentification, redundantEntry, consistentNavigation];
 
 // what / where / check — the citation a reader acts on. Written into the result, not composed by the
-// card, so run.json carries it and every surface (card, report, dashboard, MCP) says the same thing.
+// card, so run.json carries it and every surface (card, report, MCP) says the same thing.
 // Runs last: contrast can only name a design token after --src has been indexed.
 export function explainAll(result, probes) {
   result.probes = result.probes.map(p => {
@@ -35,7 +35,7 @@ export async function runJourney(J, { browser, outDir } = {}) {
   const bctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
   bctx.setDefaultTimeout(10000); // a selector that is not on the page fails in 10 s, not 30
   // Playwright writes its call log for a terminal, so the message arrives with SGR escapes in it.
-  // Stripped here rather than where it is displayed: run.json is read by the dashboard, by `diff`,
+  // Stripped here rather than where it is displayed: run.json is read by `diff`,
   // and by whoever opens the file — none of them are a terminal, and none of them should each undo it.
   const said = e => ('' + e).replace(/\x1b\[[0-9;]*m/g, '').slice(0, 160);
   const page = await bctx.newPage();

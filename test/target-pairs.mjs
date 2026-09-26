@@ -18,8 +18,8 @@ export function pair() {
   const check = (what, got, want) => { checks++; if (got !== want) problems.push(`${what}: got ${JSON.stringify(got)}, wanted ${JSON.stringify(want)}`); };
 
   // must-fail: the defect this replaced. Under the old rule both of these resolved to `127.0.0.1`.
-  const runs = { url: 'http://127.0.0.1:4717/#/runs' };
-  const home = { url: 'http://127.0.0.1:4717/#/home' };
+  const runs = { url: 'http://127.0.0.1:3000/#/runs' };
+  const home = { url: 'http://127.0.0.1:3000/#/home' };
   checks++; if (outDirFor(runs) === outDirFor(home))
     problems.push(`two screens of one host share a directory: ${outDirFor(runs)}`);
   checks++; if (new URL(runs.url).hostname !== new URL(home.url).hostname)
@@ -27,15 +27,15 @@ export function pair() {
 
   // must-pass: measuring the same screen again has to land in the same place, or the index never
   // replaces anything and grows without bound.
-  check('the same target twice is one directory', outDirFor(runs), outDirFor({ url: 'http://127.0.0.1:4717/#/runs' }));
-  check('and the same id', targetId(runs), targetId({ finalUrl: 'http://127.0.0.1:4717/#/runs' }));
+  check('the same target twice is one directory', outDirFor(runs), outDirFor({ url: 'http://127.0.0.1:3000/#/runs' }));
+  check('and the same id', targetId(runs), targetId({ finalUrl: 'http://127.0.0.1:3000/#/runs' }));
 
   // An origin typed two ways is one target; nobody means two things by the trailing slash.
   check('a bare origin collapses its trailing slash',
-    targetId({ url: 'http://127.0.0.1:4717/' }), targetId({ url: 'http://127.0.0.1:4717' }));
+    targetId({ url: 'http://127.0.0.1:3000/' }), targetId({ url: 'http://127.0.0.1:3000' }));
 
-  // Ports are part of the identity: two dashboards on one machine are two targets.
-  checks++; if (targetId({ url: 'http://127.0.0.1:4717/#/runs' }) === targetId({ url: 'http://127.0.0.1:4719/#/runs' }))
+  // Ports are part of the identity: two servers on one machine are two targets.
+  checks++; if (targetId({ url: 'http://127.0.0.1:3000/#/runs' }) === targetId({ url: 'http://127.0.0.1:3001/#/runs' }))
     problems.push('two ports collapsed into one target');
 
   // A journey is named, never dressed as a url: the packet records the name and has no way back to

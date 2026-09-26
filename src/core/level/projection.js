@@ -76,6 +76,10 @@ export function projection({ userModel, journeys = [], commitments = [], profile
       const label = n === total ? (total === 1 ? 'measurement' : total === 2 ? 'cả hai measurement' : `cả ${total} measurement`) : `${n}/${total} measurement`;
       toGate.push(`${c.id}: ${label} method-unproven → chưa gate được`);
     }
+    // Blocking power is earned against ground truth: a commitment nobody has labeled a run for has no
+    // false-positive rate, and a verdict with no measured error rate cannot gate.
+    const labeled = corpusLabels.some(l => l.journey === c.scope?.journey && (!c.scope?.step || !l.step || l.step === c.scope.step));
+    if (c.status === 'ACTIVE' && !n && !labeled) toGate.push(`${c.id}: chưa có nhãn corpus nào cho ${c.scope?.journey || '?'}${c.scope?.step ? '/' + c.scope.step : ''} → FP rate chưa đo, chưa gate được`);
     if (c.status === 'RETIREMENT_PROPOSED' && !c.retirement?.decidedBy) toGate.push(`${c.id} RETIREMENT_PROPOSED từ ${day(c.retirement?.at)}, chưa ai quyết`);
     if (standingC[c.id].reviewOverdue) toGate.push(`${c.id}: quá reviewAfter ${c.reviewAfter}, chưa ai xem → chỉ được finding`);
     if (standingC[c.id].traceDemoted) toGate.push(`${c.id}: trace tới insight đã demote (${standingC[c.id].traceDemoted.join(', ')}) → chờ quyết`);

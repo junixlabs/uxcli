@@ -21,7 +21,7 @@ import { packet, seal, effectsFrom } from './core/run/packet.js';
 import { verdicts, scopeMatches } from './core/run/verdicts.js';
 import { outcomeOf } from './core/run/measure.js';
 import { projection } from './core/level/projection.js';
-import { UXCLI, dirFor, rotate, runsDir, historyOf } from './adapters/store/runs.js';
+import { UXCLI, dirFor, rotate, currentRuns } from './adapters/store/runs.js';
 import { runHash } from './adapters/store/run-hash.js';
 
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -66,14 +66,17 @@ export function loadProject(root) {
 }
 
 // index.json is a projection: computed from what is on disk, never edited, safe to delete.
-export function writeProjection(P) {
-  const runs = fs.existsSync(runsDir(P.root)) ? fs.readdirSync(runsDir(P.root)).map(d => historyOf(path.join(runsDir(P.root), d))).filter(h => h.length)
-    .map(h => ({ run: h.find(x => x.current)?.run || h[0].run, history: h.filter(x => !x.current).map(x => x.run) })) : [];
+export function projectionOf(P) {
+  // Only journey packets belong to the projection; a page run (`run <url>`) has no journey and no level.
+  const runs = currentRuns(P.root).filter(r => r.run.journey?.ref);
   const runHashes = {};
   for (const c of P.commitments.map(c => c.value).filter(c => c?.anchor?.run)) { const d = path.join(P.U, c.anchor.run); if (fs.existsSync(path.join(d, 'run.json'))) runHashes[c.anchor.run] = "sha256:" + runHash(d); }
-  const idx = projection({ userModel: P.userModel, journeys: P.journeys.map(j => j.value && { ...j.value, definitionHash: j.hash }).filter(Boolean),
+  return projection({ userModel: P.userModel, journeys: P.journeys.map(j => j.value && { ...j.value, definitionHash: j.hash }).filter(Boolean),
     commitments: P.commitments.map(c => c.value).filter(Boolean), profiles: P.profiles.map(p => p.value && { ...p.value, hash: p.hash }).filter(Boolean),
     policy: P.policy.value || {}, runs, proposals: P.proposals, corpusLabels: P.corpusLabels, probes: P.probes, runHashes });
+}
+export function writeProjection(P) {
+  const idx = projectionOf(P);
   fs.writeFileSync(path.join(P.U, 'index.json'), JSON.stringify(idx, null, 2) + '\n');
   return idx;
 }
@@ -141,7 +144,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const plans = workflows.map(w => ({ w, p: plan(journey, policy, envName, scenario, { prerequisites: prereqs, workflow: w.id }) }));
   const blockedNow = idRejected ? blockedAt({ identity: idRejected }) : plans.every(x => x.p.status === 'blocked') ? plans[0].p : null;
   if (blockedNow) {
-    const run = seal(packet({ id, journey, definitionHash, env: envName, scenario, reach: plans[0].p.reach, effects: { declared: [], observed: [] }, ranAt, blocked: { reason: blockedNow.reason, which: blockedNow.which } }), []);
+    const run = seal(packet({ id, journey, definitionHash, env: envName, viewport, scenario, reach: plans[0].p.reach, effects: { declared: [], observed: [] }, ranAt, blocked: { reason: blockedNow.reason, which: blockedNow.which } }), []);
     return finish(run, async r => { if (idValues) identity.cleanupVerified = cleanup(idProfile.value, idValues, { cwd: root, env: shell }).verified; return { ...r, scenario: { identity, fixtures: [] } }; });
   }
 
@@ -251,9 +254,9 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const merged = { network: obsList.flatMap(o => o.observation?.network || []) };
   const constraints = (penv.constraints || []).map(c => constraintHeld(c, merged, envBag));
   const reach = (plans.find(x => x.p.status === 'ok') || plans[0]).p.reach;
-  const declared = [...new Set(workflows.flatMap(w => workflowPolicy(policy, wfId(w)).effects || []))];
+  const declared = [...new Set(workflows.flatMap(w => workflowPolicy(policy, wfId(w))?.effects || []))];
   const shots = fs.readdirSync(dir).filter(f => /\.png$/i.test(f)).sort();
-  let run = packet({ id, journey, definitionHash, env: envName, scenario: { identity, fixtures: fixtures.map(f => f.record) }, reach, effects: { declared, observed: effectsFrom(obsList) }, stepResults, constraints, ruleSnapshots: P.rules, ranAt,
+  let run = packet({ id, journey, definitionHash, env: envName, viewport, scenario: { identity, fixtures: fixtures.map(f => f.record) }, reach, effects: { declared, observed: effectsFrom(obsList) }, stepResults, constraints, ruleSnapshots: P.rules, ranAt,
     ...(blocked && { blocked }), evidence: { shots, redacted: ['Authorization', 'Cookie', 'password', 'email', 'phone', 'ids → sha1_8'] } });
   const withObs = stepResults.map(s => ({ ...s, obs: obsOf.get(s) }));
   const outcomes = [];

@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // uxcli — UI/UX review for coding agents. No commitment, no verdict.
-import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import { spawn } from 'node:child_process'; import { fileURLToPath, pathToFileURL } from 'node:url';
-import { registerRun } from '../src/dashboard.js';
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath, pathToFileURL } from 'node:url';
 import { exitFor } from '../src/core/verdict/rank.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const [cmd, ...rest] = process.argv.slice(2);
@@ -22,11 +21,9 @@ const usage = `usage:
       drift between two saved runs (run --json, sheet --json): same / regressed / improved / new / gone per probe or commitment; with --gate exit 2 when b carries a fail
   uxcli discover <repo-dir|url> [--out=DIR] [--json]
       journey candidates as proposals: routes and forms from a Next.js source tree, or forms from a same-origin crawl; written to DIR (default uxcli-proposals/); run refuses a journey whose provenance is proposal until a human sets confirmedBy
-  uxcli init [dir] [--apply] [--json]
+  uxcli init [dir] [--apply] [--origin=URL] [--json]
       what uxcli would put in dir, and where dir stands in the sequence (commitments signed, journeys confirmed, runs recorded) — measured from disk, printed, and nothing written;
       --apply creates the shipped skills in dir/.claude/skills/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
-  uxcli dashboard [--port=N] [--no-open] [--list]
-      one viewer on this machine for every run it has been told about; ~/.uxcli/index.json holds pointers, each project keeps its own run.json and screenshots; served on 127.0.0.1 only, and it opens no file outside a directory that is in the index
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7, why text-overlap)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
@@ -43,7 +40,7 @@ const prepare = async outDir => {
   return outDir;
 };
 
-const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; result.screenshots = fs.readdirSync(outDir).filter(f => /\.(png|jpe?g)$/i.test(f)).length; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); registerRun(result, outDir); };
+const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; result.screenshots = fs.readdirSync(outDir).filter(f => /\.(png|jpe?g)$/i.test(f)).length; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); };
 try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
@@ -119,21 +116,16 @@ try {
     const props = proposals(d); const outDir = opt('out') || 'uxcli-proposals'; fs.mkdirSync(outDir, { recursive: true });
     props.forEach((j, i) => fs.writeFileSync(path.join(outDir, `${String(i + 1).padStart(2, '0')}-${j.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase().slice(0, 50)}.json`), JSON.stringify(j, null, 1) + '\n'));
     console.log(flags.has('--json') ? JSON.stringify({ ...d, proposals: props }, null, 1) : discoverCard(d, props));
-  } else if (cmd === 'dashboard') {
-    const { serve, indexCard } = await import('../src/dashboard.js');
-    const { SEEN } = await import('../src/adapters/store/runs.js');
-    if (flags.has('--list')) { console.log(indexCard()); process.exit(0); }
-    const port = parseInt(opt('port') || '4717', 10);
-    const { url } = await serve({ port });
-    console.log(`${indexCard()}\n\n  serving ${url} (loopback only) · projects ${SEEN.replace(os.homedir(), '~')} · ctrl-c to stop`);
-    if (!flags.has('--no-open')) spawn(process.platform === 'darwin' ? 'open' : 'xdg-open', [url], { stdio: 'ignore', detached: true }).unref();
-  } else if (cmd === 'init' && (await import('../src/journey.js')).findRoot(path.resolve(args[0] || '.'))) {
-    const { findRoot, loadProject, writeProjection } = await import('../src/journey.js'); const { initCard } = await import('../src/core/report/index.js');
-    const P = loadProject(findRoot(path.resolve(args[0] || '.'))); const idx = writeProjection(P);
-    if (P.problems.length) idx.problems = P.problems;
-    console.log(flags.has('--json') ? JSON.stringify(idx, null, 1) : initCard(idx) + (P.problems.length ? '\n\n  declarations with problems\n' + P.problems.map(p => '    - ' + p).join('\n') : ''));
   } else if (cmd === 'init') {
-    const { init, initCard } = await import('../src/init.js'); const r = init(path.resolve(args[0] || '.'), { apply: flags.has('--apply') }); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : initCard(r));
+    const J = await import('../src/journey.js'); const root = J.findRoot(path.resolve(args[0] || '.'));
+    if (root) {
+      const { initCard } = await import('../src/core/report/index.js'); const { firstStep } = await import('../src/init.js');
+      const P = J.loadProject(root); const idx = J.writeProjection(P);
+      const out = { ...idx, next: firstStep(P, idx), ...(P.problems.length && { problems: P.problems }) };
+      console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : initCard(out));
+      process.exit(0);
+    }
+    const { init, initCard } = await import('../src/init.js'); const r = init(path.resolve(args[0] || '.'), { apply: flags.has('--apply'), origin: opt('origin') || null }); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : initCard(r));
   } else if (cmd === 'gate') {
     const { gate } = await import('../src/gate.js'); process.exit((await gate()) ? 0 : 1);
   } else if (cmd === 'why' && args[0]) {

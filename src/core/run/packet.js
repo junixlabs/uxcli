@@ -74,7 +74,7 @@ export const effectsFrom = observations => observations.flatMap(({ step, observa
   (observation?.network || []).filter(n => n.effectClass && !n.blocked)
     .map(n => ({ effect: n.effectClass, where: step, request: `${n.method} ${n.path}` })));
 
-export function packet({ id, journey, definitionHash, env, scenario, reach, effects, stepResults = [], constraints, ruleSnapshots, probes, ranAt, blocked, evidence }) {
+export function packet({ id, journey, definitionHash, env, viewport, scenario, reach, effects, stepResults = [], constraints, ruleSnapshots, probes, ranAt, blocked, evidence }) {
   const declared = effects?.declared || [];
   const observed = (effects?.observed || []).map(effectName);
   const undeclared = [...new Set(observed.filter(e => !declared.includes(e)))];
@@ -91,6 +91,7 @@ export function packet({ id, journey, definitionHash, env, scenario, reach, effe
     id: id || `j-${journey.id}${env ? '@' + env : ''}`,
     ranAt,
     environment: env,
+    ...(viewport && { viewport }),
     journey: { ref: `journeys/${journey.id}.json`, definitionHash },
     scenario: scenario || { identity: null, fixtures: [] },
     reach: { requested: reach.layers?.workflow || reach.effective, effective: reach.effective, layers: reach.layers,

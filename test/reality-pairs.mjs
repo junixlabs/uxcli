@@ -127,13 +127,12 @@ export function pair() {
     check('and the place is named without it', slash.places.map(p => p.path).join(' '), '/cart');
   }
 
-  // This product's own dashboard is a single-page app: the hash is the only thing that names the
-  // screen. Dropping it would collapse every screen of every app built that way into one place, and
+  // A single-page app names its screens by hash and nothing else. Dropping it would collapse every screen of every app built that way into one place, and
   // a model covering one route would read as covering the lot.
   {
     const spa = observedFlow({ steps: [
-      step(0, 'http://127.0.0.1:4717/#/runs', 'goto', 'Runs'),
-      step(1, 'http://127.0.0.1:4717/#/home', 'click', 'Home'),
+      step(0, 'http://127.0.0.1:3000/#/runs', 'goto', 'Runs'),
+      step(1, 'http://127.0.0.1:3000/#/home', 'click', 'Home'),
     ] });
     check('two hash routes are two places', spa.places.length, 2);
     check('and the routes are named by their hash', spa.places.map(p => p.path).join(' '), '/#/runs /#/home');

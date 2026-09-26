@@ -1,12 +1,7 @@
 // Weakening is a removal: an edit under which a recorded fail would now pass or fall out of scope
 // needs the authority that created the commitment. Structural comparison only — no re-measurement.
+import { viewportOf } from './verdicts.js';
 const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
-
-const viewportOf = (run, v) => {
-  if (v.viewport) return v.viewport;
-  const step = (run.steps || []).find(s => s.id === v.where);
-  return (step?.interactions || []).map(i => i.viewport).find(Boolean) || null;
-};
 
 export function weakens(oldC, newC, historyRuns = []) {
   const runs = [];
@@ -19,7 +14,7 @@ export function weakens(oldC, newC, historyRuns = []) {
       const om = oldC.measurements?.[v.measurement], nm = newC.measurements?.[v.measurement];
       if (!nm) reasons.push(`measurement ${v.measurement} removed`);
       else if (!same(om?.predicate, nm.predicate) || !same(om?.target, nm.target)) reasons.push(`measurement ${v.measurement} predicate changed under a recorded fail`);
-      const vp = viewportOf(run, v);
+      const vp = v.viewport || viewportOf(run, v.where);
       if (vp && oldC.scope?.viewports?.includes(vp) && newC.scope?.viewports && !newC.scope.viewports.includes(vp)) reasons.push(`viewport ${vp} removed from scope`);
       for (const k of ['journey', 'workflow', 'step', 'state']) if (oldC.scope?.[k] && newC.scope?.[k] !== oldC.scope[k]) reasons.push(`scope.${k} changed`);
       if (reasons.length) { runs.push(run.ranAt); why.push(...reasons.map(r => `${run.ranAt}: ${r}`)); }

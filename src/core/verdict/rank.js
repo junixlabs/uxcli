@@ -3,12 +3,12 @@
 // Before this file there were three ladders and they did not agree:
 //
 //   diff.js:7          finding 1 · unmeasurable 2   → unmeasurable outranks finding
-//   dashboard.ui.js:26 finding 1 · unmeasurable 2   → finding outranks unmeasurable (lower is worse)
-//   dashboard.js:32    an inline chain, a fourth ordering again
+//   a screen module    finding 1 · unmeasurable 2   → finding outranks unmeasurable (lower is worse)
+//   a server module    an inline chain, a fourth ordering again
 //
 // Two of the three also carried names that are not verdicts: `diff.js` ranked `untested` and `stale`
 // — `stale` is a file status in init.js and `untested` is a branch field, neither has ever been a
-// verdict — which made the ladder look more complete than it was. `dashboard.ui.js` had no entry for
+// verdict — which made the ladder look more complete than it was. the screen module had no entry for
 // `suppressed` at all, so a waived commitment sorted below `not-applicable` by accident.
 //
 // The order is by attention, and the argument for the one place they disagreed: a `finding` names a
@@ -19,10 +19,9 @@
 // `pass` sits above `not-applicable` on purpose, and that is the second thing the old ladders
 // disagreed about. A `pass` says something was measured and held; a `not-applicable` says the rule
 // never applied. As the headline of a run the first is the more informative of the two, which is the
-// order `dashboard.js` already reached for — it simply had no case for `not-committed` or
+// order the server module already reached for — it simply had no case for `not-committed` or
 // `suppressed`, so a run where nobody had committed anything was headlined `pass` by falling through.
-// No imports on purpose: this is shared vocabulary, and the dashboard's browser tier loads it as
-// itself. `covers()` is handed the closed set rather than reaching for it.
+// No imports on purpose: this is shared vocabulary, loadable anywhere as itself. `covers()` is handed the closed set rather than reaching for it.
 
 // Worst first. Every one of the seven, and nothing that is not one of the seven.
 export const BY_ATTENTION = ['fail', 'finding', 'unmeasurable', 'not-committed', 'suppressed', 'pass', 'not-applicable'];
@@ -64,7 +63,7 @@ export const exitFor = ({ verdicts = [], couldNotRun = false } = {}) =>
 // What the probe measured, before the doctrine touched it, and why the doctrine touched it.
 //
 // Six call sites had each written `p.doctrine?.rawVerdict === 'fail'` or `(p.doctrine?.rawVerdict ||
-// p.verdict)` by hand — the gate, the card twice, run.js, the dashboard — and a reader of a packet had
+// p.verdict)` by hand — the gate, the card twice, run.js — and a reader of a packet had
 // to reconstruct from two fields the one thing they wanted to know: is this `finding` a fail the
 // instrument is not yet allowed to state, or a finding the probe itself reported? Those are different
 // asks of a person. The first is fixed by validating a method; the second by fixing the page.

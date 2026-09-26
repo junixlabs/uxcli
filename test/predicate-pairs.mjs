@@ -11,7 +11,7 @@ export const OPERATOR =
   + '+84901234567, a mismatch until e164 normalization; an authored strength above the derived one; a '
   + 'derive whose rule has no snapshot; a tenant header missing on a request outside the constrained effect '
   + 'and then on one inside it; a mounted alert region with no text in it; a cap laid on a pass and on a fail; and the example run, where after a 500 '
-  + 'the login form emptied the email field';
+  + 'the login form emptied the email field; and a url glob held on a run path, not on a project path';
 
 const hash = s => crypto.createHash('sha1').update(s).digest('hex');
 const sha8 = s => 'sha1_8:' + hash(s).slice(0, 8);
@@ -156,6 +156,12 @@ export function pair() {
   is(r1.why, ['input[name=email] valueUnchanged: false'], 'server-error/r1: the email signal is named');
   is(holds(STATES['anon.login_failed_retryable'], after('agent@mail.sink.local'), { before, hash }).held, true, 'the same state holds when the field keeps its value');
   is(holds(STATES['anon.login_failed_retryable'], after(''), { hash }).held, null, 'with no before-observation the field cannot be said to have changed');
+
+  // url `matches`: a glob over the path — held on a run path, not on a project path, undecided with no url observed.
+  const M = { signals: [{ observer: 'url', matches: '/r/*' }] };
+  is(holds(M, { url: { path: '/r/crm-real-estate/j-handle-inbound-lead' } }, { hash }).held, true, 'url matches: a run path under /r/ holds');
+  is(holds(M, { url: { path: '/p/crm-real-estate' } }, { hash }).held, false, 'url matches: a project path does not');
+  is(holds(M, {}, { hash }).held, null, 'url matches: with no url observed it is undecided');
 
   return { ok: problems.length === 0, problems, checks };
 }

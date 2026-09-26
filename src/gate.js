@@ -140,7 +140,7 @@ export async function gate({ log = console.log } = {}) {
   // The architecture, asserted like everything else here. No browser, no fixtures: these read the
   // source. A dependency rule nobody checks is the promise Cockburn says rots; these are the checks.
   {
-    const { dependencyRule, lifecycleRule, registryRule, storeRule, suiteRule, tierRule, kindRule } = await import('./arch.js');
+    const { dependencyRule, lifecycleRule, registryRule, storeRule, suiteRule, kindRule } = await import('./arch.js');
     const { kindNames } = await import('./core/commitment/kinds.js');
     const all = [...PROBES, ...PAGE_PROBES];
     const named = all.map(p => p.id.replace(/^(flow|page)\./, ''));
@@ -150,7 +150,6 @@ export async function gate({ log = console.log } = {}) {
       ['arch   registry names every probe  ', registryRule(named), 'the two explicit probe arrays and src/probes/ match both ways: no directory unregistered, no registration without a directory'],
       ['arch   one place names the files   ', storeRule(), 'no file outside src/adapters/store/ names a uxcli.*.json: where a project keeps its declarations is one decision, made once'],
       ['arch   the gate runs every pair    ', suiteRule(SUITES.map(s => s.file)), 'every test/*-pairs.mjs is named in the gate, and every suite the gate names is on disk'],
-      ['arch   served with what it imports ', tierRule(), 'every core/ module the dashboard serves the browser has its own imports served too: an unresolved import is a 404 where a module should be, and no screen evaluates at all'],
       ['arch   every kind can fail         ', kindRule(kindNames()), 'every kind in the commitment registry is named by a falsification pair: a kind nothing has watched fail cannot be told from one that always passes'],
     ];
     for (const [label, problems, operator] of rows) {

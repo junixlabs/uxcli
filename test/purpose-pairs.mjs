@@ -20,7 +20,7 @@ export function pair() {
   is('a probe must-fail page', 'file:///r/src/probes/contrast/must-fail/index.html', 'instrument');
   is('a probe must-pass page', 'file:///r/src/probes/contrast/must-pass/index.html', 'instrument');
   is('a fixture pair page', 'file:///r/test/fixtures/stability/must-fail/index.html', 'instrument');
-  is('a packet route naming a pair run', 'http://127.0.0.1:4717/#/%2Fr%2F.uxcli%2Ffx-stability-must-pass', 'instrument');
+  is('a packet route naming a pair run', 'http://127.0.0.1:3000/#/%2Fr%2F.uxcli%2Ffx-stability-must-pass', 'instrument');
   is('a pair page reached over http', 'http://localhost:9/probes/focus-visible/must-fail/', 'instrument');
 
   // ── must-pass: everything that only resembles one ───────────────────────

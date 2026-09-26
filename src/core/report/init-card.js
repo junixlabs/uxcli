@@ -18,9 +18,10 @@ const REACH = {
   inject: { can: ['intercept at the browser and inject failure in an isolated environment'], not: [] },
 };
 const reachKey = r => (r === 'observe' || r === 'interact' ? 'read-only' : r);
+const abilitiesOf = (level = {}) => { const t = TRUST[level.trust] || { can: [], not: [] }; const r = REACH[reachKey(level.reach)] || { can: [], not: [] }; return { can: [...t.can, ...r.can], not: [...t.not, ...r.not] }; };
 
 export function initCard(p = {}) {
-  const level = p.level || {}; const trust = TRUST[level.trust] || { can: [], not: [] }; const reach = REACH[reachKey(level.reach)] || { can: [], not: [] };
+  const level = p.level || {}; const ab = abilitiesOf(level);
   const L = [`uxcli init${p.generatedAt ? ` · projection ${p.generatedAt}` : ''}${p.rebuildable === false ? '' : ' · derived, rebuildable'}`, ''];
 
   L.push('  level (measured, not declared)');
@@ -28,11 +29,11 @@ export function initCard(p = {}) {
   L.push(...row('reach', `${level.reach || 'unknown'}`, { indent: 4 }));
 
   L.push('', '  can now');
-  for (const c of [...trust.can, ...reach.can]) L.push(...bullet(c));
-  if (!trust.can.length && !reach.can.length) L.push('    - nothing measured yet: no level could be computed');
+  for (const c of ab.can) L.push(...bullet(c));
+  if (!ab.can.length) L.push('    - nothing measured yet: no level could be computed');
   L.push('', '  cannot yet');
-  for (const c of [...trust.not, ...reach.not]) L.push(...bullet(c));
-  if (!trust.not.length && !reach.not.length) L.push('    - top of both axes; the list below is what would pull it down');
+  for (const c of ab.not) L.push(...bullet(c));
+  if (!ab.not.length) L.push('    - top of both axes; the list below is what would pull it down');
 
   // Always printed from the projection, never suppressed by the level: a gate-level project with an
   // open list is a project about to slip.
@@ -60,5 +61,9 @@ export function initCard(p = {}) {
       L.push(...row(r.target, `${r.env || '?'} · exit ${r.exit ?? '?'} · ${state}${r.history ? ` · history ${r.history}` : ''}`, { col: 36, indent: 4 }));
     }
   }
+
+  // `next` is [command, why]; a null command means the sentence stands alone.
+  if (p.next) L.push('', '  next step', ...(p.next[0] ? [`    ${p.next[0]}`, `      ${p.next[1]}`] : [`    ${p.next[1]}`]));
+  if (p.problems?.length) { L.push('', '  declarations with problems'); for (const x of p.problems) L.push(...bullet(x)); }
   return join(L);
 }

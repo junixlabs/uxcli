@@ -4,11 +4,16 @@ import { anchorState } from '../commitment/anchor.js';
 
 export const journeyIdOf = run => run.journey?.id || String(run.journey?.ref || '').replace(/^.*\//, '').replace(/\.json$/, '');
 const LOW = new Set(['weak', 'unverifiable']);
+// The viewport a run was measured at: recorded on the packet, or on the step's interactions in a packet older than that field.
+export const viewportOf = (run, stepId) => run.viewport || ((run.steps || []).find(s => s.id === stepId)?.interactions || []).map(i => i.viewport).find(Boolean) || null;
 
-// Scope matches when the journey is this run's and the named step/state was reached in it.
+// Scope matches when the journey is this run's, the run's viewport is one the commitment claims, and
+// the named step/state was reached in it.
 export function scopeMatches(c, run) {
   const s = c.scope || {};
   if (s.journey && s.journey !== journeyIdOf(run)) return false;
+  const vp = Array.isArray(s.viewports) && s.viewports.length ? viewportOf(run, s.step) : null;
+  if (vp && !s.viewports.includes(vp)) return false;
   const steps = run.steps || [];
   if (s.workflow && steps.some(x => x.workflow) && !steps.some(x => x.workflow === s.workflow)) return false;
   if (s.step && !steps.some(x => x.id === s.step)) return false;

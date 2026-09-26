@@ -7,8 +7,17 @@
 node_modules
 .DS_Store
 *.log
-# the repo's own .uxcli/ (old runs, index) stays out; in a nested project only observed/derived stay out — declarations travel with the repo
-/.uxcli/
+# the repo's own .uxcli/: declarations travel with the repo, everything observed or derived (and the old
+# per-site run dirs) stays out; in a nested project only observed/derived stay out
+/.uxcli/*
+!/.uxcli/project.json
+!/.uxcli/policy/
+!/.uxcli/understanding/
+!/.uxcli/journeys/
+!/.uxcli/commitments/
+!/.uxcli/profiles/
+!/.uxcli/probes/
+!/.uxcli/corpus/
 **/.uxcli/runs/
 **/.uxcli/proposals/
 **/.uxcli/index.json

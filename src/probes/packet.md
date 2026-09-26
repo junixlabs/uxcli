@@ -1,7 +1,7 @@
 # The packet
 
 One probe's verdict, and everything a reader or an agent needs to argue with it. Every probe returns
-one; `run.json` is a list of them; every surface — the card, the dashboard, `diff`, `refute`, the
+one; `run.json` is a list of them; every surface — the card, `diff`, `refute`, the
 clipboard — reads the same object.
 
 `uxcli gate` asserts this on every probe, on every run. A packet that breaks it stops the gate.
@@ -10,7 +10,7 @@ clipboard — reads the same object.
 
 It used to be five fixed keys and whatever else a probe felt like returning. Across 48 packets that
 had grown into 29 different tail keys, 15 of which no surface ever asked for by name. Nothing said
-which of them were evidence, so the dashboard printed all of them and the page filled with numbers
+which of them were evidence, so a screen printed all of them and the page filled with numbers
 nobody chose to show; meanwhile the terminal card curated the same tail by hand, per criterion, with
 a `p.sc === '3.3.4' ? … : p.sc === '3.3.7' ? …` ladder. Two surfaces, two curations of one object,
 and only one of them deliberate.
@@ -90,7 +90,7 @@ dropped from the packet before `run.json` is written.
   "why": "4 text nodes below the ratio, 1 colour pair",
   "cite": {
     "what": "4 text nodes in 1 colour pair: #9a9a9a (--ink-400) on #ffffff (--paper-0) 2.81:1 ×4 (e.g. .hint)",
-    "where": "http://127.0.0.1:4717/",
+    "where": "http://127.0.0.1:3000/",
     "check": "--ink-400 and --paper-0 declared in src/tokens.css; one change there fixes 4 nodes."
   },
   "evidence": {

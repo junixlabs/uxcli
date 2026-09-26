@@ -108,29 +108,6 @@ export function registryRule(registered, dir = path.join(SRC, 'probes')) {
     n => `the registry names \`${n}\` but src/probes/${n}/ does not exist`);
 }
 
-// Rule 6 — a module served to the browser is served with everything it imports. The dashboard hands
-// the page a handful of `core/` modules so the screens decide with the same rules the card does, and
-// it names them one at a time on purpose. But a name is not a graph: adding `timeline.js` without
-// `target.js` served the browser an import that 404s, and an unresolved import does not degrade one
-// screen — the whole module graph fails to evaluate and the page renders nothing. Found by a
-// teammate, against a running server, because no rule was looking.
-export function tierRule(file = path.join(SRC, 'dashboard.js')) {
-  if (!fs.existsSync(file)) return [];
-  const src = fs.readFileSync(file, 'utf8');
-  const served = new Set([...src.matchAll(/['"](\/core\/[^'"]+)['"]\s*:/g)].map(m => m[1]));
-  const bad = [];
-  for (const route of served) {
-    const onDisk = path.join(SRC, route.slice(1));
-    if (!fs.existsSync(onDisk)) { bad.push(`the dashboard serves ${route} but src${route} does not exist`); continue; }
-    for (const spec of importsOf(fs.readFileSync(onDisk, 'utf8'))) {
-      if (!spec.startsWith('.')) { bad.push(`${route} imports \`${spec}\`, which the browser cannot resolve`); continue; }
-      const want = '/' + path.relative(SRC, path.resolve(path.dirname(onDisk), spec));
-      if (!served.has(want)) bad.push(`${route} imports ${want}, which the dashboard does not serve — the browser gets a 404 where an import should be, and no screen evaluates at all`);
-    }
-  }
-  return bad;
-}
-
 // The same question asked of the suites that need no browser. A falsification pair is the only
 // evidence that a rule can see, so a pair file nobody runs is worse than no pair at all: it is a
 // rule that looks held and is not.
