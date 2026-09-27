@@ -10,10 +10,7 @@ import { runHash } from './adapters/store/run-hash.js';
 import { observedFlow, coverage } from './core/reality.js';
 import { targetId } from './core/target.js';
 import { may } from './core/authority.js';
-import { citable } from './core/context.js';
-// Through the adapter, never the core directly: a citation is checked against a document, and the
-// one place that reads a document is the disk half.
-import { contextOf } from './context.js';
+import { UXCLI } from './adapters/store/runs.js';
 import { readEntries, readProposedCommitments, writeProposedCommitments, pathTo, found, readAuthorities } from './adapters/store/project-files.js';
 
 const readJSON = p => JSON.parse(fs.readFileSync(p, 'utf8'));
@@ -38,10 +35,21 @@ export function proposeAuthority({ registry = [], hasRegistry = false, subject =
   return may({ authorities: registry, subject, action: 'propose', journey, at: now });
 }
 
-// What a claim, once somebody writes it, is entitled to lean on. Unsourced fields are left out: a
-// proposal that could cite one would let the claim inherit standing from a sentence nobody will put
-// a name to. No context file is an ordinary state, not an error — it yields nothing to cite.
-const citableFor = root => { const ctx = contextOf(root); return ctx.exists ? citable(ctx) : []; };
+// What a claim, once somebody writes it, is entitled to lean on: an insight under
+// .uxcli/understanding/insights/ that names a source and carries evidence. An insight with neither is
+// left out — a proposal that could cite it would let the claim inherit standing from a sentence
+// nobody will put a name to. No understanding on disk is an ordinary state, not an error.
+export function citableFor(root) {
+  const dir = path.join(root || '.', UXCLI, 'understanding', 'insights');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort().flatMap(f => {
+    try {
+      const i = readJSON(path.join(dir, f)); const ref = i?.source?.ref;
+      const ev = Array.isArray(i?.evidence) ? i.evidence.filter(e => typeof e === 'string' && e.trim()) : [];
+      return typeof ref === 'string' && ref.trim() && ev.length ? [{ field: i.id || f.replace(/\.json$/, ''), source: ref, quote: ev[0] }] : [];
+    } catch { return []; }
+  });
+}
 
 const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'step';
 
@@ -136,7 +144,7 @@ export function proposeCard({ flow, gap, proposals, citable: cite = [], journey,
   L.push(`  Each carries derivedFrom and an empty claim: what is missing is the sentence, and the sentence is not the machine's to write.`);
   L.push(cite.length
     ? `  A claim written into one of these may cite ${cite.map(c => `${c.field} (${c.source})`).join(', ')}.`
-    : `  Nothing in this project's context is sourced, so a claim written here has only the run to cite.`);
+    : `  No insight in this project's understanding is sourced, so a claim written here has only the run to cite.`);
   if (wrote) L.push('', `  ${wrote.added} added, ${wrote.skipped} already proposed. Nothing is enforced until an entry is filled in, moved into uxcli.commitments.json and signed.`);
   return L.join('\n');
 }

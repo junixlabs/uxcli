@@ -8,7 +8,7 @@
 // opt-in, so a project that never wrote one must keep working exactly as it did, and a refusal must
 // arrive as a refusal rather than as an empty list that reads like full coverage.
 //
-// The context half is asserted the same way: a field whose quote is in the document is citable, and
+// The understanding half is asserted the same way: an insight with a source and evidence is citable, and
 // because the whole point of citing context is that the claim cannot inherit standing from a
 // sentence nobody will put a name to.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
@@ -18,7 +18,7 @@ export const OPERATOR =
   'an agent proposing outside its recorded scope, one nobody registered, one whose authority has '
   + 'expired and a command run as nobody, against the same agent inside its scope and a project that '
   + 'never wrote a registry at all; a refusal that arrives as a refusal rather than as nothing to '
-  + 'propose; and a context whose field a proposal may cite because the document it quotes really says '
+  + 'propose; and an understanding whose insight a proposal may cite because it names a source and carries evidence '
   + 'those words, against three it may not — one quoting words the document does not contain, one naming '
   + 'the document and quoting nothing, and one with no source at all';
 
@@ -38,15 +38,13 @@ const RUN = {
     { i: 2, url: 'http://shop.test/checkout', arrivedBy: 'submit', title: 'Checkout' },
   ],
 };
-// The brief a proposal may lean on, and what each field does with it. Naming the document is no
-// longer enough: `audiences` quotes words the brief does not contain, which is the failure this
-// project found in its own declaration, and `journeys` names the brief and quotes nothing at all.
-const BRIEF = 'A hardware shop selling to trade buyers, counter and van stock.';
-const CONTEXT = {
-  domain: { value: 'a hardware shop', source: { doc: 'product-brief.md', quote: 'A hardware shop selling to trade buyers' } },
-  audiences: { value: 'weekend hobbyists', source: { doc: 'product-brief.md', quote: 'weekend hobbyists' } },
-  journeys: { value: ['buy a thing'], source: 'product-brief.md' },
-  constraints: { value: 'none' },
+// The understanding a proposal may lean on. Naming a source is not enough on its own: an insight
+// that names one and carries no evidence is a name, and one with evidence and no source is hearsay.
+// Only the first insight below may be cited.
+const INSIGHTS = {
+  'I-0001': { schema_version: 1, id: 'I-0001', about: 'domain', claim: 'trade buyers order from the van', source: { type: 'interview', ref: 'interviews/2026-09-trade.md' }, evidence: ['6 of 8 interviewed order from the van'], wouldChangeIf: { kind: 'prose', text: 'a survey shows most orders placed at the counter' }, confidence: 'medium' },
+  'I-0002': { schema_version: 1, id: 'I-0002', about: 'domain', claim: 'weekend hobbyists are the main audience', source: { type: 'document', ref: 'product-brief.md' }, evidence: [], confidence: 'hypothesis' },
+  'I-0003': { schema_version: 1, id: 'I-0003', about: 'domain', claim: 'nobody reads the catalogue', source: null, evidence: ['said in a meeting'], confidence: 'hypothesis' },
 };
 
 // A project on disk, because `propose` is the command and the store reads files; torn down whichever
@@ -59,8 +57,8 @@ function inProject({ authorities, context }, fn) {
     fs.writeFileSync(path.join(at, 'run.json'), JSON.stringify(RUN));
     if (authorities) fs.writeFileSync(path.join(root, 'uxcli.authorities.json'), JSON.stringify({ authorities }));
     if (context) {
-      fs.writeFileSync(path.join(root, 'uxcli.context.json'), JSON.stringify(context));
-      fs.writeFileSync(path.join(root, 'product-brief.md'), BRIEF);
+      const dir = path.join(root, '.uxcli', 'understanding', 'insights'); fs.mkdirSync(dir, { recursive: true });
+      for (const [id, doc] of Object.entries(context)) fs.writeFileSync(path.join(dir, id + '.json'), JSON.stringify(doc));
     }
     return fn({ root, at });
   } finally {
@@ -133,16 +131,15 @@ export function pair() {
   // ── context: what a claim may cite, and what it may not ─────────────────
   inProject({}, ({ root, at }) => {
     const out = propose({ root, at });
-    check('no context file is an ordinary state, so proposals are still produced', out.proposals.length, 3);
+    check('no understanding on disk is an ordinary state, so proposals are still produced', out.proposals.length, 3);
     check('with nothing to cite', out.citable.length, 0);
   });
 
-  inProject({ context: CONTEXT }, ({ root, at }) => {
+  inProject({ context: INSIGHTS }, ({ root, at }) => {
     const out = propose({ root, at });
-    check('a field whose quote is in the document is citable', out.citable.map(c => `${c.field} ${c.source}`).join(' '), 'domain product-brief.md');
-    check('a field quoting words the document does not contain is not', out.citable.some(c => c.field === 'audiences'), false);
-    check('a field that names the document and quotes nothing is not', out.citable.some(c => c.field === 'journeys'), false);
-    check('a field with no source at all is not', out.citable.some(c => c.field === 'constraints'), false);
+    check('an insight with a source and evidence is citable', out.citable.map(c => `${c.field} ${c.source}`).join(' '), 'I-0001 interviews/2026-09-trade.md');
+    check('an insight that names a source and carries no evidence is not', out.citable.some(c => c.field === 'I-0002'), false);
+    check('an insight with evidence and no source is not', out.citable.some(c => c.field === 'I-0003'), false);
     check('and each proposal carries what it may lean on', out.proposals[0]?.mayCite?.length, 1);
     // The command ships no UX knowledge. Attaching what a claim may cite must not become the claim.
     check('the claim is still nobody’s but the author’s to write', out.proposals.every(p => p.claim === null), true);

@@ -1,7 +1,7 @@
 {
   "name": "@junixlabs/uxcli",
   "version": "0.7.0",
-  "description": "Browser-driven UI/UX verification for coding agents. No commitment, no verdict.",
+  "description": "Give a coding agent the product context it needs before it designs a screen, then measure the screen in real Chrome before it says done. No commitment, no verdict.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -12,16 +12,18 @@
     "url": "https://github.com/junixlabs/uxcli/issues"
   },
   "keywords": [
+    "ux",
+    "user-journey",
+    "design-context",
     "accessibility",
     "a11y",
     "wcag",
-    "wcag-2.2",
-    "ui-review",
     "ui-testing",
     "playwright",
     "coding-agents",
     "ai-agents",
     "claude-code",
+    "agent-skills",
     "design-tokens",
     "ci",
     "verification"
@@ -35,6 +37,7 @@
     "src",
     "test",
     "skills",
+    "schemas",
     "examples",
     "README.md",
     "CHANGELOG.md",

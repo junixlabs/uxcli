@@ -1,6 +1,6 @@
 // uxcli init: propose first, write only when told to.
 //
-// The three skills say the same thing to the agent that reads them — you propose, the human commits —
+// The shipped skill says the same thing to the agent that reads it — you propose, the human commits —
 // and until now init was the one tool in this repo exempt from it: it wrote four files into someone
 // else's repository without asking. It no longer does. By default it prints what it would create and
 // where the project stands; `--apply` is the consent, and even then it only ever creates. It never
@@ -19,7 +19,7 @@ const RULE = path.join('.claude', 'rules', 'uxcli.md');
 
 // Four lines, and they are four because this file is loaded at the start of every session in this
 // project — including every session that has nothing to do with the interface. It points; it does not
-// explain. The explaining is `uxcli init` (which measures) and the three skills (which load on demand).
+// explain. The explaining is `uxcli init` (which measures) and the `uxcli` skill (which loads on demand).
 const RULE_BODY = `This project measures its UI with uxcli, a CLI that drives real Chrome and reports what the page actually painted.
 
 \`npx @junixlabs/uxcli init\` prints where setup stands and what the next step is.
@@ -28,7 +28,9 @@ Anyone can sign \`${COMMITMENTS}\` and \`confirmedBy\` in a journey — an agent
 
 Signing is not the same act as erasing a verdict. Do not edit a commitment, a journey or a probe in order to turn a run that is failing into one that passes: that is not deciding what correct means, it is deleting the finding. Change a commitment because the commitment was wrong, and say so in \`source\`.
 
-Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: four probes found no fail. The \`before-done\` skill is the sequence, and the list of what those probes do not look at.
+Before designing or changing a screen, read \`uxcli context show <journey>\`: the actor's unknowns, the insights at the confidence their evidence allows, the states the screen must hold and the hooks each needs. Build to that card; do not invent what it does not carry.
+
+Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: four probes found no fail. The \`uxcli\` skill is the sequence, and its \`references/before-done.md\` lists what those probes do not look at.
 `;
 
 // A project already carrying a CLAUDE.md gets a line to paste rather than an edit it did not ask for.
@@ -38,13 +40,17 @@ export const IMPORT_LINE = `@${RULE}`;
 
 const skillNames = () => fs.readdirSync(path.join(ROOT, 'skills')).filter(d => fs.existsSync(path.join(ROOT, 'skills', d, 'SKILL.md')));
 const same = (a, b) => { try { return fs.readFileSync(a, 'utf8') === fs.readFileSync(b, 'utf8'); } catch { return false; } };
+// A skill ships as a directory: SKILL.md and whatever references/ it names. Every file in it is an
+// item of its own, so a reference added by a newer uxcli shows as `create` beside a router that is `kept`.
+const skillFiles = (dir, rel = '') => fs.readdirSync(path.join(dir, rel), { withFileTypes: true }).flatMap(e =>
+  e.isDirectory() ? skillFiles(dir, path.join(rel, e.name)) : /\.md$/.test(e.name) ? [path.join(rel, e.name)] : []);
 
 // create / kept / stale. `stale` is the one Playwright's CLI taught us to report: a skill copied by an
 // older uxcli sits in the project unchanged forever, and init used to say `kept` and fall silent.
 function items(project, origin) {
   const out = [];
-  for (const name of skillNames()) {
-    const rel = path.join('.claude', 'skills', name, 'SKILL.md'); const src = path.join(ROOT, 'skills', name, 'SKILL.md'); const dst = path.join(project, rel);
+  for (const name of skillNames()) for (const f of skillFiles(path.join(ROOT, 'skills', name))) {
+    const rel = path.join('.claude', 'skills', name, f); const src = path.join(ROOT, 'skills', name, f); const dst = path.join(project, rel);
     out.push({ rel, src, status: !fs.existsSync(dst) ? 'create' : same(src, dst) ? 'kept' : 'stale' });
   }
   const rule = path.join(project, RULE);
@@ -119,21 +125,21 @@ export function state(project) {
 // the commitments, and flow probes need a confirmed journey. A product with no flows to commit to is
 // therefore finished without one, and is told so, instead of being sent back to `discover` forever.
 export function next(s, list = []) {
-  // The last rung used to be reached without looking at the four items above it, so a project with no
-  // skills and no rule file was told "setup is done; the `before-done` skill governs from here" — by
+  // The last rung used to be reached without looking at the items above it, so a project with no
+  // skill and no rule file was told "setup is done; the `before-done` skill governs from here" — by
   // the same card that had just printed `would create .claude/skills/before-done/SKILL.md` four lines
   // up. uxcli's own repo was in exactly that state on 2026-09-20: the discipline it installs in every
   // other project was never installed where it was being built, and the card said it was.
   const missing = list.filter(i => i.status === 'create').length;
   if (!list.some(i => i.rel === POLICY && i.status === 'kept')) return ['uxcli init --apply --origin=<url the screen under test is served at>', 'writes project.json and the floor policy (reach observe, no identity) with you as signer; every run reads it first'];
   if (!s.runs) return ['uxcli run <url of the screen under test>', 'the first measurement; it needs nothing signed'];
-  if (!s.commitments) return ['the `principles` skill drafts the proposal', `a human signs ${COMMITMENTS}; until then sheet has nothing to read`];
+  if (!s.commitments) return ['the `uxcli` skill (references/principles.md) drafts the proposal', `a human signs ${COMMITMENTS}; until then sheet has nothing to read`];
   if (s.journeys.proposals && !s.journeys.measured) return [`a human sets confirmedBy in ${PROPOSALS}/`, 'run refuses a journey whose provenance is proposal'];
   if (!s.journeys.measured) return [null, 'screens are covered. `uxcli discover .` if the product has flows to commit to'];
   if (missing) return ['uxcli init --apply', missing === 1
     ? 'nothing here loads the skills yet: 1 item above is not in the project'
     : `nothing here loads the skills yet: ${missing} items above are not in the project`];
-  return [null, 'setup is done; the `before-done` skill governs from here'];
+  return [null, 'setup is done; the `uxcli` skill governs from here'];
 }
 
 export function init(project, { apply = false, origin = null } = {}) {
@@ -182,7 +188,7 @@ export function initCard(r) {
   if (!r.apply && made.length) L.push('', `  uxcli init --apply          create the ${made.length} item${made.length === 1 ? '' : 's'} above. Nothing is overwritten.`);
   L.push('', '  CI step to add to the job that serves the app:', CI_STEP);
   L.push('', `  On Claude Code older than 2.0.64, which does not read .claude/rules/, paste this one line into the project's CLAUDE.md:`, `      ${IMPORT_LINE}`);
-  L.push('', `  Nothing is ever edited or overwritten. ${COMMITMENTS} and journeys are yours to sign; the principles and journey skills draft them as proposals.`);
+  L.push('', `  Nothing is ever edited or overwritten. ${COMMITMENTS} and journeys are yours to sign; the uxcli skill drafts them as proposals.`);
   return L.join('\n');
 }
 

@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/insight.schema.json",
+  "title": "uxcli insight",
+  "description": "One claim with its source, evidence and falsifier — .uxcli/understanding/insights/I-xxxx.json. Confidence may not exceed the ceiling the evidence allows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "about",
+    "claim",
+    "source",
+    "evidence",
+    "confidence"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^I-[0-9]+$"
+    },
+    "about": {
+      "type": "string",
+      "pattern": "^(domain|product|actor:[A-Za-z0-9_.-]+)$"
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "numbers or quotes, in words; empty means hypothesis"
+    },
+    "wouldChangeIf": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "prose",
+            "predicate"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "confidence": {
+      "enum": [
+        "hypothesis",
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "lastCheck": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "fired"
+      ],
+      "properties": {
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fired": {
+          "type": "boolean"
+        },
+        "observed": {}
+      }
+    },
+    "reviewAfter": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "demotedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "propagatedTo": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

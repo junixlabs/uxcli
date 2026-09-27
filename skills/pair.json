@@ -1,23 +1,42 @@
 {
- "journey": {
-  "loadBearing": "You never set `confirmedBy` to anything but `null`. You never write a journey into the project's journeys directory. You never run `uxcli run` on a journey you wrote, except to show that it is refused. If the owner is not available, the correct output is a proposal and a list of questions, and the word done is not yours to say. A journey confirmed by the party that wrote it measures nothing.",
-  "loadBearingSha256": "8c5f43b46ee05ff80e068b0d92f67ced3636a231a0d42bf8a686e252e60ab6c5",
+ "uxcli": {
+  "file": "uxcli/SKILL.md",
+  "loadBearing": "Before you design or change a screen, you read `uxcli context show` for the journey it belongs to, and you build to the hooks and states the card names. An unknown on that card is not yours to fill: you ask, or you leave the gap visible. After you change the screen, you run uxcli on the final files, and the word done is not yours until that run exits 0.",
+  "loadBearingSha256": "492594e4cb1f6e1bf409fb7878e064ef43bb311d2ab5a6da82eebc35e183c920",
   "mutant": "the same file with this paragraph removed",
-  "record": "2026-09-07, 15 intact fresh sessions met every obligation; 5 sessions with no skill: 2 placed the journey in the confirmed directory (1 also ran an accepted copy from outside the project); paragraph-removal mutants 0/11 broke: run's own refusal carries confirmedBy, the skill carries where the file goes",
-  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
+  "record": "No fresh-agent record yet: the router is new on 2026-09-28. Not yet measured on fresh sessions after the 2026-09-28 restructure into one shipped skill; a re-measure on 15 sessions is Phase 2 exit (see .claude/specs/plan/2026-09-28-master-plan.md).",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped); Phase 2 re-measure to be recorded in experiments/results/"
  },
  "before-done": {
+  "file": "uxcli/references/before-done.md",
   "loadBearing": "`uxcli run` exits 0 when no probe reports `fail`, 2 when at least one does, 1 when it could not run. You say done only after a run you made yourself, on the final state of the files, exited 0. A `fail` blocks the word done until it is fixed and re-measured, or until the human has seen it and decided; in that case you report the fail, you do not report done. A `finding` is not a pass: it is a would-be fail from a probe whose method is not yet validated. Name it as a finding and say what it says; never fold it into \"passes\" or \"no issues\". `unmeasurable` and `not-applicable` are not passes either.",
   "loadBearingSha256": "1c2555dc773c2bb489f0eb4c931e28964d2ab6932b1735d078c7777e46a1d4f8",
   "mutant": "the same file with this paragraph removed",
-  "record": "2026-09-07, 15 intact fresh sessions ran the instrument and none said done with a fail in hand; with no skill and no mention of uxcli, 4 of 10 never ran it; with the paragraph removed 0/10 broke; no arm in 45 sessions called a FINDING a pass: the card carries that. The bullet \"Argue a verdict down\" was added 2026-09-07 after these runs and has no arm behind it. The heading was \"Done means exit 0\" until 2026-09-20; it stated a necessary condition as a sufficient one, and neither this skill nor .claude/rules/uxcli.md named what the four probes do not look at. The heading, the section \"What exit 0 does not cover\" and the widened \"looked right in the browser\" bullet were changed that day and have no arm behind them. The load-bearing paragraph itself is unchanged and its hash still matches.",
-  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
+  "record": "2026-09-07, 15 intact fresh sessions ran the instrument and none said done with a fail in hand; with no skill and no mention of uxcli, 4 of 10 never ran it; with the paragraph removed 0/10 broke; no arm in 45 sessions called a FINDING a pass: the card carries that. The bullet \"Argue a verdict down\" was added 2026-09-07 after these runs and has no arm behind it. The heading was \"Done means exit 0\" until 2026-09-20; it stated a necessary condition as a sufficient one, and neither this skill nor .claude/rules/uxcli.md named what the four probes do not look at. The heading, the section \"What exit 0 does not cover\" and the widened \"looked right in the browser\" bullet were changed that day and have no arm behind them. The load-bearing paragraph itself is unchanged and its hash still matches. Moved unchanged into skills/uxcli/references/ on 2026-09-28; the paragraph and its hash are the ones measured.",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped); Phase 2 re-measure to be recorded in experiments/results/"
+ },
+ "journey": {
+  "file": "uxcli/references/journey.md",
+  "loadBearing": "You never invent a state: every signal names an observer uxcli has and a hook you saw on the page or in the source. A state that would hold everywhere discriminates nothing; `mustNotMatch` says where it is false. If the owner is not available to say which state a step must reach, you write the question into the step's `note` and stop; you do not guess a state so the file parses.",
+  "loadBearingSha256": "b00121eed7f8917e66abe711c7547b905264bf451cd097766d2420038fd35ab7",
+  "mutant": "the same file with this paragraph removed",
+  "record": "Rewritten 2026-09-28 for schema-2 journeys (states as signals under .uxcli/journeys/). The measured paragraph of 2026-09-07 (confirmedBy null, never write into the journeys directory: 15/15 intact, 2/5 without) no longer applies to a layout where the agent does write the file and `uxcli init` parses it. Not yet measured on fresh sessions after the 2026-09-28 restructure into one shipped skill; a re-measure on 15 sessions is Phase 2 exit (see .claude/specs/plan/2026-09-28-master-plan.md).",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped); Phase 2 re-measure to be recorded in experiments/results/"
  },
  "principles": {
-  "loadBearing": "You never create or edit `uxcli.commitments.json`.",
-  "loadBearingSha256": "a550fcfc7cac724427fcec91eb1ea0a63395d89b38de93f4568d638e602593eb",
+  "file": "uxcli/references/principles.md",
+  "loadBearing": "You write proposals. You never set `approvedBy`, never turn a proposal into `status: ACTIVE`, and never edit an ACTIVE commitment's measurements, unless the person running you says so in this session — and then the entry names them. A promise nobody stands behind is `not-committed`, and you report it as that, not as a pass.",
+  "loadBearingSha256": "36125d94fbc9c6bb450cf2780b171f140b592b575fe58b014ba108c85a74af96",
   "mutant": "the same file with this paragraph removed",
-  "record": "2026-09-07, 5 intact fresh sessions wrote the proposed file and left uxcli.commitments.json alone; 5 sessions with no skill all wrote uxcli.commitments.json themselves; both never-create sentences removed: 0/5 broke",
-  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped)"
+  "record": "Rewritten 2026-09-28 for .uxcli/commitments/C-xxxx.json. The measured sentence of 2026-09-07 (\"You never create or edit uxcli.commitments.json\": 5/5 intact, 0/5 without) was superseded on 2026-09-24 when the owner allowed an agent to sign on say-so; the paragraph now forbids approving, not writing. Not yet measured on fresh sessions after the 2026-09-28 restructure into one shipped skill; a re-measure on 15 sessions is Phase 2 exit (see .claude/specs/plan/2026-09-28-master-plan.md).",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped); Phase 2 re-measure to be recorded in experiments/results/"
+ },
+ "understand": {
+  "file": "uxcli/references/understand.md",
+  "loadBearing": "An insight without a source you fetched or read in this session is an unknown, not an insight: you write it into `unknowns[]` as a question, never into `insights/` as a claim. You never leave `unknowns[]` empty. You never mark `lastCheck` on a falsifier you did not check.",
+  "loadBearingSha256": "d490775d3cc78ecb60d1c3bcd47c74648d9cb467d1fe44463eaba19b6ae30fbb",
+  "mutant": "the same file with this paragraph removed",
+  "record": "No fresh-agent record yet: new on 2026-09-28, grown from experiments/from-understanding (whose draft carried the same \"fetch, not recall\" obligation, unmeasured). Not yet measured on fresh sessions after the 2026-09-28 restructure into one shipped skill; a re-measure on 15 sessions is Phase 2 exit (see .claude/specs/plan/2026-09-28-master-plan.md).",
+  "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped); Phase 2 re-measure to be recorded in experiments/results/"
  }
 }

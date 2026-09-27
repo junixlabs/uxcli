@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/journey.schema.json",
+  "title": "uxcli journey (schema 2)",
+  "description": "What must be able to happen: states as predicates, workflows as steps that carry data forward — .uxcli/journeys/<id>.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "goal",
+    "actor",
+    "states",
+    "workflows"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "goal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "identityProfile": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "dataProfiles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "understanding/insights/I-xxxx.json — the insight that says why this journey exists"
+    },
+    "states": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/state"
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "steps"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "happy",
+              "recovery"
+            ]
+          },
+          "mode": {
+            "enum": [
+              "real",
+              "intercept"
+            ]
+          },
+          "requiresReach": {
+            "enum": [
+              "observe",
+              "interact",
+              "mutate",
+              "inject"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/step"
+            }
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "signal": {
+      "type": "object",
+      "required": [
+        "observer"
+      ],
+      "properties": {
+        "observer": {
+          "enum": [
+            "url",
+            "dom",
+            "text",
+            "network",
+            "a11y",
+            "storage"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matches": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selector": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "valueUnchanged": {
+          "type": "boolean"
+        },
+        "inViewportWithoutScroll": {
+          "type": "boolean"
+        },
+        "contains": {
+          "type": "string",
+          "minLength": 1
+        },
+        "equalsField": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalize": {
+          "type": "string",
+          "minLength": 1
+        },
+        "request": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "integer"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "present": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "description": "one thing an observer can check; which keys apply depends on the observer (see src/core/model/signal.js)"
+    },
+    "state": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "$ref"
+          ],
+          "properties": {
+            "$ref": {
+              "type": "string",
+              "pattern": "^journeys/[^#]+\\.json#/states/.+$"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "signals"
+          ],
+          "properties": {
+            "signals": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/signal"
+              }
+            },
+            "strength": {
+              "enum": [
+                "unverifiable",
+                "weak",
+                "medium",
+                "strong"
+              ],
+              "description": "may be lower than the signals give, never higher"
+            },
+            "mustMatch": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "mustNotMatch": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "interaction": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "ui",
+            "navigation",
+            "api",
+            "data",
+            "system"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fill": {
+          "type": "string",
+          "minLength": 1
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1
+        },
+        "request": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effect": {
+          "type": "string",
+          "minLength": 1
+        },
+        "consumes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "produces": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "expect": {
+          "type": "object"
+        },
+        "intercept": {
+          "type": "object"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "fixture"
+          ]
+        },
+        "profile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object"
+        },
+        "produces": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "before": {
+          "type": "string",
+          "minLength": 1
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interactions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/interaction"
+          }
+        },
+        "expectations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "expr"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expr": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "after": {
+          "type": "string",
+          "minLength": 1
+        },
+        "next": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

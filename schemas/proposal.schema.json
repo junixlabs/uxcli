@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/proposal.schema.json",
+  "title": "uxcli proposal",
+  "description": "What an agent (or a person) proposes and has not been decided: a commitment, an instrumentation hook, a retirement — .uxcli/proposals/P-xxxx.json. Derived and persistent: it travels with the repo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "kind",
+    "proposedBy",
+    "statement",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^P-[0-9]+$"
+    },
+    "kind": {
+      "enum": [
+        "commitment",
+        "instrumentation",
+        "retirement",
+        "profile",
+        "journey",
+        "insight"
+      ]
+    },
+    "proposedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who wrote this; it does not sign"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "what the proposal rests on: a run (run, hash), a check that fired (check, observed, threshold, at), or words (what)",
+        "properties": {
+          "run": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hash": {
+            "type": "string",
+            "minLength": 1
+          },
+          "check": {
+            "type": "string"
+          },
+          "observed": {},
+          "threshold": {},
+          "at": {
+            "type": "string"
+          },
+          "what": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "approved",
+        "rejected",
+        "expired"
+      ]
+    },
+    "approvedAs": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+    },
+    "suggested": {},
+    "expiresAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

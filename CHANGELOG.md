@@ -8,6 +8,37 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Added — one shipped skill, and three ways in
+
+- `skills/uxcli/`: one skill directory with a router (`SKILL.md`: fast path, verdict router,
+  invariants, which reference to read when) and four references — `before-done`, `journey`
+  (rewritten for schema-2 journeys), `principles` (rewritten for `.uxcli/commitments/`), and
+  `understand` (new: actors and insights with a source fetched in-session). It installs with
+  `npx skills add junixlabs/uxcli -g` for Claude Code, Codex, opencode and Cursor, or with
+  `uxcli init --apply`, which now copies the whole directory. The three standalone skills are gone.
+- `uxcli doctor`: node, Chromium (including the headless shell `executablePath()` does not report),
+  project root, policy, declarations, level, installed skill — one row each, with the one command
+  that fixes it. Exit 1 only when a run could not work.
+- `uxcli demo <empty dir>`: the fixture CRM copied, served on a free port, and its journey run at
+  390×844; the first card is C-001 failing on the call action below the fold, with the packet to
+  dispute it.
+- `uxcli guide "<situation>"`: which command and which file, from fourteen recipes; the whole list
+  when nothing matches.
+- `schemas/`: JSON Schema for actor, insight, journey, commitment, policy, profile and proposal,
+  `additionalProperties: false` at the top level, held to the examples by `test/schema-pairs.mjs`
+  (every shipped file validates; an unknown key or a missing required key is refused). The
+  validator is in-repo; the parsers stay the law.
+- `skills/pair.json` entries now name the file a paragraph lives in. The `before-done` paragraph
+  and its record are unchanged; `journey` and `principles` were rewritten and their old records no
+  longer apply; `uxcli` and `understand` are new. All four say so and are unmeasured until the
+  Phase 2 re-measure.
+
+### Removed
+
+- `uxcli.context.json`, the `uxcli context [dir]` verb and `src/context.js`. The product's context
+  is `.uxcli/understanding/` and is read by `uxcli context show`. What `propose` lets a claim cite is
+  now an insight with a `source` and `evidence[]`.
+
 ### Changed — storage layout v0.2
 
 - One directory per run: `.uxcli/runs/R-<when>-<six>/run.json` with its pictures under `artifacts/`.

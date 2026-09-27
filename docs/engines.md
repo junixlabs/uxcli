@@ -92,9 +92,11 @@ one quote anchors one field, and a list field is spot-checked by it, not item by
 
 `citable(ctx) -> { field: string, source: string, quote: string }[]` — quoted fields only.
 
-Adapter: `src/context.js` `contextOf(root)` returns `Context & { file: string, exists: boolean }`,
-resolving each document off disk and asking git whether it is tracked. HTML is read as rendered
-text, not markup.
+The `uxcli.context.json` file and the `uxcli context` verb were retired on 2026-09-28: the product's
+context now lives in `.uxcli/understanding/` (actors and insights, `src/core/model/user-model.js`)
+and is read back by `uxcli context show` (`src/core/context/brief.js`). `standingOf` stays: it is
+how a commitment's `source.quote` is checked against the document it names. What a proposal may
+cite is now an insight with a `source` and `evidence[]` (`src/propose.js` `citableFor`).
 
 ## E2 · propose — what was reached that nobody promised
 

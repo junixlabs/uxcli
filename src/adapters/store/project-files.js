@@ -6,7 +6,6 @@ import fs from 'node:fs'; import path from 'node:path';
 export const NAMES = {
   commitments: 'uxcli.commitments.json',
   authorities: 'uxcli.authorities.json',
-  context: 'uxcli.context.json',
   proposedCommitments: 'uxcli.commitments.proposed.json',
   proposedAuthorities: 'uxcli.authorities.proposed.json',
 };
@@ -33,7 +32,6 @@ export const found = (root, which) => { const p = pathTo(root, which); return fs
 const read = (root, which) => { const p = found(root, which); return p ? JSON.parse(fs.readFileSync(p, 'utf8')) : null; };
 
 export const readCommitments = root => read(root, 'commitments');
-export const readContext = root => read(root, 'context');
 
 // Both shapes are what a person writes first; refusing the one they picked teaches nothing.
 export function readAuthorities(root) {

@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/profile.schema.json",
+  "title": "uxcli profile",
+  "description": "A scenario the project allows, by business meaning: an identity or a data fixture and the provisioner that materializes it — .uxcli/profiles/<id>.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "kind",
+    "mode",
+    "meaning",
+    "owner"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "data",
+        "identity"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "profiled",
+        "parametric",
+        "provided",
+        "provision"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "meaning": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constraints": {
+      "type": "object"
+    },
+    "derive": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule"
+        ],
+        "properties": {
+          "rule": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\."
+          },
+          "add": {
+            "type": "number"
+          },
+          "mul": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "allowedParams": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "number",
+              "string",
+              "boolean"
+            ]
+          },
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "boundaries": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "enum": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "provisioner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "outputs"
+      ],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cleanup": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "secrets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "verify": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

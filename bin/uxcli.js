@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// uxcli — UI/UX review for coding agents. No commitment, no verdict.
+// uxcli — the place, the rules and the instrument a coding agent works with before and after it touches an interface. No commitment, no verdict.
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath, pathToFileURL } from 'node:url';
 import { exitFor } from '../src/core/verdict/rank.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -27,9 +27,12 @@ const usage = `usage:
   uxcli migrate [dir] [--apply] [--json]
       move dir/.uxcli/ to the layout this uxcli reads: one directory per run (runs/R-<when>-<six>/, pictures under artifacts/), understanding split into
       actors/ and insights/, trace and anchor paths rewritten, schema_version on every authored file; prints the plan, --apply writes it
+  uxcli doctor [dir] [--json]         is the instrument here: node, Chromium, project root, policy, level, skill — and the one command that fixes each
+  uxcli demo <empty dir>              a real product with a planted defect, served and measured end to end: the first fail card in under a minute
+  uxcli guide "<what you are about to do>"   which command and which file, for a situation; the whole list when nothing matches
   uxcli init [dir] [--apply] [--origin=URL] [--json]
       what uxcli would put in dir, and where dir stands in the sequence (commitments signed, journeys confirmed, runs recorded) — measured from disk, printed, and nothing written;
-      --apply creates the shipped skills in dir/.claude/skills/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
+      --apply creates the shipped skill in dir/.claude/skills/uxcli/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7, why text-overlap)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
@@ -105,6 +108,17 @@ try {
     const { authorityCard } = await import('../src/authority.js');
     console.log(authorityCard(path.resolve(opt('src') || '.'), args[0] || null));
     process.exit(0);
+  } else if (cmd === 'doctor') {
+    const { doctor, doctorCard } = await import('../src/doctor.js'); const r = await doctor(args[0] || '.');
+    console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : doctorCard(r));
+    process.exit(r.ok ? 0 : 1);
+  } else if (cmd === 'demo') {
+    if (!args[0]) { console.error('uxcli demo <empty dir> — the directory the demo product and its .uxcli/ are copied into'); process.exit(1); }
+    const { demo } = await import('../src/demo.js'); process.exit(await demo(args[0]));
+  } else if (cmd === 'guide') {
+    const { guide, guideCard } = await import('../src/recipes.js'); const g = guide(args.join(' '));
+    console.log(flags.has('--json') ? JSON.stringify(g, null, 1) : guideCard(g));
+    process.exit(0);
   } else if (cmd === 'migrate') {
     // Moves a project's .uxcli/ forward to the layout this uxcli reads. Prints the plan; --apply writes.
     const { migrate, migrateCard } = await import('../src/migrate.js');
@@ -123,11 +137,6 @@ try {
     b.problems.push(...P.problems);
     console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b));
     process.exit(want && !b.journey ? 1 : 0);
-  } else if (cmd === 'context') {
-    const { contextOf, contextCard } = await import('../src/context.js');
-    const out = contextOf(path.resolve(opt('src') || args[0] || '.'));
-    console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : contextCard(out));
-    process.exit(0);
   } else if (cmd === 'diff' && args[0] && args[1]) {
     const { diff, diffCard, gateExit } = await import('../src/diff.js'); const d = diff(path.resolve(args[0]), path.resolve(args[1]));
     console.log(flags.has('--json') ? JSON.stringify(d, null, 1) : diffCard(d)); process.exit(flags.has('--gate') ? gateExit(d) : 0);

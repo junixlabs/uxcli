@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/policy.schema.json",
+  "title": "uxcli policy",
+  "description": "What a run may reach, per environment and workflow, and who signed it — .uxcli/policy/policy.json. uxcli init --apply writes the floor: observe, no identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "environments",
+    "effects",
+    "testIdentity",
+    "authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defaultEnvironment": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reachMax"
+      ],
+      "properties": {
+        "reachMax": {
+          "enum": [
+            "observe",
+            "interact",
+            "mutate",
+            "inject"
+          ]
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "observer"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "observer": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "an observer-specific rule; see src/core/model/policy.js constraintProblems"
+          }
+        }
+      }
+    },
+    "environments": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "origin",
+          "reachMax"
+        ],
+        "properties": {
+          "origin": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reachMax": {
+            "enum": [
+              "observe",
+              "interact",
+              "mutate",
+              "inject"
+            ]
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "observer"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "observer": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "description": "an observer-specific rule; see src/core/model/policy.js constraintProblems"
+            }
+          },
+          "sharedDatabase": {
+            "type": "boolean"
+          },
+          "syntheticTenants": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "sinkDomains": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reachMax"
+        ],
+        "properties": {
+          "reachMax": {
+            "enum": [
+              "observe",
+              "interact",
+              "mutate",
+              "inject"
+            ]
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "sinks": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "core"
+      ],
+      "properties": {
+        "core": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "project": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "class",
+              "signature"
+            ],
+            "properties": {
+              "class": {
+                "type": "string",
+                "minLength": 1
+              },
+              "signature": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "hostClasses": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "testIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "provided",
+            "provision",
+            "self"
+          ]
+        },
+        "profile": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project",
+        "environments",
+        "workflows"
+      ],
+      "properties": {
+        "project": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "ref"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "person",
+                "role",
+                "agent"
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "onBehalfOf": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+        },
+        "environments": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "ref"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "person",
+                "role",
+                "agent"
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "onBehalfOf": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+        },
+        "workflows": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "ref"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "person",
+                "role",
+                "agent"
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "onBehalfOf": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+        }
+      }
+    }
+  }
+}

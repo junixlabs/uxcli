@@ -1,0 +1,492 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/commitment.schema.json",
+  "title": "uxcli commitment",
+  "description": "One promise, one owner, one written source, and the measurements that decide it — .uxcli/commitments/C-xxxx.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "statement",
+    "scope",
+    "owner",
+    "source",
+    "status",
+    "measurements"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^C-[0-9]+$"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "journey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "workflow": {
+          "type": "string",
+          "minLength": 1
+        },
+        "step": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "viewports": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+    },
+    "approvedBy": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+    },
+    "proposedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who wrote this; it does not sign"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "doc",
+        "quote"
+      ],
+      "properties": {
+        "doc": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under .uxcli/ (or the project) the promise comes from"
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 1,
+          "description": "the exact words in that document; the parser checks they are still there"
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "PROPOSED",
+        "ACTIVE",
+        "RETIREMENT_PROPOSED",
+        "RETIRED"
+      ]
+    },
+    "retirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposedBy",
+        "at",
+        "reason",
+        "requires"
+      ],
+      "properties": {
+        "proposal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposedBy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "ref"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "person",
+                "role",
+                "agent"
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "onBehalfOf": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "who wrote this; it does not sign"
+        },
+        "at": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requires": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "ref"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "person",
+                "role",
+                "agent"
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "onBehalfOf": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+        },
+        "decidedBy": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "ref"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "person",
+                "role",
+                "agent"
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "at": {
+              "type": "string",
+              "minLength": 1
+            },
+            "onBehalfOf": {
+              "type": "string",
+              "minLength": 1
+            },
+            "proposal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "who stands behind this: a person, a role, or an agent acting on someone's say-so (onBehalfOf)"
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "target",
+          "predicate",
+          "method"
+        ],
+        "properties": {
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "predicate": {
+            "$ref": "#/$defs/predicate"
+          },
+          "observer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "method": {
+            "enum": [
+              "method-validated",
+              "method-unproven"
+            ]
+          },
+          "failureSurface": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "type": "string",
+                "minLength": 1
+              },
+              "consequence": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "anchor": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "run",
+        "hash"
+      ],
+      "properties": {
+        "run": {
+          "type": "string",
+          "pattern": "^runs/R-"
+        },
+        "hash": {
+          "type": "string",
+          "pattern": "^sha256:"
+        }
+      }
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewAfter": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "retiredAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "predicate": {
+      "type": "object",
+      "required": [
+        "observer"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "observer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "selector": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "inViewportWithoutScroll": {
+          "type": "boolean"
+        },
+        "field": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gt": {
+          "type": "number"
+        },
+        "lt": {
+          "type": "number"
+        },
+        "contains": {
+          "type": "string",
+          "minLength": 1
+        },
+        "then": {
+          "$ref": "#/$defs/predicate"
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
