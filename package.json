@@ -1,6 +1,6 @@
 {
   "name": "@junixlabs/uxcli",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Give a coding agent the product context it needs before it designs a screen, then measure the screen in real Chrome before it says done. No commitment, no verdict.",
   "license": "MIT",
   "repository": {

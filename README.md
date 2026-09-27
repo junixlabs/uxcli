@@ -154,6 +154,14 @@ uxcli gate                            # every falsification pair must hold
 uxcli why <rule>                      # a probe's definition
 ```
 
+## See it on real runs
+
+The [Verdict Lab](https://junixlabs.github.io/uxcli/) shows runs regenerated from this repository by
+`scripts/lab.mjs`: the fixture CRM measured on both journeys, and every page probe failing on its
+must-fail twin and passing with `--prove` on the other. Each entry carries the card as printed, the
+pictures the run saved, the packet, and a 1200×630 share card (`scripts/share-card.mjs <run dir>`)
+for a pull-request comment.
+
 ## When it is wrong, say so
 
 Every run leaves `run.json` and its `artifacts/` in a directory of its own. That packet is the whole

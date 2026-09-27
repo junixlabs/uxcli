@@ -1,0 +1,36 @@
+# Release: a tag is the only way a version leaves this repository, and the machine holds the chain.
+# tag v* → gate (every falsification pair, in real Chrome) → the tag, package.json and the skill's
+# metadata.version agree → npm publish (provenance) → a GitHub Release whose body is the CHANGELOG
+# section for that version. A step that fails stops the chain; nothing is published half-way.
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  id-token: write
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, registry-url: 'https://registry.npmjs.org' }
+      - run: npm ci
+      - run: npx playwright-core install --with-deps chromium-headless-shell
+      - name: gate
+        run: node bin/uxcli.js gate
+      - name: the tag is annotated
+        run: test "$(git cat-file -t "$GITHUB_REF_NAME")" = tag
+      - name: tag, package.json and the skill agree on the version
+        run: node scripts/release-identity.mjs "${GITHUB_REF_NAME#v}"
+      - name: what ships is the file list
+        run: npm pack --dry-run 2>&1 | tee pack.log && node scripts/release-identity.mjs --pack pack.log
+      - run: npm publish --access public --provenance
+        env: { NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}' }
+      - name: release notes from the changelog
+        run: node scripts/release-identity.mjs --notes "${GITHUB_REF_NAME#v}" > notes.md && cat notes.md
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: notes.md
+          name: uxcli ${{ github.ref_name }}
