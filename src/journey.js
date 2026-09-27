@@ -12,6 +12,7 @@ import { parseJourney, prerequisitesOf } from './core/model/journey.js';
 import { parseCommitment } from './core/model/commitment.js';
 import { parsePolicy } from './core/model/policy.js';
 import { parseProfile } from './core/model/profile.js';
+import { parseActor, parseInsight } from './core/model/user-model.js';
 import { holds } from './core/observe/holds.js';
 import { derive } from './core/observe/derive.js';
 import { constraintHeld } from './core/observe/constraint.js';
@@ -21,7 +22,7 @@ import { packet, seal, effectsFrom } from './core/run/packet.js';
 import { verdicts, scopeMatches } from './core/run/verdicts.js';
 import { outcomeOf } from './core/run/measure.js';
 import { projection } from './core/level/projection.js';
-import { UXCLI, dirFor, rotate, currentRuns } from './adapters/store/runs.js';
+import { UXCLI, newRunDir, artifactsDir, currentRuns, prune } from './adapters/store/runs.js';
 import { runHash } from './adapters/store/run-hash.js';
 
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));
@@ -51,7 +52,12 @@ export function loadProject(root) {
   const docsFor = d => { const out = {}; const doc = d?.source?.doc; if (doc) { const f = path.join(U, doc); out[doc] = fs.existsSync(f) ? { found: true, text: fs.readFileSync(f, 'utf8'), tracked: true } : { found: false }; } return out; };
   const commitments = listJson(path.join(U, 'commitments')).map(x => { const d = JSON.parse(x.text); const r = parseCommitment(d, { docs: docsFor(d) }); problems.push(...r.problems.map(p => `${path.relative(U, x.file)}: ${p}`)); return { ...r, file: x.file }; });
   const profiles = listJson(path.join(U, 'profiles')).map(x => { const r = parseProfile(JSON.parse(x.text)); problems.push(...r.problems.map(p => `${path.relative(U, x.file)}: ${p}`)); return { ...r, file: x.file, hash: sha256(x.text) }; });
-  const userModel = listJson(path.join(U, 'understanding')).map(x => JSON.parse(x.text))[0] || null;
+  // Understanding is parsed, not just read: an actor with an empty unknowns[], or an insight claiming
+  // more than its evidence allows, is a problem the card prints — not an understanding the level counts.
+  const parsed = (dir, parse) => listJson(path.join(U, dir)).map(x => { const r = parse(JSON.parse(x.text)); const file = path.relative(U, x.file); problems.push(...r.problems.map(p => `${file}: ${p}`)); return { ...r, file }; });
+  const actors = parsed(path.join('understanding', 'actors'), parseActor);
+  const insights = parsed(path.join('understanding', 'insights'), parseInsight);
+  for (const f of listJson(path.join(U, 'understanding'))) problems.push(`${path.relative(U, f.file)}: an understanding file at the top level is the old layout — \`uxcli migrate\` splits it into actors/ and insights/`);
   const rules = {};
   for (const [name, ref] of Object.entries(project.rules || {})) {
     const f = path.join(root, ref.file);
@@ -59,7 +65,7 @@ export function loadProject(root) {
     const v = getPath(readJson(f), ref.path);
     if (v === undefined) problems.push(`project.json rules.${name}: ${ref.path} not in ${ref.file}`); else rules[name] = { value: v, source: 'project-policy', file: ref.file };
   }
-  return { root, U, project, policy, journeys, refs, commitments, profiles, userModel, rules, problems,
+  return { root, U, project, policy, journeys, refs, commitments, profiles, actors, insights, rules, problems,
     proposals: listJson(path.join(U, 'proposals')).map(x => JSON.parse(x.text)),
     corpusLabels: listJson(path.join(U, 'corpus')).map(x => JSON.parse(x.text)),
     probes: walkJson(path.join(U, 'probes')) };
@@ -71,7 +77,7 @@ export function projectionOf(P) {
   const runs = currentRuns(P.root).filter(r => r.run.journey?.ref);
   const runHashes = {};
   for (const c of P.commitments.map(c => c.value).filter(c => c?.anchor?.run)) { const d = path.join(P.U, c.anchor.run); if (fs.existsSync(path.join(d, 'run.json'))) runHashes[c.anchor.run] = "sha256:" + runHash(d); }
-  return projection({ userModel: P.userModel, journeys: P.journeys.map(j => j.value && { ...j.value, definitionHash: j.hash }).filter(Boolean),
+  return projection({ insights: P.insights.map(i => i.value && { ...i.value, file: i.file }).filter(Boolean), journeys: P.journeys.map(j => j.value && { ...j.value, definitionHash: j.hash }).filter(Boolean),
     commitments: P.commitments.map(c => c.value).filter(Boolean), profiles: P.profiles.map(p => p.value && { ...p.value, hash: p.hash }).filter(Boolean),
     policy: P.policy.value || {}, runs, proposals: P.proposals, corpusLabels: P.corpusLabels, probes: P.probes, runHashes });
 }
@@ -114,12 +120,13 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const commitments = P.commitments.map(c => c.value).filter(Boolean);
   const ranAt = new Date().toISOString();
   const id = `j-${journey.id}${envName === defaultEnv(policy) ? '' : '@' + envName}`;
-  const dir = out || dirFor(root, id); rotate(dir); fs.mkdirSync(dir, { recursive: true });
+  const dir = out ? (fs.mkdirSync(path.join(out, 'artifacts'), { recursive: true }), out) : newRunDir(root, ranAt); const shotDir = artifactsDir(dir);
   const ctx = { hash: sha1, dialCode: P.project.locale?.dialCode, viewport };
   const prereqs = [...new Set(prerequisitesOf(journey).map(p => p.state))];
   const wfId = w => `${journey.id}/${w.id}`;
   const shell = { ...process.env, UXCLI_TARGET: target };
-  const finish = async (run, scenarioFix) => { const sealed = scenarioFix ? await scenarioFix(run) : run; fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(sealed, null, 1) + '\n'); writeProjection(P); return { run: sealed, commitments, root, dir }; };
+  // Written once. Then older runs of every target beyond KEEP go, except any a commitment anchors to.
+  const finish = async (run, scenarioFix) => { const sealed = scenarioFix ? await scenarioFix(run) : run; fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(sealed, null, 1) + '\n'); prune(root, { pinned: commitments.map(c => c.anchor?.run).filter(Boolean) }); writeProjection(P); return { run: sealed, commitments, root, dir }; };
 
   // Identity: the provisioner's word, checked against the environment. Creating one is a mutation.
   let identity = null, idValues = null, idProfile = null, idRejected = null;
@@ -173,7 +180,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
     const isPre = record ? prereqs.includes(step.before) : !w.steps.some(x => x !== step && x.after === step.before);
     if (isPre) await establish(page, j, step.before, depth);
     const shot = side => record ? `${w.id}-${step.id}-${side}` : null;
-    const obsB = await observe(page, { action: null, since: 0, selectors: selectorsOf(before, step, measurementsAt(step.before), params), policy, storageKeys: keysOf(before, step), shotDir: record ? dir : null, shotName: shot('before') });
+    const obsB = await observe(page, { action: null, since: 0, selectors: selectorsOf(before, step, measurementsAt(step.before), params), policy, storageKeys: keysOf(before, step), shotDir: record ? shotDir : null, shotName: shot('before') });
     const bh = holds(before, obsB, { ...ctx, params });
     if (record && isPre) {
       if (bh.held === false) { blocked = blockedAt({ prerequisites: [{ step: step.id, state: step.before, held: false, why: bh.why }] }); return false; }
@@ -188,7 +195,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
     if (fills.length) { try { ref = await observe(page, { action: fills, since: 0, selectors: fills.map(f => f.selector), policy }); } catch (e) { failedFill = e.message; } }
     const produces = (step.interactions || []).filter(x => x.type === 'api' && x.produces?.length).map(x => ({ request: fill(x.request, params), paths: x.produces }));
     let obsA = null, failed = failedFill;
-    if (!failed) try { obsA = await observe(page, { action, selectors: selectorsOf(after, step, [...measurementsAt(step.after), ...measurementsAt(step.id)], params), produces, policy, storageKeys: keysOf(after, step), shotDir: record ? dir : null, shotName: shot('after') }); }
+    if (!failed) try { obsA = await observe(page, { action, selectors: selectorsOf(after, step, [...measurementsAt(step.after), ...measurementsAt(step.id)], params), produces, policy, storageKeys: keysOf(after, step), shotDir: record ? shotDir : null, shotName: shot('after') }); }
     catch (e) { failed = e.message; }
     for (const { h } of handles) h.release();
     const ah = obsA ? holds(after, obsA, { ...ctx, params, before: ref }) : { held: null, strength: after?.strength, signals: {}, why: [`action failed: ${failed}`] };
@@ -255,7 +262,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const constraints = (penv.constraints || []).map(c => constraintHeld(c, merged, envBag));
   const reach = (plans.find(x => x.p.status === 'ok') || plans[0]).p.reach;
   const declared = [...new Set(workflows.flatMap(w => workflowPolicy(policy, wfId(w))?.effects || []))];
-  const shots = fs.readdirSync(dir).filter(f => /\.png$/i.test(f)).sort();
+  const shots = fs.readdirSync(shotDir).filter(f => /\.png$/i.test(f)).sort();
   let run = packet({ id, journey, definitionHash, env: envName, viewport, scenario: { identity, fixtures: fixtures.map(f => f.record) }, reach, effects: { declared, observed: effectsFrom(obsList) }, stepResults, constraints, ruleSnapshots: P.rules, ranAt,
     ...(blocked && { blocked }), evidence: { shots, redacted: ['Authorization', 'Cookie', 'password', 'email', 'phone', 'ids → sha1_8'] } });
   const withObs = stepResults.map(s => ({ ...s, obs: obsOf.get(s) }));

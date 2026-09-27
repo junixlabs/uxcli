@@ -1,0 +1,34 @@
+{
+  "id": "j-handle-inbound-lead@production",
+  "ranAt": "2026-09-25T08:30:02.900Z",
+  "environment": "production",
+  "journey": {
+    "ref": "journeys/handle-inbound-lead.json",
+    "definitionHash": "sha256:88bf1109341679f44b011038588fd931dca928f5e105b6d4a82f084583623c4e"
+  },
+  "reach": {
+    "requested": "mutate",
+    "effective": "observe",
+    "layers": {
+      "project": "inject",
+      "environment": "observe",
+      "workflow": "mutate"
+    }
+  },
+  "scenario": {
+    "identity": null,
+    "fixtures": []
+  },
+  "status": "blocked",
+  "exit": 1,
+  "blocked": {
+    "reason": "prerequisite_not_satisfied",
+    "which": [
+      "s1.before agent.workspace_ready: không identity — production reach observe, testIdentity không áp dụng",
+      "f0 lead-new-unassigned: fixture cần mutate, effective reach là observe"
+    ],
+    "note": "không probe nào chạy; không có verdict; không tính vào FP rate hay level"
+  },
+  "steps": [],
+  "verdicts": []
+}

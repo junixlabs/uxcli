@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "id": "lead-new-unassigned",
   "kind": "data",
   "type": "lead",

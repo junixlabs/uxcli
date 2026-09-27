@@ -1,0 +1,140 @@
+{
+  "id": "j-authenticate",
+  "ranAt": "2026-09-25T08:39:40.021Z",
+  "environment": "staging",
+  "journey": {
+    "ref": "journeys/authenticate.json",
+    "definitionHash": "sha256:f9f0dfc749546d4a22cd0de1ec4adab7fa63a8b03d3a563c381998444d9dd3f2"
+  },
+  "scenario": {
+    "identity": {
+      "mode": "provision",
+      "profile": "agent-basic",
+      "profileHash": "sha256:77a6c9ce5bb3ccb2925c76bb451081902477b120551637f2821ad359384ac8c8",
+      "idHash": "sha1_8:2153c558",
+      "tenant": "t_uxcli_7f3a",
+      "permissions": [
+        "agent"
+      ],
+      "verified": {
+        "tenant": true,
+        "emailSink": true,
+        "permissions": true,
+        "expiresAt": true
+      },
+      "cleanupVerified": true,
+      "expiresAt": "2026-09-26T08:39:40Z"
+    },
+    "fixtures": []
+  },
+  "reach": {
+    "requested": "interact",
+    "effective": "interact",
+    "layers": {
+      "project": "inject",
+      "environment": "mutate",
+      "workflow": "interact"
+    }
+  },
+  "effects": {
+    "declared": [],
+    "observed": [],
+    "undeclared": []
+  },
+  "breaches": [],
+  "status": "completed",
+  "exit": 2,
+  "workflows": [
+    {
+      "id": "email-password",
+      "steps": [
+        {
+          "id": "s1",
+          "after": {
+            "state": "agent.workspace_ready",
+            "held": true,
+            "strength": "strong"
+          },
+          "timing": {
+            "toStable": 1180
+          },
+          "produced": {
+            "response.workspaceId": "sha1_8:9aa31279",
+            "response.user.id": "sha1_8:2153c558",
+            "session.token": "sha1_8:79bead8e"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wrong-password",
+      "steps": [
+        {
+          "id": "r1",
+          "after": {
+            "state": "anon.login_rejected",
+            "held": true,
+            "strength": "medium"
+          }
+        }
+      ]
+    },
+    {
+      "id": "server-error",
+      "mode": "intercept",
+      "steps": [
+        {
+          "id": "r1",
+          "intercepted": {
+            "request": "POST /api/login",
+            "returned": 500,
+            "blocked": 1
+          },
+          "after": {
+            "state": "anon.login_failed_retryable",
+            "held": false,
+            "strength": "medium",
+            "signals": {
+              "role=alert visible": true,
+              "[data-uxcli=login-submit] enabled": true,
+              "input[name=email] valueUnchanged": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "lineage": [
+    {
+      "path": "s1.response.workspaceId",
+      "sha1_8": "9aa31279",
+      "consumedBy": [
+        "s1.navigation"
+      ]
+    }
+  ],
+  "verdicts": [
+    {
+      "journey": "authenticate",
+      "workflow": "server-error",
+      "step": "r1",
+      "value": "fail",
+      "caps": [],
+      "cause": "state-not-held",
+      "what": "sau 500, form xoá email — người dùng phải nhập lại; đúng nỗi đau \"nhập lại dữ liệu\"",
+      "shot": "server-error-r1-after.png"
+    }
+  ],
+  "evidence": {
+    "shots": [
+      "s1-after.png",
+      "wrong-password-r1-after.png",
+      "server-error-r1-after.png"
+    ],
+    "redacted": [
+      "Authorization",
+      "email",
+      "password"
+    ]
+  }
+}

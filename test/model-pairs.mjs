@@ -7,7 +7,8 @@ import { strengthOf } from '../src/core/model/signal.js';
 import { parseCommitment, transitionProblems } from '../src/core/model/commitment.js';
 import { parseProfile } from '../src/core/model/profile.js';
 import { parsePolicy } from '../src/core/model/policy.js';
-import { parseUserModel, confidenceCeiling } from '../src/core/model/user-model.js';
+import { parseActor, parseInsight, confidenceCeiling } from '../src/core/model/user-model.js';
+import { DATA, read, text, list } from './example-data.mjs';
 
 export const OPERATOR =
   'a signal naming an observer nobody has; a step consuming a field no earlier step produced, and a '
@@ -15,11 +16,8 @@ export const OPERATOR =
   + 'signals give; a commitment signed by two owners; a commitment quoting words its document no '
   + 'longer says; ACTIVE → RETIRED with nobody named as deciding; a profile typing in a number where a '
   + 'derive already computes it; a policy constraint with no observer; an insight claiming high with '
-  + 'no check behind it — each planted in the example data and removed again';
+  + 'no check behind it; an actor with nothing unknown; a file with no schema_version — each planted in the example data and removed again';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DATA = path.join(ROOT, '.claude/specs/design/uxcli-data-v0.1/.uxcli');
-const read = f => JSON.parse(fs.readFileSync(path.join(DATA, f), 'utf8'));
 const clone = v => JSON.parse(JSON.stringify(v));
 
 export function pair() {
@@ -32,8 +30,9 @@ export function pair() {
   const lead = read('journeys/handle-inbound-lead.json');
   const refs = { 'journeys/authenticate.json#/states/agent.workspace_ready': auth.states['agent.workspace_ready'] };
   const c001 = read('commitments/C-001.json');
-  const model = read('understanding/real-estate-agent.json');
-  const docs = { 'understanding/real-estate-agent.json': { found: true, text: fs.readFileSync(path.join(DATA, 'understanding/real-estate-agent.json'), 'utf8') } };
+  const actor = read('understanding/actors/real-estate-agent.json');
+  const insights = list('understanding/insights').map(f => read(`understanding/insights/${f}`));
+  const docs = { 'understanding/actors/real-estate-agent.json': { found: true, text: text('understanding/actors/real-estate-agent.json') }, 'understanding/insights/I-002.json': { found: true, text: text('understanding/insights/I-002.json') } };
   const profile = read('profiles/lead-new-unassigned.json');
   const policy = read('policy/policy.json');
 
@@ -47,7 +46,8 @@ export function pair() {
     'profiles/lead-new-unassigned.json': parseProfile(profile),
     'profiles/agent-basic.json': parseProfile(read('profiles/agent-basic.json')),
     'policy/policy.json': parsePolicy(policy),
-    'understanding/real-estate-agent.json': parseUserModel(model),
+    'understanding/actors/real-estate-agent.json': parseActor(actor),
+    ...Object.fromEntries(insights.map(i => [`understanding/insights/${i.id}.json`, parseInsight(i)])),
   };
   for (const [f, r] of Object.entries(clean)) must(`${f} does not parse clean: ${r.problems.join(' · ')}`, r.ok);
 
@@ -98,7 +98,7 @@ export function pair() {
   let c = clone(c001); c.owner = [c.owner, { type: 'role', ref: 'engineering-lead' }];
   must('commitment parser accepted two owners', says(parseCommitment(c, { docs }), 'owner: one signer, not a list'));
   c = clone(c001); c.source.quote = 'hành động nằm rất xa dữ liệu đang xem';
-  must('commitment parser accepted a quote the document does not say', says(parseCommitment(c, { docs }), 'source.quote: understanding/real-estate-agent.json no longer says'));
+  must('commitment parser accepted a quote the document does not say', says(parseCommitment(c, { docs }), 'source.quote: understanding/actors/real-estate-agent.json no longer says'));
   c = clone(c001); delete c.source.quote;
   must('commitment parser accepted a document named without its words', says(parseCommitment(c, { docs }), 'source.quote: required'));
   must('commitment parser objected to an unresolved document nobody handed it', parseCommitment(c001).ok);
@@ -126,17 +126,32 @@ export function pair() {
   pol = clone(policy); pol.workflows['authenticate/*'].effects = ['teleport'];
   must('policy parser accepted an effect outside the vocabulary', says(parsePolicy(pol), '`teleport` is not a declared effect'));
 
-  // UserModel — confidence is a ceiling, not a claim.
-  let m = clone(model); delete m.insights[0].lastCheck;
-  must('user model parser let high stand with no check behind it', says(parseUserModel(m), 'insights[0].confidence: high claims more'));
-  m = clone(model); m.insights[0].lastCheck.fired = true;
-  must('user model parser let high stand after its falsifier fired', says(parseUserModel(m), 'insights[0].confidence: high claims more'));
-  m = clone(model); m.insights[2].confidence = 'low';
-  must('user model parser let low stand on no evidence', says(parseUserModel(m), 'insights[2].confidence: low claims more'));
+  // Insight — confidence is a ceiling, not a claim.
+  const i1 = insights.find(i => i.id === 'I-001'), i3 = insights.find(i => i.id === 'I-003');
+  let m = clone(i1); delete m.lastCheck;
+  must('insight parser let high stand with no check behind it', says(parseInsight(m), 'confidence: high claims more'));
+  m = clone(i1); m.lastCheck.fired = true;
+  must('insight parser let high stand after its falsifier fired', says(parseInsight(m), 'confidence: high claims more'));
+  m = clone(i3); m.confidence = 'low';
+  must('insight parser let low stand on no evidence', says(parseInsight(m), 'confidence: low claims more'));
   must('ceiling: evidence and no wouldChangeIf is low', confidenceCeiling({ evidence: ['x'], wouldChangeIf: null }) === 'low');
   must('ceiling: unchecked wouldChangeIf is medium', confidenceCeiling({ evidence: ['x'], wouldChangeIf: { kind: 'prose', text: 'y' } }) === 'medium');
-  m = clone(model); m.unknowns = [];
-  must('user model parser accepted empty unknowns', says(parseUserModel(m), 'unknowns:'));
+  m = clone(i1); m.about = 'everyone';
+  must('insight parser accepted an `about` that names nothing', says(parseInsight(m), 'about:'));
+  m = clone(i1); delete m.about;
+  must('insight parser accepted an insight about nothing', says(parseInsight(m), 'about: required'));
+  // Actor — unknowns may not be empty, and insights do not live inside.
+  m = clone(actor); m.unknowns = [];
+  must('actor parser accepted empty unknowns', says(parseActor(m), 'unknowns:'));
+  m = clone(actor); m.insights = [];
+  must('actor parser accepted insights inside the actor (the old layout)', says(parseActor(m), 'insights: live in'));
+  // schema_version — every authored file says which shape it is.
+  m = clone(actor); delete m.schema_version;
+  must('actor parser accepted a file with no schema_version', says(parseActor(m), 'schema_version: required'));
+  j = clone(auth); j.schema_version = 1;
+  must('journey parser accepted a journey at the wrong schema_version', says(parseJourney(j), 'schema_version: 1'));
+  c = clone(c001); delete c.schema_version;
+  must('commitment parser accepted a file with no schema_version', says(parseCommitment(c, { docs }), 'schema_version: required'));
 
   return { ok: problems.length === 0, problems, checks };
 }

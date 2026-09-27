@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "I-003",
+  "about": "actor:real_estate_agent",
+  "claim": "Một môi giới xử lý ~30 lead/ngày",
+  "source": null,
+  "evidence": [],
+  "confidence": "hypothesis",
+  "wouldChangeIf": null
+}

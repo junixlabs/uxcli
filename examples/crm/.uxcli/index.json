@@ -1,0 +1,117 @@
+{
+  "generatedAt": "2026-09-25T08:41:12.318Z",
+  "rebuildable": true,
+  "level": {
+    "trust": "verify",
+    "reach": "mutate",
+    "story": "L2 — Verify",
+    "toNext": {
+      "trust → gate": [
+        "probe lead-phone-visible: fpRate chưa đo (1 corpus case, cần ≥ N) → chưa được fail",
+        "C-002: cả hai measurement method-unproven → chưa gate được",
+        "C-003 RETIREMENT_PROPOSED từ 2026-09-24, chưa ai quyết"
+      ],
+      "reach → inject": [
+        "recoverability của lead-new-unassigned unverified: cleanup chưa từng chạy sạch trên run fail",
+        "environment local chưa có run nào"
+      ]
+    }
+  },
+  "standing": {
+    "understanding/insights": {
+      "I-001": {
+        "confidence": "high",
+        "lastCheck": "2026-09-25",
+        "fired": false
+      },
+      "I-002": {
+        "confidence": "hypothesis",
+        "demoted": "2026-09-24",
+        "propagated": [
+          "C-003"
+        ]
+      },
+      "I-003": {
+        "confidence": "hypothesis",
+        "why": "không evidence"
+      }
+    },
+    "commitments": {
+      "C-001": {
+        "status": "ACTIVE",
+        "anchor": "matches",
+        "latest": "fail"
+      },
+      "C-002": {
+        "status": "ACTIVE",
+        "method": "unproven",
+        "latest": "not-applicable"
+      },
+      "C-003": {
+        "status": "RETIREMENT_PROPOSED",
+        "via": "P-0006",
+        "awaiting": "product-owner"
+      }
+    },
+    "profiles": {
+      "lead-new-unassigned": {
+        "hash": "sha256:b60bb7b1b31e83960a4d68bcf0c1b79640d2cb872191ca7c206fba8234a0765d",
+        "lastMaterialized": "2026-09-25T08:41:12.318Z",
+        "verified": true
+      },
+      "agent-basic": {
+        "hash": "sha256:77a6c9ce5bb3ccb2925c76bb451081902477b120551637f2821ad359384ac8c8",
+        "lastMaterialized": "2026-09-25T08:41:12.318Z",
+        "verified": true
+      }
+    },
+    "journeys": {
+      "handle-inbound-lead": {
+        "definitionHash": "sha256:88bf1109341679f44b011038588fd931dca928f5e105b6d4a82f084583623c4e",
+        "unmeasurable": [
+          "lead-without-phone"
+        ]
+      },
+      "authenticate": {
+        "definitionHash": "sha256:f9f0dfc749546d4a22cd0de1ec4adab7fa63a8b03d3a563c381998444d9dd3f2"
+      }
+    }
+  },
+  "proposals": {
+    "open": 3,
+    "approved": 1,
+    "unimplementedProfiles": 1,
+    "unmeasuredBecause": [
+      "handle-inbound-lead/lead-without-phone ← P-0007"
+    ]
+  },
+  "rows": [
+    {
+      "target": "j-handle-inbound-lead",
+      "env": "staging",
+      "latest": "2026-09-25T08:41:12.318Z",
+      "exit": 2,
+      "history": 1,
+      "fails": [
+        "C-001"
+      ]
+    },
+    {
+      "target": "j-authenticate",
+      "env": "staging",
+      "latest": "2026-09-25T08:39:40.021Z",
+      "exit": 2,
+      "history": 0,
+      "fails": [
+        "server-error/r1"
+      ]
+    },
+    {
+      "target": "j-handle-inbound-lead@production",
+      "env": "production",
+      "latest": "2026-09-25T08:30:02.900Z",
+      "exit": 1,
+      "status": "blocked"
+    }
+  ]
+}

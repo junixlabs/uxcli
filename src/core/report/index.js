@@ -2,4 +2,5 @@
 export { initCard } from './init-card.js';
 export { journeyCard, verdictBlock, why, whereOf, capOf } from './journey-card.js';
 export { proposalCard } from './proposal-card.js';
+export { contextCard } from './context-card.js';
 export { WIDTH, wrap } from './text.js';

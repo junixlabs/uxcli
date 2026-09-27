@@ -4,7 +4,7 @@
 // in:  the parsed file; `docs` as context.js takes it, { [doc]: { found, text } }, so the quote can
 //      be checked against the document it cites; `previous` = the status on disk before this edit
 // out: { ok, value, problems } — value carries `sourceStanding` from context.js and `anchor` as anchor.js reads it
-import { isStr, isObj, strList, isDate, done, signerProblem } from './common.js';
+import { isStr, isObj, strList, isDate, done, signerProblem, versionProblem } from './common.js';
 import { standingOf } from '../context.js';
 import { anchorOf } from '../commitment/anchor.js';
 
@@ -33,6 +33,7 @@ export function transitionProblems(from, to, doc = {}) {
 export function parseCommitment(doc, { docs, previous } = {}) {
   if (!isObj(doc)) return done(null, ['a commitment is a JSON object']);
   const bad = [];
+  { const v = versionProblem(doc, 1); if (v) bad.push(v); }
   for (const k of ['id', 'statement']) if (!isStr(doc[k])) bad.push(`${k}: required, a non-empty string`);
   if (!isObj(doc.scope) || !Object.keys(doc.scope).length) bad.push('scope: required — where this holds (journey, workflow, step, state, viewports…)');
   if (doc.owners !== undefined) bad.push('owners: a commitment has one owner — two authorities means two commitments; split it');

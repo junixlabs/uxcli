@@ -3,7 +3,7 @@
 // rule changes and nothing says so.
 //
 // in:  the parsed file    out: { ok, value, problems }
-import { isStr, isObj, strList, done, signerProblem } from './common.js';
+import { isStr, isObj, strList, done, signerProblem, versionProblem } from './common.js';
 
 export const KINDS = ['data', 'identity'];
 export const MODES = { data: ['profiled', 'parametric'], identity: ['provided', 'provision'] };  // freeform and self are off in this slice
@@ -24,6 +24,7 @@ export function deriveProblems(d, at) {
 export function parseProfile(doc) {
   if (!isObj(doc)) return done(null, ['a profile is a JSON object']);
   const bad = [];
+  { const v = versionProblem(doc, 1); if (v) bad.push(v); }
   if (!isStr(doc.id)) bad.push('id: required');
   if (!KINDS.includes(doc.kind)) bad.push(`kind: one of ${KINDS.join(', ')}`);
   else if (!MODES[doc.kind].includes(doc.mode)) bad.push(`mode: a ${doc.kind} profile is one of ${MODES[doc.kind].join(', ')}`);

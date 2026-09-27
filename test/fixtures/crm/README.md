@@ -89,4 +89,4 @@ node test/fixtures/crm/check.mjs http://localhost:3000
 
 ## `.uxcli/` của fixture
 
-Bản sao các file **tác giả viết** trong `.claude/specs/design/uxcli-data-v0.1/.uxcli/` (project, understanding, journeys, commitments, profiles, policy, probes, corpus) và `domain/leads-policy.json`; provisioner của profile trỏ về `test/fixtures/crm/scripts/*.sh`. Không sao `runs/`, `proposals/`, `index.json` (xem `.gitignore`). `policy.environments.local.origin` để `http://localhost:3000` — cổng thật do runner đọc lúc chạy.
+A copy of the **authored** files in `examples/crm/.uxcli/` (project, understanding, journeys, commitments, profiles, policy, probes, corpus) and `domain/leads-policy.json`; the profiles' provisioners point at `test/fixtures/crm/scripts/*.sh`. `runs/` and `index.json` are not copied (see `.gitignore`); `proposals/` are. `policy.environments.local.origin` stays `http://localhost:3000` — the real port is read by the runner at run time.

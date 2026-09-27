@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "project": {
+    "reachMax": "inject",
+    "constraints": []
+  },
+  "environments": {
+    "production": {
+      "origin": "https://crm.example.vn",
+      "reachMax": "observe",
+      "constraints": [],
+      "note": "observe-first; không identity, không fixture"
+    },
+    "staging": {
+      "origin": "https://staging.crm.example.vn",
+      "reachMax": "mutate",
+      "sharedDatabase": true,
+      "syntheticTenants": [
+        "t_uxcli_*"
+      ],
+      "sinkDomains": [
+        "example.invalid",
+        "mail.sink.local"
+      ],
+      "constraints": [
+        {
+          "id": "test-tenant-only",
+          "observer": "network",
+          "onEffect": "database_write",
+          "requireHeader": {
+            "name": "x-tenant-id",
+            "in": "$syntheticTenants"
+          }
+        },
+        {
+          "id": "no-real-sms",
+          "observer": "egress",
+          "deny": {
+            "hostClass": "sms-provider"
+          }
+        },
+        {
+          "id": "no-production-webhook",
+          "observer": "egress",
+          "denyOrigin": "$environments.production.origin"
+        }
+      ]
+    },
+    "local": {
+      "origin": "http://localhost:3000",
+      "reachMax": "inject",
+      "syntheticTenants": [
+        "*"
+      ],
+      "sinkDomains": [
+        "*"
+      ],
+      "constraints": []
+    }
+  },
+  "workflows": {
+    "handle-inbound-lead/open-and-call": {
+      "reachMax": "mutate",
+      "effects": [
+        "database_write"
+      ],
+      "sinks": {
+        "database_write": "tenant:synthetic"
+      }
+    },
+    "authenticate/*": {
+      "reachMax": "interact",
+      "effects": []
+    }
+  },
+  "effects": {
+    "core": [
+      "database_write",
+      "external_email",
+      "external_sms",
+      "payment",
+      "webhook",
+      "file_write",
+      "file_delete",
+      "account_mutation",
+      "external_api"
+    ],
+    "project": {
+      "call_log_write": {
+        "class": "database_write",
+        "signature": "POST /api/calls"
+      }
+    }
+  },
+  "hostClasses": {
+    "sms-provider": [
+      "*.twilio.com",
+      "*.esms.vn",
+      "*.speedsms.vn"
+    ]
+  },
+  "testIdentity": {
+    "mode": "provision",
+    "profile": "agent-basic"
+  },
+  "authority": {
+    "project": {
+      "type": "role",
+      "ref": "product-owner"
+    },
+    "environments": {
+      "type": "role",
+      "ref": "devops"
+    },
+    "workflows": {
+      "type": "role",
+      "ref": "any-in-scope"
+    }
+  }
+}

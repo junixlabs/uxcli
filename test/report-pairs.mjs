@@ -2,9 +2,7 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 import { initCard, journeyCard, verdictBlock, why, proposalCard, WIDTH, wrap } from '../src/core/report/index.js';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DATA = path.join(ROOT, '.claude/specs/design/uxcli-data-v0.1/.uxcli');
-const read = rel => JSON.parse(fs.readFileSync(path.join(DATA, rel), 'utf8'));
+import { DATA, read, runOf } from './example-data.mjs';
 
 export const OPERATOR =
   'a blocked run whose packet still carries a stray `pass` verdict and a `pass` probe; a finding capped '
@@ -24,8 +22,8 @@ export function pair() {
   try {
     index = read('index.json');
     commitments = fs.readdirSync(path.join(DATA, 'commitments')).map(f => read(`commitments/${f}`));
-    runs = ['runs/j-handle-inbound-lead/run.json', 'runs/j-authenticate/run.json', 'runs/j-handle-inbound-lead@production/run.json',
-      'runs/j-handle-inbound-lead/history/2026-09-24T09-12-03Z/run.json'].map(read);
+    const lead = runOf('j-handle-inbound-lead');
+    runs = [lead.run, runOf('j-authenticate').run, runOf('j-handle-inbound-lead@production').run, ...lead.history];
     proposals = fs.readdirSync(path.join(DATA, 'proposals')).map(f => read(`proposals/${f}`));
   } catch (e) { must(`example data unreadable: ${e.message}`, false); return { ok: false, problems, checks }; }
 

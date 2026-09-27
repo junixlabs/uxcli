@@ -3,7 +3,7 @@
 // reach rather than granting it.
 //
 // in:  the parsed policy file    out: { ok, value, problems } — value adds `vocabulary`, every effect name declared
-import { isStr, isObj, strList, done, signerProblem, REACH } from './common.js';
+import { isStr, isObj, strList, done, signerProblem, REACH, versionProblem } from './common.js';
 
 export { REACH };
 export const IDENTITY_MODES = ['provided', 'provision', 'self'];
@@ -45,6 +45,7 @@ export const vocabularyOf = p => [...(strList(p?.effects?.core) ? p.effects.core
 export function parsePolicy(doc) {
   if (!isObj(doc)) return done(null, ['a policy is a JSON object']);
   const bad = [];
+  { const v = versionProblem(doc, 1); if (v) bad.push(v); }
   const reach = (v, at) => { if (!REACH.includes(v)) bad.push(`${at}.reachMax: one of ${REACH.join(', ')}`); };
   const constraints = (list, at, env) => {
     if (list === undefined) return;

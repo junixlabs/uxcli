@@ -28,4 +28,5 @@ export const SUITES = [
   { tag: 'level', title: 'the level is computed, not read', file: 'level-pairs.mjs', miss: 'lowered' },
   { tag: 'meas', title: 'a measurement reads the page it was made for', file: 'measure-pairs.mjs', miss: 'seen' },
   { tag: 'card', title: 'a blocked run says no pass, a cap is spoken', file: 'report-pairs.mjs', miss: 'seen' },
+  { tag: 'brief', title: 'the agent reads before it designs', file: 'brief-pairs.mjs', miss: 'seen' },
 ];

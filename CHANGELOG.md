@@ -8,6 +8,45 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Changed — storage layout v0.2
+
+- One directory per run: `.uxcli/runs/R-<when>-<six>/run.json` with its pictures under `artifacts/`.
+  Nothing is rotated or overwritten any more; the previous layout keyed a directory on the target and
+  moved the last run into `history/` only to keep each packet beside the images it named. A directory
+  made once needs no such guard. "The latest run of a target" is now read off `ranAt`, never off a
+  file's position. `prune` keeps the newest seven per target and never touches a run a commitment
+  anchors to.
+- Understanding is two authored objects: `understanding/actors/<actor>.json` (who, jobs, pains,
+  `unknowns[]`) and `understanding/insights/<id>.json` (one claim each, with `about: domain | product
+  | actor:<name>`, its evidence, its falsifier). A journey's `trace[]` and a commitment's `source.doc`
+  point at the insight file. Domain and product knowledge has a home without a new directory.
+- Every authored file carries `schema_version` (journeys 2, everything else 1) and every parser refuses
+  a file without it, naming the command that adds it.
+- `proposals/` are tracked, not ignored: a commitment cites the proposal it came from, and a citation
+  to a file that is not in the repository is a broken signature. Status set: `proposed · approved ·
+  rejected · withdrawn`; the machine only ever marks, never deletes.
+- The example project moved from a gitignored working directory into `examples/crm/`, shipped with the
+  package, runs included: it is the contract about shape every suite reads, and a fresh clone now
+  runs the gate. `scripts/example-index.mjs` rebuilds its `index.json`.
+
+### Added
+
+- `uxcli migrate [dir] [--apply]`: moves a project's `.uxcli/` to this layout — splits understanding,
+  flattens runs (run.json files are moved, never rewritten, so anchors keep their hash), rewrites every
+  trace, source and anchor path that named a moved thing, adds `schema_version`, drops the index.
+  Prints the plan; `--apply` writes; a migrated project reports nothing to do.
+
+- `uxcli context show [journey]`: the card an agent reads before it designs a screen. Assembled from
+  the project's own declarations — the actor's `unknowns[]` first, then who they are, each insight at
+  the confidence its evidence allows (the ceiling, never the author's word; the card names an
+  overclaim), the states the journey says the screen must hold with the hooks each needs, the
+  commitments signed over it, and the last run. It writes nothing, not even `index.json`, and
+  contains no sentence uxcli wrote about the product: no pattern, no advice.
+- `loadProject` parses every `.uxcli/understanding/*.json` with the user-model parser instead of
+  reading it raw, so an empty `unknowns[]` or a confidence above its ceiling is a problem `init` and
+  `context show` print, not an understanding the level counts.
+- `test/brief-pairs.mjs`, registered in the gate.
+
 ## [0.7.0] - 2026-09-26
 
 ### Added

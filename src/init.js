@@ -190,7 +190,8 @@ export function initCard(r) {
 // An understanding before a journey (a journey traces to an insight), a journey before a run, a run
 // before a commitment can be measured. Stops at the first.
 export function firstStep(P, idx = {}) {
-  if (!P.userModel) return ['.uxcli/understanding/<actor>.json', 'who uses this screen and what they expect; unknowns[] is the most important field'];
+  if (!P.actors.length) return ['.uxcli/understanding/actors/<actor>.json', 'who uses this screen and what they expect; unknowns[] is the most important field'];
+  if (!P.insights.length) return ['.uxcli/understanding/insights/I-0001.json', 'one claim with a source and a wouldChangeIf; a journey traces to it'];
   if (!P.journeys.length) return ['.uxcli/journeys/<name>.json', 'one journey: states as signals an observer can check, one happy workflow'];
   if (!(idx.rows || []).length) return [`uxcli run .uxcli/journeys/${P.journeys[0].value?.id || '<name>'}.json`, 'the first run; at reach observe nothing is provisioned or mutated'];
   if (!P.commitments.length) return ['.uxcli/commitments/C-001.json', 'a commitment with owner and source; until one is signed every would-be fail is a finding'];

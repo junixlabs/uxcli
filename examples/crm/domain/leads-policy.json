@@ -1,0 +1,9 @@
+{
+  "responseSlaMinutes": 15,
+  "maxOpenPerAgent": 40,
+  "workingHours": {
+    "from": "08:00",
+    "to": "20:00",
+    "tz": "Asia/Ho_Chi_Minh"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "id": "j-handle-inbound-lead",
+  "ranAt": "2026-09-24T09:12:03.550Z",
+  "environment": "staging",
+  "journey": {
+    "ref": "journeys/handle-inbound-lead.json",
+    "definitionHash": "sha256:88bf1109341679f44b011038588fd931dca928f5e105b6d4a82f084583623c4e"
+  },
+  "scenario": {
+    "identity": {
+      "mode": "provision",
+      "profile": "agent-basic",
+      "idHash": "sha1_8:b8238163",
+      "tenant": "t_uxcli_2c91",
+      "permissions": [
+        "agent"
+      ],
+      "cleanupVerified": true
+    },
+    "fixtures": [
+      {
+        "step": "f0",
+        "profile": "lead-new-unassigned",
+        "profileHash": "sha256:b60bb7b1b31e83960a4d68bcf0c1b79640d2cb872191ca7c206fba8234a0765d",
+        "idHash": "sha1_8:e50b20df",
+        "cleanup": "retained",
+        "expiresAt": "2026-09-26T09:12:03Z"
+      }
+    ]
+  },
+  "reach": {
+    "requested": "mutate",
+    "effective": "mutate"
+  },
+  "status": "completed",
+  "exit": 2,
+  "steps": [
+    {
+      "id": "s2",
+      "after": {
+        "state": "agent.call_started",
+        "held": true
+      },
+      "interactions": [
+        {
+          "type": "ui",
+          "target": "[data-uxcli=call-action]",
+          "inViewportWithoutScroll": false,
+          "scrollsNeeded": 2,
+          "viewport": "390x844"
+        }
+      ]
+    }
+  ],
+  "verdicts": [
+    {
+      "commitment": null,
+      "probe": "flow-reachability",
+      "value": "finding",
+      "cause": "method-unproven",
+      "what": "Gọi khách cần 2 lần cuộn ở 390×844",
+      "where": "s2"
+    }
+  ],
+  "note": "run này chưa có commitment; finding ở đây là nguồn của proposals/P-0003 → commitments/C-001"
+}

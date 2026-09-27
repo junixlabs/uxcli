@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "id": "lead-new-unassigned",
+  "kind": "data",
+  "type": "lead",
+  "meaning": "Lead vừa vào, chưa ai nhận, còn trong SLA phản hồi",
+  "constraints": {
+    "status": "new",
+    "assignedTo": null,
+    "phone": {
+      "present": true
+    },
+    "tenant": "{identity.tenantId}"
+  },
+  "derive": {
+    "createdMinutesAgo": {
+      "rule": "leads.responseSlaMinutes",
+      "add": -5
+    }
+  },
+  "allowedParams": {
+    "createdMinutesAgo": {
+      "type": "number",
+      "min": 0,
+      "max": 1440,
+      "boundaries": {
+        "sla": "leads.responseSlaMinutes"
+      }
+    }
+  },
+  "mode": "parametric",
+  "provisioner": {
+    "command": "./scripts/uxcli/seed-lead.sh",
+    "cleanup": "./scripts/uxcli/delete-lead.sh",
+    "outputs": {
+      "lead.id": "$.lead.id",
+      "lead.phone": "$.lead.phone",
+      "lead.status": "$.lead.status",
+      "lead.tenantId": "$.lead.tenantId"
+    },
+    "effects": [
+      "database_write"
+    ]
+  },
+  "owner": {
+    "type": "role",
+    "ref": "backend-lead"
+  }
+}

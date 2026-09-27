@@ -7,20 +7,14 @@
 node_modules
 .DS_Store
 *.log
-# the repo's own .uxcli/: declarations travel with the repo, everything observed or derived (and the old
-# per-site run dirs) stays out; in a nested project only observed/derived stay out
-/.uxcli/*
-!/.uxcli/project.json
-!/.uxcli/policy/
-!/.uxcli/understanding/
-!/.uxcli/journeys/
-!/.uxcli/commitments/
-!/.uxcli/profiles/
-!/.uxcli/probes/
-!/.uxcli/corpus/
-**/.uxcli/runs/
-**/.uxcli/proposals/
-**/.uxcli/index.json
+# the repo's own .uxcli/: authored and derived-persistent files travel with the repo; observed runs
+# and the rebuildable index stay out. Proposals are tracked: a commitment cites the proposal it came
+# from, and a citation to a file that is not there is a broken signature. examples/crm/.uxcli/ is the
+# shape contract and ships whole, runs included.
+/.uxcli/runs/
+/.uxcli/index.json
+test/fixtures/crm/.uxcli/runs/
+test/fixtures/crm/.uxcli/index.json
 
 # holds a storefront bearer token
 .mcp.json

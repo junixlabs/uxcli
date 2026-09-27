@@ -1,0 +1,24 @@
+{
+  "id": "L-0001",
+  "runRef": {
+    "dir": "runs/R-2026-09-24T09-12-03Z-dujexe",
+    "hash": "sha256:349035a24438f4dba1b50f48c54b9fdf490fb2cb1a98f09eb37994001ac476fc"
+  },
+  "journey": "handle-inbound-lead",
+  "step": "s2",
+  "domain": "real-estate",
+  "role": "real_estate_agent",
+  "groundTruth": "fail",
+  "blind": true,
+  "labeledBy": [
+    {
+      "who": "chuongld",
+      "at": "2026-09-24T09:40:00Z",
+      "rationale": "Nút gọi nằm dưới fold ở 390px; phải cuộn hai lần trong lúc khách đang chờ — đúng nỗi đau \"quá nhiều bước trước khi gọi được khách\""
+    }
+  ],
+  "probeResultAtLabel": {
+    "probe": "flow-reachability",
+    "value": "finding"
+  }
+}

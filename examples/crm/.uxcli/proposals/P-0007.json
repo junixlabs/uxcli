@@ -1,0 +1,33 @@
+{
+  "id": "P-0007",
+  "kind": "profile",
+  "proposedBy": {
+    "type": "agent",
+    "ref": "uxcli"
+  },
+  "statement": "Cần profile lead-new-unassigned-no-phone để đo recovery khi lead thiếu số điện thoại",
+  "trace": [
+    "journeys/handle-inbound-lead.json#lead-without-phone",
+    "understanding/insights/I-001.json"
+  ],
+  "evidence": [
+    {
+      "run": "runs/R-2026-09-25T08-41-12Z-zs8fns",
+      "what": "workflow lead-without-phone đang unmeasurable"
+    }
+  ],
+  "suggested": {
+    "id": "lead-new-unassigned-no-phone",
+    "type": "lead",
+    "constraints": {
+      "status": "new",
+      "assignedTo": null,
+      "phone": {
+        "present": false
+      }
+    }
+  },
+  "status": "proposed",
+  "expiresAt": "2026-10-25",
+  "note": "máy viết spec; dự án viết seed"
+}

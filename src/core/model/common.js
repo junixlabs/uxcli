@@ -19,3 +19,9 @@ export function signerProblem(v, at, { signs = true } = {}) {
   if (signs && v.type === 'agent' && !isStr(v.onBehalfOf)) return `${at}.onBehalfOf: an agent signs on somebody's say-so; name them`;
   return null;
 }
+
+// Every authored file says which shape it is written in, so a reader can refuse one it does not
+// understand instead of guessing, and `uxcli migrate` knows what it is moving from.
+export const versionProblem = (doc, want) => doc?.schema_version === want ? null
+  : doc?.schema_version === undefined ? `schema_version: required — ${want} for this object; \`uxcli migrate\` adds it`
+  : `schema_version: ${JSON.stringify(doc.schema_version)} — this uxcli reads ${want}; \`uxcli migrate\` moves a file forward`;

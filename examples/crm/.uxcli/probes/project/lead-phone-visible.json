@@ -1,0 +1,23 @@
+{
+  "id": "lead-phone-visible",
+  "category": "data-continuity",
+  "pack": "project",
+  "method": {
+    "status": "method-unproven",
+    "why": "0 corpus case; fpRate chưa đo"
+  },
+  "provenance": "project",
+  "signature": "tại state agent.lead_detail, text của [data-uxcli=lead-phone] phải khớp response.phone của GET /api/leads/{id} sau chuẩn hoá E.164",
+  "pair": {
+    "mustFail": "probes/project/lead-phone-visible/must-fail.html",
+    "mustPass": "probes/project/lead-phone-visible/must-pass.html"
+  },
+  "source": {
+    "doc": "understanding/real-estate-agent.json",
+    "quote": "quá nhiều bước trước khi gọi được khách"
+  },
+  "owner": {
+    "type": "person",
+    "ref": "chuongld"
+  }
+}

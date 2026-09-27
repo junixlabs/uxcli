@@ -1,0 +1,316 @@
+{
+  "id": "j-handle-inbound-lead",
+  "ranAt": "2026-09-25T08:41:12.318Z",
+  "environment": "staging",
+  "journey": {
+    "ref": "journeys/handle-inbound-lead.json",
+    "definitionHash": "sha256:88bf1109341679f44b011038588fd931dca928f5e105b6d4a82f084583623c4e"
+  },
+  "scenario": {
+    "identity": {
+      "mode": "provision",
+      "profile": "agent-basic",
+      "profileHash": "sha256:77a6c9ce5bb3ccb2925c76bb451081902477b120551637f2821ad359384ac8c8",
+      "idHash": "sha1_8:c42b2455",
+      "tenant": "t_uxcli_7f3a",
+      "permissions": [
+        "agent"
+      ],
+      "verified": {
+        "tenant": true,
+        "emailSink": true,
+        "permissions": true,
+        "expiresAt": true
+      },
+      "cleanupVerified": true,
+      "expiresAt": "2026-09-26T08:41:12Z"
+    },
+    "fixtures": [
+      {
+        "step": "f0",
+        "profile": "lead-new-unassigned",
+        "profileHash": "sha256:b60bb7b1b31e83960a4d68bcf0c1b79640d2cb872191ca7c206fba8234a0765d",
+        "params": {
+          "createdMinutesAgo": 10
+        },
+        "idHash": "sha1_8:c0f1967a",
+        "verifiedHold": {
+          "status": true,
+          "assignedTo": true,
+          "phone": true,
+          "tenant": true
+        },
+        "cleanup": "retained",
+        "retainedBecause": "run có fail — fixture là bằng chứng",
+        "expiresAt": "2026-09-27T08:41:12Z"
+      }
+    ]
+  },
+  "reach": {
+    "requested": "mutate",
+    "effective": "mutate",
+    "layers": {
+      "project": "inject",
+      "environment": "mutate",
+      "workflow": "mutate"
+    },
+    "constraints": [
+      {
+        "id": "test-tenant-only",
+        "held": true,
+        "observed": "2/2 mutation mang x-tenant-id=t_uxcli_7f3a"
+      },
+      {
+        "id": "no-real-sms",
+        "held": true,
+        "observed": "0 egress tới sms-provider"
+      },
+      {
+        "id": "no-production-webhook",
+        "held": true,
+        "observed": "0 egress tới crm.example.vn"
+      }
+    ]
+  },
+  "blastRadius": {
+    "preflight": [
+      {
+        "check": "staging key xác thực được với production origin?",
+        "result": false
+      },
+      {
+        "check": "sms provider key",
+        "result": "test-prefixed"
+      },
+      {
+        "check": "mail sink trả lời?",
+        "result": true
+      }
+    ],
+    "measured": {
+      "scope": "workflow",
+      "data": "synthetic-tenant",
+      "externalEffects": [],
+      "users": "synthetic",
+      "recoverability": "reversible"
+    },
+    "unverified": [
+      "recoverability: cleanup của lead-new-unassigned chưa từng chạy sạch trên run fail (retained)"
+    ]
+  },
+  "effects": {
+    "declared": [
+      "database_write"
+    ],
+    "observed": [
+      "database_write"
+    ],
+    "undeclared": []
+  },
+  "breaches": [],
+  "status": "completed",
+  "exit": 2,
+  "steps": [
+    {
+      "id": "f0",
+      "kind": "fixture",
+      "produced": {
+        "lead.id": "sha1_8:c0f1967a",
+        "lead.phone": "sha1_8:ce4b8afe"
+      },
+      "ms": 812
+    },
+    {
+      "id": "s1",
+      "before": {
+        "state": "agent.workspace_ready",
+        "held": true,
+        "strength": "strong"
+      },
+      "action": "bấm vào dòng lead mới",
+      "interactions": [
+        {
+          "type": "ui",
+          "target": "[data-uxcli=lead-row][data-id=…]",
+          "consumed": [
+            "lead.id"
+          ]
+        },
+        {
+          "type": "navigation",
+          "to": "/leads/…",
+          "consumed": [
+            "lead.id"
+          ]
+        },
+        {
+          "type": "api",
+          "request": "GET /api/leads/…",
+          "status": 200,
+          "ms": 143,
+          "produced": {
+            "response.phone": "sha1_8:ce4b8afe",
+            "response.status": "sha1_8:c2a6b03f"
+          }
+        }
+      ],
+      "after": {
+        "state": "agent.lead_detail",
+        "held": true,
+        "strength": "strong",
+        "signals": {
+          "path == /leads/{leadId}": true,
+          "[data-uxcli=lead-phone] visible": true,
+          "[data-uxcli=lead-phone] equals response.phone (e164)": "khớp sau chuẩn hoá; hiển thị \"0901 234 567\""
+        }
+      },
+      "timing": {
+        "toStable": 611
+      },
+      "shots": [
+        "s1-after.png"
+      ]
+    },
+    {
+      "id": "s2",
+      "before": {
+        "state": "agent.lead_detail",
+        "held": true,
+        "strength": "strong"
+      },
+      "action": "bấm Gọi khách",
+      "interactions": [
+        {
+          "type": "ui",
+          "target": "[data-uxcli=call-action]",
+          "inViewportWithoutScroll": false,
+          "scrollsNeeded": 2,
+          "viewport": "390x844"
+        },
+        {
+          "type": "api",
+          "request": "POST /api/calls",
+          "status": 201,
+          "effect": "database_write",
+          "tenantHeader": "t_uxcli_7f3a",
+          "ms": 96
+        },
+        {
+          "type": "system",
+          "href": "tel:sha1_8:ce4b8afe",
+          "consumed": [
+            "response.phone"
+          ]
+        }
+      ],
+      "after": {
+        "state": "agent.call_started",
+        "held": true,
+        "strength": "medium"
+      },
+      "timing": {
+        "toStable": 240
+      },
+      "shots": [
+        "s2-before.png",
+        "s2-after.png"
+      ]
+    }
+  ],
+  "lineage": [
+    {
+      "path": "f0.lead.id",
+      "sha1_8": "c0f1967a",
+      "consumedBy": [
+        "s1.ui",
+        "s1.navigation",
+        "s1.api"
+      ]
+    },
+    {
+      "path": "s1.response.phone",
+      "sha1_8": "ce4b8afe",
+      "consumedBy": [
+        "s2.system.tel"
+      ],
+      "matchesDisplayed": true
+    },
+    {
+      "path": "s1.response.internalScore",
+      "kept": false,
+      "why": "không step nào consume"
+    }
+  ],
+  "ruleSnapshots": {
+    "leads.responseSlaMinutes": {
+      "value": 15,
+      "source": "project-policy",
+      "file": "domain/leads-policy.json"
+    }
+  },
+  "probes": [
+    {
+      "id": "focus-visible",
+      "sc": "2.4.7",
+      "value": "pass"
+    },
+    {
+      "id": "contrast",
+      "sc": "1.4.3",
+      "value": "pass"
+    },
+    {
+      "id": "lead-phone-visible",
+      "value": "finding",
+      "caps": [
+        {
+          "by": "method",
+          "from": "fail"
+        }
+      ],
+      "what": "hiển thị \"0901 234 567\", response \"+84901234567\" — khớp sau E.164 nhưng probe chưa chứng minh phép chuẩn hoá của nó",
+      "where": "s1"
+    }
+  ],
+  "verdicts": [
+    {
+      "commitment": "C-001",
+      "measurement": 0,
+      "value": "fail",
+      "caps": [],
+      "cause": "probe-said",
+      "what": "[data-uxcli=call-action] cần 2 lần cuộn ở 390×844 tại agent.lead_detail",
+      "where": "s2",
+      "shot": "s2-before.png"
+    },
+    {
+      "commitment": "C-002",
+      "measurement": 0,
+      "value": "not-applicable",
+      "caps": [],
+      "cause": "toStable 611ms < 1000ms — điều kiện không xảy ra"
+    },
+    {
+      "commitment": "C-002",
+      "measurement": 1,
+      "value": "not-applicable",
+      "caps": [],
+      "cause": "toStable 611ms < 10000ms"
+    }
+  ],
+  "evidence": {
+    "shots": [
+      "s1-after.png",
+      "s2-before.png",
+      "s2-after.png"
+    ],
+    "dom": "dom/",
+    "network": "net/run.har.json",
+    "redacted": [
+      "Authorization",
+      "x-tenant-id giữ",
+      "phone",
+      "email"
+    ]
+  }
+}

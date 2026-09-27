@@ -21,6 +21,12 @@ const usage = `usage:
       drift between two saved runs (run --json, sheet --json): same / regressed / improved / new / gone per probe or commitment; with --gate exit 2 when b carries a fail
   uxcli discover <repo-dir|url> [--out=DIR] [--json]
       journey candidates as proposals: routes and forms from a Next.js source tree, or forms from a same-origin crawl; written to DIR (default uxcli-proposals/); run refuses a journey whose provenance is proposal until a human sets confirmedBy
+  uxcli context show [journey] [--src=DIR] [--json]
+      what to read before designing a screen: the actor's unknowns first, then who they are, each insight at the confidence its evidence allows,
+      the states the journey says the screen must hold and the hooks each needs, the commitments signed over it, and the last run; from .uxcli/, nothing written
+  uxcli migrate [dir] [--apply] [--json]
+      move dir/.uxcli/ to the layout this uxcli reads: one directory per run (runs/R-<when>-<six>/, pictures under artifacts/), understanding split into
+      actors/ and insights/, trace and anchor paths rewritten, schema_version on every authored file; prints the plan, --apply writes it
   uxcli init [dir] [--apply] [--origin=URL] [--json]
       what uxcli would put in dir, and where dir stands in the sequence (commitments signed, journeys confirmed, runs recorded) — measured from disk, printed, and nothing written;
       --apply creates the shipped skills in dir/.claude/skills/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
@@ -29,18 +35,17 @@ const usage = `usage:
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
 const isUrl = s => /^https?:\/\//i.test(s) || /\.html?$/i.test(s) || s.startsWith('file:');
-// Every run leaves run.json next to its screenshots: the packet to attach when disputing a verdict.
-// Rotation happens before the run opens a browser, not at save time: the run writes its screenshots
-// into the directory as it goes, so by the time saveRun is reached the previous run's images have
-// already been overwritten. Called once per run, and a directory with nothing in it does nothing.
-const prepare = async outDir => {
-  const { rotate } = await import('../src/adapters/store/runs.js');
-  rotate(outDir);
-  fs.mkdirSync(outDir, { recursive: true });
-  return outDir;
+// Every run leaves run.json beside its artifacts/: the packet to attach when disputing a verdict.
+// One directory per run, made once (`runs/R-<when>-<six>/`), pictures under artifacts/. With --out
+// the caller owns the directory and the same shape is made inside it.
+const prepare = async (out, ranAt) => {
+  const { newRunDir, artifactsDir } = await import('../src/adapters/store/runs.js');
+  const dir = out ? path.resolve(out) : newRunDir(process.cwd(), ranAt);
+  fs.mkdirSync(artifactsDir(dir), { recursive: true });
+  return { dir, shots: artifactsDir(dir) };
 };
 
-const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; result.screenshots = fs.readdirSync(outDir).filter(f => /\.(png|jpe?g)$/i.test(f)).length; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); };
+const saveRun = (result, outDir) => { fs.mkdirSync(outDir, { recursive: true }); result.uxcli = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version; result.outDir = outDir; const shots = path.join(outDir, 'artifacts'); result.screenshots = fs.existsSync(shots) ? fs.readdirSync(shots).filter(f => /\.(png|jpe?g)$/i.test(f)).length : 0; fs.writeFileSync(path.join(outDir, 'run.json'), JSON.stringify(result, null, 1) + '\n'); };
 try {
   if (cmd === 'run' && args[0] && isUrl(args[0])) {
     const { runPage } = await import('../src/page.js'); const { card } = await import('../src/card.js');
@@ -48,10 +53,9 @@ try {
     // Keyed by the target, not by its host. Seven screens of one host used to share one directory
     // and overwrite each other, packet and index row together; same target now means same directory,
     // which is what the index always assumed.
-    const { outDirFor } = await import('../src/core/target.js');
-    const outDir = await prepare(opt('out') || path.join('.uxcli', outDirFor({ url })));
+    const { dir: outDir, shots } = await prepare(opt('out'), new Date().toISOString());
     if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast, text-overlap${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
-    const result = await runPage(url, { state: opt('state'), outDir, src: opt('src'), prove: flags.has('--prove') });
+    const result = await runPage(url, { state: opt('state'), outDir: shots, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     result.exit = exitFor({ verdicts: result.probes.map(p => p.verdict), couldNotRun: !!result.error });
     saveRun(result, outDir);
@@ -67,9 +71,8 @@ try {
   } else if (cmd === 'run' && args[0]) {
     const { readFlow } = await import('../src/adapters/store/flow-file.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
     const flow = readFlow(path.resolve(args[0]), vars);
-    const { outDirFor } = await import('../src/core/target.js');
-    const outDir = await prepare(opt('out') || path.join('.uxcli', outDirFor({ journey: flow.name || path.basename(args[0], '.json') })));
-    const result = await runJourney(flow, { outDir });
+    const { dir: outDir, shots } = await prepare(opt('out'), new Date().toISOString());
+    const result = await runJourney(flow, { outDir: shots });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     const couldNotRun = result.steps.some(s => s.error) || result.steps.length < result.stepCount;
     result.exit = exitFor({ verdicts: result.probes.map(p => p.verdict), couldNotRun });
@@ -102,6 +105,24 @@ try {
     const { authorityCard } = await import('../src/authority.js');
     console.log(authorityCard(path.resolve(opt('src') || '.'), args[0] || null));
     process.exit(0);
+  } else if (cmd === 'migrate') {
+    // Moves a project's .uxcli/ forward to the layout this uxcli reads. Prints the plan; --apply writes.
+    const { migrate, migrateCard } = await import('../src/migrate.js');
+    const r = migrate(path.resolve(args[0] || '.'), { apply: flags.has('--apply') });
+    console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : migrateCard(r));
+    process.exit(r.problems.length ? 1 : 0);
+  } else if (cmd === 'context' && args[0] === 'show') {
+    // What the agent reads before it designs: assembled from the project's own declarations and the
+    // projection, printed as a card. Nothing is written — not even index.json.
+    const J = await import('../src/journey.js'); const root = J.findRoot(path.resolve(opt('src') || '.'));
+    if (!root) { console.error('no .uxcli/policy/policy.json here or above — uxcli init --apply --origin=<url> first'); process.exit(1); }
+    const { brief } = await import('../src/core/context/brief.js'); const { contextCard } = await import('../src/core/report/index.js');
+    const P = J.loadProject(root); const idx = J.projectionOf(P);
+    const want = args[1] ? args[1].replace(/^.*\//, '').replace(/\.json$/, '') : null;
+    const b = brief({ actors: P.actors, insights: P.insights, journeys: P.journeys.map(j => j.value).filter(Boolean), commitments: P.commitments.map(c => c.value).filter(Boolean), index: idx, journeyId: want });
+    b.problems.push(...P.problems);
+    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b));
+    process.exit(want && !b.journey ? 1 : 0);
   } else if (cmd === 'context') {
     const { contextOf, contextCard } = await import('../src/context.js');
     const out = contextOf(path.resolve(opt('src') || args[0] || '.'));

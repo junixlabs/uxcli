@@ -1,4 +1,3 @@
-# observed và derived không đi theo repo — chỉ declarations đi theo
+# observed and derived stay out; declarations and proposals travel with the repo
 .uxcli/runs/
-.uxcli/proposals/
 .uxcli/index.json

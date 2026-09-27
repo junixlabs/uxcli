@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "actor": "real_estate_agent",
+  "roles": [
+    "agent"
+  ],
+  "contexts": [
+    "mobile-heavy, thường đang di chuyển",
+    "xử lý nhiều lead song song",
+    "context switching cao"
+  ],
+  "jobs": [
+    "xem lead mới",
+    "gọi / nhắn khách nhanh",
+    "tìm property phù hợp",
+    "cập nhật kết quả follow-up"
+  ],
+  "behaviors": [
+    "tìm bằng tên / số điện thoại",
+    "quay lại lead gần nhất"
+  ],
+  "habits": [
+    "hành động ngay từ màn chi tiết, không quay ra danh sách"
+  ],
+  "expectations": [
+    "tìm nhanh",
+    "giữ ngữ cảnh khi chuyển màn",
+    "hành động nằm cạnh dữ liệu đang xem"
+  ],
+  "pains": [
+    "nhập lại dữ liệu",
+    "mất ngữ cảnh khi chuyển màn hình",
+    "quá nhiều bước trước khi gọi được khách"
+  ],
+  "constraints": [
+    "mạng 4G không ổn định khi ở công trình"
+  ],
+  "unknowns": [
+    "tỷ lệ mobile chính xác theo vai (agent vs manager)",
+    "lead volume trung bình/ngày/agent",
+    "họ có dùng app gọi ngoài (Zalo) thay tel: không"
+  ]
+}

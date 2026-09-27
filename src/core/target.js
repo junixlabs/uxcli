@@ -1,8 +1,14 @@
-// Target identity: which directory a run writes into, and which older run a new one replaces.
-// `label.js` answers what a target is CALLED and its answer shifts with the screen; this answer may
-// never shift. Keying the directory on hostname instead cost 28 packets and 44 index rows.
+// Target identity, and the name a run's directory gets.
 //
-// in:  { url | finalUrl | file | journey }   out: a stable id and a directory name
+// Two questions, kept apart on purpose. WHICH target a run measured is an identity: two runs of one
+// screen must answer the same, or the index can never say "this screen got worse". WHERE a run's
+// evidence lives is not an identity at all: every run gets a directory of its own, made once and
+// never written into again, because a packet's `shot` names a file and a file overwritten by a later
+// run turns every earlier packet into a liar. The old layout keyed the directory on the target and
+// rotated the previous run into `history/`; rotation existed only to protect the pictures, and a
+// directory nobody writes twice needs no protecting.
+//
+// in:  { url | finalUrl | file | journey }   out: a stable id; and, separately, a directory name
 // The hash is hand-written because src/core/ may not import node:crypto.
 function fnv1a(s) {
   let h = 0x811c9dc5;
@@ -13,7 +19,7 @@ function fnv1a(s) {
   return h >>> 0;
 }
 
-const hash6 = s => fnv1a(s).toString(36).padStart(6, '0').slice(-6);
+export const hash6 = s => fnv1a(s).toString(36).padStart(6, '0').slice(-6);
 
 // Two runs are the same target exactly when this string matches. The hash is kept: in a single-page
 // app it is the only thing naming the screen. A journey is keyed by name — the packet has no way
@@ -31,24 +37,19 @@ export function canonical({ url, finalUrl, journey, file } = {}) {
 
 export const targetId = t => { const c = canonical(t); return c ? hash6(c) : ''; };
 
-// Where a run's evidence goes, as a fixed shape rather than a name derived from the address.
-//
-// It used to be `<readable-slug>-<targetId>`, and the slug half was the whole problem: it put a
-// presentational decision — how a URL reads when flattened — into the path evidence lives at, so a
-// change in how slugify treats a character relocates a packet. The address is inside run.json, which
-// is where a reader who wants it should look. The path only has to be the same one every time.
-//
-// One target, one directory, and the directory holds the current run beside its own screenshots.
-// A run that is replaced moves under `history/` with its shots, keyed by when it ran: a packet whose
-// `shot` field names a file must name the picture taken on that run, and overwriting step-0.jpg in
-// place would leave three-day-old packets pointing at today's image.
-export const RUNS = 'runs';
-export const HISTORY = 'history';
+// The key the index groups runs by. A journey packet carries its own id (`j-<slug>[@env]`); a page
+// packet carries the address it opened. Neither is a path.
+export const targetKeyOf = run => run?.id || run?.targetId || targetId({ url: run?.url, finalUrl: run?.finalUrl, journey: run?.journey?.name || run?.name }) || '';
 
-export const outDirFor = t => `${RUNS}/${targetId(t) || 'unidentified'}`;
+export const RUNS = 'runs';
+export const ARTIFACTS = 'artifacts';
 
 // Filesystem-safe and still sortable as a string: an ISO instant with the colons taken out, which is
 // the form Windows and every archive tool accept.
 export const stampOf = ranAt => String(ranAt || '').replace(/[:]/g, '-').replace(/\.\d+Z$/, 'Z') || 'undated';
 
-export const historyDirFor = (t, ranAt) => `${outDirFor(t)}/${HISTORY}/${stampOf(ranAt)}`;
+// `R-<when>-<six>`: sorts by time as a string, and the six characters keep two runs that start in the
+// same second apart. The caller supplies them — a random draw is a capability, and core has none.
+export const runDirName = (ranAt, six) => `R-${stampOf(ranAt)}-${String(six || '').replace(/[^a-z0-9]/gi, '').toLowerCase().padStart(6, '0').slice(-6)}`;
+export const isRunDir = name => /^R-[0-9T-]+Z?-[a-z0-9]{6}$/.test(String(name)) || /^R-undated-[a-z0-9]{6}$/.test(String(name));
+export const runPathOf = (ranAt, six) => `${RUNS}/${runDirName(ranAt, six)}`;

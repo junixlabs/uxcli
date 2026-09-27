@@ -1,14 +1,11 @@
 // The run engine, shown failing where it must and silent where it must, against the example data.
-import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 import { effectiveReach } from '../src/core/run/reach.js';
 import { plan, blockedAt } from '../src/core/run/plan.js';
 import { packet, seal, effectsFrom } from '../src/core/run/packet.js';
 import { verdicts } from '../src/core/run/verdicts.js';
 import { weakens } from '../src/core/run/weaken.js';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const D = path.join(ROOT, '.claude/specs/design/uxcli-data-v0.1/.uxcli');
-const J = f => JSON.parse(fs.readFileSync(path.join(D, f), 'utf8'));
+import { read as J, runOf } from './example-data.mjs';
 const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 export const OPERATOR =
@@ -26,8 +23,8 @@ export function pair() {
   const lead = J('journeys/handle-inbound-lead.json');
   const auth = J('journeys/authenticate.json');
   const C = ['C-001', 'C-002', 'C-003'].map(id => J(`commitments/${id}.json`));
-  const exLead = J('runs/j-handle-inbound-lead/run.json');
-  const exProd = J('runs/j-handle-inbound-lead@production/run.json');
+  const exLead = runOf('j-handle-inbound-lead').run;
+  const exProd = runOf('j-handle-inbound-lead@production').run;
   const WF = 'handle-inbound-lead/open-and-call';
 
   // Reach — three layers, min, glob, and the identity ceiling.

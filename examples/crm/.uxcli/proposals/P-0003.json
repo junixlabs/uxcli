@@ -1,0 +1,23 @@
+{
+  "id": "P-0003",
+  "kind": "commitment",
+  "proposedBy": {
+    "type": "agent",
+    "ref": "claude",
+    "onBehalfOf": "chuongld"
+  },
+  "statement": "Cam kết: hành động Gọi khách trong viewport không cuộn tại agent.lead_detail",
+  "trace": [
+    "understanding/insights/I-001.json",
+    "journeys/handle-inbound-lead.json#open-and-call/s2"
+  ],
+  "evidence": [
+    {
+      "run": "runs/R-2026-09-24T09-12-03Z-dujexe",
+      "hash": "sha256:349035a24438f4dba1b50f48c54b9fdf490fb2cb1a98f09eb37994001ac476fc"
+    }
+  ],
+  "status": "approved",
+  "approvedAs": "commitments/C-001.json",
+  "at": "2026-09-24T09:15:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "P-0006",
+  "kind": "retirement",
+  "proposedBy": {
+    "type": "agent",
+    "ref": "uxcli"
+  },
+  "target": "commitments/C-003.json",
+  "statement": "Đề xuất nghỉ hưu C-003: niềm tin nó dựa trên (I-002) đã bị phản chứng",
+  "trace": [
+    "understanding/insights/I-002.json"
+  ],
+  "evidence": [
+    {
+      "check": "I-002.wouldChangeIf",
+      "observed": 0.71,
+      "threshold": 0.6,
+      "at": "2026-09-24T09:12:03Z"
+    }
+  ],
+  "requires": {
+    "type": "role",
+    "ref": "product-owner"
+  },
+  "status": "proposed",
+  "expiresAt": "2026-12-24",
+  "note": "máy không retire; chỉ người có quyền ≥ quyền tạo mới quyết"
+}

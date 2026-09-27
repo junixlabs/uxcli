@@ -1,0 +1,14 @@
+{
+  "id": "P-0004",
+  "kind": "instrumentation",
+  "proposedBy": {
+    "type": "agent",
+    "ref": "uxcli"
+  },
+  "statement": "Emit CustomEvent uxcli:call-started khi cuộc gọi bắt đầu, để agent.call_started lên strong",
+  "trace": [
+    "journeys/handle-inbound-lead.json#/states/agent.call_started"
+  ],
+  "status": "proposed",
+  "expiresAt": "2026-10-25"
+}

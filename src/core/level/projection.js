@@ -5,7 +5,7 @@ import { latestOf } from '../run/verdicts.js';
 
 const day = t => t ? String(t).slice(0, 10) : null;
 const idOf = ref => String(ref || '').replace(/^.*\//, '').replace(/\.json$/, '').replace(/#.*$/, '');
-const insightId = ref => String(ref || '').split('#')[1] || null;
+const insightId = ref => (/understanding\/insights\//.test(String(ref)) ? idOf(ref) : null);
 const byTime = (a, b) => String(b.ranAt || '').localeCompare(String(a.ranAt || ''));
 const MEASURED = new Set(['pass', 'fail', 'finding', 'not-applicable']);
 
@@ -25,7 +25,7 @@ export function insightStanding(i) {
 const fpMeasured = (probe, corpus, id) => typeof probe?.fpRate === 'number' || corpus.some(l => l.probeResultAtLabel?.probe === id && typeof l.fpRate === 'number');
 const unproven = c => (c.measurements || []).filter(m => m.method !== 'method-validated').length;
 
-export function projection({ userModel, journeys = [], commitments = [], profiles = [], policy = {}, runs = [], proposals = [], corpusLabels = [], probes = [], runHashes = {}, now } = {}) {
+export function projection({ insights: insightList = [], journeys = [], commitments = [], profiles = [], policy = {}, runs = [], proposals = [], corpusLabels = [], probes = [], runHashes = {}, now } = {}) {
   const current = runs.map(r => r.run).filter(Boolean).sort(byTime);
   const completed = current.filter(r => r.status === 'completed');
   const at = now || current[0]?.ranAt || null;
@@ -34,7 +34,7 @@ export function projection({ userModel, journeys = [], commitments = [], profile
   // Insights — and which commitments lean on a demoted one.
   const insights = {};
   const demoted = new Set();
-  for (const i of userModel?.insights || []) {
+  for (const i of insightList) {
     insights[i.id] = insightStanding(i);
     if (insights[i.id].demoted) demoted.add(i.id);
   }
@@ -134,7 +134,7 @@ export function projection({ userModel, journeys = [], commitments = [], profile
   });
 
   const standing = {};
-  if (userModel) standing[userModel.file || `understanding/${userModel.actor}.json`] = insights;
+  if (insightList.length) standing['understanding/insights'] = insights;
   Object.assign(standing, { commitments: standingC, profiles: standingP, journeys: standingJ });
 
   return {

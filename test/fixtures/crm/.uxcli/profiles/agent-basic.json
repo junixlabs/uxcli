@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "id": "agent-basic",
   "kind": "identity",
   "meaning": "Môi giới thường, một tenant synthetic, không quyền quản lý",

@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "id": "C-001",
   "statement": "Trên màn chi tiết lead, hành động Gọi khách nằm trong viewport mà không cần cuộn, ở mọi viewport từ 390px",
   "scope": {
@@ -27,7 +28,7 @@
     "proposal": "proposals/P-0003.json"
   },
   "source": {
-    "doc": "understanding/real-estate-agent.json",
+    "doc": "understanding/actors/real-estate-agent.json",
     "quote": "hành động nằm cạnh dữ liệu đang xem"
   },
   "status": "ACTIVE",
@@ -52,7 +53,7 @@
     "hash": "sha256:349035a24438f4dba1b50f48c54b9fdf490fb2cb1a98f09eb37994001ac476fc"
   },
   "trace": [
-    "understanding/real-estate-agent.json#I-001",
+    "understanding/insights/I-001.json",
     "proposals/P-0003.json"
   ],
   "createdAt": "2026-09-24T10:02:00Z",

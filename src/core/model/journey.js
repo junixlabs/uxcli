@@ -4,7 +4,7 @@
 //      (this module reads no files — a `$ref` the caller did not resolve stays `{ $ref, unresolved }`)
 // out: { ok, value, problems } — value is the journey with every resolved state carrying
 //      `derivedStrength`, and `strength` = what the author wrote, or the derived one if they wrote nothing
-import { isStr, isObj, strList, done, REACH } from './common.js';
+import { isStr, isObj, strList, done, REACH, versionProblem } from './common.js';
 import { signalProblems, strengthOf, STRENGTHS } from './signal.js';
 
 const KINDS = ['happy', 'recovery'];
@@ -88,6 +88,7 @@ const stepsOf = (w, wat, journey, bad) => {
 export function parseJourney(doc, { refs = {} } = {}) {
   if (!isObj(doc)) return done(null, ['a journey is a JSON object']);
   const bad = [];
+  { const v = versionProblem(doc, 2); if (v) bad.push(v); }
   for (const k of ['id', 'goal', 'actor']) if (!isStr(doc[k])) bad.push(`${k}: required, a non-empty string`);
   if (!isObj(doc.requires)) bad.push('requires: required — { identityProfile, dataProfiles[] }');
   else {
