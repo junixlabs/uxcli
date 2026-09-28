@@ -22,3 +22,6 @@ test/fixtures/crm/.uxcli/index.json
 
 # regenerable: uxcli propose rewrites these from the last run
 uxcli.*.proposed.json
+
+# experiment transcripts are 29 MB of tool-call logs; session.json, lead.html and summary.md carry the measurement
+experiments/*/results/*/transcript.jsonl

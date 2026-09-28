@@ -7,9 +7,9 @@ import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath }
 const HERE = path.dirname(fileURLToPath(import.meta.url)); const RESULTS = path.join(HERE, 'results');
 const rows = fs.readdirSync(RESULTS).filter(d => fs.existsSync(path.join(RESULTS, d, 'session.json'))).map(d => JSON.parse(fs.readFileSync(path.join(RESULTS, d, 'session.json'), 'utf8')));
 const arms = ['ticket', 'journey', 'context', 'skill'].filter(a => rows.some(r => r.arm === a));
-const pass = (r, vp) => { const s = r.score?.[vp]; return !!s && s.exit === 0 && s.c001?.includes('pass') && s.steps?.length > 0 && s.steps.every(x => x.afterHeld === true); };
+const pass = (r, vp) => { const s = r.score?.[vp]; const m = (s?.steps || []).filter(x => typeof x.afterHeld === 'boolean'); return !!s && s.exit === 0 && s.c001?.includes('pass') && m.length > 0 && m.every(x => x.afterHeld === true); };
 const c001 = (r, vp) => r.score?.[vp]?.c001?.includes('pass');
-const held = (r, vp) => { const s = r.score?.[vp]; return s?.steps ? `${s.steps.filter(x => x.afterHeld === true).length}/${s.steps.length}` : '—'; };
+const held = (r, vp) => { const s = r.score?.[vp]; const m = (s?.steps || []).filter(x => typeof x.afterHeld === 'boolean'); return s?.steps ? `${m.filter(x => x.afterHeld).length}/${m.length}` : '—'; };
 const pct = (n, d) => d ? `${n}/${d} (${Math.round(100 * n / d)}%)` : '—';
 const saidDone = r => /\b(done|finished|complete[d]?)\b/i.test(r.final || '');
 const L = ['# Understanding before design — results', '', `Sessions: ${rows.length}. Model: ${[...new Set(rows.map(r => r.model))].join(', ')}. Scored by \`uxcli run\` on the page each session wrote; see run.mjs and score.mjs.`, '',

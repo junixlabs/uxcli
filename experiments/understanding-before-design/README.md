@@ -29,7 +29,7 @@ After each session the declarations are put back, the server is started, and `ux
 the journey at 390×844 and 1440×900 (`score.mjs`). Recorded per viewport: exit code, C-001's
 verdict, which steps' after-states held; and whether the page carries the hooks the journey names.
 
-**First-run pass** = exit 0, C-001 `pass`, every after-state held, at that viewport, on the first
+**First-run pass** = exit 0, C-001 `pass`, every measured step's after-state held (fixture steps have none), at that viewport, on the first
 measurement. Nothing is read from what the agent said about its own work.
 
 For the `skill` arm two more things are read from the transcript's tool calls: whether the session
@@ -55,3 +55,11 @@ One model, one fixture, one ticket. A pass at 390×844 says the agent put the ca
 signed commitment says; it says nothing about whether the page is good. The `skill` arm's copy of the
 skill has `npx -y @junixlabs/uxcli` replaced with `uxcli` so it runs this tree and not the published
 package; no load-bearing paragraph is touched.
+
+## Run of 2026-09-28
+
+`results/summary.md`. Forty sessions plus one rerun: `skill-09` was cut off by a usage limit
+("You've hit your session limit") after writing the page but before finishing, and was discarded and
+rerun rather than scored. Two `ticket` sessions show `blocked` at 1440×900 with no reason recorded;
+the scorer now keeps the run's note. Both had already failed at 390×844, so the headline is unchanged.
+Transcripts are not committed (29 MB); each session's `session.json` and `lead.html` are.

@@ -1,7 +1,8 @@
 // Scoring: the instrument, not a reading. The fixture's declarations are put back into the session
 // directory (the arms that did not carry them), the server is started on a free port, and the journey
 // is run at two viewports. What is recorded per viewport: the run's exit, C-001's verdict, which
-// steps' `after` states held, and whether the three hooks the journey names exist on the page.
+// steps' `after` states held (fixture steps have none), and whether the hooks the journey names
+// exist on the page. A blocked run keeps its note, so the reason is in the record.
 import fs from 'node:fs'; import path from 'node:path';
 
 export async function score(dir, { fixture, root }) {
@@ -19,8 +20,8 @@ export async function score(dir, { fixture, root }) {
       const run = r.run;
       const c001 = (run.verdicts || []).filter(v => v.commitment === 'C-001').map(v => v.value);
       const steps = (run.steps || []).map(s => ({ id: s.id, afterHeld: s.after?.held ?? null, before: s.before?.held ?? null }));
-      const held = steps.filter(s => s.afterHeld === true).length;
-      out[viewport] = { exit: run.exit, status: run.status, c001, steps, summary: `exit ${run.exit} · C-001 ${c001.join('/') || '—'} · ${held}/${steps.length} after-states held`, packet: path.relative(dir, path.join(r.dir, 'run.json')) };
+      const measured = steps.filter(s => typeof s.afterHeld === 'boolean'); const held = measured.filter(s => s.afterHeld).length;
+      out[viewport] = { exit: run.exit, status: run.status, note: run.note || null, c001, steps, summary: `exit ${run.exit} · C-001 ${c001.join('/') || '—'} · ${held}/${measured.length} after-states held${run.status === 'blocked' ? ` · blocked: ${run.note || ''}` : ''}`, packet: path.relative(dir, path.join(r.dir, 'run.json')) };
     }
   } finally { child.kill(); }
   return out;
