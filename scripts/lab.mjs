@@ -14,19 +14,16 @@ import { launch } from '../src/browser.js';
 import { runPage, PAGE_PROBES } from '../src/page.js';
 import { card } from '../src/card.js';
 import { journeyCard, why } from '../src/core/report/index.js';
-import { runJourney, loadProject } from '../src/journey.js';
+import { runJourney } from '../src/journey.js';
 import { stage, serve } from '../src/demo.js';
 import { shareCard } from './share-card.mjs';
-import { specOf, deliver as deliverFlow, ARCHIFY } from './lab-flow.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'docs', 'lab');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
 
-fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(path.join(OUT, 'runs'), { recursive: true }); fs.mkdirSync(path.join(OUT, 'share')); fs.mkdirSync(path.join(OUT, 'flow'));
-const hasArchify = fs.existsSync(path.join(ARCHIFY, 'bin', 'archify.mjs'));
-if (!hasArchify) console.error(`no archify at ${ARCHIFY}: the flow diagrams are skipped (set ARCHIFY_HOME)`);
+fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(path.join(OUT, 'runs'), { recursive: true }); fs.mkdirSync(path.join(OUT, 'share'));
 const entries = [];
 
 // Copy a run directory under docs/lab/runs/<name>/ and return the relative paths the page links.
@@ -53,14 +50,7 @@ const browser = await launch();
       const k = keep(`crm-${j}`, r.dir, r.run, text);
       const share = `share/crm-${j}.png`; let shared = null;
       try { await shareCard(r.dir, path.join(OUT, share), { browser }); shared = share; } catch {}
-      // The flow as a diagram, compiled by archify from the same packet; a spec it refuses is reported, not drawn.
-      let flow = null;
-      if (hasArchify) {
-        const P = loadProject(dir); const spec = specOf(r.run, r.commitments, { journey: P.journeys.find(x => x.value?.id === j)?.value || {} });
-        const d = deliverFlow(spec, path.join(OUT, 'flow', `crm-${j}.html`));
-        if (d.ok) flow = `flow/crm-${j}.html`; else console.error(`flow crm-${j}: archify refused the spec\n${d.out.slice(-1500)}`);
-      }
-      entries.push({ kind: 'journey', group: 'A product with defects planted on purpose', title: j, subtitle: '390×844 · local', verdict: verdictOf(r.run), exit: r.run.exit, note, text, run: r.run, commitments: r.commitments, ...k, share: shared, flow, source: 'test/fixtures/crm (DEFECTS.md)' });
+      entries.push({ kind: 'journey', group: 'A product with defects planted on purpose', title: j, subtitle: '390×844 · local', verdict: verdictOf(r.run), exit: r.run.exit, note, text, run: r.run, commitments: r.commitments, ...k, share: shared, source: 'test/fixtures/crm (DEFECTS.md)' });
     }
   } finally { child.kill(); }
 }
@@ -116,8 +106,6 @@ function journeyEntry(e, i) {
       <div class="left">
         ${verdicts.map(v => v.block).join('')}
         ${quiet.length ? `<p class="quiet">Also decided: ${quiet.map(v => `<code>${esc(v.commitment || 'state')}</code> ${esc(VERDICT_WORD[v.value] || v.value)}${v.cause && v.cause !== 'probe-said' ? ` (${esc(clean(v.cause))})` : ''}`).join(' · ')}.</p>` : ''}
-        ${e.flow ? `<h4>The flow, drawn from the packet</h4>
-        <div class="flow"><iframe src="${esc(e.flow)}" title="${esc(e.title)} as a workflow diagram" loading="lazy"></iframe><a class="flowlink" href="${esc(e.flow)}">open the diagram on its own page</a></div>` : ''}
         <h4>Steps the browser walked</h4>
         <ol class="steps">${steps}</ol>
         ${others.length ? `<div class="strip">${others.map(s => img(s, path.basename(s).replace('.png', ''), false)).join('')}</div>` : ''}
@@ -192,9 +180,6 @@ section .list{display:grid;gap:22px}
 .v{display:inline-block;font:700 11px/1 var(--mono);letter-spacing:.08em;padding:6px 8px;border-radius:3px;color:#fff;background:var(--unmeasurable)}
 .v.fail{background:var(--fail)}.v.finding{background:var(--finding)}.v.pass{background:var(--pass)}.v.not-applicable,.v.unmeasurable{background:var(--unmeasurable)}
 .vgrid{display:grid;grid-template-columns:minmax(0,1fr) 232px;gap:18px 28px;align-items:start}
-.flow{display:grid;gap:6px}
-.flow iframe{width:100%;height:640px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
-.flowlink{font-size:13px}
 .left{display:grid;gap:16px;min-width:0}
 .verdict{display:grid;gap:12px;padding:16px 18px;border-radius:6px;background:var(--well);border-left:4px solid var(--fail)}
 .vhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
