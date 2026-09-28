@@ -157,10 +157,9 @@ uxcli why <rule>                      # a probe's definition
 ## See it on real runs
 
 The [Verdict Lab](https://junixlabs.github.io/uxcli/) shows runs regenerated from this repository by
-`scripts/lab.mjs`: the fixture CRM measured on both journeys, and every page probe failing on its
-must-fail twin and passing with `--prove` on the other. Each entry carries the card as printed, the
-pictures the run saved, the packet, and a 1200×630 share card (`scripts/share-card.mjs <run dir>`)
-for a pull-request comment.
+`scripts/lab.mjs`: the fixture CRM measured on both journeys, drawn as a flow of the screens the
+browser walked, and every page probe failing on its must-fail twin and passing with `--prove` on the
+other. Each entry carries the card as printed, the pictures the run saved and the packet.
 
 ## When it is wrong, say so
 

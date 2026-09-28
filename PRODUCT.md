@@ -65,5 +65,5 @@ What uxcli is not, so a feature that drifts there is refused:
 ## Accessibility
 
 The instrument's own output is text in a terminal with no colour dependence; the Verdict Lab page
-and the share card carry the same text as alt and body. The WCAG probes it ships are the four whose
+carries the same text as alt and body. The WCAG probes it ships are the four whose
 method has a validation record; a probe without one may only say `finding`.

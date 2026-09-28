@@ -8,7 +8,7 @@
 // shows, the verdict as a coloured word, pictures beside the card that produced them. Palette: slate
 // neutrals with the three semantic colours the card already uses (fail / finding / pass).
 //
-//   node scripts/lab.mjs            → docs/lab/index.html, docs/lab/runs/**, docs/lab/share/*.png
+//   node scripts/lab.mjs            → docs/lab/index.html, docs/lab/runs/**
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import { fileURLToPath, pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { runPage, PAGE_PROBES } from '../src/page.js';
@@ -16,14 +16,13 @@ import { card } from '../src/card.js';
 import { journeyCard, why } from '../src/core/report/index.js';
 import { runJourney, loadProject } from '../src/journey.js';
 import { stage, serve } from '../src/demo.js';
-import { shareCard } from './share-card.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'docs', 'lab');
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
 
-fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(path.join(OUT, 'runs'), { recursive: true }); fs.mkdirSync(path.join(OUT, 'share'));
+fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(path.join(OUT, 'runs'), { recursive: true });
 const entries = [];
 
 // Copy a run directory under docs/lab/runs/<name>/ and return the relative paths the page links.
@@ -48,10 +47,8 @@ const browser = await launch();
       if (r.problems) throw new Error(r.problems.join('; '));
       const text = journeyCard(r.run, r.commitments) + (r.run.verdicts.some(v => v.value === 'fail' || v.value === 'finding') ? '\n\n' + r.run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding').map(v => '  next   ' + why(v, r.commitments)).join('\n') : '');
       const k = keep(`crm-${j}`, r.dir, r.run, text);
-      const share = `share/crm-${j}.png`; let shared = null;
-      try { await shareCard(r.dir, path.join(OUT, share), { browser }); shared = share; } catch {}
       const def = loadProject(dir).journeys.find(x => x.value?.id === j)?.value || {};
-      entries.push({ kind: 'journey', group: 'A product with defects planted on purpose', title: j, subtitle: '390×844 · local', verdict: verdictOf(r.run), exit: r.run.exit, note, text, run: r.run, def, commitments: r.commitments, ...k, share: shared, source: 'test/fixtures/crm (DEFECTS.md)' });
+      entries.push({ kind: 'journey', group: 'A product with defects planted on purpose', title: j, subtitle: '390×844 · local', verdict: verdictOf(r.run), exit: r.run.exit, note, text, run: r.run, def, commitments: r.commitments, ...k, source: 'test/fixtures/crm (DEFECTS.md)' });
     }
   } finally { child.kill(); }
 }
@@ -65,8 +62,7 @@ for (const probe of PAGE_PROBES) {
     const run = await runPage(url, { browser, only: [probe.id], outDir: shots, prove: sub === 'must-pass' });
     run.exit = run.probes.some(p => p.verdict === 'fail') ? 2 : 0; run.uxcli = VERSION; run.outDir = `runs/${probe.id}-${sub}`;
     const text = card(run); const k = keep(`${probe.id}-${sub}`, tmp, run, text);
-    let shared = null; if (sub === 'must-fail') { try { await shareCard(path.join(OUT, 'runs', `${probe.id}-${sub}`), path.join(OUT, 'share', `${probe.id}.png`), { browser }); shared = `share/${probe.id}.png`; } catch {} }
-    entries.push({ kind: 'page', group: 'Every probe, failing on demand and passing on its twin', probe: probe.id, sc: probe.sc, sub, title: `${probe.sc} ${probe.id.replace(/^page\./, '')}`, verdict: verdictOf(run), exit: run.exit, note: sub === 'must-fail' ? pair.operator || '' : '', text, run, ...k, share: shared, source: `src/probes/${probe.id.replace(/^page\./, '')}/${sub}/` });
+    entries.push({ kind: 'page', group: 'Every probe, failing on demand and passing on its twin', probe: probe.id, sc: probe.sc, sub, title: `${probe.sc} ${probe.id.replace(/^page\./, '')}`, verdict: verdictOf(run), exit: run.exit, note: sub === 'must-fail' ? pair.operator || '' : '', text, run, ...k, source: `src/probes/${probe.id.replace(/^page\./, '')}/${sub}/` });
   }
 }
 await browser.close();
@@ -92,7 +88,6 @@ function journeyEntry(e, i) {
   const loud = run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding');
   const quiet = run.verdicts.filter(v => !loud.includes(v));
   const kinds = Object.fromEntries((e.def.workflows || []).map(w => [w.id, w.kind]));
-  const fixtures = run.steps.filter(s => s.kind === 'fixture');
   const flows = [...new Set(run.steps.filter(s => s.kind !== 'fixture').map(s => s.workflow))];
 
   const flowRows = flows.map(wf => {
@@ -131,17 +126,16 @@ function journeyEntry(e, i) {
   const verdicts = loud.map(v => {
     const c = C[v.commitment]; const id = v.commitment ? (run.verdicts.filter(x => x.commitment === v.commitment).length > 1 ? `${v.commitment} [${v.measurement ?? 0}]` : v.commitment) : `state ${run.steps.find(s => s.id === v.step && s.workflow === v.workflow)?.after?.state || ''}`;
     const where = `${v.workflow || run.steps.find(s => s.id === v.where)?.workflow || ''}/${v.step || v.where}`;
-    const rule = c ? `${c.statement} — owner ${c.owner?.type} ${c.owner?.ref}, source ${c.source?.doc}` : `the journey's own declaration: the state must hold after the step`;
-    return `<div class="verdict"><div class="vhead">${pill(v.value)}<span class="vid">${esc(id)}</span></div>${rows([['what', v.what], ['where', where], ['rule', rule], ['check', v.shot ? `the frame badged ${VERDICT_WORD[v.value]} in the flow above (${v.shot})` : 'open run.json']])}</div>`;
+    const rule = c ? `${c.statement} · ${c.owner?.ref || ''}` : `state must hold after the step`;
+    return `<div class="verdict"><div class="vhead">${pill(v.value)}<span class="vid">${esc(id)}</span><span class="sub">${esc(where)}</span></div>${rows([['what', v.what], ['rule', rule]])}</div>`;
   });
   return `<article id="r${i}" class="run">
-    <header class="rhead"><div>${pill(e.verdict)}<h3>journey <code>${esc(e.title)}</code></h3><span class="sub">${esc(e.subtitle)} · exit ${esc(e.exit)} · ${esc(String(run.ranAt).slice(0, 16).replace('T', ' '))}</span></div><p class="note">${esc(e.note)}</p></header>
-    ${fixtures.length ? `<p class="fixture">${fixtures.map(f => `fixture <code>${esc(f.profile)}</code> produced ${esc(Object.keys(f.produced || {}).join(', '))} · ${esc(f.ms)}ms`).join(' · ')}</p>` : ''}
+    <header class="rhead"><div>${pill(e.verdict)}<h3><code>${esc(e.title)}</code></h3><span class="sub">${esc(e.subtitle)} · exit ${esc(e.exit)}</span></div></header>
     <div class="flow">${flowRows.join("")}</div>
     <div class="vlist">${verdicts.join('')}</div>
-    ${quiet.length ? `<p class="quiet">Also decided: ${quiet.map(v => `<code>${esc(v.commitment || 'state')}</code> ${esc(VERDICT_WORD[v.value] || v.value)}${v.cause && v.cause !== 'probe-said' ? ` (${esc(clean(v.cause))})` : ''}`).join(' · ')}.</p>` : ''}
-    <details><summary>The card as printed</summary><pre>${esc(clean(e.text))}</pre></details>
-    <div class="links"><a href="${esc(e.packet)}">run.json</a>${e.share ? `<a href="${esc(e.share)}">share card</a>` : ''}<span>${esc(e.source)}</span></div>
+    ${quiet.length ? `<p class="quiet">${[...new Set(quiet.map(v => `<code>${esc(v.commitment || 'state')}</code> ${esc(VERDICT_WORD[v.value] || v.value)}`))].join(' · ')}</p>` : ''}
+    <details><summary>card</summary><pre>${esc(clean(e.text))}</pre></details>
+    <div class="links"><a href="${esc(e.packet)}">run.json</a><span>${esc(e.source)}</span></div>
   </article>`;
 }
 
@@ -152,18 +146,18 @@ function probePair(fail, pass, i) {
     const proof = p.doctrine?.prove;
     const body = p.verdict === 'pass'
       ? rows([['measured', clean(e.text.split('\n').find(l => new RegExp('^\\s*' + e.sc.replace('.', '\\.') + '\\s').test(l))?.replace(/^\s*\S+\s+\S+\s+PASS\s*/, '').replace(/\s*·\s*would fail on .*$/, '') || '')], ['--prove', proof ? `${proof.mutation} → ${proof.wouldFail ? 'would fail' : 'could not be made to fail'}` : null]])
-      : rows([['what', p.cite?.what], ['where', p.cite?.where], ['rule', `WCAG ${p.sc} · ${p.provenance} · ${p.method?.status || p.method}`], ['check', p.cite?.check]]);
+      : rows([['what', p.cite?.what], ['where', p.cite?.where]]);
     return `<div class="twin" id="r${i2}">
       <div class="vhead">${pill(p.verdict)}<span class="vid">${esc(e.sub)}</span><span class="sub">exit ${esc(e.exit)}</span></div>
       ${body}
       ${first ? `<div class="evidence wide">${img(first, path.basename(first).replace('.png', ''), p.verdict !== 'pass')}</div>` : ''}
-      <details><summary>The card as printed</summary><pre>${esc(clean(e.text))}</pre></details>
-      <div class="links"><a href="${esc(e.packet)}">run.json</a>${e.share ? `<a href="${esc(e.share)}">share card</a>` : ''}<span>${esc(e.source)}</span></div>
+      <details><summary>card</summary><pre>${esc(clean(e.text))}</pre></details>
+      <div class="links"><a href="${esc(e.packet)}">run.json</a><span>${esc(e.source)}</span></div>
     </div>`;
   };
   const p = fail.run.probes[0];
   return `<article class="run pair">
-    <header class="rhead"><div>${pill(fail.verdict)}<h3>${esc(fail.sc)} <code>${esc(fail.probe.replace(/^page\./, ''))}</code></h3><span class="sub">${esc(p.provenance)} · ${esc(p.method?.status || p.method)}</span></div><p class="note">${esc(fail.note)}</p></header>
+    <header class="rhead"><div>${pill(fail.verdict)}<h3>${esc(fail.sc)} <code>${esc(fail.probe.replace(/^page\./, ''))}</code></h3><span class="sub">${esc(p.provenance)} · ${esc(p.method?.status || p.method)}</span></div></header>
     <div class="twins">${one(fail, i)}${one(pass, i + 1)}</div>
   </article>`;
 }
@@ -178,7 +172,7 @@ const page = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>uxcli Verdict Lab</title>
-<meta name="description" content="Real runs of uxcli, regenerated from the repository: each verdict with the picture it cites, the steps the browser walked, and the packet to dispute it.">
+<meta name="description" content="Real uxcli runs drawn as flows of the screens the browser walked, each verdict on the frame it cites.">
 <style>
 *,*::before,*::after{box-sizing:border-box}
 :root{color-scheme:light;--bg:#f5f4f0;--surface:#fff;--well:#eeede8;--ink:#1d2126;--dim:#666b73;--line:#dcdbd4;--accent:#3b5b8c;--fail:#c2361c;--finding:#9a6300;--pass:#1e7a48;--unmeasurable:#666b73;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
@@ -281,22 +275,22 @@ footer{color:var(--dim);font-size:13px;border-top:1px solid var(--line);padding-
 <header class="hero">
   <div>
     <h1>uxcli Verdict Lab</h1>
-    <p>Every run here was made by <code>scripts/lab.mjs</code> from this repository at ${esc(VERSION)}. Each verdict is shown with the picture it cites, the steps the browser walked, and the packet you would attach to dispute it. Nothing was typed by hand: a fail cites a rule somebody signed, a finding is a would-be fail from a method not yet validated, and a pass says only that the probe that ran found nothing.</p>
+    <p>Real runs from this repository at ${esc(VERSION)}, drawn from their packets. A fail cites a signed rule; a pass says only that the probe found nothing.</p>
   </div>
   <div class="counts"><div class="count fail"><b>${count('fail')}</b><span>fail</span></div><div class="count finding"><b>${count('finding')}</b><span>finding</span></div><div class="count pass"><b>${count('pass')}</b><span>pass</span></div></div>
 </header>
 
 <section>
-  <h2>A product with defects planted on purpose</h2>
+  <h2>Journeys</h2>
   <div class="list">${journeys.map(e => journeyEntry(e, next())).join('\n')}</div>
 </section>
 
 <section>
-  <h2>Every probe, failing on demand and passing on its twin</h2>
+  <h2>Page probes · fail and twin</h2>
   <div class="list">${probes.map(([f, p]) => probePair(f, p, (next(), next()))).join('\n')}</div>
 </section>
 
-<footer>Regenerate with <code>node scripts/lab.mjs</code>. Submit a run of your own, or dispute one, with the packet: <a href="https://github.com/junixlabs/uxcli/issues/new/choose">issues/new/choose</a>.</footer>
+<footer><code>node scripts/lab.mjs</code> · <a href="https://github.com/junixlabs/uxcli/issues/new/choose">submit or dispute a run</a></footer>
 </main>
 </body>
 </html>
