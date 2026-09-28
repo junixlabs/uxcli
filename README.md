@@ -68,6 +68,7 @@ uxcli context show handle-inbound-lead               # read before you design
 uxcli mockups                                        # the screens drawn as the journey's flow; a person picks
 uxcli run .uxcli/journeys/handle-inbound-lead.json   # measure after
 uxcli run http://localhost:3000/leads/1 --prove      # one screen: four probes, each pass made to earn it
+uxcli map                                            # the journey as screens: declared, observed, the difference, the verdicts
 ```
 
 `context show` prints, in this order: the actor's `unknowns[]` (so a gap is never turned into a
@@ -79,6 +80,12 @@ and what the last run saw. It gives no advice.
 page: each journey as a flow of the picked variants, connected from the element the next step acts
 on, and each screen's variants side by side — green picked, amber part of a pick, grey not taken.
 A person picks in `pick.json`; the agent never picks for them. The picked variant is what gets built.
+
+`map` writes one page for the whole project: each journey as a strip of steps on a canvas, with
+four views — MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not),
+DIFF (declared beside observed) and IMPACT (what the commitments decided) — a side panel per step
+(before/after, API, state, evidence, commitment, run) and a findings list. A step is marked drift
+only when the run said a state did not hold or a commitment failed there.
 
 `run` reads each state's signals in the browser — URL, DOM, text, network, accessibility tree,
 storage — walks the journey's workflows, provisions identity and fixtures only as far as the policy
@@ -151,6 +158,7 @@ uxcli guide "<what you are about to do>"   # which command and which file, for a
 uxcli init [dir] [--apply --origin=URL]    # where the project stands and the first undone thing; --apply creates, never edits
 uxcli context show [journey]          # what to read before designing
 uxcli mockups [dir] [--viewport=WxH]  # every screen's variants photographed; the picked ones as each journey's flow
+uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
 uxcli run <url>                       # measure one screen       --prove --state=FILE --src=DIR
 uxcli sheet [--src=DIR]               # design-token commitments in uxcli.commitments.json, no browser

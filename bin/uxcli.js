@@ -30,6 +30,10 @@ const usage = `usage:
   uxcli mockups [dir] [--viewport=WxH] [--json]
       the screens the journeys name, each variant the agent drew under .uxcli/mockups/<state>/<variant>.html photographed at the viewport (default 390x844),
       the picked variants drawn as each journey's flow, every variant beside its siblings with the status pick.json gives it; writes .uxcli/mockups/index.html
+  uxcli map [dir] [--viewport=WxH] [--json]
+      the journey map: for every journey, MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not), DIFF (declared beside observed)
+      and IMPACT (what the commitments decided), step by step, with the run's signals, the verdicts, the insight it traces to and the declared intent;
+      writes .uxcli/map/index.html and photographs the mockups first when their pictures are missing
   uxcli doctor [dir] [--json]         is the instrument here: node, Chromium, project root, policy, level, skill — and the one command that fixes each
   uxcli demo <empty dir>              a real product with a planted defect, served and measured end to end: the first fail card in under a minute
   uxcli guide "<what you are about to do>"   which command and which file, for a situation; the whole list when nothing matches
@@ -110,6 +114,10 @@ try {
     // can read back, and "you are not authorized" is a message with nowhere to go.
     const { authorityCard } = await import('../src/authority.js');
     console.log(authorityCard(path.resolve(opt('src') || '.'), args[0] || null));
+    process.exit(0);
+  } else if (cmd === 'map') {
+    const { map, mapCard } = await import('../src/map.js'); const r = await map(args[0] || '.', { viewport: opt('viewport') || '390x844' });
+    console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : mapCard(r));
     process.exit(0);
   } else if (cmd === 'mockups') {
     const { mockups, mockupsCard } = await import('../src/mockups.js'); const r = await mockups(args[0] || '.', { viewport: opt('viewport') || '390x844' });

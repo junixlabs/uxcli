@@ -32,4 +32,5 @@ export const SUITES = [
   { tag: 'pack', title: 'what ships is what the tag says', file: 'packaging-pairs.mjs', miss: 'refused' },
   { tag: 'shape', title: 'a file that is not the shape is refused', file: 'schema-pairs.mjs', miss: 'refused' },
   { tag: 'mock', title: 'the agent draws, a person picks', file: 'mockup-pairs.mjs', miss: 'refused' },
+  { tag: 'map', title: 'drift is what the run said, nothing more', file: 'map-pairs.mjs', miss: 'seen' },
 ];

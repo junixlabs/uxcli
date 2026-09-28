@@ -29,3 +29,4 @@ experiments/*/results/*/transcript.jsonl
 # regenerable in seconds: uxcli mockups photographs the variants and writes the page
 **/.uxcli/mockups/.shots/
 **/.uxcli/mockups/index.html
+**/.uxcli/map/

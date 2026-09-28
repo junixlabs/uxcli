@@ -10,6 +10,13 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- `uxcli map`: the journey map, one page per project at `.uxcli/map/index.html`. Each journey is a
+  strip of steps on a canvas; four views — MODEL (the picked mockups), RUN (the last run's
+  screenshots, each state held or not), DIFF (declared beside observed), IMPACT (what the
+  commitments decided); a side panel per step with before/after, API, state, evidence, commitment
+  and run, each row opening to the signals and the card's `what · where · rule · check`; an
+  evidence tray; an overview and a findings list. Drift means a state the run said did not hold or
+  a fail cited at the step, nothing else, and the page carries no advice (`test/map-pairs.mjs`).
 - `uxcli mockups`: screens drawn before they are built. The agent draws two or three variants of
   each state the journeys name into `.uxcli/mockups/<state>/<variant>.html`, with the journey's own
   `data-uxcli` hooks; a person picks in `pick.json` (`pick`, `parts{}`, `by`; refused without `by`).
