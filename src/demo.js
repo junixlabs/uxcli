@@ -42,8 +42,10 @@ export async function demo(dir, { log = s => console.log(s), err = console.error
     log(journeyCard(r.run, r.commitments));
     const acts = r.run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding').map(v => '  next   ' + why(v, r.commitments));
     if (acts.length) log('\n' + acts.join('\n'));
-    log('  packet ' + path.relative(process.cwd(), path.join(r.dir, 'run.json')));
-    const rel = path.relative(process.cwd(), at) || '.';
+    // Relative only while it stays inside the working directory; a path that climbs out is noise.
+    const show = p => { const rel = path.relative(process.cwd(), p); return rel && !rel.startsWith('..') ? rel : p; };
+    log('  packet ' + show(path.join(r.dir, 'run.json')));
+    const rel = show(at);
     log(['', '  what you just saw: a commitment somebody signed, a state the browser reached, a predicate that did not hold, the pixels to prove it.',
       `  read the card the agent reads:   uxcli context show handle-inbound-lead --src=${rel}`,
       `  the shape of every file:         ${rel}/.uxcli/`,
