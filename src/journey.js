@@ -208,7 +208,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
     }
     if (!record) return true;
     const interactions = (step.interactions || []).map(x => {
-      if (x.type === 'ui') { const d = obsB.dom?.[fill(x.target, params)]; return { type: 'ui', target: x.target, ...(d && { inViewportWithoutScroll: d.inViewportWithoutScroll, scrollsNeeded: d.scrollsNeeded, viewport }), ...(x.consumes && { consumed: x.consumes }) }; }
+      if (x.type === 'ui') { const d = obsB.dom?.[fill(x.target, params)]; return { type: 'ui', target: x.target, ...(d && { inViewportWithoutScroll: d.inViewportWithoutScroll, scrollsNeeded: d.scrollsNeeded, viewport, ...(d.rect && { rect: d.rect }) }), ...(x.consumes && { consumed: x.consumes }) }; }
       if (x.type === 'api') { const n = (obsA?.network || []).find(e => requestMatches(fill(x.request, params), e.method, e.path)); return { type: 'api', request: x.request, ...(n && { status: n.status, ms: n.ms, ...(n.effectClass && { effect: n.effectClass }), ...(n.requestHeaders?.['x-tenant-id'] && { tenantHeader: n.requestHeaders['x-tenant-id'] }), ...(n.blocked && { blocked: true, intercepted: n.intercepted }) }), ...(byInteraction.has(x) && { produced: byInteraction.get(x) }), ...(x.consumes && { consumed: x.consumes }) }; }
       return { type: x.type, ...(x.to && { to: x.to }), ...(x.expr && { expr: x.expr }), ...(byInteraction.has(x) && { produced: byInteraction.get(x) }), ...(x.consumes && { consumed: x.consumes }) };
     });

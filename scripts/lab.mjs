@@ -14,7 +14,7 @@ import { launch } from '../src/browser.js';
 import { runPage, PAGE_PROBES } from '../src/page.js';
 import { card } from '../src/card.js';
 import { journeyCard, why } from '../src/core/report/index.js';
-import { runJourney } from '../src/journey.js';
+import { runJourney, loadProject } from '../src/journey.js';
 import { stage, serve } from '../src/demo.js';
 import { shareCard } from './share-card.mjs';
 
@@ -50,7 +50,8 @@ const browser = await launch();
       const k = keep(`crm-${j}`, r.dir, r.run, text);
       const share = `share/crm-${j}.png`; let shared = null;
       try { await shareCard(r.dir, path.join(OUT, share), { browser }); shared = share; } catch {}
-      entries.push({ kind: 'journey', group: 'A product with defects planted on purpose', title: j, subtitle: '390×844 · local', verdict: verdictOf(r.run), exit: r.run.exit, note, text, run: r.run, commitments: r.commitments, ...k, share: shared, source: 'test/fixtures/crm (DEFECTS.md)' });
+      const def = loadProject(dir).journeys.find(x => x.value?.id === j)?.value || {};
+      entries.push({ kind: 'journey', group: 'A product with defects planted on purpose', title: j, subtitle: '390×844 · local', verdict: verdictOf(r.run), exit: r.run.exit, note, text, run: r.run, def, commitments: r.commitments, ...k, share: shared, source: 'test/fixtures/crm (DEFECTS.md)' });
     }
   } finally { child.kill(); }
 }
@@ -80,38 +81,65 @@ const shotsOf = e => Object.fromEntries(e.shots.map(s => [path.basename(s), s]))
 const img = (src, caption, cited) => `<figure class="shot${cited ? ' cited' : ''}"><a href="${esc(src)}"><img src="${esc(src)}" alt="${esc(caption)}" loading="lazy"></a><figcaption>${esc(caption)}${cited ? ' · cited' : ''}</figcaption></figure>`;
 const rows = pairs => `<dl class="four">${pairs.filter(([, v]) => v).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(clean(v))}</dd></div>`).join('')}</dl>`;
 
-// A journey run: the loud verdicts first, each with the picture it cites; then the steps; then the rest folded.
+// A journey run as a wireflow: one row per workflow, the screenshots as frames, a connection leaving
+// the element the browser acted on and landing on the next frame, the verdict badged on the frame it
+// cites. Frame k is the screen step k+1 acts on: the workflow's first before-shot, then each after-shot.
+const FRAME_W = { phone: 176, wide: 300 };
 function journeyEntry(e, i) {
   const run = e.run; const C = byId(e.commitments); const S = shotsOf(e);
+  const [vw, vh] = String(run.viewport || '390x844').split('x').map(Number); const wide = vw > vh;
+  const fw = wide ? FRAME_W.wide : FRAME_W.phone; const scale = fw / vw; const fh = Math.round(vh * scale);
   const loud = run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding');
   const quiet = run.verdicts.filter(v => !loud.includes(v));
-  const cited = new Set(loud.map(v => v.shot).filter(Boolean));
+  const kinds = Object.fromEntries((e.def.workflows || []).map(w => [w.id, w.kind]));
+  const fixtures = run.steps.filter(s => s.kind === 'fixture');
+  const flows = [...new Set(run.steps.filter(s => s.kind !== 'fixture').map(s => s.workflow))];
+
+  const flowRows = flows.map(wf => {
+    const steps = run.steps.filter(s => s.workflow === wf && s.kind !== 'fixture');
+    // frames: [before(s1), after(s1), after(s2), …]; each knows which shot names it answers to
+    const frames = [{ shot: S[`${wf}-${steps[0].id}-before.png`], names: [`${wf}-${steps[0].id}-before.png`], state: steps[0].before, step: null }];
+    steps.forEach((st, k) => { const nm = [`${wf}-${st.id}-after.png`]; if (steps[k + 1]) nm.push(`${wf}-${steps[k + 1].id}-before.png`); frames.push({ shot: S[nm[0]], names: nm, state: st.after, step: st }); });
+    const badgeOf = f => run.verdicts.filter(v => (v.value === 'fail' || v.value === 'finding') && v.shot && f.names.includes(v.shot));
+    const cells = [];
+    frames.forEach((f, k) => {
+      const acting = steps[k]; // the step whose hotspot is on this frame
+      const ui = acting?.interactions?.find(x => x.type === 'ui'); const r = ui?.rect;
+      let hot = ''; let offhot = ''; let y0 = fh / 2;
+      if (r) {
+        if (r.y + r.h > vh) { const n = Math.max(1, ui.scrollsNeeded || 1); y0 = fh + 18; offhot = `<div class="offhot"><span class="hot off"></span>${esc(ui.target)} · ${n} scroll${n > 1 ? 's' : ''} below the fold</div>`; }
+        else { y0 = (r.y + r.h / 2) * scale; hot = `<div class="hot" style="left:${(r.x * scale).toFixed(0)}px;top:${(r.y * scale).toFixed(0)}px;width:${(r.w * scale).toFixed(0)}px;height:${(r.h * scale).toFixed(0)}px"></div>`; }
+      } else if (acting) hot = `<div class="hot edge" style="left:${fw - 6}px;top:${fh / 2 - 6}px;width:12px;height:12px"></div>`;
+      const badges = badgeOf(f);
+      const st = f.state || {};
+      cells.push(`<div class="frame ${badges.length ? 'loud' : ''}" style="width:${fw}px">
+        ${k === 0 ? `<span class="start">▶ ${esc(wf)} · ${esc(kinds[wf] || 'workflow')}</span>` : ''}
+        ${badges.map(v => `<span class="badge">${esc(VERDICT_WORD[v.value])} ${esc(v.commitment || 'state')}</span>`).join('')}
+        <div class="screen" style="height:${fh}px">${f.shot ? `<a href="${esc(f.shot)}"><img src="${esc(f.shot)}" alt="${esc(f.names[0])}" loading="lazy" width="${fw}" height="${fh}"></a>` : '<div class="noshot">no picture</div>'}${hot}</div>${offhot}
+        <div class="cap"><span class="state">${esc(st.state || '')}</span><span class="pill ${st.held === false ? 'bad' : st.held ? 'ok' : ''}">${st.held === false ? 'NOT HELD' : st.held ? `held · ${esc(st.strength)}` : esc(st.strength || '')}</span>${f.step?.timing?.toStable != null ? `<span class="ms">${esc(f.step.timing.toStable)}ms</span>` : ''}</div>
+      </div>`);
+      if (acting) {
+        const api = acting.interactions.filter(x => x.type === 'api').map(x => `${x.request}${x.status ? ' → ' + x.status : ''}${x.ms ? ' · ' + x.ms + 'ms' : ''}`);
+        const nav = acting.interactions.filter(x => x.type === 'navigation').map(x => x.to);
+        const H = fh + 60; const y1 = fh / 2;
+        cells.push(`<div class="conn" style="height:${H}px"><svg width="120" height="${H}" viewBox="0 0 120 ${H}" aria-hidden="true"><path d="M0 ${y0.toFixed(0)} C 60 ${y0.toFixed(0)}, 60 ${y1.toFixed(0)}, 112 ${y1.toFixed(0)}" fill="none"/><path class="head" d="M112 ${y1.toFixed(0)} l-8 -5 v10 z"/></svg><div class="label"><b>${esc(acting.id)}</b> ${esc(acting.action || '')}${api.length || nav.length ? `<span>${esc([...nav, ...api].join(' · '))}</span>` : ''}</div></div>`);
+      }
+    });
+    return `<div class="row"><div class="cells">${cells.join('')}</div></div>`;
+  });
+
   const verdicts = loud.map(v => {
     const c = C[v.commitment]; const id = v.commitment ? (run.verdicts.filter(x => x.commitment === v.commitment).length > 1 ? `${v.commitment} [${v.measurement ?? 0}]` : v.commitment) : `state ${run.steps.find(s => s.id === v.step && s.workflow === v.workflow)?.after?.state || ''}`;
     const where = `${v.workflow || run.steps.find(s => s.id === v.where)?.workflow || ''}/${v.step || v.where}`;
     const rule = c ? `${c.statement} — owner ${c.owner?.type} ${c.owner?.ref}, source ${c.source?.doc}` : `the journey's own declaration: the state must hold after the step`;
-    const check = v.shot ? `open the picture on the right: ${v.shot}` : 'open run.json';
-    return { block: `<div class="verdict">
-      <div class="vhead">${pill(v.value)}<span class="vid">${esc(id)}</span></div>
-      ${rows([['what', v.what], ['where', where], ['rule', rule], ['check', check]])}
-    </div>`, shot: v.shot && S[v.shot] ? img(S[v.shot], v.shot.replace('.png', ''), true) : '' };
+    return `<div class="verdict"><div class="vhead">${pill(v.value)}<span class="vid">${esc(id)}</span></div>${rows([['what', v.what], ['where', where], ['rule', rule], ['check', v.shot ? `the frame badged ${VERDICT_WORD[v.value]} in the flow above (${v.shot})` : 'open run.json']])}</div>`;
   });
-  const steps = run.steps.map(s => s.kind === 'fixture'
-    ? `<li class="step fixture"><span class="sid">${esc(s.workflow)}/${esc(s.id)}</span><span class="sact">fixture ${esc(s.profile)}</span><span class="sobs">produced ${esc(Object.keys(s.produced || {}).join(', '))} · ${esc(s.ms)}ms</span></li>`
-    : `<li class="step ${s.after?.held === false ? 'broke' : ''}"><span class="sid">${esc(s.workflow)}/${esc(s.id)}</span><span class="sact">${esc(s.action)}</span><span class="sobs">${esc(s.before?.state)} <b>${s.before?.held ? 'held' : 'not held'}</b> → ${esc(s.after?.state)} <b>${s.after?.held ? 'held' : 'NOT HELD'}</b> · ${esc(s.after?.strength)}${s.timing?.toStable != null ? ` · ${esc(s.timing.toStable)}ms` : ''}</span></li>`).join('');
-  const others = e.shots.filter(s => !cited.has(path.basename(s)));
   return `<article id="r${i}" class="run">
     <header class="rhead"><div>${pill(e.verdict)}<h3>journey <code>${esc(e.title)}</code></h3><span class="sub">${esc(e.subtitle)} · exit ${esc(e.exit)} · ${esc(String(run.ranAt).slice(0, 16).replace('T', ' '))}</span></div><p class="note">${esc(e.note)}</p></header>
-    <div class="vgrid">
-      <div class="left">
-        ${verdicts.map(v => v.block).join('')}
-        ${quiet.length ? `<p class="quiet">Also decided: ${quiet.map(v => `<code>${esc(v.commitment || 'state')}</code> ${esc(VERDICT_WORD[v.value] || v.value)}${v.cause && v.cause !== 'probe-said' ? ` (${esc(clean(v.cause))})` : ''}`).join(' · ')}.</p>` : ''}
-        <h4>Steps the browser walked</h4>
-        <ol class="steps">${steps}</ol>
-        ${others.length ? `<div class="strip">${others.map(s => img(s, path.basename(s).replace('.png', ''), false)).join('')}</div>` : ''}
-      </div>
-      <div class="evidence phone">${verdicts.map(v => v.shot).join('')}</div>
-    </div>
+    ${fixtures.length ? `<p class="fixture">${fixtures.map(f => `fixture <code>${esc(f.profile)}</code> produced ${esc(Object.keys(f.produced || {}).join(', '))} · ${esc(f.ms)}ms`).join(' · ')}</p>` : ''}
+    <div class="flow">${flowRows.join("")}</div>
+    <div class="vlist">${verdicts.join('')}</div>
+    ${quiet.length ? `<p class="quiet">Also decided: ${quiet.map(v => `<code>${esc(v.commitment || 'state')}</code> ${esc(VERDICT_WORD[v.value] || v.value)}${v.cause && v.cause !== 'probe-said' ? ` (${esc(clean(v.cause))})` : ''}`).join(' · ')}.</p>` : ''}
     <details><summary>The card as printed</summary><pre>${esc(clean(e.text))}</pre></details>
     <div class="links"><a href="${esc(e.packet)}">run.json</a>${e.share ? `<a href="${esc(e.share)}">share card</a>` : ''}<span>${esc(e.source)}</span></div>
   </article>`;
@@ -179,8 +207,36 @@ section .list{display:grid;gap:22px}
 .note{margin:0;color:var(--dim);max-width:78ch}
 .v{display:inline-block;font:700 11px/1 var(--mono);letter-spacing:.08em;padding:6px 8px;border-radius:3px;color:#fff;background:var(--unmeasurable)}
 .v.fail{background:var(--fail)}.v.finding{background:var(--finding)}.v.pass{background:var(--pass)}.v.not-applicable,.v.unmeasurable{background:var(--unmeasurable)}
-.vgrid{display:grid;grid-template-columns:minmax(0,1fr) 232px;gap:18px 28px;align-items:start}
-.left{display:grid;gap:16px;min-width:0}
+.fixture{margin:0;font-size:13px;color:var(--dim)}
+.flow{display:grid;gap:26px}
+.row{overflow-x:auto;padding:14px 2px 8px}
+.cells{display:flex;align-items:flex-start;gap:0;width:max-content}
+.frame{position:relative;display:grid;gap:6px;flex:none}
+.screen{position:relative;border:1px solid var(--line);border-radius:4px;background:#fff;overflow:visible}
+.screen img{display:block;border-radius:3px}
+.frame.loud .screen{border-color:var(--fail);box-shadow:0 0 0 2px var(--fail)}
+.noshot{display:grid;place-items:center;height:100%;color:var(--dim);font-size:12px}
+.hot{position:absolute;border:2px solid var(--accent);border-radius:3px;background:rgba(59,91,140,.12);pointer-events:none}
+.hot.off{border-style:dashed;border-color:var(--fail);background:rgba(194,54,28,.12)}
+.hot.edge{border-radius:50%;background:var(--accent)}
+.offhot{display:flex;align-items:center;gap:6px;font:11px/1.3 var(--mono);color:var(--fail);min-height:24px}
+.offhot .hot{position:static;flex:none;width:22px;height:12px}
+.start{position:absolute;top:-11px;left:6px;z-index:2;white-space:nowrap;font:600 10px/1 var(--mono);color:#fff;background:var(--accent);padding:4px 7px;border-radius:10px}
+.badge{position:absolute;top:-11px;right:6px;z-index:2;white-space:nowrap;font:700 10px/1 var(--mono);letter-spacing:.04em;color:#fff;background:var(--fail);padding:5px 8px;border-radius:3px}
+.cap{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:2px}
+.cap .state{font:600 12px var(--mono);overflow-wrap:anywhere}
+.pill{font:600 10px/1 var(--mono);letter-spacing:.04em;padding:3px 6px;border-radius:10px;border:1px solid var(--line);color:var(--dim)}
+.pill.ok{color:var(--pass);border-color:var(--pass)}.pill.bad{color:var(--fail);border-color:var(--fail)}
+.ms{font:11px var(--mono);color:var(--dim)}
+.why{margin:0;font-size:12px;line-height:1.4;color:var(--fail)}
+.conn{position:relative;width:120px;flex:none}
+.conn svg{position:absolute;inset:0;overflow:visible}
+.conn path{stroke:var(--accent);stroke-width:2}
+.conn path.head{fill:var(--accent);stroke:none}
+.conn .label{position:absolute;left:8px;right:8px;top:6px;font:11px/1.35 var(--sans);color:var(--dim);text-align:center}
+.conn .label b{display:block;font:600 11px var(--mono);color:var(--ink)}
+.conn .label span{display:block;font:10px/1.3 var(--mono);margin-top:3px;overflow-wrap:anywhere}
+.vlist{display:grid;gap:12px}
 .verdict{display:grid;gap:12px;padding:16px 18px;border-radius:6px;background:var(--well);border-left:4px solid var(--fail)}
 .vhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .vid{font:600 14px var(--mono)}
@@ -188,7 +244,6 @@ section .list{display:grid;gap:22px}
 .four div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px}
 .four dt{color:var(--dim);font:600 12px/1.6 var(--mono);text-transform:uppercase;letter-spacing:.06em}
 .four dd{margin:0;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
-.evidence.phone{display:grid;gap:14px}
 .evidence.wide{width:100%}
 .evidence.wide img{width:auto;max-width:100%;max-height:260px}
 .shot{margin:0;display:grid;gap:6px}
@@ -217,7 +272,7 @@ pre{margin:10px 0 0;padding:14px;background:var(--well);border-radius:4px;font:1
 .twin .four dd{font-size:13px}
 .twin details{border-top:1px solid var(--line)}
 footer{color:var(--dim);font-size:13px;border-top:1px solid var(--line);padding-top:16px;max-width:78ch}
-@media (max-width:760px){.hero{grid-template-columns:1fr}.vgrid{grid-template-columns:1fr}.evidence.phone{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}.twins{grid-template-columns:1fr}.step{grid-template-columns:1fr}.step .sobs{grid-column:1}}
+@media (max-width:760px){.hero{grid-template-columns:1fr}.twins{grid-template-columns:1fr}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>

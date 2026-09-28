@@ -84,6 +84,9 @@ const DOM = `(sels) => {
     const scrollsNeeded = inView ? 0 : Math.ceil(Math.max(r.bottom - H, -r.top, 0) / H) || (r.right > W || r.left < 0 ? 1 : 0);
     out[sel] = { present: true, visible: vis(el), enabled: !el.disabled && el.getAttribute('aria-disabled') !== 'true',
       inViewportWithoutScroll: inView, scrollsNeeded, text: (el.innerText ?? el.textContent ?? '').trim(),
+      // Where the element sits in the viewport at this moment, in CSS pixels: the same frame the
+      // screenshot shows, so a picture can point at the hotspot — or at where it is, below the fold.
+      rect: { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), viewport: { w: W, h: H } },
       value: 'value' in el && el.tagName !== 'LI' ? String(el.value ?? '') : null };
   }
   return out;
