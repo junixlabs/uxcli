@@ -80,12 +80,12 @@ function pageHtml(m, { vw, vh, shots, rects }) {
         }
         const missing = !s ? 'not a screen any journey names' : !s.variants.length ? `no mockup yet\n.uxcli/mockups/${id}/<variant>.html` : `no pick yet · ${s.variants.length} variant${s.variants.length === 1 ? '' : 's'}`;
         const note = acting && hook && v && !rects[`${id}/${v}`]?.[hook] ? `hook ${hook} not in ${v}.html` : null;
-        return { shot, alt: `${id} · ${v || 'no pick'}`, start: k === 0 ? `${w.id} · ${w.kind || 'workflow'}` : null, title: id, pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note };
+        return { shot, alt: `${id} · ${v || 'no pick'}`, title: id, pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note };
       });
       const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: (st.interactions || []).filter(x => x.type === 'navigation' || x.type === 'api').map(x => x.type === 'navigation' ? x.to : x.request).join(' · ') || null }));
       return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links });
     });
-    return `<article class="journey" id="${esc(j.id)}"><h2><code>${esc(j.id)}</code> <span class="sub">${esc(j.goal || '')}</span></h2><div class="flow">${rows.join('')}</div></article>`;
+    return `<article class="journey" id="${esc(j.id)}"><h2>${esc(j.id)}<span class="goal">${esc(j.goal || '')}</span></h2><div class="flow">${rows.join('')}</div></article>`;
   });
   const galleries = m.screens.map(s => galleryHtml({
     id: `screen-${s.id}`, title: s.id, sub: s.journeys.join(' · '), vw, vh, note: s.pick ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''}${s.pick.note ? ' — ' + s.pick.note : ''}` : null,
@@ -101,38 +101,50 @@ function pageHtml(m, { vw, vh, shots, rects }) {
 <title>${esc(m.project.project?.name || path.basename(m.root))} mockups</title>
 <style>
 *,*::before,*::after{box-sizing:border-box}
-:root{color-scheme:light;--bg:#f5f4f0;--surface:#fff;--well:#eeede8;--ink:#1d2126;--dim:#666b73;--line:#dcdbd4;--accent:#3b5b8c;--fail:#c2361c;--finding:#9a6300;--pass:#1e7a48;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a}
+:root{color-scheme:light;--bg:#eef0f3;--canvas:#f6f7f9;--dot:#d3d7dd;--surface:#fff;--well:#eaedf1;--ink:#16191d;--dim:#5f6670;--line:#d6dae0;--line-soft:#e6e9ed;--accent:#4f46e5;--accent-soft:#e6e4fb;--fail:#d3381c;--fail-soft:#fbe4df;--finding:#a56400;--finding-soft:#fbeccc;--pass:#178a4c;--pass-soft:#dcf3e5;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1114;--canvas:#16191e;--dot:#2c313a;--surface:#1b1f25;--well:#252a32;--ink:#e9ebee;--dim:#98a0ab;--line:#2f353e;--line-soft:#262b33;--accent:#8b83ff;--accent-soft:#2a2850;--fail:#ff6b4d;--fail-soft:#4a221a;--finding:#e3b23a;--finding-soft:#4a3a12;--pass:#4ecb7f;--pass-soft:#173a26}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1114;--canvas:#16191e;--dot:#2c313a;--surface:#1b1f25;--well:#252a32;--ink:#e9ebee;--dim:#98a0ab;--line:#2f353e;--line-soft:#262b33;--accent:#8b83ff;--accent-soft:#2a2850;--fail:#ff6b4d;--fail-soft:#4a221a;--finding:#e3b23a;--finding-soft:#4a3a12;--pass:#4ecb7f;--pass-soft:#173a26}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-block:28px 72px;padding-inline:clamp(16px,2.5vw,40px)}
-main{max-width:none;margin:0;display:grid;gap:28px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding:0 0 80px}
 a{color:var(--accent)}
 code{font:.92em var(--mono)}
-.head h1{margin:0;font:700 20px/1.3 var(--sans)}
-.head h1 span{font:14px var(--sans);color:var(--dim);margin-left:8px}
-.head .keys{margin:2px 0 0;font:13px var(--sans);color:var(--dim)}
-.head .keys b{font-weight:600}
-.head .keys .k-pick{color:var(--pass)}.head .keys .k-part{color:var(--finding)}
-.head nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font:13px var(--mono)}
-.journey{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 22px;display:grid;gap:10px}
-.journey h2{margin:0;font:600 16px/1.3 var(--sans)}
+.top{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line);padding:14px clamp(16px,2.5vw,40px);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.top h1{margin:0;font:700 17px/1.2 var(--sans);letter-spacing:-.01em}
+.top .meta{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font:600 11px/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--well);color:var(--dim)}
+.chip b{color:var(--ink)}
+.keys{margin-left:auto;display:flex;gap:14px;font:12px var(--sans);color:var(--dim)}
+.keys i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--line)}
+.keys .k-pick i{background:var(--pass)}.keys .k-part i{background:var(--finding)}
+.tabs{position:sticky;top:57px;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);padding:0 clamp(16px,2.5vw,40px);display:flex;gap:4px;overflow-x:auto}
+.tabs a{padding:12px 12px;font:600 12px var(--mono);color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+.tabs a:hover{color:var(--ink)}
+.tabs .sep{align-self:center;width:1px;height:18px;background:var(--line);margin:0 8px}
+main{display:grid;gap:36px;padding:28px clamp(16px,2.5vw,40px) 0}
+h2.sec{margin:0;font:600 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.journey{display:grid;gap:14px}
+.journey h2{margin:0;display:flex;align-items:baseline;gap:12px;font:700 20px/1.2 var(--sans);letter-spacing:-.01em}
+.journey h2 .goal{font:14px var(--sans);color:var(--dim);font-weight:400}
 .sub{font:12px var(--mono);color:var(--dim)}
-.gallery{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 22px}
+.gallery{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+footer{padding:36px clamp(16px,2.5vw,40px) 0;font:12px var(--mono);color:var(--dim)}
 ${WIREFLOW_CSS}
 </style>
 </head>
 <body>
-<main>
-<header class="head">
-  <h1>${esc(m.project.project?.name || path.basename(m.root))} mockups <span>${vw}×${vh} · ${m.screens.length} screens · ${picked} picked</span></h1>
-  <p class="keys"><b class="k-pick">green</b> = picked · <b class="k-part">amber</b> = part of a pick · grey = not taken</p>
-  <nav>${m.journeys.map(j => `<a href="#${esc(j.id)}">${esc(j.id)}</a>`).join('')}${m.screens.map(s => `<a href="#screen-${esc(s.id)}">${esc(s.id)}</a>`).join('')}</nav>
+<header class="top">
+  <h1>${esc(m.project.project?.name || path.basename(m.root))}</h1>
+  <div class="meta"><span class="chip">${vw}×${vh}</span><span class="chip"><b>${m.screens.length}</b> screens</span><span class="chip"><b>${m.screens.filter(s => s.variants.length).length}</b> drawn</span><span class="chip"><b>${picked}</b> picked</span></div>
+  <div class="keys"><span class="k-pick"><i></i>picked</span><span class="k-part"><i></i>part of a pick</span><span><i></i>not taken</span></div>
 </header>
+<nav class="tabs">${m.journeys.map(j => `<a href="#${esc(j.id)}">${esc(j.id)}</a>`).join('')}<span class="sep"></span>${m.screens.map(s => `<a href="#screen-${esc(s.id)}">${esc(s.id)}</a>`).join('')}</nav>
+<main>
+<h2 class="sec">Journeys · the picked variants as a flow</h2>
 ${flows.join('\n')}
+<h2 class="sec">Screens · every variant, side by side</h2>
 ${galleries.join('\n')}
-<footer class="sub">uxcli mockups · a person picks in .uxcli/mockups/&lt;state&gt;/pick.json · the picked variant is what gets built</footer>
 </main>
+<footer>uxcli mockups · a person picks in .uxcli/mockups/&lt;state&gt;/pick.json · the picked variant is what gets built</footer>
 </body>
 </html>
 `;

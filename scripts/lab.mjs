@@ -98,7 +98,7 @@ function journeyEntry(e, i) {
       const hot = !acting ? null : r ? (r.y + r.h > vh ? { off: true, target: ui.target, scrolls: Math.max(1, ui.scrollsNeeded || 1) } : { x: r.x, y: r.y, w: r.w, h: r.h }) : { edge: true };
       const badges = run.verdicts.filter(v => (v.value === 'fail' || v.value === 'finding') && v.shot && nm.includes(v.shot));
       const st = states[k] || {};
-      return { shot: S[nm[0]], alt: nm[0], start: k === 0 ? `${wf} · ${kinds[wf] || 'workflow'}` : null, badges: badges.map(v => `${VERDICT_WORD[v.value]} ${v.commitment || 'state'}`), loud: badges.length > 0, hot,
+      return { shot: S[nm[0]], alt: nm[0], badges: badges.map(v => `${VERDICT_WORD[v.value]} ${v.commitment || 'state'}`), loud: badges.length > 0, hot,
         title: st.state || '', pill: st.held === false ? { text: 'NOT HELD', tone: 'bad' } : st.held ? { text: `held · ${st.strength}`, tone: 'ok' } : st.strength ? { text: st.strength } : null, extra: k > 0 && steps[k - 1]?.timing?.toStable != null ? `${steps[k - 1].timing.toStable}ms` : null };
     });
     const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: [...st.interactions.filter(x => x.type === 'navigation').map(x => x.to), ...st.interactions.filter(x => x.type === 'api').map(x => `${x.request}${x.status ? ' → ' + x.status : ''}${x.ms ? ' · ' + x.ms + 'ms' : ''}`)].join(' · ') || null }));
@@ -157,9 +157,9 @@ const page = `<!doctype html>
 <meta name="description" content="Real uxcli runs drawn as flows of the screens the browser walked, each verdict on the frame it cites.">
 <style>
 *,*::before,*::after{box-sizing:border-box}
-:root{color-scheme:light;--bg:#f5f4f0;--surface:#fff;--well:#eeede8;--ink:#1d2126;--dim:#666b73;--line:#dcdbd4;--accent:#3b5b8c;--fail:#c2361c;--finding:#9a6300;--pass:#1e7a48;--unmeasurable:#666b73;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a;--unmeasurable:#9a9d96}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a;--unmeasurable:#9a9d96}
+:root{color-scheme:light;--bg:#eef0f3;--canvas:#f6f7f9;--dot:#d3d7dd;--surface:#fff;--well:#eaedf1;--ink:#16191d;--dim:#5f6670;--line:#d6dae0;--line-soft:#e6e9ed;--accent:#4f46e5;--accent-soft:#e6e4fb;--fail:#d3381c;--fail-soft:#fbe4df;--finding:#a56400;--finding-soft:#fbeccc;--pass:#178a4c;--pass-soft:#dcf3e5;--unmeasurable:#5f6670;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0f1114;--canvas:#16191e;--dot:#2c313a;--surface:#1b1f25;--well:#252a32;--ink:#e9ebee;--dim:#98a0ab;--line:#2f353e;--line-soft:#262b33;--accent:#8b83ff;--accent-soft:#2a2850;--fail:#ff6b4d;--fail-soft:#4a221a;--finding:#e3b23a;--finding-soft:#4a3a12;--pass:#4ecb7f;--pass-soft:#173a26;--unmeasurable:#98a0ab}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0f1114;--canvas:#16191e;--dot:#2c313a;--surface:#1b1f25;--well:#252a32;--ink:#e9ebee;--dim:#98a0ab;--line:#2f353e;--line-soft:#262b33;--accent:#8b83ff;--accent-soft:#2a2850;--fail:#ff6b4d;--fail-soft:#4a221a;--finding:#e3b23a;--finding-soft:#4a3a12;--pass:#4ecb7f;--pass-soft:#173a26;--unmeasurable:#98a0ab}
 html{background:var(--bg)}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-block:40px 72px;padding-inline:clamp(16px,2.5vw,40px)}
 main{max-width:none;margin:0;display:grid;gap:36px}
