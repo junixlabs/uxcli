@@ -109,18 +109,19 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .run:hover{filter:brightness(1.08)}
 .body{display:grid;grid-template-columns:minmax(0,1fr) 380px;min-height:0}
 @media (max-width:1100px){.body{grid-template-columns:1fr}.panel{display:none}}
-.canvas{position:relative;min-width:0;overflow:auto;background:var(--canvas);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);background-size:22px 22px;display:grid;grid-template-rows:auto 1fr auto;padding:16px 20px 20px;gap:16px}
+.canvas{position:relative;min-width:0;overflow:auto;background:var(--canvas);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);background-size:22px 22px;display:grid;align-content:start;padding:16px 22px 22px;gap:18px;--sw:clamp(220px,17vw,320px);--ta:4/5}
+.canvas.wide{--ta:16/10}
 .tools{display:flex;gap:10px;align-items:center}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
 .seg button{padding:8px 14px;border-radius:8px;font:700 11px/1 var(--mono);letter-spacing:.08em;color:var(--dim)}
 .seg button.on{background:var(--accent);color:#fff}
-.lanes{display:grid;gap:26px;align-content:center;padding:10px 0}
-.lane{display:grid;gap:8px}
+.lanes{display:flex;flex-wrap:wrap;gap:22px 40px;align-items:flex-start}
+.lane{display:grid;gap:8px;width:max-content;max-width:100%}
 .lane-h{display:flex;gap:8px;align-items:center;font:600 12px var(--mono);color:var(--dim)}
 .lane-h .k{font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:5px;background:var(--surface);border:1px solid var(--line)}
 .lane-h .k.happy{color:var(--accent)}.lane-h .k.recovery{color:var(--finding)}
-.strip{display:flex;gap:0;align-items:stretch;width:max-content}
-.step{width:186px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;text-align:left;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.strip{display:flex;gap:0;align-items:stretch;width:max-content;max-width:100%;overflow-x:auto}
+.step{width:var(--sw);background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px;text-align:left;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .step:hover{box-shadow:0 6px 18px -8px rgba(0,0,0,.25)}
 .step.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .step.drift{border-color:var(--fail);background:color-mix(in srgb,var(--fail-soft) 60%,var(--surface))}
@@ -130,7 +131,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .step.drift .num{background:var(--fail-soft);color:var(--fail)}
 .step .t{font:600 14px/1.2 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .step .w{flex:none;color:var(--fail);font-weight:700}
-.thumb{aspect-ratio:16/10;border-radius:8px;overflow:hidden;background:var(--well);border:1px solid var(--line)}
+.thumb{aspect-ratio:var(--ta,16/10);border-radius:8px;overflow:hidden;background:var(--well);border:1px solid var(--line)}
 .thumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
 .thumb.none{display:grid;place-items:center;font:11px/1.3 var(--mono);color:var(--dim);text-align:center;padding:8px;border-style:dashed;background:var(--surface)}
 .m{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font:700 12px/1 var(--mono);color:#fff}
@@ -141,8 +142,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .tray .th small{color:var(--dim);font-weight:500}
 .tray .th .sp{margin-left:auto;font:11px var(--mono);color:var(--dim)}
 .tray .pics{display:flex;gap:12px;overflow-x:auto}
-.tray .pic{flex:none;width:132px;display:grid;gap:4px;text-decoration:none;color:var(--dim);font:10px var(--mono)}
-.tray .pic .thumb{aspect-ratio:16/10;width:132px}
+.tray .pic{flex:none;width:176px;display:grid;gap:4px;text-decoration:none;color:var(--dim);font:10px var(--mono)}
+.tray .pic .thumb{width:176px}
 .tray .pic.bad .thumb{border-color:var(--fail);box-shadow:0 0 0 2px var(--fail-soft)}
 .panel{background:var(--surface);border-left:1px solid var(--line);padding:22px 22px;display:grid;gap:14px;align-content:start;overflow:auto}
 .panel .ph{display:flex;align-items:center;gap:12px}
@@ -164,7 +165,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .row .val{font:13px var(--mono);color:var(--dim);text-align:right;overflow-wrap:anywhere;max-width:190px}
 .row .val.flag{font:600 12px var(--sans);max-width:none;padding:7px 10px}
 .row .chev{color:var(--dim)}
-.row .mini{display:flex;gap:6px}.row .mini .thumb{width:64px;aspect-ratio:16/10;background:var(--surface)}
+.row .mini{display:flex;gap:6px}.row .mini .thumb{width:64px;background:var(--surface)}
 .det{display:none;padding:0 0 14px 50px;font:12px/1.55 var(--mono);color:var(--dim);border-bottom:1px solid var(--line)}
 .det.open{display:block}
 .det ul{margin:0;padding:0;list-style:none}.det li::before{content:"✓ ";color:var(--pass)}.det li.no::before{content:"✗ ";color:var(--fail)}.det li.na::before{content:"· "}
@@ -180,10 +181,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .card b{font:700 16px var(--sans)}
 .card .kv{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .card .kv .chip{padding:7px 10px;font-size:12px}
+.cards .thumb{--ta:16/10}
 .fx{display:grid;grid-template-columns:auto minmax(0,1fr) 110px;gap:14px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;text-align:left}
 .fx:hover{border-color:var(--accent)}
 .fx b{display:block;font:600 13px var(--sans);overflow-wrap:anywhere}.fx small{font:11px var(--mono);color:var(--dim)}
-.fx .thumb{width:110px;aspect-ratio:16/10}
+.fx .thumb{width:110px;--ta:16/10}
 .empty{color:var(--dim)}
 </style>
 </head>
@@ -240,11 +242,12 @@ function panel(j,s){ const inter=s.observed?s.observed.interactions:s.declaredIn
    +row('api','</>','API','<span class="val">'+h(api.length?api.map(x=>x.request+(x.status?' → '+x.status:'')).join(' · '):'—')+'</span>','<ul>'+inter.map(x=>'<li class="na">'+h(x.type==='api'?x.request+(x.status?' → '+x.status:x.expect&&x.expect.status?' expects '+x.expect.status:'')+(x.ms?' · '+x.ms+'ms':''):x.type==='navigation'?'navigate '+x.to:x.type==='ui'?x.target+(x.inViewportWithoutScroll===false?' · below the fold, '+x.scrollsNeeded+' scrolls':''):x.type+' '+(x.expr||''))+'</li>').join('')+(s.observed&&s.observed.timing?'<li class="na">stable after '+h(s.observed.timing.toStable)+'ms</li>':'')+'</ul>')
    +row('state','◈','State',s.measured?(s.after.held===false?'<span class="val flag">⚠ Drift</span>':'<span class="val flag ok">✓ '+h(s.after.strength||'held')+'</span>'):'<span class="val">'+h(s.after.state)+'</span>','<p>expected <b>'+h(s.after.state)+'</b>'+(s.after.declared&&s.after.declared.strength?' · '+h(s.after.declared.strength):'')+'</p>'+decl(s.after.declared)+(s.measured?'<p style="margin-top:6px">observed · '+(s.after.held===false?'did not hold':'held · '+h(s.after.strength))+'</p>'+sig(s.after.signals)+(s.after.why&&s.after.why.length?'<p>'+h(s.after.why.join('; '))+'</p>':''):''))
    +row('ev','▣','Evidence','<span class="mini">'+(before(s)?thumb(before(s)):'')+(after(s)?thumb(after(s)):'')+'</span>',(j.run?'<p><a href="'+h(j.run.packet)+'">run.json</a> · '+h(j.run.ranAt.slice(0,16).replace('T',' '))+' · '+h(j.run.environment)+' · '+h(j.run.viewport)+'</p>':'<p>no run yet</p>')+(s.verdicts.filter(v=>v.shot).map(v=>'<p>'+h(W[v.value]||v.value)+' '+h(v.commitment||'')+' cites '+h(v.shot)+'</p>').join('')))
-   +row('c','§','Commitment',fail?'<span class="val flag">'+h(fail.commitment)+' FAIL</span>':s.commitments.length?'<span class="val">'+h(s.commitments.map(c=>c.id+(c.verdict?' '+(W[c.verdict]||c.verdict):'')).join(' · '))+'</span>':'<span class="val">none</span>',(s.commitments.length?s.commitments.map(c=>'<p><b>'+h(c.id)+'</b> '+h(c.statement)+'<br>'+h(c.owner||'')+(c.verdict?' · <span class="v '+h(c.verdict)+'">'+h(W[c.verdict]||c.verdict)+'</span>':'')+'</p>').join(''):'<p>nothing signed over this step; a would-be fail here is a finding</p>')+s.verdicts.filter(v=>v.what).map(v=>'<dl><dt>what</dt><dd>'+h(v.what)+'</dd><dt>where</dt><dd>'+h(s.workflow+'/'+s.id)+'</dd>'+(v.statement?'<dt>rule</dt><dd>'+h(v.statement)+'</dd>':'')+(v.shot?'<dt>check</dt><dd>'+h(v.shot)+'</dd>':'')+'</dl>').join(''))
+   +row('c','§','Commitment',fail?'<span class="val flag">'+h(fail.commitment?fail.commitment+' FAIL':'state not held')+'</span>':s.commitments.length?'<span class="val">'+h(s.commitments.map(c=>c.id+(c.verdict?' '+(W[c.verdict]||c.verdict):'')).join(' · '))+'</span>':'<span class="val">none</span>',(s.commitments.length?s.commitments.map(c=>'<p><b>'+h(c.id)+'</b> '+h(c.statement)+'<br>'+h(c.owner||'')+(c.verdict?' · <span class="v '+h(c.verdict)+'">'+h(W[c.verdict]||c.verdict)+'</span>':'')+'</p>').join(''):'<p>nothing signed over this step; a would-be fail here is a finding</p>')+s.verdicts.filter(v=>v.what).map(v=>'<dl><dt>what</dt><dd>'+h(v.what)+'</dd><dt>where</dt><dd>'+h(s.workflow+'/'+s.id)+'</dd>'+(v.statement?'<dt>rule</dt><dd>'+h(v.statement)+'</dd>':'')+(v.shot?'<dt>check</dt><dd>'+h(v.shot)+'</dd>':'')+'</dl>').join(''))
    +row('run','▶','Run','<span class="val">'+h(j.run?(M.level?M.level.story:'')+' · exit '+j.run.exit:'not run')+'</span>','<p>'+h(j.goal)+'</p>'+(j.trace.length?j.trace.map(i=>'<p>'+h(i.claim||i.id)+(i.confidence?' · '+h(i.confidence):'')+(i.source?' · '+h(i.source):'')+'</p>').join(''):'')+'<p>uxcli run .uxcli/journeys/'+h(j.id)+'.json</p>')
    +'</div></aside>'; }
 function journey(j){ const steps=stepsOf(j); const s=steps.find(x=>x.n===S.step)||steps[0]; if(!s) return '<div class="page"><h1>'+h(j.id)+'</h1><p class="empty">no measurable workflow</p></div>';
-  return '<div class="canvas"><div class="tools"><div class="seg">'+TABS.map(t=>'<button class="'+(S.tab===t?'on':'')+'" onclick="go(\\'j\\',\\''+h(j.id)+'\\',\\''+t+'\\','+S.step+')">'+t.toUpperCase()+'</button>').join('')+'</div></div>'+lanes(j)+tray(s)+'</div>'+panel(j,s); }
+  const wide=j.run&&/^(\d+)x(\d+)$/.test(j.run.viewport||'')&&(+j.run.viewport.split('x')[0]>+j.run.viewport.split('x')[1]);
+  return '<div class="canvas '+(wide?'wide':'')+'"><div class="tools"><div class="seg">'+TABS.map(t=>'<button class="'+(S.tab===t?'on':'')+'" onclick="go(\\'j\\',\\''+h(j.id)+'\\',\\''+t+'\\','+S.step+')">'+t.toUpperCase()+'</button>').join('')+'</div></div>'+lanes(j)+tray(s)+'</div>'+panel(j,s); }
 function overview(){ return '<div class="page" style="grid-column:1/-1"><h1>Overview</h1><div class="cards">'+M.journeys.map(j=>{const st=stepsOf(j);return '<button class="card" onclick="go(\\'j\\',\\''+h(j.id)+'\\',\\''+S.tab+'\\',1)"><b>'+h(j.id)+'</b>'+thumb((st[0]&&(st[0].after.shot||st[0].after.mock.shot))||null,j.id,'no picture yet')+'<div class="kv">'+(j.run?'<span class="v '+h(j.run.verdict)+'">'+h(W[j.run.verdict]||j.run.verdict)+'</span>':'<span class="v">no run</span>')+'<span class="chip">'+st.length+' steps</span><span class="chip">'+j.screens.filter(x=>x.pick).length+'/'+j.screens.length+' picked</span>'+(j.run&&st.some(x=>x.drift)?'<span class="chip" style="color:var(--fail)">'+st.filter(x=>x.drift).length+' drift</span>':'')+'</div></button>';}).join('')+'</div></div>'; }
 function findings(){ return '<div class="page" style="grid-column:1/-1"><h1>Findings</h1>'+(M.findings.length?M.findings.map(f=>'<button class="fx" onclick="go(\\'j\\',\\''+h(f.journey)+'\\',\\'impact\\','+f.n+')"><span class="v '+h(f.value)+'">'+h(W[f.value]||f.value)+'</span><div><b>'+h((f.commitment?f.commitment+' · ':'')+f.what)+'</b><small>'+h(f.journey+' · '+f.workflow+'/'+f.step)+'</small></div>'+thumb(f.shot,f.step,'')+'</button>').join(''):'<p class="empty">nothing failed on the last runs</p>')+'</div>'; }
 function render(){ nav(); topbar(); document.getElementById('view').innerHTML = S.view==='journey'?journey(J()):S.view==='findings'?findings():overview(); }
