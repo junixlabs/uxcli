@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "pick": "a-list",
+  "parts": {
+    "b-kanban": "the three counters above the list"
+  },
+  "by": {
+    "type": "role",
+    "ref": "product-owner"
+  },
+  "note": "Kanban later: agents on the phone scan a list faster. Counters taken from b.",
+  "when": "2026-09-28"
+}

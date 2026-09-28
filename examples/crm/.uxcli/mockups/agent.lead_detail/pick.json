@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "pick": "b-call-first",
+  "parts": {
+    "a-stacked": "the full requirement block"
+  },
+  "by": {
+    "type": "role",
+    "ref": "product-owner"
+  },
+  "note": "The call action must be on screen without scrolling (C-001); a-stacked puts it under five sections.",
+  "when": "2026-09-28"
+}

@@ -12,7 +12,7 @@
 
 Paste this to your agent:
 
-> Install the `uxcli` skill (`npx skills add junixlabs/uxcli -g`), run `npx -y @junixlabs/uxcli doctor`, and from now on read `uxcli context show <journey>` before you design a screen and run `uxcli run` on the final files before you say done.
+> Install the `uxcli` skill (`npx skills add junixlabs/uxcli -g`), run `npx -y @junixlabs/uxcli doctor`, and from now on read `uxcli context show <journey>` before you design a screen, draw its variants and run `uxcli mockups` before you build, and run `uxcli run` on the final files before you say done.
 
 Or see it work first, in under a minute, on a product with a defect planted on purpose:
 
@@ -65,6 +65,7 @@ Node 20+. `npx -y @junixlabs/uxcli <command>` works without installing.
 ```bash
 uxcli init --apply --origin=http://localhost:3000    # a rule file, the skill, .uxcli/ with the floor policy
 uxcli context show handle-inbound-lead               # read before you design
+uxcli mockups                                        # the screens drawn as the journey's flow; a person picks
 uxcli run .uxcli/journeys/handle-inbound-lead.json   # measure after
 uxcli run http://localhost:3000/leads/1 --prove      # one screen: four probes, each pass made to earn it
 ```
@@ -73,6 +74,11 @@ uxcli run http://localhost:3000/leads/1 --prove      # one screen: four probes, 
 fact), who the actor is, each insight at the confidence its evidence allows, the states the screen
 must be able to hold with the `data-uxcli` hooks each needs, the commitments already signed over it,
 and what the last run saw. It gives no advice.
+
+`mockups` photographs every variant the agent drew under `.uxcli/mockups/<state>/` and writes one
+page: each journey as a flow of the picked variants, connected from the element the next step acts
+on, and each screen's variants side by side — green picked, amber part of a pick, grey not taken.
+A person picks in `pick.json`; the agent never picks for them. The picked variant is what gets built.
 
 `run` reads each state's signals in the browser — URL, DOM, text, network, accessibility tree,
 storage — walks the journey's workflows, provisions identity and fixtures only as far as the policy
@@ -144,6 +150,7 @@ uxcli demo <empty dir>                # a real product with a planted defect, me
 uxcli guide "<what you are about to do>"   # which command and which file, for a situation
 uxcli init [dir] [--apply --origin=URL]    # where the project stands and the first undone thing; --apply creates, never edits
 uxcli context show [journey]          # what to read before designing
+uxcli mockups [dir] [--viewport=WxH]  # every screen's variants photographed; the picked ones as each journey's flow
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
 uxcli run <url>                       # measure one screen       --prove --state=FILE --src=DIR
 uxcli sheet [--src=DIR]               # design-token commitments in uxcli.commitments.json, no browser

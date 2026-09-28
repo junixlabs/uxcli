@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/pick.schema.json",
+  "title": "uxcli pick",
+  "description": "A person's choice among the mockup variants drawn for one screen — .uxcli/mockups/<state>/pick.json. The agent draws; a person picks, or the agent writes the pick on that person's say-so and note says so.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pick",
+    "by"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "pick": {
+      "type": "string",
+      "minLength": 1,
+      "description": "the variant that gets built: <variant>.html beside this file, without the extension"
+    },
+    "parts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "variant → what was taken from it into the pick"
+    },
+    "by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "ref"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "person",
+            "role",
+            "agent"
+          ]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "onBehalfOf": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "who stands behind the pick"
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1
+    },
+    "when": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

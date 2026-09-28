@@ -13,6 +13,7 @@ key before `uxcli init` does.
 | `policy.schema.json` | `.uxcli/policy/policy.json` | `src/core/model/policy.js` |
 | `profile.schema.json` | `.uxcli/profiles/<id>.json` | `src/core/model/profile.js` |
 | `proposal.schema.json` | `.uxcli/proposals/P-xxxx.json` | read as data; not parsed |
+| `pick.schema.json` | `.uxcli/mockups/<state>/pick.json` | `src/core/mockups.js` `parsePick` |
 
 The parsers are the law. A schema says what keys a file may carry and what type each has; a parser
 also says what the values must mean — a `strength` claimed above what the signals give, a

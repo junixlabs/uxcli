@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "pick": "a-card",
+  "by": {
+    "type": "role",
+    "ref": "product-owner"
+  },
+  "note": "OTP needs SMS the backend does not send yet (P-0004).",
+  "when": "2026-09-28"
+}

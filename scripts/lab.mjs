@@ -15,6 +15,7 @@ import { runPage, PAGE_PROBES } from '../src/page.js';
 import { card } from '../src/card.js';
 import { journeyCard, why } from '../src/core/report/index.js';
 import { runJourney, loadProject } from '../src/journey.js';
+import { flowRow, WIREFLOW_CSS } from '../src/core/wireflow.js';
 import { stage, serve } from '../src/demo.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -80,47 +81,28 @@ const rows = pairs => `<dl class="four">${pairs.filter(([, v]) => v).map(([k, v]
 // A journey run as a wireflow: one row per workflow, the screenshots as frames, a connection leaving
 // the element the browser acted on and landing on the next frame, the verdict badged on the frame it
 // cites. Frame k is the screen step k+1 acts on: the workflow's first before-shot, then each after-shot.
-const FRAME_W = { phone: 176, wide: 300 };
 function journeyEntry(e, i) {
   const run = e.run; const C = byId(e.commitments); const S = shotsOf(e);
-  const [vw, vh] = String(run.viewport || '390x844').split('x').map(Number); const wide = vw > vh;
-  const fw = wide ? FRAME_W.wide : FRAME_W.phone; const scale = fw / vw; const fh = Math.round(vh * scale);
+  const [vw, vh] = String(run.viewport || '390x844').split('x').map(Number);
   const loud = run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding');
   const quiet = run.verdicts.filter(v => !loud.includes(v));
   const kinds = Object.fromEntries((e.def.workflows || []).map(w => [w.id, w.kind]));
   const flows = [...new Set(run.steps.filter(s => s.kind !== 'fixture').map(s => s.workflow))];
-
   const flowRows = flows.map(wf => {
     const steps = run.steps.filter(s => s.workflow === wf && s.kind !== 'fixture');
-    // frames: [before(s1), after(s1), after(s2), …]; each knows which shot names it answers to
-    const frames = [{ shot: S[`${wf}-${steps[0].id}-before.png`], names: [`${wf}-${steps[0].id}-before.png`], state: steps[0].before, step: null }];
-    steps.forEach((st, k) => { const nm = [`${wf}-${st.id}-after.png`]; if (steps[k + 1]) nm.push(`${wf}-${steps[k + 1].id}-before.png`); frames.push({ shot: S[nm[0]], names: nm, state: st.after, step: st }); });
-    const badgeOf = f => run.verdicts.filter(v => (v.value === 'fail' || v.value === 'finding') && v.shot && f.names.includes(v.shot));
-    const cells = [];
-    frames.forEach((f, k) => {
-      const acting = steps[k]; // the step whose hotspot is on this frame
-      const ui = acting?.interactions?.find(x => x.type === 'ui'); const r = ui?.rect;
-      let hot = ''; let offhot = ''; let y0 = fh / 2;
-      if (r) {
-        if (r.y + r.h > vh) { const n = Math.max(1, ui.scrollsNeeded || 1); y0 = fh + 18; offhot = `<div class="offhot"><span class="hot off"></span>${esc(ui.target)} · ${n} scroll${n > 1 ? 's' : ''} below the fold</div>`; }
-        else { y0 = (r.y + r.h / 2) * scale; hot = `<div class="hot" style="left:${(r.x * scale).toFixed(0)}px;top:${(r.y * scale).toFixed(0)}px;width:${(r.w * scale).toFixed(0)}px;height:${(r.h * scale).toFixed(0)}px"></div>`; }
-      } else if (acting) hot = `<div class="hot edge" style="left:${fw - 6}px;top:${fh / 2 - 6}px;width:12px;height:12px"></div>`;
-      const badges = badgeOf(f);
-      const st = f.state || {};
-      cells.push(`<div class="frame ${badges.length ? 'loud' : ''}" style="width:${fw}px">
-        ${k === 0 ? `<span class="start">▶ ${esc(wf)} · ${esc(kinds[wf] || 'workflow')}</span>` : ''}
-        ${badges.map(v => `<span class="badge">${esc(VERDICT_WORD[v.value])} ${esc(v.commitment || 'state')}</span>`).join('')}
-        <div class="screen" style="height:${fh}px">${f.shot ? `<a href="${esc(f.shot)}"><img src="${esc(f.shot)}" alt="${esc(f.names[0])}" loading="lazy" width="${fw}" height="${fh}"></a>` : '<div class="noshot">no picture</div>'}${hot}</div>${offhot}
-        <div class="cap"><span class="state">${esc(st.state || '')}</span><span class="pill ${st.held === false ? 'bad' : st.held ? 'ok' : ''}">${st.held === false ? 'NOT HELD' : st.held ? `held · ${esc(st.strength)}` : esc(st.strength || '')}</span>${f.step?.timing?.toStable != null ? `<span class="ms">${esc(f.step.timing.toStable)}ms</span>` : ''}</div>
-      </div>`);
-      if (acting) {
-        const api = acting.interactions.filter(x => x.type === 'api').map(x => `${x.request}${x.status ? ' → ' + x.status : ''}${x.ms ? ' · ' + x.ms + 'ms' : ''}`);
-        const nav = acting.interactions.filter(x => x.type === 'navigation').map(x => x.to);
-        const H = fh + 60; const y1 = fh / 2;
-        cells.push(`<div class="conn" style="height:${H}px"><svg width="120" height="${H}" viewBox="0 0 120 ${H}" aria-hidden="true"><path d="M0 ${y0.toFixed(0)} C 60 ${y0.toFixed(0)}, 60 ${y1.toFixed(0)}, 112 ${y1.toFixed(0)}" fill="none"/><path class="head" d="M112 ${y1.toFixed(0)} l-8 -5 v10 z"/></svg><div class="label"><b>${esc(acting.id)}</b> ${esc(acting.action || '')}${api.length || nav.length ? `<span>${esc([...nav, ...api].join(' · '))}</span>` : ''}</div></div>`);
-      }
+    const names = [[`${wf}-${steps[0].id}-before.png`]];
+    steps.forEach((st, k) => { const nm = [`${wf}-${st.id}-after.png`]; if (steps[k + 1]) nm.push(`${wf}-${steps[k + 1].id}-before.png`); names.push(nm); });
+    const states = [steps[0].before, ...steps.map(st => st.after)];
+    const frames = names.map((nm, k) => {
+      const acting = steps[k]; const ui = acting ? [...acting.interactions].reverse().find(x => x.type === 'ui') : null; const r = ui?.rect;
+      const hot = !acting ? null : r ? (r.y + r.h > vh ? { off: true, target: ui.target, scrolls: Math.max(1, ui.scrollsNeeded || 1) } : { x: r.x, y: r.y, w: r.w, h: r.h }) : { edge: true };
+      const badges = run.verdicts.filter(v => (v.value === 'fail' || v.value === 'finding') && v.shot && nm.includes(v.shot));
+      const st = states[k] || {};
+      return { shot: S[nm[0]], alt: nm[0], start: k === 0 ? `${wf} · ${kinds[wf] || 'workflow'}` : null, badges: badges.map(v => `${VERDICT_WORD[v.value]} ${v.commitment || 'state'}`), loud: badges.length > 0, hot,
+        title: st.state || '', pill: st.held === false ? { text: 'NOT HELD', tone: 'bad' } : st.held ? { text: `held · ${st.strength}`, tone: 'ok' } : st.strength ? { text: st.strength } : null, extra: k > 0 && steps[k - 1]?.timing?.toStable != null ? `${steps[k - 1].timing.toStable}ms` : null };
     });
-    return `<div class="row"><div class="cells">${cells.join('')}</div></div>`;
+    const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: [...st.interactions.filter(x => x.type === 'navigation').map(x => x.to), ...st.interactions.filter(x => x.type === 'api').map(x => `${x.request}${x.status ? ' → ' + x.status : ''}${x.ms ? ' · ' + x.ms + 'ms' : ''}`)].join(' · ') || null }));
+    return flowRow({ id: wf, kind: kinds[wf], vw, vh, frames, links });
   });
 
   const verdicts = loud.map(v => {
@@ -202,34 +184,7 @@ section .list{display:grid;gap:22px}
 .v{display:inline-block;font:700 11px/1 var(--mono);letter-spacing:.08em;padding:6px 8px;border-radius:3px;color:#fff;background:var(--unmeasurable)}
 .v.fail{background:var(--fail)}.v.finding{background:var(--finding)}.v.pass{background:var(--pass)}.v.not-applicable,.v.unmeasurable{background:var(--unmeasurable)}
 .fixture{margin:0;font-size:13px;color:var(--dim)}
-.flow{display:grid;gap:26px}
-.row{overflow-x:auto;padding:14px 2px 8px}
-.cells{display:flex;align-items:flex-start;gap:0;width:max-content}
-.frame{position:relative;display:grid;gap:6px;flex:none}
-.screen{position:relative;border:1px solid var(--line);border-radius:4px;background:#fff;overflow:visible}
-.screen img{display:block;border-radius:3px}
-.frame.loud .screen{border-color:var(--fail);box-shadow:0 0 0 2px var(--fail)}
-.noshot{display:grid;place-items:center;height:100%;color:var(--dim);font-size:12px}
-.hot{position:absolute;border:2px solid var(--accent);border-radius:3px;background:rgba(59,91,140,.12);pointer-events:none}
-.hot.off{border-style:dashed;border-color:var(--fail);background:rgba(194,54,28,.12)}
-.hot.edge{border-radius:50%;background:var(--accent)}
-.offhot{display:flex;align-items:center;gap:6px;font:11px/1.3 var(--mono);color:var(--fail);min-height:24px}
-.offhot .hot{position:static;flex:none;width:22px;height:12px}
-.start{position:absolute;top:-11px;left:6px;z-index:2;white-space:nowrap;font:600 10px/1 var(--mono);color:#fff;background:var(--accent);padding:4px 7px;border-radius:10px}
-.badge{position:absolute;top:-11px;right:6px;z-index:2;white-space:nowrap;font:700 10px/1 var(--mono);letter-spacing:.04em;color:#fff;background:var(--fail);padding:5px 8px;border-radius:3px}
-.cap{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:2px}
-.cap .state{font:600 12px var(--mono);overflow-wrap:anywhere}
-.pill{font:600 10px/1 var(--mono);letter-spacing:.04em;padding:3px 6px;border-radius:10px;border:1px solid var(--line);color:var(--dim)}
-.pill.ok{color:var(--pass);border-color:var(--pass)}.pill.bad{color:var(--fail);border-color:var(--fail)}
-.ms{font:11px var(--mono);color:var(--dim)}
-.why{margin:0;font-size:12px;line-height:1.4;color:var(--fail)}
-.conn{position:relative;width:120px;flex:none}
-.conn svg{position:absolute;inset:0;overflow:visible}
-.conn path{stroke:var(--accent);stroke-width:2}
-.conn path.head{fill:var(--accent);stroke:none}
-.conn .label{position:absolute;left:8px;right:8px;top:6px;font:11px/1.35 var(--sans);color:var(--dim);text-align:center}
-.conn .label b{display:block;font:600 11px var(--mono);color:var(--ink)}
-.conn .label span{display:block;font:10px/1.3 var(--mono);margin-top:3px;overflow-wrap:anywhere}
+${WIREFLOW_CSS}
 .vlist{display:grid;gap:12px}
 .verdict{display:grid;gap:12px;padding:16px 18px;border-radius:6px;background:var(--well);border-left:4px solid var(--fail)}
 .vhead{display:flex;flex-wrap:wrap;align-items:center;gap:10px}

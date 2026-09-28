@@ -38,5 +38,13 @@
   "mutant": "the same file with this paragraph removed",
   "record": "2026-09-28, experiments/understanding-before-design arm `skill` (10 fresh Sonnet sessions, ticket only, skill + rule file + .uxcli/ installed, uxcli on PATH; one session cut by a usage limit was discarded and rerun): 10/10 ran uxcli, 9/10 ran `uxcli run`, 0/10 said done while the page they left measured a fail at 390×844, 0/10 edited a file under .uxcli/, 10/10 first-run pass at 390×844. No mutant arm yet, so which paragraph is load-bearing is not shown; the record says the skill as a whole held. No session wrote understanding; the paragraph was not exercised; unmeasured. No fresh-agent record yet: new on 2026-09-28, grown from experiments/from-understanding (whose draft carried the same \"fetch, not recall\" obligation, unmeasured). Not yet measured on fresh sessions after the 2026-09-28 restructure into one shipped skill; a re-measure on 15 sessions is Phase 2 exit (see .claude/specs/plan/2026-09-28-master-plan.md).",
   "recordSource": ".claude/p3-skills/results.md in the working notes (not shipped); Phase 2 re-measure to be recorded in experiments/results/"
+ },
+ "mockups": {
+  "file": "uxcli/references/mockups.md",
+  "loadBearing": "You draw the variants and you never write `pick.json` on your own judgement: a pick is a person's, or you write it on a person's say-so and `note` names who said so. You never draw a variant that drops a hook the journey names in order to make the screen simpler. You never build a screen that has variants and no pick.",
+  "loadBearingSha256": "3fa76ed580b4380bcd60f4dc850f30c9d07225d4b562a4be50a336735f3ba89d",
+  "mutant": "the same file with this paragraph removed",
+  "record": "no fresh-agent record yet: new on 2026-09-28, written when the owner asked for the screens to be drawn as a flow before they are built. Unmeasured.",
+  "recordSource": "none"
  }
 }

@@ -1,0 +1,53 @@
+# mockups — drawing the screens before building them
+
+Read when: `uxcli init` says a screen has no mockup or no pick, or `context show` names states that
+nobody has drawn. A mockup is a page you draw; a pick is a person's choice among your drawings; the
+picked variant is what you build.
+
+## What a mockup is
+
+One static HTML file per variant of a screen, at `.uxcli/mockups/<state>/<variant>.html`, where
+`<state>` is a state the journey declares (`agent.lead_detail`) and `<variant>` is a short name that
+says what makes it different (`a-stacked`, `b-call-first`). Self-contained: inline CSS, no script it
+needs, real words from the product and the actor, never lorem ipsum. Two or three variants per
+screen; more is a list, not a choice.
+
+Use the same `data-uxcli` hooks the journey names on the elements that play those parts —
+`[data-uxcli=call-action]` on the call button, `[data-uxcli=lead-phone]` on the number. `uxcli
+mockups` photographs each variant at the run viewport (default 390×844) and looks for the hook the
+next step leaves from; a variant without it is drawn with the connection leaving from its edge and a
+note saying which hook is missing. Hooks in the mockup are hooks in the build: whoever builds the
+picked variant keeps them.
+
+## What a pick is
+
+```
+.uxcli/mockups/agent.lead_detail/pick.json
+{ "schema_version": 1,
+  "pick": "b-call-first",
+  "parts": { "a-stacked": "the full requirement block" },
+  "by": { "type": "role", "ref": "product-owner" },
+  "note": "The call action must be on screen without scrolling (C-001).",
+  "when": "2026-09-28" }
+```
+
+`pick` names the variant that gets built. `parts` names what was taken from another variant into
+it. `by` names who stands behind the choice; without it the pick is refused. Shape:
+`schemas/pick.schema.json`; example: `examples/crm/.uxcli/mockups/`.
+
+## The sequence
+
+1. `uxcli context show <journey>`: the states the screen must hold and the hooks each needs.
+2. Draw each state's variants into `.uxcli/mockups/<state>/`.
+3. `uxcli mockups` — the page it prints shows every journey as a flow of the picked variants and
+   every screen's variants side by side: green is picked, amber is part of a pick, grey is not taken.
+   Open it, or give its path to the person deciding.
+4. A person picks. Then build the picked variant, and `uxcli run` measures the build.
+
+You draw the variants and you never write `pick.json` on your own judgement: a pick is a person's, or you write it on a person's say-so and `note` names who said so. You never draw a variant that drops a hook the journey names in order to make the screen simpler. You never build a screen that has variants and no pick.
+
+## When the journey changes
+
+A new state is a new screen with no mockup; `uxcli init` says so. A state that was renamed leaves
+its mockups under the old name, unread, and the new name with none. Move them; the pick moves with
+them only if the variants are the same drawings.

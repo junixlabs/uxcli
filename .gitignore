@@ -25,3 +25,7 @@ uxcli.*.proposed.json
 
 # experiment transcripts are 29 MB of tool-call logs; session.json, lead.html and summary.md carry the measurement
 experiments/*/results/*/transcript.jsonl
+
+# regenerable in seconds: uxcli mockups photographs the variants and writes the page
+**/.uxcli/mockups/.shots/
+**/.uxcli/mockups/index.html

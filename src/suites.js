@@ -31,4 +31,5 @@ export const SUITES = [
   { tag: 'brief', title: 'the agent reads before it designs', file: 'brief-pairs.mjs', miss: 'seen' },
   { tag: 'pack', title: 'what ships is what the tag says', file: 'packaging-pairs.mjs', miss: 'refused' },
   { tag: 'shape', title: 'a file that is not the shape is refused', file: 'schema-pairs.mjs', miss: 'refused' },
+  { tag: 'mock', title: 'the agent draws, a person picks', file: 'mockup-pairs.mjs', miss: 'refused' },
 ];

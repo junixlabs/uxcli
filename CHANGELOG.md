@@ -10,6 +10,16 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- `uxcli mockups`: screens drawn before they are built. The agent draws two or three variants of
+  each state the journeys name into `.uxcli/mockups/<state>/<variant>.html`, with the journey's own
+  `data-uxcli` hooks; a person picks in `pick.json` (`pick`, `parts{}`, `by`; refused without `by`).
+  The command photographs every variant at the run viewport and writes `.uxcli/mockups/index.html`:
+  each journey as a wireflow of the picked variants, the connection leaving the hook the next step
+  acts on, and each screen's variants side by side — green picked, amber part of a pick, grey not
+  taken. `uxcli init` counts screens, drawn and picked, and makes drawing the next step once a
+  journey exists. `schemas/pick.schema.json`; `references/mockups.md` in the skill; held by
+  `test/mockup-pairs.mjs`.
+
 - `skills/uxcli/`: one skill directory with a router (`SKILL.md`: fast path, verdict router,
   invariants, which reference to read when) and four references — `before-done`, `journey`
   (rewritten for schema-2 journeys), `principles` (rewritten for `.uxcli/commitments/`), and

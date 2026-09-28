@@ -12,6 +12,7 @@
 import fs from 'node:fs'; import path from 'node:path';
 import { findCommitments, FILE as COMMITMENTS } from './sheet.js';
 import { UXCLI, currentRuns } from './adapters/store/runs.js';
+import { screensOf, parsePick } from './core/mockups.js';
 import { execSync } from 'node:child_process'; import os from 'node:os';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -28,7 +29,7 @@ Anyone can sign \`${COMMITMENTS}\` and \`confirmedBy\` in a journey — an agent
 
 Signing is not the same act as erasing a verdict. Do not edit a commitment, a journey or a probe in order to turn a run that is failing into one that passes: that is not deciding what correct means, it is deleting the finding. Change a commitment because the commitment was wrong, and say so in \`source\`.
 
-Before designing or changing a screen, read \`uxcli context show <journey>\`: the actor's unknowns, the insights at the confidence their evidence allows, the states the screen must hold and the hooks each needs. Build to that card; do not invent what it does not carry.
+Before designing or changing a screen, read \`uxcli context show <journey>\`: the actor's unknowns, the insights at the confidence their evidence allows, the states the screen must hold and the hooks each needs. Then draw the screen before building it: two or three variants under \`.uxcli/mockups/<state>/\`, \`uxcli mockups\` to see them as the journey's flow, and a person picks in \`pick.json\`. Build the picked variant to that card; do not invent what it does not carry.
 
 Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: four probes found no fail. The \`uxcli\` skill is the sequence, and its \`references/before-done.md\` lists what those probes do not look at.
 `;
@@ -115,9 +116,23 @@ function recorded(project) {
   } catch { return { runs: 0, journeysRan: 0 }; }
 }
 
+// Screens are what the confirmed journeys name; a mockup answers to one, and a pick to its variants.
+export function mockupState(project) {
+  const U = path.join(project, UXCLI); const jdir = path.join(U, 'journeys'); if (!fs.existsSync(jdir)) return { screens: 0, drawn: 0, picked: 0 };
+  const journeys = fs.readdirSync(jdir).filter(f => f.endsWith('.json')).map(f => { try { return JSON.parse(fs.readFileSync(path.join(jdir, f), 'utf8')); } catch { return null; } }).filter(j => j && Array.isArray(j.workflows));
+  const screens = screensOf(journeys); let drawn = 0, picked = 0;
+  for (const s of screens) {
+    const dir = path.join(U, 'mockups', s.id); if (!fs.existsSync(dir)) continue;
+    const variants = fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, ''));
+    if (variants.length) drawn++;
+    const pf = path.join(dir, 'pick.json'); if (fs.existsSync(pf)) { try { if (parsePick(JSON.parse(fs.readFileSync(pf, 'utf8')), variants).value) picked++; } catch {} }
+  }
+  return { screens: screens.length, drawn, picked };
+}
+
 export function state(project) {
   const { runs, journeysRan } = recorded(project);
-  return { commitments: findCommitments(project), journeys: { measured: journeysRan, proposals: proposals(project) }, runs };
+  return { commitments: findCommitments(project), journeys: { measured: journeysRan, proposals: proposals(project) }, runs, mockups: mockupState(project) };
 }
 
 // One next step, not a list, and it stops at the first thing undone. The order is what actually gates
@@ -132,6 +147,11 @@ export function next(s, list = []) {
   // other project was never installed where it was being built, and the card said it was.
   const missing = list.filter(i => i.status === 'create').length;
   if (!list.some(i => i.rel === POLICY && i.status === 'kept')) return ['uxcli init --apply --origin=<url the screen under test is served at>', 'writes project.json and the floor policy (reach observe, no identity) with you as signer; every run reads it first'];
+  // A journey names screens before anyone builds them; the first thing after that is to draw each one
+  // and have a person pick. This comes before the first run because the run measures what was built.
+  const m = s.mockups || { screens: 0, drawn: 0, picked: 0 };
+  if (m.screens && m.drawn < m.screens) return ['.uxcli/mockups/<state>/<variant>.html for each screen the journeys name, then `uxcli mockups`', `${m.screens - m.drawn} of ${m.screens} screens have no mockup; the uxcli skill (references/mockups.md) draws two or three variants of each`];
+  if (m.screens && m.picked < m.screens) return ['a person picks in .uxcli/mockups/<state>/pick.json, then `uxcli mockups`', `${m.screens - m.picked} of ${m.screens} screens have no pick; the page .uxcli/mockups/index.html shows the variants side by side`];
   if (!s.runs) return ['uxcli run <url of the screen under test>', 'the first measurement; it needs nothing signed'];
   if (!s.commitments) return ['the `uxcli` skill (references/principles.md) drafts the proposal', `a human signs ${COMMITMENTS}; until then sheet has nothing to read`];
   if (s.journeys.proposals && !s.journeys.measured) return [`a human sets confirmedBy in ${PROPOSALS}/`, 'run refuses a journey whose provenance is proposal'];
@@ -182,6 +202,8 @@ export function initCard(r) {
   L.push('', '  where this project stands');
   L.push(row('commitments', s.commitments ? `signed (${COMMITMENTS})` : `not found (${COMMITMENTS})`, s.commitments ? null : '← only a human signs this'));
   L.push(row('journeys', `${j.measured} measured · ${j.proposals} proposal${j.proposals === 1 ? '' : 's'}`, j.proposals && !j.measured ? '← only a human sets confirmedBy' : null));
+  const m = s.mockups || { screens: 0, drawn: 0, picked: 0 };
+  L.push(row('mockups', m.screens ? `${m.screens} screens · ${m.drawn} drawn · ${m.picked} picked` : 'no journey names a screen yet', m.screens && m.picked < m.screens ? '← only a person picks' : null));
   L.push(row('runs', s.runs ? `${s.runs} recorded for this project` : 'none recorded for this project'));
   L.push('', '  next step');
   L.push(r.next[0] ? `    ${r.next[0]}\n      ${r.next[1]}` : `    ${r.next[1]}`);
@@ -199,6 +221,9 @@ export function firstStep(P, idx = {}) {
   if (!P.actors.length) return ['.uxcli/understanding/actors/<actor>.json', 'who uses this screen and what they expect; unknowns[] is the most important field'];
   if (!P.insights.length) return ['.uxcli/understanding/insights/I-0001.json', 'one claim with a source and a wouldChangeIf; a journey traces to it'];
   if (!P.journeys.length) return ['.uxcli/journeys/<name>.json', 'one journey: states as signals an observer can check, one happy workflow'];
+  const m = mockupState(P.root);
+  if (m.screens && m.drawn < m.screens) return ['.uxcli/mockups/<state>/<variant>.html for each screen the journeys name, then `uxcli mockups`', `${m.screens - m.drawn} of ${m.screens} screens have no mockup; two or three variants each, a person picks`];
+  if (m.screens && m.picked < m.screens) return ['a person picks in .uxcli/mockups/<state>/pick.json, then `uxcli mockups`', `${m.screens - m.picked} of ${m.screens} screens have no pick; .uxcli/mockups/index.html shows the variants side by side`];
   if (!(idx.rows || []).length) return [`uxcli run .uxcli/journeys/${P.journeys[0].value?.id || '<name>'}.json`, 'the first run; at reach observe nothing is provisioned or mutated'];
   if (!P.commitments.length) return ['.uxcli/commitments/C-001.json', 'a commitment with owner and source; until one is signed every would-be fail is a finding'];
   return [null, 'declared and measured; the projection above is the state'];

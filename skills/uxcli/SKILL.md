@@ -32,10 +32,19 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    needs, the commitments already signed over it, and what the last run saw. Read it top to bottom.
    If there is no journey or no understanding on disk, the card says so; go to `references/understand.md`
    and `references/journey.md` before writing any UI.
-3. **Build to the card.** Use the hooks and states it names. Do not invent a hook, a state, or a fact
+3. **Draw before you build.** For each state the card names, draw two or three variants into
+   `.uxcli/mockups/<state>/<variant>.html`, with the same `data-uxcli` hooks the journey names. Then:
+
+   ```bash
+   npx -y @junixlabs/uxcli mockups
+   ```
+
+   It photographs every variant, draws each journey as a flow of the picked ones, and prints the
+   page. A person picks in `pick.json`; you never pick for them. `references/mockups.md` is the shape.
+4. **Build to the card.** Build the picked variant. Use the hooks and states the card names. Do not invent a hook, a state, or a fact
    about the user that the card does not carry. An unknown is not yours to fill: ask, or leave the gap
    visible in what you build.
-4. **Measure the final files.** For every journey through the screens you touched, and every screen:
+5. **Measure the final files.** For every journey through the screens you touched, and every screen:
 
    ```bash
    npx -y @junixlabs/uxcli run .uxcli/journeys/<journey-id>.json
@@ -44,7 +53,7 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
 
    Read each card. A `fail` names the element, the place, the rule and how to check it yourself; fix
    that element and run again. Never edit a journey, a commitment or a probe to make a run pass.
-5. **Say done only at exit 0**, and say what was measured. Anything else, say what stands in the way.
+6. **Say done only at exit 0**, and say what was measured. Anything else, say what stands in the way.
    `references/before-done.md` is the full sequence and the list of what exit 0 does not cover.
 
 Before you design or change a screen, you read `uxcli context show` for the journey it belongs to, and you build to the hooks and states the card names. An unknown on that card is not yours to fill: you ask, or you leave the gap visible. After you change the screen, you run uxcli on the final files, and the word done is not yours until that run exits 0.
@@ -76,6 +85,7 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 |---|---|
 | `references/before-done.md` | before you say UI work is finished; what exit 0 covers and does not |
 | `references/journey.md` | the card says no journey, or a flow has changed shape: states as signals, hooks, workflows |
+| `references/mockups.md` | a screen the journey names has no mockup or no pick: variants, hooks, `pick.json` |
 | `references/understand.md` | the card says no understanding, or an insight the screen leans on is missing or a hypothesis |
 | `references/principles.md` | a verdict is `not-committed` and the project should decide; proposing a commitment |
 | `examples/crm/.uxcli/` in the package | the shape of every file — take the shape, not the facts |

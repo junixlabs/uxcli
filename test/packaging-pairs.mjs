@@ -33,7 +33,7 @@ export function pair() {
   const fm = frontmatterOf(read('skills/uxcli/SKILL.md'));
   must('skill frontmatter lacks name/description/license', fm.name === 'uxcli' && !!fm.description && !!fm.license);
   must('skill description does not say when to use it', /Use whenever/.test(fm.description));
-  for (const r of ['before-done', 'journey', 'principles', 'understand']) must(`skill reference ${r}.md missing`, fs.existsSync(path.join(ROOT, 'skills', 'uxcli', 'references', `${r}.md`)));
+  for (const r of ['before-done', 'journey', 'mockups', 'principles', 'understand']) must(`skill reference ${r}.md missing`, fs.existsSync(path.join(ROOT, 'skills', 'uxcli', 'references', `${r}.md`)));
   must('frontmatterOf reads a file with no frontmatter as having a name', !frontmatterOf('# no frontmatter\n').name);
 
   // files match
@@ -47,7 +47,7 @@ export function pair() {
   return { ok: !problems.length, checks, problems };
 }
 
-export const OPERATOR = 'tag = package.json = skill major.minor, a planted tag is refused; README carries the paste-to-agent sentence, demo and doctor; the skill has frontmatter and its four references; every shipped root exists, experiments/ does not ship, and a pack listing missing a root is seen';
+export const OPERATOR = 'tag = package.json = skill major.minor, a planted tag is refused; README carries the paste-to-agent sentence, demo and doctor; the skill has frontmatter and its five references; every shipped root exists, experiments/ does not ship, and a pack listing missing a root is seen';
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const r = pair(); console.log(r.ok ? `PASS packaging · ${r.checks} checks` : 'FAIL ' + r.problems.join('\n     ')); process.exit(r.ok ? 0 : 1);
