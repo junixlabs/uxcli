@@ -105,8 +105,8 @@ function pageHtml(m, { vw, vh, shots, rects }) {
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-block:28px 72px;padding-inline:16px}
-main{max-width:1160px;margin:0 auto;display:grid;gap:28px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-block:28px 72px;padding-inline:clamp(16px,2.5vw,40px)}
+main{max-width:none;margin:0;display:grid;gap:28px}
 a{color:var(--accent)}
 code{font:.92em var(--mono)}
 .head h1{margin:0;font:700 20px/1.3 var(--sans)}

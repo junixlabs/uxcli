@@ -161,8 +161,8 @@ const page = `<!doctype html>
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a;--unmeasurable:#9a9d96}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#14171b;--surface:#1c2025;--well:#22272d;--ink:#ebe9e3;--dim:#9a9d96;--line:#2f353c;--accent:#8fb0e0;--fail:#ff6b4d;--finding:#e3b23a;--pass:#5fd38a;--unmeasurable:#9a9d96}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-block:40px 72px;padding-inline:16px}
-main{max-width:1120px;margin:0 auto;display:grid;gap:36px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding-block:40px 72px;padding-inline:clamp(16px,2.5vw,40px)}
+main{max-width:none;margin:0;display:grid;gap:36px}
 a{color:var(--accent)} a:focus-visible{outline:2px solid var(--finding);outline-offset:2px}
 code{font:.92em var(--mono)}
 .hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px 40px;align-items:end}
