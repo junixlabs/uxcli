@@ -52,23 +52,44 @@ export function flowRow(row) {
 // missing, hot }], links: [{ label, text }] } }. Arrow keys step, Escape closes; nothing is added to
 // the frames beyond what the flow already draws.
 export const protoHtml = () => `<div class="proto" id="proto" hidden role="dialog" aria-label="prototype" tabindex="-1">
-  <div class="p-stage"><div class="p-screen"><img alt=""><div class="noshot" hidden></div><div class="hot" hidden></div></div><div class="p-off" hidden></div></div>
+  <div class="p-stage"></div>
   <div class="p-bar"><span class="p-n"></span><span class="p-title"></span><span class="p-link"></span><span class="p-keys">← → · esc</span><button type="button" class="p-close">close</button></div>
 </div>`;
+// window.UXCLI_PROTO = { [id]: { vw, vh, frames: [{ shot, title, missing, hot, pins, hooks }], links: [{ label, text }] } }.
+// [data-play=id] walks the frames one at a time; [data-view=id] shows one; two [data-cmp] boxes show
+// two side by side; [data-filter=journey] hides what the journey does not name; [data-toggle=hooks]
+// outlines the hooks. Arrow keys step, Escape closes.
 export const PROTO_JS = `(function(){var P=window.UXCLI_PROTO||{},el=document.getElementById('proto');if(!el)return;
-var img=el.querySelector('img'),scr=el.querySelector('.p-screen'),no=el.querySelector('.noshot'),hot=el.querySelector('.hot'),off=el.querySelector('.p-off'),cur=null,k=0,last=null;
+var stage=el.querySelector('.p-stage'),cur=null,k=0,last=null,mode='play';
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function pc(n,of){return (100*n/of).toFixed(2)+'%'}
-function show(){var f=cur.frames[k],L=cur.links[k],next=k<cur.frames.length-1;
-scr.style.aspectRatio=cur.vw+'/'+cur.vh;img.hidden=!f.shot;no.hidden=!!f.shot;if(f.shot)img.src=f.shot;else no.textContent=f.missing||'no picture';
-var h=f.hot;hot.hidden=!(next&&h&&h.x!=null);off.hidden=!(next&&h&&(h.off||h.edge));
-if(!hot.hidden){hot.style.left=pc(h.x,cur.vw);hot.style.top=pc(h.y,cur.vh);hot.style.width=pc(h.w,cur.vw);hot.style.height=pc(h.h,cur.vh)}
-if(!off.hidden)off.textContent=h.off?'\u2193 '+(h.target||'')+' \u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \u2014 continue':'\u2192 continue (hook not in the drawing)';
-el.querySelector('.p-n').textContent=(k+1)+' / '+cur.frames.length;el.querySelector('.p-title').textContent=f.title||'';el.querySelector('.p-link').textContent=L?(L.label+(L.text?' \u00b7 '+L.text:'')):'';}
-function open(id){cur=P[id];if(!cur)return;k=0;last=document.activeElement;el.hidden=false;document.body.classList.add('playing');show();el.focus();}
-function close(){el.hidden=true;document.body.classList.remove('playing');if(last&&last.focus)last.focus();}
-function step(d){if(!cur)return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open(b.getAttribute('data-play'));return}
+function box(h,cls,inner){return '<i class="'+cls+'" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'">'+(inner||'')+'</i>'}
+function screen(f,live){var h=f.hot,s='<div class="p-screen" style="aspect-ratio:'+cur.vw+'/'+cur.vh+'">';
+s+=f.shot?'<img src="'+esc(f.shot)+'" alt="">':'<div class="noshot">'+esc(f.missing||'no picture')+'</div>';
+(f.hooks||[]).forEach(function(x){if(x.w>0)s+=box(x,'hk','<b>'+esc(x.sel)+'</b>')});
+(f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+n.w/2,cy=off?cur.vh:Math.min(cur.vh,n.y+n.h/2);s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
+if(live&&h&&h.x!=null)s+='<div class="hot" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'"></div>';
+s+='</div>';
+if(live&&h&&(h.off||h.edge))s+='<div class="p-off">'+(h.off?'\\u2193 '+esc(h.target||'')+' \\u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \\u2014 continue':h.lane?'\\u2192 next lane: '+esc(h.lane):'\\u2192 continue (hook not in the drawing)')+'</div>';
+return s}
+function show(){var n=cur.frames.length,one=mode!=='compare',f=cur.frames[k],L=cur.links&&cur.links[k];
+stage.className='p-stage'+(one?'':' two');stage.innerHTML=one?screen(f,mode==='play'&&k<n-1):cur.frames.map(function(x){return screen(x,false)}).join('');
+el.querySelector('.p-n').textContent=one?(k+1)+' / '+n:'compare';el.querySelector('.p-title').textContent=one?(f.title||''):cur.frames.map(function(x){return x.title}).join(' \\u00b7 ');
+var notes=(one&&f.pins&&f.pins.length)?f.pins.map(function(p,i){return (i+1)+' '+p.text}).join(' \\u00b7 '):'';
+el.querySelector('.p-link').textContent=mode==='play'&&L?(L.label+(L.text?' \\u00b7 '+L.text:'')):notes;el.querySelector('.p-keys').hidden=!(mode==='play');}
+function open(m,model){mode=m;cur=model;if(!cur)return;k=0;last=document.activeElement;el.hidden=false;document.body.classList.add('playing');show();el.focus();}
+function close(){el.hidden=true;document.body.classList.remove('playing');[].forEach.call(document.querySelectorAll('[data-cmp]:checked'),function(x){x.checked=false});if(last&&last.focus)last.focus();}
+function step(d){if(!cur||mode!=='play')return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
+function compare(){var on=[].slice.call(document.querySelectorAll('[data-cmp]:checked'));if(on.length<2)return;var a=P[on[0].getAttribute('data-cmp')],b=P[on[1].getAttribute('data-cmp')];if(!a||!b)return;
+open('compare',{vw:a.vw,vh:a.vh,frames:[a.frames[0],b.frames[0]],links:[]});}
+function filter(id){document.body.setAttribute('data-journey',id||'');[].forEach.call(document.querySelectorAll('[data-journeys]'),function(x){x.hidden=!!id&&x.getAttribute('data-journeys').split(' ').indexOf(id)<0});
+[].forEach.call(document.querySelectorAll('[data-filter]'),function(x){x.classList.toggle('on',(x.getAttribute('data-filter')||'')===(id||''))});}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open('play',P[b.getAttribute('data-play')]);return}
+var v=e.target.closest('[data-view]');if(v){e.preventDefault();open('view',P[v.getAttribute('data-view')]);return}
+var f=e.target.closest('[data-filter]');if(f){filter(f.getAttribute('data-filter'));return}
+var t=e.target.closest('[data-toggle]');if(t){document.body.classList.toggle(t.getAttribute('data-toggle'));t.classList.toggle('on');return}
 if(el.hidden)return;if(e.target.closest('.p-close')){close();return}if(e.target.closest('.hot')||e.target.closest('.p-off')){step(1);return}if(e.target===el)close();});
+document.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('[data-cmp]'))compare();});
 document.addEventListener('keydown',function(e){if(el.hidden)return;if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
 
 // A gallery: one screen, its variants side by side, each with the status the pick gives it.
@@ -80,14 +101,19 @@ export function galleryHtml(g) {
     <header class="g-h"><div><h3>${esc(g.title)}</h3>${g.sub ? `<span class="sub">${esc(g.sub)}</span>` : ''}</div><span class="g-state ${picked ? 'pick' : 'no-pick'}">${picked ? `picked · ${esc(picked.name)}` : g.variants.some(v => v.shot) ? 'waiting for a pick' : 'not drawn yet'}</span></header>
     ${g.note ? `<blockquote class="why">${esc(g.note)}</blockquote>` : ''}
     <div class="variants" style="--vw:${g.vw};--vh:${g.vh}">${g.variants.map(v => `<div class="variant ${v.status}">
-      <div class="screen" style="aspect-ratio:${g.vw}/${g.vh}">${v.shot ? `<a href="${esc(v.shot)}"><img src="${esc(v.shot)}" alt="${esc(v.name)}" loading="lazy" width="${g.vw}" height="${g.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'no picture')}</div>`}${pinsHtml(v.pins, g)}</div>
-      <div class="cap"><span class="state">${esc(v.name)}</span><span class="status ${v.status}">${esc(word[v.status] || v.status)}</span></div>
+      <div class="screen" style="aspect-ratio:${g.vw}/${g.vh}">${v.shot ? `<a href="${esc(v.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(v.shot)}" alt="${esc(v.name)}" loading="lazy" width="${g.vw}" height="${g.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'no picture')}</div>`}${hooksHtml(v.hooks, g)}${pinsHtml(v.pins, g)}</div>
+      <div class="cap"><span class="state">${esc(v.name)}</span>${v.view ? `<label class="cmpbox"><input type="checkbox" data-cmp="${esc(v.view)}">compare</label>` : ''}<span class="status ${v.status}">${esc(word[v.status] || v.status)}</span></div>
       ${v.status === 'part' && v.note ? `<p class="fnote">taken: ${esc(v.note)}</p>` : ''}
       ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
       ${v.more?.length ? `<div class="more">${v.more.map(x => `<figure class="mini"><div class="screen" style="aspect-ratio:${x.vw}/${x.vh}"><a href="${esc(x.shot)}"><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a></div><figcaption>${x.vw}×${x.vh}</figcaption></figure>`).join('')}</div>` : ''}
     </div>`).join('')}</div>
   </section>`;
 }
+
+// A hook the journey names, outlined where the browser found it in the drawing; shown when the
+// page's hooks toggle is on. Nothing is drawn for a hook the browser did not find.
+export const hooksHtml = (hooks = [], { vw, vh }) => hooks.filter(h => h.w > 0).map(h =>
+  `<i class="hk" style="left:${pct(h.x, vw)};top:${pct(h.y, vh)};width:${pct(h.w, vw)};height:${pct(h.h, vh)}"><b>${esc(h.sel)}</b></i>`).join('');
 
 // A pinned note: an element in the drawing carrying data-uxcli-note. The pin sits at the element's
 // centre in the frame; one below the fold sits on the frame's bottom edge, dashed, since the picture
@@ -171,6 +197,18 @@ body.playing{overflow:hidden}
 .p-bar{display:flex;align-items:center;gap:16px;padding:14px 4px 0;color:#fff;font:13px var(--sans)}
 .p-bar .p-n{font:600 12px var(--mono);opacity:.7}.p-bar .p-title{font:600 14px var(--mono)}.p-bar .p-link{opacity:.85;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.p-bar .p-keys{font:11px var(--mono);opacity:.6}
 .p-close{font:600 12px var(--mono);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;cursor:pointer}
+.hk{position:absolute;display:none;border:1.5px dashed var(--accent);border-radius:3px;pointer-events:none;font-style:normal}
+.hk b{position:absolute;left:-1.5px;top:-16px;font:600 9px/1 var(--mono);padding:3px 5px;border-radius:3px;background:var(--accent);color:#fff;white-space:nowrap}
+body.hooks .hk{display:block}
+.tog,.tabs [data-filter]{cursor:pointer}
+.tog{font:600 11px/1 var(--mono);letter-spacing:.04em;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--dim)}
+.tog.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.tabs [data-filter].on{color:var(--accent);border-bottom-color:var(--accent)}
+.cmpbox{display:inline-flex;align-items:center;gap:4px;margin-left:10px;font:11px var(--mono);color:var(--dim);cursor:pointer}
+.cmpbox input{margin:0;accent-color:var(--accent)}
+.p-stage.two{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:center;justify-items:center}
+.p-stage.two .p-screen{max-width:100%}
+.proto .hk{display:block}
 .pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
 .pin.off{border:2px dashed #fff;line-height:16px}
 .notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}

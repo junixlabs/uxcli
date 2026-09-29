@@ -10,6 +10,11 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page reads like a design file: a variant opens large in a viewer with its pins, its
+  notes and every hook the journey names outlined where the browser found it, labelled with the
+  selector (the `hooks` toggle shows the outlines on the thumbnails too); two variants ticked `compare` open side by side; the journey
+  tabs filter the page to the flow and the screens one journey names; `▶ play journey` chains a
+  journey's lanes into one prototype. The page pair clicks through each (`test/page-pairs.mjs`).
 - The mockups page plays: `▶ play` on a lane opens its picked frames one at a time, the hotspot
   the step acts on leading to the next frame (below the fold, a dashed bar under the picture says
   how far), arrow keys step, Escape closes. Nothing is drawn that the flow does not already carry;

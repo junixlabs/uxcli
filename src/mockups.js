@@ -81,7 +81,10 @@ export { mockupsCard };
 
 function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
   const byId = Object.fromEntries(m.screens.map(s => [s.id, s])); const proto = {};
+  const hooksOf = key => Object.entries(rects[key] || {}).filter(([, d]) => d?.rect).map(([sel, d]) => ({ sel, x: d.rect.x, y: d.rect.y, w: d.rect.w, h: d.rect.h }));
+  for (const s of m.screens) for (const v of s.variants) proto[`view:${s.id}/${v}`] = { vw, vh, frames: [{ shot: shots[`${s.id}/${v}`] || null, title: `${s.id} · ${v}`, missing: shots[`${s.id}/${v}`] ? null : 'no picture', pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`) }], links: [] };
   const flows = m.journeys.map(j => {
+    const lanes = [];
     const rows = (j.workflows || []).filter(w => (w.steps || []).some(s => s.before)).map(w => {
       const steps = w.steps.filter(s => s.kind !== 'fixture' && s.before);
       const ids = [steps[0].before, ...steps.map(s => s.after)];
@@ -97,19 +100,22 @@ function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
         }
         const missing = !s ? 'not a screen any journey names' : !s.variants.length ? `no mockup yet\n.uxcli/mockups/${id}/<variant>.html` : `no pick yet · ${s.variants.length} variant${s.variants.length === 1 ? '' : 's'}`;
         const note = acting && hook && v && !rects[`${id}/${v}`]?.[hook] ? `hook ${hook} not in ${v}.html` : null;
-        return { shot, alt: `${id} · ${v || 'no pick'}`, title: id, pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note };
+        return { shot, alt: `${id} · ${v || 'no pick'}`, title: id, pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [] };
       });
       const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: (st.interactions || []).filter(x => x.type === 'navigation' || x.type === 'api').map(x => x.type === 'navigation' ? x.to : x.request).join(' · ') || null }));
-      const play = `${j.id}/${w.id}`; proto[play] = { vw, vh, frames: frames.map(f => ({ shot: f.shot, title: f.title, missing: f.shot ? null : f.missing, hot: f.hot })), links };
+      const play = `${j.id}/${w.id}`; const pf = frames.map(f => ({ shot: f.shot, title: f.title, missing: f.shot ? null : f.missing, hot: f.hot, pins: f.pins, hooks: f.hooks }));
+      proto[play] = { vw, vh, frames: pf, links }; lanes.push({ id: w.id, frames: pf, links });
       return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links, play });
     });
-    return `<article class="journey" id="${esc(j.id)}"><h2>${esc(j.id)}<span class="goal">${esc(j.goal || '')}</span></h2><div class="flow">${rows.join('')}</div></article>`;
+    // the whole journey played: lane after lane, the last frame of one leading to the first of the next
+    if (lanes.length) proto[`journey:${j.id}`] = { vw, vh, frames: lanes.flatMap((l, i) => l.frames.map((f, k) => k === l.frames.length - 1 && lanes[i + 1] ? { ...f, hot: { edge: true, lane: lanes[i + 1].id } } : f)), links: lanes.flatMap((l, i) => [...l.links, ...(lanes[i + 1] ? [{ label: lanes[i + 1].id, text: 'next lane' }] : [])]) };
+    return `<article class="journey" id="${esc(j.id)}" data-journeys="${esc(j.id)}"><h2>${esc(j.id)}<span class="goal">${esc(j.goal || '')}</span>${lanes.length > 1 ? `<button class="play" type="button" data-play="journey:${esc(j.id)}">▶ play journey</button>` : ''}</h2><div class="flow">${rows.join('')}</div></article>`;
   });
-  const galleries = m.screens.map(s => galleryHtml({
+  const galleries = m.screens.map(s => `<div data-journeys="${esc(s.journeys.join(' '))}">` + galleryHtml({
     id: `screen-${s.id}`, title: s.id, sub: s.journeys.join(' · '), vw, vh, note: s.pick ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''}${s.pick.note ? ' — ' + s.pick.note : ''}` : null,
-    variants: s.variants.length ? s.variants.map(v => ({ name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null, pins: pins[`${s.id}/${v}`] || [], more: extra[`${s.id}/${v}`] || [] }))
+    variants: s.variants.length ? s.variants.map(v => ({ name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null, pins: pins[`${s.id}/${v}`] || [], more: extra[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), view: shots[`${s.id}/${v}`] ? `view:${s.id}/${v}` : null }))
       : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
-  }));
+  }) + '</div>');
   const picked = m.screens.filter(s => s.pick).length;
   return `<!doctype html>
 <html lang="en">
@@ -153,9 +159,9 @@ ${WIREFLOW_CSS}
 <header class="top">
   <h1>${esc(m.project.project?.name || path.basename(m.root))}</h1>
   <div class="meta"><span class="chip">${vw}×${vh}</span><span class="chip"><b>${m.screens.length}</b> screens</span><span class="chip"><b>${m.screens.filter(s => s.variants.length).length}</b> drawn</span><span class="chip"><b>${picked}</b> picked</span></div>
-  <div class="keys"><span class="k-pick"><i></i>picked</span><span class="k-part"><i></i>part of a pick</span><span><i></i>not taken</span></div>
+  <div class="keys"><button type="button" class="tog" data-toggle="hooks">hooks</button><span class="k-pick"><i></i>picked</span><span class="k-part"><i></i>part of a pick</span><span><i></i>not taken</span></div>
 </header>
-<nav class="tabs">${m.journeys.map(j => `<a href="#${esc(j.id)}">${esc(j.id)}</a>`).join('')}<span class="sep"></span>${m.screens.map(s => `<a href="#screen-${esc(s.id)}">${esc(s.id)}</a>`).join('')}</nav>
+<nav class="tabs"><a href="#" data-filter="" class="on">all</a>${m.journeys.map(j => `<a href="#${esc(j.id)}" data-filter="${esc(j.id)}">${esc(j.id)}</a>`).join('')}<span class="sep"></span>${m.screens.map(s => `<a href="#screen-${esc(s.id)}">${esc(s.id)}</a>`).join('')}</nav>
 <main>
 <h2 class="sec">Journeys · the picked variants as a flow</h2>
 ${flows.join('\n')}

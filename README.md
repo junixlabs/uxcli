@@ -83,7 +83,10 @@ A person picks in `pick.json`; the agent never picks for them. The picked varian
 A palette shared in `mockups/_shared/tokens.css` is covered by the pick's hash, and each variant's
 receipt names the colours it paints off that palette. Further viewports (`--viewport=1440x900,390x844`)
 are photographed beside the first, and an element carrying `data-uxcli-note` gets a numbered pin on the frame.
-Each lane plays as a prototype: the hotspot leads to the next picked frame, arrow keys step, Escape closes.
+Each lane plays as a prototype: the hotspot leads to the next picked frame, arrow keys step, Escape closes;
+a journey with several lanes plays whole. A variant opens large with its pins and the journey's hooks
+outlined where the browser found them (the `hooks` toggle shows them on the thumbnails too); two variants ticked `compare` sit side by side;
+the journey tabs filter the page to what one journey names.
 
 `map` writes one page for the whole project: each journey as a strip of steps on a canvas, with
 four views — MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not),

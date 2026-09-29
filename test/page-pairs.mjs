@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
-export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, '
+export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, two compare boxes show two frames, the journey filter hides what the journey does not name, the hooks toggle outlines them, play journey chains the lanes, '
   + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
@@ -55,7 +55,7 @@ export async function pair() {
     await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(MOCK, { waitUntil: 'load' }); await page.waitForTimeout(300);
     const perr = []; page.on('pageerror', e => perr.push(String(e)));
     await page.click('[data-play="handle-inbound-lead/open-and-call"]'); await page.waitForTimeout(100);
-    const p0 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, src: img.getAttribute('src'), seen: img.naturalWidth > 0 && img.getBoundingClientRect().height > 200 && getComputedStyle(el.querySelector('.noshot')).display === 'none', hot: !el.querySelector('.hot').hidden || !el.querySelector('.p-off').hidden }; });
+    const p0 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, src: img.getAttribute('src'), seen: !!img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200 && !el.querySelector('.noshot'), hot: !el.querySelector('.hot').hidden || !el.querySelector('.p-off').hidden }; });
     must(`play did not open on the first picked frame (${JSON.stringify(p0)})`, p0.open && p0.n === '1 / 3' && /agent\.workspace_ready\/a-list\.png$/.test(p0.src || '') && p0.seen && p0.hot);
     await page.click('#proto .hot:not([hidden]), #proto .p-off:not([hidden])'); await page.waitForTimeout(100);
     must('the hotspot did not lead to the next frame', (await page.textContent('#proto .p-n')) === '2 / 3');
@@ -63,6 +63,27 @@ export async function pair() {
     must('the arrow keys did not step', (await page.textContent('#proto .p-n')) === '2 / 3');
     await page.keyboard.press('Escape'); await page.waitForTimeout(50);
     must('escape did not close the prototype', await page.evaluate(() => document.getElementById('proto').hidden));
+    // the viewer, compare, the filter and the hooks toggle
+    await page.click('[data-view="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(100);
+    const v1 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, seen: img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200, hooks: el.querySelectorAll('.hk').length }; });
+    must(`a variant did not open in the viewer with its hooks (${JSON.stringify(v1)})`, v1.open && v1.n === '1 / 1' && v1.seen && v1.hooks >= 2);
+    await page.keyboard.press('Escape'); await page.waitForTimeout(50);
+    await page.check('[data-cmp="view:agent.lead_detail/a-stacked"]'); await page.check('[data-cmp="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(150);
+    const c2 = await page.evaluate(() => { const el = document.getElementById('proto'); return { open: !el.hidden, screens: el.querySelectorAll('.p-screen').length, n: el.querySelector('.p-n').textContent }; });
+    must(`two compare boxes did not open two frames (${JSON.stringify(c2)})`, c2.open && c2.screens === 2 && c2.n === 'compare');
+    await page.keyboard.press('Escape'); await page.waitForTimeout(50);
+    await page.click('[data-filter="authenticate"]'); await page.waitForTimeout(100);
+    const flt = await page.evaluate(() => ({ lead: document.getElementById('handle-inbound-lead').hidden, auth: document.getElementById('authenticate').hidden, login: document.querySelector('[data-journeys="authenticate"]')?.hidden, detail: document.querySelector('[data-journeys="handle-inbound-lead"]')?.hidden }));
+    must(`the journey filter did not hide what the journey does not name (${JSON.stringify(flt)})`, flt.lead === true && flt.auth === false && flt.login === false && flt.detail === true);
+    await page.click('[data-filter=""]'); await page.waitForTimeout(100);
+    must('all did not bring the other journey back', await page.evaluate(() => !document.getElementById('handle-inbound-lead').hidden));
+    await page.click('[data-toggle="hooks"]'); await page.waitForTimeout(100);
+    must('the hooks toggle does not outline the hooks on the frames', await page.evaluate(() => [...document.querySelectorAll('.variant .hk')].some(h => getComputedStyle(h).display !== 'none')));
+    must('play journey is offered for a journey with one lane', await page.evaluate(() => !document.querySelector('[data-play="journey:handle-inbound-lead"]')) && await page.evaluate(() => !!document.querySelector('[data-play="journey:authenticate"]')));
+    await page.click('[data-play="journey:authenticate"]'); await page.waitForTimeout(100);
+    const pj = await page.evaluate(() => document.getElementById('proto').querySelector('.p-n').textContent);
+    must(`play journey did not chain the lanes (${pj})`, /^1 \/ \d+$/.test(pj) && Number(pj.split('/ ')[1]) > 3);
+    await page.keyboard.press('Escape'); await page.waitForTimeout(50);
     must(`the prototype threw: ${perr[0] || ''}`, !perr.length);
     // must-fail: the same reading sees a planted overflow
     await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(MAP + '#j/handle-inbound-lead/run/1', { waitUntil: 'load' }); await page.waitForTimeout(300);

@@ -29,7 +29,7 @@ const usage = `usage:
       actors/ and insights/, trace and anchor paths rewritten, schema_version on every authored file; prints the plan, --apply writes it
   uxcli mockups [dir] [--viewport=WxH[,WxH…]] [--json]
       the screens the journeys name, each variant the agent drew under .uxcli/mockups/<state>/<variant>.html photographed at the viewport (default 390x844;
-      further viewports, comma-separated, are photographed beside it), pinned notes (data-uxcli-note) numbered on the frame, each lane playable as a prototype,
+      further viewports, comma-separated, are photographed beside it), pinned notes (data-uxcli-note) numbered on the frame, hooks outlined on demand, a viewer and a compare per variant, each lane and journey playable as a prototype,
       the picked variants drawn as each journey's flow, every variant beside its siblings with the status pick.json gives it; writes .uxcli/mockups/index.html
   uxcli map [dir] [--viewport=WxH] [--json]
       the journey map: for every journey, MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not), DIFF (declared beside observed)
