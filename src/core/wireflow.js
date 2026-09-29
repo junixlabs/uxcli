@@ -63,7 +63,7 @@ export function flowRow(row) {
 // the frames beyond what the flow already draws.
 export const protoHtml = () => `<div class="proto" id="proto" hidden role="dialog" aria-label="prototype" tabindex="-1">
   <div class="p-stage"></div>
-  <div class="p-bar"><span class="p-n"></span><span class="p-title"></span><span class="p-link"></span><span class="p-keys">← → · esc</span><button type="button" class="p-close">close</button></div>
+  <div class="p-bar"><span class="p-n"></span><span class="p-title"></span><span class="p-link"></span><span class="p-keys">← → · esc</span><button type="button" class="p-close">Close</button></div>
 </div>`;
 // window.UXCLI_PROTO = { [id]: { vw, vh, frames: [{ shot, title, missing, hot, pins, hooks }], links: [{ label, text }] } }.
 // [data-play=id] walks the frames one at a time; [data-view=id] shows one; [data-compare=state] shows
@@ -77,10 +77,10 @@ function box(h,cls,inner){return '<i class="'+cls+'" style="left:'+pc(h.x,cur.vw
 function screen(f,live){var h=f.hot,s='<div class="p-cell"><div class="p-screen" style="aspect-ratio:'+cur.vw+'/'+cur.vh+'">';
 s+=f.shot?'<img src="'+esc(f.shot)+'" alt="">':'<div class="noshot">'+esc(f.missing||'no picture')+'</div>';
 (f.hooks||[]).forEach(function(x){if(x.w>0)s+=box(x,'hk','<b>'+esc(x.sel)+'</b>')});
-(f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+n.w/2,cy=off?cur.vh:Math.min(cur.vh,n.y+n.h/2);s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
+(f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+Math.min(12,n.w/2),cy=off?cur.vh:Math.min(cur.vh,n.y+Math.min(12,n.h/2));s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
 if(live&&h&&h.x!=null)s+='<div class="hot" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'"></div>';
 s+='</div>';
-if(mode==='compare'){s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Choose '+esc(f.title.split(' \u00b7 ').pop())+'</button>':'')+'</div>'}
+if(mode!=='play'){s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Choose '+esc(f.title.split(' \u00b7 ').slice(-2).join(' \u00b7 '))+'</button>':'')+'</div>'}
 s+='</div>';
 if(live&&h&&(h.off||h.edge))s+='<div class="p-off">'+(h.off?'\\u2193 '+esc(h.target||'')+' \\u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \\u2014 continue':h.lane?'\\u2192 next lane: '+esc(h.lane):'\\u2192 continue (hook not in the drawing)')+'</div>';
 return s}
@@ -88,10 +88,13 @@ function show(){var n=cur.frames.length,one=mode!=='compare',f=cur.frames[k],L=c
 stage.className='p-stage'+(one?'':' two');stage.innerHTML=one?screen(f,mode==='play'&&k<n-1):cur.frames.map(function(x){return screen(x,false)}).join('');
 el.querySelector('.p-n').textContent=one?(k+1)+' / '+n:'compare';el.querySelector('.p-title').textContent=one?(f.title||''):cur.frames.map(function(x){return x.title}).join(' \\u00b7 ');
 var notes=(one&&f.pins&&f.pins.length)?f.pins.map(function(p,i){return (i+1)+' '+p.text}).join(' \\u00b7 '):'';
-el.querySelector('.p-link').textContent=mode==='play'&&L?(L.label+(L.text?' \\u00b7 '+L.text:'')):notes;el.querySelector('.p-keys').hidden=!(mode==='play');}
+el.querySelector('.p-link').textContent=mode==='play'&&L?(L.label+(L.text?' \\u00b7 '+L.text:'')):'';var pk=el.querySelector('.p-keys');if(mode==='play'){pk.hidden=false;pk.textContent='\u2190 \u2192 \u00b7 esc'}else pk.hidden=true;}
 function open(m,model){mode=m;cur=model;if(!cur)return;k=0;last=document.activeElement;el.hidden=false;document.body.classList.add('playing');show();el.focus();}
 function close(){el.hidden=true;document.body.classList.remove('playing');if(last&&last.focus)last.focus();}
-function step(d){if(!cur||mode!=='play')return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
+var vk=null;function sibs(){if(!vk||vk.indexOf('view:')!==0)return [];var st=vk.slice(5).split('/')[0];return Object.keys(P).filter(function(x){return x.indexOf('view:'+st+'/')===0})}
+function openView(id){if(!P[id])return;var was=!el.hidden;var keep=last;open('view',P[id]);if(was)last=keep;vk=id;var n=sibs().length;if(n>1)flip(sibs().indexOf(id));var kk=el.querySelector('.p-keys');kk.hidden=n<2;kk.textContent='\u2190 \u2192 other drawing \u00b7 esc';}
+function stepView(d,abs){var ks=sibs();if(ks.length<2)return;var i=abs!=null?abs:(ks.indexOf(vk)+d+ks.length)%ks.length;if(ks[i])openView(ks[i]);}
+function step(d){if(mode==='view'){stepView(d);return}if(!cur||mode!=='play')return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
 function compare(state){var ks=Object.keys(P).filter(function(x){return x.indexOf('view:'+state+'/')===0});if(ks.length<2)return;var a=P[ks[0]];
 open('compare',{vw:a.vw,vh:a.vh,frames:ks.map(function(x){return P[x].frames[0]}),links:[]});}
 function go(id,scroll){var b=document.getElementById('screen-'+id);if(!b)return;[].forEach.call(document.querySelectorAll('.view'),function(x){x.classList.toggle('off',x!==b)});
@@ -108,7 +111,7 @@ if(h0&&h0!==location.hash&&document.getElementById('screen-'+h0))go(h0,false);el
 function filter(id){document.body.setAttribute('data-journey',id||'');[].forEach.call(document.querySelectorAll('[data-journeys]'),function(x){x.hidden=!!id&&x.getAttribute('data-journeys').split(' ').indexOf(id)<0});
 [].forEach.call(document.querySelectorAll('[data-filter]'),function(x){x.classList.toggle('on',(x.getAttribute('data-filter')||'')===(id||''))});}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open('play',P[b.getAttribute('data-play')]);return}
-var v=e.target.closest('[data-view]');if(v){e.preventDefault();open('view',P[v.getAttribute('data-view')]);return}
+var v=e.target.closest('[data-view]');if(v){e.preventDefault();openView(v.getAttribute('data-view'));return}
 var f=e.target.closest('[data-filter]');if(f){filter(f.getAttribute('data-filter'));return}
 var g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.getAttribute('data-go'),true);return}
 var fl=e.target.closest('[data-flip]');if(fl){flip(+fl.getAttribute('data-flip'));return}
@@ -130,7 +133,7 @@ bar('.uxcli/mockups/'+state+'/pick.json',{schema_version:1,pick:variant,sha256:H
 function reviseBar(state){var H=window.UXCLI_HASHES||{},seen={};Object.keys(H).forEach(function(k){if(k.indexOf(state+'/')===0)seen[k.slice(state.length+1)]=H[k]});
 mark(state,document.querySelector('[data-revise="'+state+'"]'));
 bar('.uxcli/mockups/'+state+'/revise.json',{schema_version:1,note:'',seen:seen,by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)},'Write in note what should change, save the file, then ask the agent to redraw. The page writes nothing.');}
-document.addEventListener('keydown',function(e){if(el.hidden){if(/^[1-9]$/.test(e.key)&&!/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))flip(+e.key-1);return}if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
+document.addEventListener('keydown',function(e){if(!el.hidden&&mode==='view'&&/^[1-9]$/.test(e.key)){stepView(0,+e.key-1);e.preventDefault();return}if(el.hidden){if(/^[1-9]$/.test(e.key)&&!/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))flip(+e.key-1);return}if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
 
 // A decision: one screen, what the person does on it, one drawing at a time as large as the page
 // allows (A, B … flip in place), and a bar with the answers a person can give. The drawing being
@@ -178,7 +181,7 @@ export const hooksHtml = (hooks = [], { vw, vh }) => hooks.filter(h => h.w > 0).
 // centre in the frame; one below the fold sits on the frame's bottom edge, dashed, since the picture
 // stops where the viewport did.
 export const pinsHtml = (pins = [], { vw, vh }) => pins.map((n, i) => {
-  const off = n.y >= vh; const cx = n.x + n.w / 2, cy = off ? vh : Math.min(vh, n.y + n.h / 2);
+  const off = n.y >= vh; const cx = n.x + Math.min(12, n.w / 2), cy = off ? vh : Math.min(vh, n.y + Math.min(12, n.h / 2));
   return `<i class="pin${off ? ' off' : ''}" style="left:${pct(cx, vw)};top:${pct(cy, vh)}" title="${esc(n.text)}">${i + 1}</i>`;
 }).join('');
 
@@ -237,7 +240,7 @@ export const WIREFLOW_CSS = `
 .play{margin-left:12px;font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--accent);cursor:pointer}
 .play:hover{border-color:var(--accent)}
 .play:focus-visible,.p-close:focus-visible,.proto .hot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.proto{position:fixed;inset:0;z-index:100;background:rgba(10,12,16,.82);display:grid;grid-template-rows:1fr auto;padding:24px}
+.proto{position:fixed;inset:0;z-index:100;background:rgba(10,12,16,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;grid-template-rows:minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);padding:24px}
 .proto[hidden]{display:none}
 body.playing{overflow:hidden}
 .p-stage{display:grid;place-items:center;min-height:0;gap:10px;grid-auto-rows:min-content;align-content:center}
@@ -247,7 +250,7 @@ body.playing{overflow:hidden}
 .p-screen .hot{cursor:pointer;pointer-events:auto;animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(255,255,255,.7)}50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 35%,transparent)}}
 .p-off{cursor:pointer;font:12px/1.3 var(--sans);color:#fff;background:var(--fail);padding:8px 14px;border-radius:999px;border:2px dashed rgba(255,255,255,.6)}
-.p-bar{display:flex;align-items:center;gap:16px;padding:14px 4px 0;color:#fff;font:13px var(--sans)}
+.p-bar{display:flex;align-items:center;gap:16px;padding:14px 4px 0;color:#fff;font:13px var(--sans);min-width:0}.p-stage:not(.two) .p-screen{height:calc(100vh - 210px)}.p-under{max-width:1200px}.p-notes{font-size:13px!important}
 .p-bar .p-n{font:600 12px var(--sans);opacity:.7}.p-bar .p-title{font:600 14px var(--sans)}.p-bar .p-link{opacity:.85;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.p-bar .p-keys{font:11px var(--sans);opacity:.6}
 .p-close{font:600 12px var(--sans);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;cursor:pointer}
 .hk{position:absolute;display:none;border:1.5px dashed var(--accent);border-radius:3px;pointer-events:none;font-style:normal}
