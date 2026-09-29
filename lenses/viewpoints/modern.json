@@ -1,0 +1,1252 @@
+{
+ "schema_version": 1,
+ "school": "modern",
+ "name": "Modern product craft",
+ "research": "docs/lenses/modern.md",
+ "viewpoints": [
+  {
+   "id": "modern.interactions-feel-immediate-under-200ms",
+   "claim": "Interaction transitions run 200ms or less with an ease-out curve so the interface feels immediate.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Animation duration should not be more than 200ms for interactions to feel immediate"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Keep interaction transitions at 200ms or less, never above 300ms",
+    "Use ease-out for entering elements",
+    "Use a custom cubic-bezier instead of the built-in curves"
+   ],
+   "forbids": [
+    "Slow transitions on hover, focus, open and close",
+    "Bounce or elastic easing on everyday controls",
+    "ease-in on an entering element"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Computed transition-duration and animation-duration on elements that change on :hover, :focus, [aria-expanded] or [data-state]; flag any over 300ms, warn over 200ms; ease-in on an entering element fails.",
+    "mustFail": "A button with transition: background 600ms ease-in-out.",
+    "mustPass": "The same button with transition: background 150ms ease-out."
+   },
+   "exceptions": [
+    "Toasts may run slower with a plain ease on purpose for tone",
+    "Large page or scene transitions and decorative loops sit outside the interaction budget",
+    "Exit animations can be a bit more relaxed"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.feedback-within-a-second"
+   ]
+  },
+  {
+   "id": "modern.frequent-actions-do-not-animate",
+   "claim": "Actions used many times a day, and anything keyboard-triggered, appear instantly without an enter animation.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Actions that are frequent and low in novelty should avoid extraneous animations: opening a right click menu, deleting or adding items from a list, hovering trivial buttons"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Show context menus, command palettes and list changes instantly",
+    "Leave keyboard-driven navigation unanimated"
+   ],
+   "forbids": [
+    "Opacity and scale fades on controls used hundreds of times a day",
+    "Animating keyboard-initiated actions"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Enter animations on [role=menu], [cmdk-root] and newly inserted list items (animation-name not none), and animation state diffed within 16ms of a dispatched key; which actions count as frequent comes from the journey.",
+    "mustFail": "A context menu opening with animation: fadeIn 200ms.",
+    "mustPass": "The same menu with animation: none on open and a fade only on close."
+   },
+   "exceptions": [
+    "macOS context menus fade out and blink the chosen item",
+    "Rare features may be theatrical (delight-impact curve)"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A landing page, a docs article and a one-time checkout have little that counts as a frequent action; only shortcut-like or keyboard-triggered navigation on them applies.",
+   "agrees": [
+    "modern.delight-scales-with-rarity"
+   ]
+  },
+  {
+   "id": "modern.motion-values-proportional-to-trigger",
+   "claim": "Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Don't animate dialog scale in from 0 → 1, fade opacity and scale from ~0.8. Don't scale buttons on press from 1 → 0.8, but ~0.96, ~0.9, or so."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Enter dialogs and popovers from scale 0.8–0.97 with opacity",
+    "Press buttons to about scale 0.96–0.97"
+   ],
+   "forbids": [
+    "Scale-from-zero pops on dialogs",
+    "Press states that squash a button to 0.8 or below"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.",
+    "mustFail": "@keyframes pop { from { transform: scale(0) } } on a dialog, or :active { transform: scale(0.8) }.",
+    "mustPass": "from { transform: scale(0.95); opacity: 0 } and :active { transform: scale(0.97) }."
+   },
+   "exceptions": [
+    "Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "modern.animate-only-transform-and-opacity",
+   "claim": "Animate only transform and opacity, listing properties explicitly; never transition all or animate layout properties.",
+   "source": {
+    "author": "Emil Kowalski",
+    "work": "Great Animations",
+    "url": "https://emilkowal.ski/ui/great-animations",
+    "quote": "you should try to animate with `transform` and `opacity` as they only trigger the third rendering step (composite)"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Prefer CSS, then WAAPI, then JS for motion",
+    "Use clip-path for reveals",
+    "List transitioned properties explicitly"
+   ],
+   "forbids": [
+    "transition: all",
+    "Animating width, height, top, left, margin or padding",
+    "Large blur() values on filter or backdrop-filter in motion"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Scan stylesheets and computed transition-property for all and for layout properties; scan @keyframes for width, height, top and left.",
+    "mustFail": ".card { transition: all 200ms } or @keyframes grow { to { height: 300px } }.",
+    "mustPass": "transition: transform 200ms, opacity 200ms, or to { transform: scaleY(1) }."
+   },
+   "exceptions": [
+    "Accordion height animation via grid-template-rows or interpolate-size is layout by nature and accepted when it is the only honest way"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "modern.motion-has-an-origin",
+   "claim": "A popover or menu animates from the side facing its trigger; set transform-origin where the motion physically starts.",
+   "source": {
+    "author": "Emil Kowalski",
+    "work": "Good vs Great Animations",
+    "url": "https://emilkowal.ski/ui/good-vs-great-animations",
+    "quote": "When we click on a button that opens a dropdown, we expect the dropdown to animate from where the button is"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set transform-origin toward the trigger",
+    "Use the anchoring library's origin variable when one exists"
+   ],
+   "forbids": [
+    "Popovers scaling from their own centre when anchored to a button"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each open popover or menu with a known trigger (aria-controls or aria-haspopup), compare the computed transform-origin with the side facing the trigger.",
+    "mustFail": "A menu below a button with transform-origin: 50% 50%.",
+    "mustPass": "The same menu with transform-origin: top center or the Radix origin variable."
+   },
+   "exceptions": [
+    "Centred modals have no anchor; a centred origin is right there"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Docs pages rarely anchor custom popovers to a trigger beyond an occasional footnote or share menu, and a checkout or sign-up mostly uses native selects rather than anchored popovers.",
+   "agrees": []
+  },
+  {
+   "id": "modern.honour-prefers-reduced-motion",
+   "claim": "Every large motion has a reduced variant under prefers-reduced-motion; fade instead of slide rather than ignoring the setting.",
+   "source": {
+    "author": "Emil Kowalski",
+    "work": "Great Animations",
+    "url": "https://emilkowal.ski/ui/great-animations",
+    "quote": "our animations need to account for people who don't want animations"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Provide a reduced variant such as a fade instead of a slide",
+    "Give autoplaying motion over five seconds pause, stop or hide controls"
+   ],
+   "forbids": [
+    "Large translate or scale motion that ignores the media query"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Emulate prefers-reduced-motion: reduce and list elements whose computed animation-name or transition-property still includes translations over about 20px or durations above zero.",
+    "mustFail": "A hero that keeps a translateY(40px) fly-in under the emulated query.",
+    "mustPass": "The same page with a @media (prefers-reduced-motion: reduce) block reducing it to opacity."
+   },
+   "exceptions": [
+    "Motion that is the content, such as a video or a chart drawing, is out of scope"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A docs page and a single-pass checkout rarely carry large decorative motion; only their smaller transitions are in scope.",
+   "agrees": []
+  },
+  {
+   "id": "modern.animations-are-interruptible",
+   "claim": "An open or close animation can be reversed mid-flight by the next input; nothing waits for a transition to finish.",
+   "source": {
+    "author": "Emil Kowalski",
+    "work": "Great Animations",
+    "url": "https://emilkowal.ski/ui/great-animations",
+    "quote": "Great animations are interruptible"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use CSS transitions that reverse mid-flight, or spring libraries"
+   ],
+   "forbids": [
+    "pointer-events: none locks while an animation plays",
+    "Keyframe-driven open and close that must finish before the next input"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Open a panel, immediately send the close input, sample the element's bounding box about 50ms later; if it is still growing the animation was not interruptible. Depends on timing tolerance.",
+    "mustFail": "A drawer using animation: slideIn 400ms with fill-mode forwards and a JS isAnimating guard.",
+    "mustPass": "The same drawer with transition: transform 250ms toggled by class."
+   },
+   "exceptions": [
+    "Destructive commits that fire only on gesture end are about triggering, not interruptibility"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Landing pages, docs pages and checkout flows rarely use slide-out panels or drawers; the check mostly applies to their occasional modal.",
+   "agrees": []
+  },
+  {
+   "id": "modern.hit-targets-meet-platform-minimums",
+   "claim": "Every interactive element has a hit box of at least 44px on touch and 24px on desktop, with 8px between neighbours.",
+   "source": {
+    "author": "Apple",
+    "work": "Human Interface Guidelines — Buttons",
+    "url": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/buttons.json",
+    "quote": "a button needs a hit region of at least 44x44 pt"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Expand the hit area with padding while the icon stays 24px",
+    "Keep at least 8px between adjacent targets"
+   ],
+   "forbids": [
+    "Clickable boxes under 24x24 CSS px on desktop",
+    "Clickable boxes under 44x44 on touch",
+    "Adjacent targets closer than 8px"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For every focusable or role=button|link|checkbox element take getBoundingClientRect (plus pseudo-element extension) at the mobile viewport; fail under 44 there and under 24 on desktop; gap under 8px fails.",
+    "mustFail": "A 16x16 icon button with no padding, or two 44px buttons 4px apart.",
+    "mustPass": "The same icon with padding: 14px, and buttons 8px apart."
+   },
+   "exceptions": [
+    "Inline text links inside paragraphs",
+    "Dense data grids where the row is the target"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.fitts-target-size-and-distance",
+    "craft.tap-targets-and-control-height"
+   ]
+  },
+  {
+   "id": "modern.no-dead-zones-and-honest-clickability",
+   "claim": "Lists of interactive items have no dead gaps, labels share the control's hit target, and anything that looks clickable is clickable.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Interactive elements in a vertical or horizontal list should have no dead areas between each element, instead, increase their `padding`"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Fill list rows with padding rather than margin",
+    "Wrap inputs with label for",
+    "Give buttons a discernible background shape and fill",
+    "Disable pointer-events on decorative glows and gradients"
+   ],
+   "forbids": [
+    "Gaps between menu items",
+    "Decorative layers that intercept pointer events over controls",
+    "div onClick for navigation"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Adjacent role=menuitem or li>a rects with vertical gaps over 0; inputs with no associated label; absolutely positioned decorative layers with pointer-events auto over controls; div or span click handlers with no role.",
+    "mustFail": "A nav list with margin-bottom: 6px between anchors.",
+    "mustPass": "The same list with margin: 0; padding: 8px 12px."
+   },
+   "exceptions": [
+    "Intentional separators between groups"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A single-column checkout or sign-up form has few list-like interactive groups beyond an occasional radio or checkbox set.",
+   "agrees": [
+    "usability.no-false-affordances",
+    "usability.signifiers-make-clickable-look-clickable"
+   ]
+  },
+  {
+   "id": "modern.readable-type-sizes-and-weights",
+   "claim": "Body text sits at the platform default size, weights stay 400 or heavier, and weight never changes on hover.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Font weights below 400 should not be used"
+   },
+   "evidence": "author",
+   "prefers": [
+    "17px body on touch, 13px minimum on desktop UI",
+    "Weights between 400 and 700",
+    "Headings at weight 500–600",
+    "Minimise the number of typefaces"
+   ],
+   "forbids": [
+    "Body text under 11pt",
+    "font-weight 300 or lower",
+    "Weight swaps on hover or selected state"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Computed font-size and font-weight of every text node at a phone viewport; count distinct font-family stacks and warn above 2.",
+    "mustFail": "p { font-size: 11px; font-weight: 300 } at a phone viewport, or a:hover { font-weight: 600 }.",
+    "mustPass": "16px at weight 400, with hover changing colour only."
+   },
+   "exceptions": [
+    "Captions and legal text may sit at the platform minimum",
+    "Display headings may use light weights at large sizes"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.body-16px-line-height-1-5",
+    "canon.vignelli-few-typefaces"
+   ]
+  },
+  {
+   "id": "modern.mobile-inputs-do-not-zoom-or-trap",
+   "claim": "Inputs are at least 16px on phones, never autofocus on touch, and the page never disables zoom or blocks paste.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Font size for inputs should not be smaller than 16px to prevent iOS zooming on focus"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set type, inputmode and autocomplete on every input",
+    "Use touch-action: manipulation on controls"
+   ],
+   "forbids": [
+    "Viewport meta with user-scalable=no",
+    "Paste handlers that preventDefault",
+    "autofocus at phone widths"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Computed font-size of input, select and textarea at a 390px viewport under 16px; viewport meta containing user-scalable=no; paste handlers that preventDefault; [autofocus] present at phone width.",
+    "mustFail": "An input at 14px on a 390px viewport.",
+    "mustPass": "The same input at 16px."
+   },
+   "exceptions": [
+    "Desktop-only admin tools",
+    "Autofocus on desktop with a single primary input"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "no",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A docs site's only input is its search box; dashboards are sometimes checked on a phone, but back-office admin tools are commonly desktop-only, per the viewpoint's own exception, so the phone-width checks do not apply there.",
+   "agrees": [
+    "usability.postel-tolerant-input"
+   ]
+  },
+  {
+   "id": "modern.contrast-and-not-colour-alone",
+   "claim": "Text meets 4.5:1 (3:1 when large or bold), status is never colour alone, and hover raises contrast rather than lowering it.",
+   "source": {
+    "author": "Apple",
+    "work": "Human Interface Guidelines — Accessibility",
+    "url": "https://developer.apple.com/tutorials/data/design/human-interface-guidelines/accessibility.json",
+    "quote": "Convey information with more than color alone"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Pair status colour with text or an icon",
+    "Use semantic colour consistently",
+    "Provide light and dark variants for every custom colour"
+   ],
+   "forbids": [
+    "Grey text on coloured backgrounds",
+    "Colour-only status dots",
+    "Hover states that lower contrast"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Sample foreground and background of each text node (compositing translucent layers) and compute the WCAG ratio; fail under 4.5:1 (3:1 for 18pt or bold); warn on red/green/amber elements with no text or icon sibling; fail when :hover contrast drops.",
+    "mustFail": "#999 body text on #fff (2.8:1).",
+    "mustPass": "#595959 body text on #fff (7:1)."
+   },
+   "exceptions": [
+    "Disabled controls",
+    "Decorative text",
+    "Logos"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+    "craft.dont-use-grey-text-on-coloured-backgrounds"
+   ]
+  },
+  {
+   "id": "modern.focus-is-visible-and-unobscured",
+   "claim": "Every focusable element shows a visible focus ring on :focus-visible, and no sticky or fixed element ever covers it.",
+   "source": {
+    "author": "Vercel Labs",
+    "work": "Web Interface Guidelines — AGENTS.md",
+    "url": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/AGENTS.md",
+    "quote": "NEVER: `outline: none` without visible focus replacement"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Style :focus-visible with box-shadow or outline plus outline-offset"
+   ],
+   "forbids": [
+    "outline: none or 0 with no replacement",
+    "Focus rings hidden under sticky headers"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Tab through every focusable element; diff the focused and unfocused rect or read computed outline and box-shadow under :focus-visible; check the focused rect is not intersected by position fixed or sticky elements above it.",
+    "mustFail": "button:focus { outline: none }.",
+    "mustPass": "button:focus-visible { box-shadow: 0 0 0 2px var(--ring) }."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "modern.feedback-is-local-and-optimistic",
+   "claim": "Feedback appears next to its trigger, forms mark the failing field and focus it, and submit buttons keep their label while busy.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "Display feedback relative to its trigger: Show a temporary inline checkmark on a successful copy, not a notification; Highlight the relevant input(s) on form error(s)"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Inline checkmark on copy, aria-invalid on the failing field",
+    "aria-live polite for async results",
+    "Undo window over a confirm dialog",
+    "Spinner that keeps the button label"
+   ],
+   "forbids": [
+    "A toast for everything",
+    "Something went wrong with no cause",
+    "Save next to Discard at equal weight",
+    "Button labels that vanish into a spinner"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "After an invalid submit, [aria-invalid=true] exists and activeElement is the first invalid field; after submit the button is disabled or aria-busy within a frame with textContent unchanged; copy feedback inside the trigger's subtree; adjacent same-size destructive and primary buttons warn.",
+    "mustFail": "An invalid form submit that only raises a toast, or a submit button whose label is replaced by a spinner.",
+    "mustPass": "The same form marking the field aria-invalid and focusing it, with the button disabled and its label kept."
+   },
+   "exceptions": [
+    "Actions whose success is not likely, such as payments, should wait for the server"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A landing page usually has one action and little to submit, and a docs page's local feedback is mostly its code-copy button.",
+   "agrees": [
+    "usability.inline-validation-after-leaving-field",
+    "usability.visibility-of-system-status"
+   ]
+  },
+  {
+   "id": "modern.every-state-is-designed",
+   "claim": "Empty, sparse, dense, error and loading states are designed; skeletons match final layout and long content never overflows.",
+   "source": {
+    "author": "Vercel Labs",
+    "work": "Web Interface Guidelines — AGENTS.md",
+    "url": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/AGENTS.md",
+    "quote": "MUST: Design empty/sparse/dense/error states"
+   },
+   "evidence": "author",
+   "prefers": [
+    "An empty state with a primary create action",
+    "Skeletons sized like real rows",
+    "min-w-0 and truncation on flex children"
+   ],
+   "forbids": [
+    "Blank screens on empty arrays",
+    "Spinners that reflow content",
+    "Overflow from long strings"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Render with [], with 1 item, with 500 items and with a 300-character title; assert no horizontal overflow, no overlap, an actionable control in the empty state, and skeleton-to-loaded CLS under a threshold.",
+    "mustFail": "A list component that renders nothing for [].",
+    "mustPass": "The same component rendering a heading and a Create button for []."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A landing page has no data-driven empty state, and a docs page mostly only needs the long-content and loading checks.",
+   "agrees": [
+    "craft.dont-overlook-empty-states-teach-by-example"
+   ]
+  },
+  {
+   "id": "modern.numbers-and-text-do-not-shift-layout",
+   "claim": "Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.",
+   "source": {
+    "author": "Rauno Freiberg",
+    "work": "Web Interface Guidelines",
+    "url": "https://interfaces.rauno.me/",
+    "quote": "tabular figures should be applied with `font-variant-numeric: tabular-nums`, particularly in tables or when layout shifts are undesirable, like in timers"
+   },
+   "evidence": "author",
+   "prefers": [
+    "tabular-nums in tables, timers and prices",
+    "width and height on every img"
+   ],
+   "forbids": [
+    "Proportional digits in columns",
+    "Images without dimensions",
+    "Weight changes on hover"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Numeric td cells whose computed font-variant-numeric lacks tabular-nums; img without width/height or aspect-ratio; sibling rect drift while a counter fixture runs.",
+    "mustFail": "<td>1,234.56</td> under default numerals.",
+    "mustPass": "The same cell with font-variant-numeric: tabular-nums."
+   },
+   "exceptions": [
+    "Prose numbers"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "modern.shadows-share-one-light-source",
+   "claim": "All shadows on a page share one light direction and offset ratio, layered and tinted toward the background hue.",
+   "source": {
+    "author": "Josh W. Comeau",
+    "work": "Designing Beautiful Shadows in CSS",
+    "url": "https://www.joshwcomeau.com/css/designing-shadows/",
+    "quote": "every shadow on the page should share the same ratio"
+   },
+   "evidence": "author",
+   "prefers": [
+    "A tokenised elevation scale",
+    "Two to five layered shadows",
+    "Shadow colour matched to the background hue"
+   ],
+   "forbids": [
+    "Fuzzy grey boxes",
+    "Shadows with inconsistent x:y ratios across the page",
+    "Pure-black high-alpha shadows",
+    "Blurry borders used as separators"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Collect every computed box-shadow; fail when offset signs mix across the page or distinct shadow strings exceed about 6; warn when shadow hue is far from the background hue with alpha above 0.5.",
+    "mustFail": "Cards with 0 -4px 8px and 4px 4px 8px on the same page.",
+    "mustPass": "All shadows with an x:y offset ratio of 1:2."
+   },
+   "exceptions": [
+    "Inset shadows for sunken fields",
+    "Glows meant as glows"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Docs pages are often flat with few or no shadows, and single-column checkout and sign-up forms rarely carry elevation.",
+   "agrees": [
+    "craft.light-comes-from-the-sky-shadow-offset",
+    "craft.shadows-convey-elevation-ladder"
+   ]
+  },
+  {
+   "id": "modern.fewer-borders-more-space",
+   "claim": "Separate groups with whitespace, a background shade or one shadow before reaching for borders; never nest outlined boxes.",
+   "source": {
+    "author": "Adam Wathan & Steve Schoger",
+    "work": "Refactoring UI",
+    "url": "https://www.refactoringui.com/",
+    "quote": "Use fewer borders"
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Whitespace or background-shade contrast between groups",
+    "A single shadow instead of an outline"
+   ],
+   "forbids": [
+    "Nested outlined boxes",
+    "Borders on every side of every row"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Nesting depth of elements with a visible border or box-shadow outline that contain further bordered elements; depth 3 or more warns; bordered siblings also separated by gap 16px or more are redundant.",
+    "mustFail": "section > .card > .card > .card all with 1px solid borders.",
+    "mustPass": "An outer section border only, with inner groups separated by 24px gap.",
+    "probe": "page.nesting"
+   },
+   "exceptions": [
+    "Data tables",
+    "Form field outlines, which are signifiers"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.fewer-borders",
+    "craft.separation-order-space-then-lines-then-boxes",
+    "canon.gestalt-common-region"
+   ]
+  },
+  {
+   "id": "modern.spacing-comes-from-a-scale",
+   "claim": "Margins, padding and gaps come from a documented 4 or 8px scale; no ad-hoc values and no edges that almost align.",
+   "source": {
+    "author": "Stan Kirilov",
+    "work": "UI Card Design (StanVision journal)",
+    "url": "https://www.stan.vision/journal/ui-card-design-examples-best-practices-and-common-patterns",
+    "quote": "Pick your numbers, document them, and don't deviate. Inconsistent spacing is the fastest way to make a polished product feel amateur."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "A 4/8-based scale expressed as tokens",
+    "Deliberate alignment to a grid, baseline or edge"
+   ],
+   "forbids": [
+    "Ad-hoc values such as 13px, 22px or 37px",
+    "Edges that almost align"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Collect computed margin, padding and gap; fail when the off-4px share exceeds 10% or distinct values exceed 12; warn when sibling left edges sit within 1–3px of each other but not equal.",
+    "mustFail": "Paddings of 13, 17 and 22px.",
+    "mustPass": "Paddings of 12, 16 and 24px."
+   },
+   "exceptions": [
+    "Optical alignment of ±1px when perception beats geometry, so ±1 warns rather than fails"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.spacing-and-sizing-system"
+   ]
+  },
+  {
+   "id": "modern.radii-are-few-and-concentric",
+   "claim": "Use a short radius scale, and keep nested corners concentric: the child's radius is the parent's minus the padding.",
+   "source": {
+    "author": "Vercel Labs",
+    "work": "Web Interface Guidelines — AGENTS.md",
+    "url": "https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/AGENTS.md",
+    "quote": "SHOULD: Nested radii: child ≤ parent; concentric"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Inner radius equal to outer radius minus padding",
+    "A radius scale of two to four values"
+   ],
+   "forbids": [
+    "Child radius larger than the parent's",
+    "One radius applied to pills, cards, modals and avatars alike"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count distinct computed border-radius values and warn above 6; for nested rounded boxes compare the child radius with parent radius minus parent padding and fail when the child is larger.",
+    "mustFail": ".card { border-radius: 8px; padding: 4px } .card img { border-radius: 16px }.",
+    "mustPass": "The same card with the img radius at 4px."
+   },
+   "exceptions": [
+    "Fully round elements (9999px, avatars) are exempt from the concentric arithmetic"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "modern.density-is-value-per-time-and-space",
+   "claim": "Density is value delivered per unit of time and space; respond within 100ms, show an indicator past a second, and never mistake whitespace for quality.",
+   "source": {
+    "author": "Matthew Ström-Awn",
+    "work": "UI Density",
+    "url": "https://matthewstrom.com/writing/ui-density/",
+    "quote": "UI density is the value a user gets from the interface divided by the time and space the interface occupies."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Gestalt grouping over more separators",
+    "Fast loads over more pixels",
+    "Indeterminate indicator from 1s, determinate progress from 10s"
+   ],
+   "forbids": [
+    "Equating whitespace with quality",
+    "Equating clutter with density",
+    "Feedback delayed past 100ms with nothing shown"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Time from click to first visible change: over 100ms with no feedback fails, over 1s with no indicator fails, over 10s with only a spinner warns; the spatial value numerator cannot be computed.",
+    "mustFail": "A 3s fetch with no indicator.",
+    "mustPass": "An aria-busy skeleton shown at 150ms."
+   },
+   "exceptions": [
+    "The audience sets the ceiling: a bond trader tolerates far more density than a second grader"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A landing page and a docs article are read rather than repeatedly used, and a checkout or sign-up is completed once, so the repeated-use density argument is weak there; only the response-timing checks apply.",
+   "agrees": [
+    "usability.feedback-within-a-second",
+    "usability.visibility-of-system-status"
+   ]
+  },
+  {
+   "id": "modern.signifiers-survive-flatness",
+   "claim": "Flat styling keeps its signifiers: buttons have a fill or border, links are underlined or distinctly coloured, inputs show a boundary.",
+   "source": {
+    "author": "Kate Moran (NN/G)",
+    "work": "Flat UI Elements Attract Less Attention and Cause Uncertainty",
+    "url": "https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/",
+    "quote": "participants spent 22% more time… looking at the pages with weak signifiers"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Buttons with a discernible fill or border",
+    "Links underlined or in a distinct colour",
+    "Inputs with a visible boundary"
+   ],
+   "forbids": [
+    "Text-only buttons indistinguishable from labels",
+    "Links styled as body text",
+    "Long shadows and other purely aesthetic depth"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each button or role=button: background differs from parent, or border width above 0, or text colour is the accent, else fail; an in-text link with no text-decoration and colour close to the surrounding text fails.",
+    "mustFail": "<button style=\"background:none;border:0;color:inherit\">Save</button>.",
+    "mustPass": "The same button with a fill."
+   },
+   "exceptions": [
+    "Toolbar icon buttons with tooltips and hover fills",
+    "Navigation bars recognised by position"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.signifiers-make-clickable-look-clickable"
+   ]
+  },
+  {
+   "id": "modern.cards-are-a-choice-not-a-default",
+   "claim": "Cards are for browsing; use lists for searching and tables for comparing, and keep each card readable with one primary action.",
+   "source": {
+    "author": "Stan Kirilov",
+    "work": "UI Card Design (StanVision journal)",
+    "url": "https://www.stan.vision/journal/ui-card-design-examples-best-practices-and-common-patterns",
+    "quote": "Cards for browsing. Lists for searching. Tables for comparing."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Lists for ranked or homogeneous data, tables for comparison",
+    "Consistent card heights",
+    "The title as the link, with a pseudo-element extending the hit area"
+   ],
+   "forbids": [
+    "Card grids for search results and settings",
+    "Whole-card anchor wrappers",
+    "More than 3 clickable elements per card",
+    "Nested cards"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Detect card grids (3+ siblings with equal border, shadow and radius); fail on text under 14px, over 3 interactive descendants per card, row heights differing over 20%, or an anchor wrapping more than heading plus paragraph.",
+    "mustFail": "Six identical 280px cards with 12px body text and a wrapping anchor.",
+    "mustPass": "The same data as a table, or a card with 14px text and a title link."
+   },
+   "exceptions": [
+    "Masonry where variable height is the design choice",
+    "Media browsing such as Netflix or Pinterest"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A multi-step checkout or sign-up rarely lays out a card grid; the rule applies only when options are chosen from cards, such as a plan or payment method.",
+   "agrees": []
+  },
+  {
+   "id": "modern.no-junk-drawer-menus-or-unlabeled-icons",
+   "claim": "Icons carry labels, menus are named for what they hold, and no primary feature hides under More or an ellipsis.",
+   "source": {
+    "author": "Jakob Nielsen (NN/G)",
+    "work": "Top 10 Application-Design Mistakes",
+    "url": "https://www.nngroup.com/articles/top-10-application-design-mistakes/",
+    "quote": "most icons, unless they have a text label next to them, will be difficult or impossible for users to understand"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Labelled icons",
+    "Menus named for their contents",
+    "Inline help before tooltips"
+   ],
+   "forbids": [
+    "More, ellipsis or Tools catch-alls holding primary features",
+    "Icon-only toolbars without labels",
+    "Tooltips on disabled buttons"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Icon-only buttons with no text and no aria-label fail; menus triggered by More, …, Tools or Options holding over 5 items or a primary-action label warn; disabled buttons with title or aria-describedby fail.",
+    "mustFail": "<button><svg/></button>.",
+    "mustPass": "<button aria-label=\"Delete\"><svg/></button>, better with visible text."
+   },
+   "exceptions": [
+    "Universally recognised icons in tight toolbars, though even the hamburger is weaker than designers think"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A simple checkout or sign-up form has few icon-only controls or catch-all menus to begin with.",
+   "agrees": [
+    "craft.labels-are-a-last-resort",
+    "usability.dont-make-me-think"
+   ]
+  },
+  {
+   "id": "modern.glass-and-blur-earn-their-place",
+   "claim": "Translucency is for chrome over busy backgrounds with heavy blur and a contrast fallback, never for body content or decoration.",
+   "source": {
+    "author": "Megan Brown (NN/G)",
+    "work": "Glassmorphism: Definition and Best Practices",
+    "url": "https://www.nngroup.com/articles/glassmorphism/",
+    "quote": "glassmorphism is best when utilized sparingly to create an illusion of depth"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Glass on toolbars and menus only",
+    "Heavy blur over intricate backgrounds",
+    "A solid fallback under increased contrast"
+   ],
+   "forbids": [
+    "Glass cards for body content",
+    "Low blur over photos",
+    "Text whose contrast depends on what scrolls beneath it",
+    "Glass with a neon glow as decoration"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each element with backdrop-filter, sample contained-text contrast against the composited background at three scroll positions; any under 4.5:1 fails; blur under 12px over an image warns; body text over 2 lines inside glass warns.",
+    "mustFail": ".card { backdrop-filter: blur(4px); background: rgba(255,255,255,.2) } over a photo hero.",
+    "mustPass": "blur(24px) with rgba(255,255,255,.75) on a toolbar, or a solid fallback under prefers-contrast: more."
+   },
+   "exceptions": [
+    "OS-level materials that honour the user's Reduce Transparency setting"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Docs pages, product pages and single-purpose checkout or sign-up forms rarely use decorative glass chrome beyond an occasional sticky header or overlay.",
+   "agrees": [
+    "craft.text-on-images-needs-consistent-contrast"
+   ]
+  },
+  {
+   "id": "modern.no-deceptive-patterns",
+   "claim": "Opt-ins start unchecked, accept and decline are symmetric, cancelling is as easy as subscribing, and urgency is real.",
+   "source": {
+    "author": "Harry Brignull",
+    "work": "Types of deceptive pattern (deceptive.design)",
+    "url": "https://www.deceptive.design/types",
+    "quote": "The user is presented with a default option that has already been selected for them, in order to influence their decision-making"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Opt-in unchecked by default",
+    "Symmetric accept and decline buttons",
+    "Cancel as easy as subscribe",
+    "Countdowns that are real"
+   ],
+   "forbids": [
+    "Pre-ticked marketing or upsell boxes",
+    "Confirmshaming decline links",
+    "Timers that reset on reload",
+    "Decline buttons styled to vanish"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Checked checkboxes whose label matches a marketing or upsell lexicon fail; a decline button under 3:1 contrast or under 60% the accept's size warns; a countdown that restarts on reload fails; confirmshaming copy is lexical and only warns.",
+    "mustFail": "<input type=checkbox checked> Send me offers.",
+    "mustPass": "The same checkbox unchecked."
+   },
+   "exceptions": [
+    "Defaults that serve the user; who benefits is for the journey's actor to decide"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Dashboards and back-office admin tools rarely sell or upsell, a docs or blog page has at most a newsletter opt-in, and browsing or comparing on a catalogue page has fewer of these patterns than the cart and checkout step itself.",
+   "agrees": []
+  },
+  {
+   "id": "modern.quality-is-a-choice-spec-is-the-floor",
+   "claim": "Meeting the spec is the baseline, not the finish; ask whether it feels right, reduce scope to raise quality, use plain words.",
+   "source": {
+    "author": "Karri Saarinen",
+    "work": "Why is quality so rare?",
+    "url": "https://linear.app/now/why-is-quality-so-rare",
+    "quote": "Even we, as designers, stopped asking; 'Does this feel right?'"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Treat the spec as the baseline, not the finish line",
+    "Reduce scope to increase quality",
+    "Call projects projects; plain vocabulary"
+   ],
+   "forbids": [
+    "Shipping to spec and calling it done",
+    "Invented terms for standard objects",
+    "A/B tests standing in for judgement"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "A person asks whether the screen feels right beyond passing its checks; a machine can only flag UI strings that rename standard objects against the journey's glossary."
+   },
+   "exceptions": [
+    "Quality is not perfection; start rough and iterate behind a quality bar with beta users"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.speak-the-users-language",
+    "canon.rams-thorough-to-the-last-detail"
+   ]
+  },
+  {
+   "id": "modern.delight-scales-with-rarity",
+   "claim": "Spend delight on rare moments, keep daily actions plain, and never let an element visibly duplicate itself during a transition.",
+   "source": {
+    "author": "Benji Taylor",
+    "work": "Family Values",
+    "url": "https://benji.org/family-values",
+    "quote": "the potential for delight increases as the frequency of feature usage decreases"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Directional motion between tabs",
+    "Morphing labels such as Continue to Confirm",
+    "One action per tray"
+   ],
+   "forbids": [
+    "Static jumps on core flows",
+    "Theatrical motion on daily actions",
+    "An element visibly duplicated mid-transition"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "After a transition, count DOM nodes with the same key or text present twice on screen at once; frequency-weighted motion needs the journey to say what is frequent.",
+    "mustFail": "A list transition that clones the row and leaves both visible for a frame.",
+    "mustPass": "The original node moves."
+   },
+   "exceptions": [
+    "Utility, performance and security come first; delight is selective emphasis"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A landing page is a rare visit by definition and a docs page is read rather than acted on, so the frequency half of the rule collapses there; only the duplicate-node check applies.",
+   "agrees": [
+    "modern.frequent-actions-do-not-animate",
+    "usability.peak-end-finish-well"
+   ]
+  },
+  {
+   "id": "modern.boring-and-familiar-beats-novel",
+   "claim": "Reuse known controls, gestures and semantics; a novel interaction needs a standard alternative and a reason.",
+   "source": {
+    "author": "Scott Berkun",
+    "work": "The future of UI will be boring",
+    "url": "https://scottberkun.com/2010/the-future-of-ui-will-be-boring/",
+    "quote": "The rookie trap designers and technologists fall for is confusing cool with useful"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Native semantics and known gestures",
+    "An anchor for every link",
+    "Standard menus and selects"
+   ],
+   "forbids": [
+    "Novel gestures without a tap or keyboard alternative",
+    "Custom scroll hijacking",
+    "Reinvented selects"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Custom widgets acting as select or menu with no role or keyboard handling fail; wheel or overscroll listeners calling preventDefault on document warn; drag-only affordances with no button alternative fail.",
+    "mustFail": "A <div class=\"dropdown\"> with click-only open.",
+    "mustPass": "A <select> or an APG-conformant listbox."
+   },
+   "exceptions": [
+    "Deliberate departures with a point of view in place before the first component went down"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.follow-conventions",
+    "craft.anything-but-dropdowns"
+   ]
+  },
+  {
+   "id": "modern.defaults-are-decisions-you-inherited",
+   "claim": "A library or AI default is someone else's decision; commit to one written aesthetic direction instead of inheriting it.",
+   "source": {
+    "author": "hipuku",
+    "work": "The Default Is Not a Design Decision",
+    "url": "https://www.hipuku.dev/writing/the-default-is-not-a-design-decision",
+    "quote": "The default was always a design decision. Someone made it upstream, and everyone who builds on top inherits it without asking why."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A written token set such as DESIGN.md",
+    "One committed aesthetic direction",
+    "Semantic colour"
+   ],
+   "forbids": [
+    "Untouched library defaults",
+    "Clean and modern as a brief",
+    "The AI-look constellation of purple gradient, Inter, identical cards, glass glow and bounce hover"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Score the constellation: purple-to-blue/cyan gradients warn, Inter or Roboto with no display face notes, 3+ identical icon+h3+p cards note, backdrop-filter plus glow notes, gradient text on numerals warns, overshoot cubic-bezier on hover warns.",
+    "mustFail": "A hero with linear-gradient(135deg,#7c3aed,#06b6d4), Inter, three glass cards and bounce hover.",
+    "mustPass": "The same layout with a single brand hue, no glass and ease-out hover."
+   },
+   "exceptions": [
+    "A purple brand is allowed to be purple; the tell is the constellation and the absence of a decision, not any one colour"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.supercharge-the-defaults"
+   ]
+  }
+ ]
+}

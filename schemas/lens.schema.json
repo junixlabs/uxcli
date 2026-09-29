@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/lens.schema.json",
+  "title": "uxcli lens",
+  "description": "A lens — lenses/<kind>.json: a kind of UI and the viewpoints read against it, each picked from a school's pool by id.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "name", "when", "picks"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "enum": ["marketing", "content", "data", "workspace", "shop", "transaction"] },
+    "name": { "type": "string", "minLength": 1 },
+    "when": { "type": "string", "minLength": 1, "description": "what kind of UI this lens is read against" },
+    "picks": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["viewpoint"],
+        "properties": { "viewpoint": { "type": "string", "pattern": "^[a-z0-9-]+\\.[a-z0-9-]+$" }, "note": { "type": "string", "minLength": 1, "description": "what this viewpoint means for this kind of UI, when the pool's claim is not enough" } }
+      }
+    }
+  }
+}

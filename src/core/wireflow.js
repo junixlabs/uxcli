@@ -120,6 +120,7 @@ export function galleryHtml(g) {
       <div class="screens">${screens(v)}</div>
       <div class="cap">${v.pickId ? `<label class="pickbox"><input type="radio" name="pick-${esc(g.id)}" data-pick="${esc(v.pickId)}"${v.status === 'pick' ? ' checked' : ''}><b>${letter(k)}</b></label>` : `<b class="letter">${letter(k)}</b>`}<span class="state">${esc(v.name)}</span>${v.pins?.length ? `<span class="ms">${v.pins.length} pin${v.pins.length > 1 ? 's' : ''}</span>` : ''}${v.view ? `<label class="cmpbox"><input type="checkbox" data-cmp="${esc(v.view)}">compare</label>` : ''}${word[v.status] ? `<span class="status ${v.status}">${word[v.status]}</span>` : ''}</div>
       ${v.receipt ? `<div class="receipt">${esc(v.receipt)}</div>` : ''}
+      ${(v.reviews || []).map(r => `<details class="review${r.refused ? ' refused' : ''}"><summary><b>${esc(r.lens)} lens</b> · ${esc(r.line)}${r.by ? ` · ${esc(r.by)}` : ''}</summary>${r.breaks.length ? `<ul>${r.breaks.map(b => `<li><code>${esc(b.id)}</code> ${esc(b.where || '')}${b.note ? ` — ${esc(b.note)}` : ''}</li>`).join('')}</ul>` : ''}</details>`).join('')}
       ${v.status === 'pick' && v.sig ? `<div class="sig">✓ ${esc(v.sig)}</div>` : ''}
       ${v.status === 'part' && v.note ? `<p class="fnote">taken: ${esc(v.note)}</p>` : ''}
       ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
@@ -244,6 +245,7 @@ body:not([data-vp]) .screens .screen:not(:first-child){display:none}
 .pickbox{display:inline-flex;align-items:center;gap:6px;cursor:pointer}.pickbox input{margin:0;accent-color:var(--pass);width:16px;height:16px}.pickbox b,.letter{font:800 13px var(--sans);width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--well);color:var(--ink)}
 .variant.pick .pickbox b{background:var(--pass);color:#fff}.variant.part .pickbox b{background:var(--finding);color:#fff}
 .receipt{font:11px var(--mono);color:var(--dim);padding:0 2px}
+.review{font:12px/1.45 var(--sans);color:var(--ink);padding:0 2px}.review summary{cursor:pointer;color:var(--dim)}.review summary b{color:var(--ink);font-weight:600}.review.refused summary{color:var(--fail)}.review ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}.review code{font:11px var(--mono)}
 .sig{font:600 12px var(--mono);color:var(--pass);padding:6px 10px;border-radius:8px;background:var(--pass-soft);justify-self:start}
 .vpsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.vpsw button{font:600 11px var(--mono);padding:6px 10px;border:0;background:var(--surface);color:var(--dim);cursor:pointer}.vpsw button.on{background:var(--accent);color:#fff}
 .pickbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.15);padding:14px clamp(16px,2vw,32px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:start}

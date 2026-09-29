@@ -7,6 +7,8 @@ import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL }
 import { findRoot, loadProject } from './journey.js';
 import { launch } from './browser.js';
 import { observe } from './adapters/chrome/index.js';
+import { library, readReview } from './lens.js';
+import { reviewSummary, summaryLine } from './core/model/lens.js';
 import { parsePick, statusOf, screensOf, hookOf, receiptOf, receiptLine, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
 import { esc, flowRow, galleryHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
 
@@ -19,13 +21,19 @@ export function discover(root) {
   const journeys = P.journeys.map(j => j.value).filter(Boolean);
   const sharedDir = path.join(base, '_shared');
   const shared = fs.existsSync(sharedDir) ? Object.fromEntries(fs.readdirSync(sharedDir).filter(f => f.endsWith('.css')).sort().map(f => [f, fs.readFileSync(path.join(sharedDir, f), 'utf8')])) : {};
+  const lib = library();
   const screens = screensOf(journeys).map(s => {
     const dir = path.join(base, s.id); const variants = listVariants(dir); let pick = null; const problems = [];
     // the hash covers the drawing and what it takes from _shared: a token change is a drawing change
     const hashes = Object.fromEntries(variants.map(v => { const html = fs.readFileSync(path.join(dir, `${v}.html`)); return [v, drawingHash([html, ...sharedRefs(html.toString()).filter(f => shared[f] !== undefined).map(f => shared[f])])]; }));
     const pf = path.join(dir, 'pick.json');
     if (fs.existsSync(pf)) { let doc; try { doc = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { problems.push(`not JSON: ${e.message}`); } if (doc) { const r = parsePick(doc, variants, hashes); pick = r.value; problems.push(...r.problems); } }
-    return { ...s, dir, variants, refs: listRefs(dir), hashes, pick, problems };
+    // <variant>.<lens>.review.json: a lens read against the drawing, shown as the reviewer's claim
+    const reviews = {};
+    for (const v of variants) for (const f of (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter(f => f.startsWith(`${v}.`) && f.endsWith('.review.json'))) {
+      const r = readReview(root, path.join(dir, f), lib); (reviews[v] ||= []).push({ lens: f.slice(v.length + 1, -'.review.json'.length), value: r.value, problems: r.problems });
+    }
+    return { ...s, dir, variants, refs: listRefs(dir), hashes, pick, reviews, problems };
   });
   return { root, base, project: P, journeys, screens, shared };
 }
@@ -138,6 +146,7 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
         pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), view: shots[`${s.id}/${v}`] ? `view:${s.id}/${v}` : null, pickId: shots[`${s.id}/${v}`] ? `${s.id}/${v}` : null,
         screens: [{ vw, vh, shot: shots[`${s.id}/${v}`] }, ...(extra[`${s.id}/${v}`] || [])],
         receipt: s.receipts?.[v] ? receiptLine(s.receipts[v]) : null,
+        reviews: (s.reviews?.[v] || []).map(r => r.value ? { lens: r.lens, line: summaryLine(reviewSummary(r.value)), breaks: reviewSummary(r.value).breaksList, by: `${r.value.by.type} ${r.value.by.ref}` } : { lens: r.lens, line: `refused: ${r.problems[0]}${r.problems.length > 1 ? ` (+${r.problems.length - 1})` : ''}`, breaks: [], refused: true }),
         sig: s.pick && s.pick.pick === v ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''} · ${s.pick.sha256.slice(0, 7)}` : null,
       })) : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
       refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${s.id} · reference · ${f}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),

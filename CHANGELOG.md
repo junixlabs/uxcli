@@ -10,6 +10,27 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- Lenses: 123 viewpoints from named designers in four schools — usability (Nielsen and NN/g,
+  Norman, Krug, Laws of UX, Baymard, Wroblewski, GOV.UK), practitioner craft (Wathan & Schoger,
+  Erik Kennedy, Paul Adams), the classic canon (Rams, Vignelli, Müller-Brockmann, Bringhurst,
+  Butterick, Tufte, Gestalt) and modern product craft (Rauno Freiberg, Emil Kowalski, Linear, Vercel,
+  Comeau, Apple, Material, Ström, Brignull) — each with author, work, URL and the words, distilled
+  from research that fetched every page it cites (`docs/lenses/`).
+  They ship as `lenses/viewpoints/<school>.json` and are packaged by the kind of UI they are read
+  against — `marketing`, `content`, `data`, `workspace`, `shop`, `transaction` — with rules that
+  several schools state folded into one line. `uxcli lens` lists them, `uxcli lens show <kind>` prints
+  the checklist, `uxcli review <state>/<variant> --lens=<kind> --write` writes an empty review beside a
+  drawing (or a URL with `--name`), and `uxcli review check` refuses a review that leaves a viewpoint
+  unanswered, claims without saying where, is signed by an agent on nobody's behalf, is older than the
+  drawing, or says `holds` where a probe the viewpoint names counted a break. The mockups page and card
+  show each review on its variant; `context show` prints the lenses on. Every lens is on; a project
+  turns one off in `.uxcli/lenses.json` with a name. The skill reads the lens after drawing and before
+  done (`references/lenses.md`). Schemas: `viewpoints`, `lens`, `review`, `lenses`.
+- `page.nesting`, a fifth page probe: text inside three or more nested boxes (a border on two sides or
+  more, a shadow, an outline; controls, table cells and one-sided rules are not boxes). Provenance
+  `research` (Refactoring UI "Use fewer borders", Tufte "1 + 1 = 3", NN/g common region),
+  method-unproven, so it reports a `finding`. It is the probe behind the fewer-borders viewpoints, so
+  a review that says they hold on a drawing three boxes deep is refused.
 - The mockups page with fewer borders: a journey is a numbered heading and whitespace with one
   rule between journeys, a screen card is a number and a heading, the lanes sit on the canvas, and
   only the variant — the thing a person picks — is a box, its photograph a shadow. Boxed nesting on

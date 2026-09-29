@@ -1,0 +1,1249 @@
+{
+ "schema_version": 1,
+ "school": "canon",
+ "name": "Classic canon",
+ "research": "docs/lenses/canon.md",
+ "viewpoints": [
+  {
+   "id": "canon.rams-as-little-design-as-possible",
+   "claim": "Remove everything that does not serve the purpose; less, but better.",
+   "source": {
+    "author": "Dieter Rams",
+    "work": "Ten principles for good design",
+    "url": "https://www.vitsoe.com/us/about/good-design",
+    "quote": "Good design is as little design as possible. Less, but better – because it concentrates on the essential aspects, and the products are not burdened with non-essentials."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Remove anything that does not serve the purpose",
+    "Keep one border where one will do"
+   ],
+   "forbids": [
+    "Add ornament or decoration for its own sake",
+    "Repeat the heading as a decorative icon",
+    "Wrap content in extra bordered or shadowed layers"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Decorative-only elements (no text, image or interactive role, only border/shadow/background) and distinct box-shadow, border-radius and gradient declarations in computed styles.",
+    "mustFail": "Card list where each card has a nested bordered wrapper, a shadow, a gradient header strip and an icon repeating the heading.",
+    "mustPass": "Same content, each card one element with one border, no gradient strip, no repeated icon."
+   },
+   "exceptions": [
+    "Aesthetic quality is part of usefulness (principle 3): stripping to nothing is not the goal"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.minimalist-no-competing-information",
+    "craft.fewer-borders",
+    "modern.fewer-borders-more-space"
+   ]
+  },
+  {
+   "id": "canon.rams-understandable",
+   "claim": "The structure of the product should be visible and its controls legible without instruction.",
+   "source": {
+    "author": "Dieter Rams",
+    "work": "Ten principles for good design",
+    "url": "https://www.vitsoe.com/us/about/good-design",
+    "quote": "Good design makes a product understandable. It clarifies the product's structure. Better still, it can make the product talk. At best, it is self-explanatory."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Show structure with headings per region",
+    "Give every control a visible name",
+    "Put a text label on the primary action"
+   ],
+   "forbids": [
+    "Rely on tooltips as the only explanation",
+    "Ship icon-only controls without a visible label",
+    "Require a manual"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Interactive elements with no accessible name; icon-only controls without a visible text label; landmark regions with no heading.",
+    "mustFail": "Toolbar of six icon-only buttons with aria-label but no visible text, page with zero h1–h3.",
+    "mustPass": "Same toolbar with visible labels (or hover label plus text on the primary action) and one heading per landmark."
+   },
+   "exceptions": [
+    "Rams's own products rely on convention rather than labels everywhere; the rule is about structure, not text density"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Icon-only unlabeled controls and missing landmark headings are the sharpest failure in dense workspace toolbars; other kinds usually carry enough visible text to stay self-explanatory.",
+   "agrees": [
+    "usability.dont-make-me-think",
+    "modern.no-junk-drawer-menus-or-unlabeled-icons"
+   ]
+  },
+  {
+   "id": "canon.rams-honest",
+   "claim": "Controls do what they look like they do; nothing pretends to be more than it is.",
+   "source": {
+    "author": "Dieter Rams",
+    "work": "Ten principles for good design",
+    "url": "https://www.vitsoe.com/us/about/good-design",
+    "quote": "Good design is honest. It does not make a product more innovative, powerful or valuable than it really is. It does not attempt to manipulate the consumer with promises that cannot be kept."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Put button and link styling only on real buttons and links",
+    "Show disabled controls as disabled"
+   ],
+   "forbids": [
+    "Style non-interactive elements as clickable",
+    "Fake progress or countdowns that reset",
+    "Manufacture urgency"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Elements styled like links or buttons (pointer cursor, underline, button border) with no handler, href or role; interactive elements with cursor default and no visual affordance.",
+    "mustFail": "A div with pointer cursor and button styling and no click handler; a countdown timer that resets on reload.",
+    "mustPass": "The same visuals only on real button and a[href] elements."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Manufactured urgency and false affordances do the most damage where a person commits to one task once, as in checkout or sign-up; content pages rarely carry this risk.",
+   "agrees": [
+    "usability.no-false-affordances",
+    "modern.no-deceptive-patterns",
+    "modern.no-dead-zones-and-honest-clickability"
+   ]
+  },
+  {
+   "id": "canon.rams-thorough-to-the-last-detail",
+   "claim": "Nothing is arbitrary: spacings repeat, one radius, edges align.",
+   "source": {
+    "author": "Dieter Rams",
+    "work": "Ten principles for good design",
+    "url": "https://www.vitsoe.com/us/about/good-design",
+    "quote": "Good design is thorough down to the last detail. Nothing must be arbitrary or left to chance. Care and accuracy in the design process show respect towards the user."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Draw spacing from a short scale",
+    "Use one border radius",
+    "Align sibling edges exactly"
+   ],
+   "forbids": [
+    "Introduce one-off spacing values",
+    "Leave near-miss alignments of 1–3px",
+    "Mismatch states across similar controls"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distinct margin/padding/gap, border-radius, font-size and color values in computed styles; sibling left edges within 1–3px of each other but not equal.",
+    "mustFail": "14 distinct paddings, 5 radii, buttons in one row at x = 24, 25, 24, 27.",
+    "mustPass": "Paddings from a 4-value scale, one radius, all left edges equal."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.spacing-and-sizing-system",
+    "modern.spacing-comes-from-a-scale",
+    "modern.radii-are-few-and-concentric"
+   ]
+  },
+  {
+   "id": "canon.vignelli-few-typefaces",
+   "claim": "Use one or two established typeface families per work; structure carries the design, not the type.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Typefaces, The Basic Ones (p.54)",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "In reality the number of good typefaces is rather limited … Personally, I can get along well with a half a dozen, to which I can add another half a dozen, but probably no more."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use one family, plus monospace for code",
+    "Carry hierarchy through structure rather than typeface change"
+   ],
+   "forbids": [
+    "Mix a display serif, a geometric sans, a system sans and a rounded sans on one page",
+    "Distort type",
+    "Use expressive type to mime the message"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distinct rendered font-family first choices across visible text nodes, ignoring icon fonts and code.",
+    "mustFail": "Page rendering 4 families: display serif h1, geometric sans h2, system sans body, rounded sans buttons.",
+    "mustPass": "Same page, 1 family plus optional monospace for code."
+   },
+   "exceptions": [
+    "A specific type design may be appropriate for a logo or short promotional text in ephemeral or promotional contexts"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Marketing pages are where a display face, a geometric sans and a rounded sans most often collide on one screen; other kinds mix fonts less often but the same ceiling applies if they do.",
+   "agrees": []
+  },
+  {
+   "id": "canon.vignelli-two-type-sizes",
+   "claim": "Stick to one or two type sizes; the large one about twice the small; differentiate by weight and space, not size.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Type Size Relationships / Contrasting Type Sizes (p.72)",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "Basically we stick to no more then two type sizes on a printed page, but there are exceptions."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use a body size and a heading size about twice as big",
+    "Set subheads at body size in bold with a line space above and none below"
+   ],
+   "forbids": [
+    "Give every hierarchy level its own size"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distinct computed font-size values among visible text, excluding sub/sup and short badges if the lens allows; ratio of the largest to the body size.",
+    "mustFail": "9 distinct sizes: 11, 12, 13, 14, 15, 16, 18, 24, 32.",
+    "mustPass": "2–3 sizes with the large one about 2× the body."
+   },
+   "exceptions": [
+    "There are exceptions",
+    "For display, type may be set much larger or the leading increased for a particular effect"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A task completed once benefits most from a stark two-size hierarchy; long-form content, dense data and admin tables often add a third size for deeper structure.",
+   "agrees": [
+    "craft.type-scale-few-font-sizes",
+    "canon.bringhurst-compose-with-a-scale"
+   ]
+  },
+  {
+   "id": "canon.vignelli-weight-for-function-not-volume",
+   "claim": "Use bold and other weights for a specific function, never to make the message louder.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Contrasting Type Sizes (p.72)",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "Type weights can be used to great advantage when dedicated to a specific function, rather than be used for color purposes or even worse as a phonetic analogy."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use two weights: regular and one bold",
+    "Reserve bold for headings and labels"
+   ],
+   "forbids": [
+    "Bold as decoration or shouting",
+    "Use many weights on one page",
+    "Bold large runs of paragraph text"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distinct font-weight values in visible text; share of paragraph characters at weight ≥600; bold runs inside paragraphs.",
+    "mustFail": "5 weights in use and 40% of paragraph text bold.",
+    "mustPass": "2 weights (400 and one bold), bold only on headings/labels, under 5% of paragraph text."
+   },
+   "exceptions": [
+    "Stick to the minimum"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Catalogue and product pages most often abuse bold for price call-outs and badges rather than function; the same discipline applies wherever bold appears.",
+   "agrees": [
+    "canon.butterick-emphasis-sparingly",
+    "usability.von-restorff-one-emphasis"
+   ]
+  },
+  {
+   "id": "canon.vignelli-flush-left",
+   "claim": "Set running text flush left; centre only short rhetorical text; do not justify.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Flush Left, Centered, Justified",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "Justified is used more for text books, but it is not one of our favorites because it is fundamentally contrived."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set text-align left on running text",
+    "Keep centring for short lapidary lines"
+   ],
+   "forbids": [
+    "Justify body text",
+    "Centre multi-line paragraphs"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Computed text-align of every text block that renders more than 3 lines.",
+    "mustFail": "A three-paragraph description set text-align center or justify.",
+    "mustPass": "Same paragraphs set left; headings may be centred."
+   },
+   "exceptions": [
+    "Centred for short rhetorical or lapidary text, invitations, addresses",
+    "Justified is tolerated for text books"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Running paragraphs of more than three lines are central to long-form content; dashboards rarely render such blocks at all, and other kinds carry them only occasionally.",
+   "agrees": [
+    "craft.align-with-readability-in-mind",
+    "craft.center-text-only-under-three-lines"
+   ]
+  },
+  {
+   "id": "canon.vignelli-white-space-is-the-silence",
+   "claim": "White space is a design element: leave real space between headline and body and between sections.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Contrasting Type Sizes (p.72)",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "In a world where everybody screams, silence is noticeable. White space provides the silence. That is the essence of our typography."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Put a line space above a subhead and none below",
+    "Separate sections by at least two line-heights",
+    "Keep a large headline against a much smaller body"
+   ],
+   "forbids": [
+    "Fill every area",
+    "Let section blocks touch"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Share of the viewport or a section's box not covered by text, image or bordered box; vertical gap above a heading versus below it; gaps between sections in line-heights.",
+    "mustFail": "Heading with margin 4px 0 on both sides and section blocks touching.",
+    "mustPass": "Heading with ≥1 line-height above and about 0 below; sections separated by ≥2 line-heights."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Persuasive pages rely on breathing room around the headline and calls to action; dense data, workspace and catalogue screens trade some of that space for information density.",
+   "agrees": [
+    "craft.start-with-too-much-whitespace",
+    "modern.fewer-borders-more-space"
+   ]
+  },
+  {
+   "id": "canon.vignelli-grid-module-fits-the-job",
+   "claim": "Lay everything on one grid whose module is coarse enough to constrain and fine enough to serve the content.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Grids, Margins, Columns and Modules (p.40)",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "There are infinite kinds of grids, but just one - the most appropriate - for any problem"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Resolve block edges to a few column positions",
+    "Choose one column model per page"
+   ],
+   "forbids": [
+    "Place blocks at arbitrary x positions",
+    "Use a grid so fine it constrains nothing"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distinct left-edge x positions of top-level blocks and their fit to the best k-column model (residual within 2px).",
+    "mustFail": "11 distinct left edges across 14 blocks, no common divisor within 2px.",
+    "mustPass": "All edges on 2–3 x positions from a 12-column model."
+   },
+   "exceptions": [
+    "Outside margins may be made deliberately small to give tension between page edge and content"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Catalogue and search-result grids are the clearest case of block edges needing to resolve to a column model; other kinds still benefit, less strictly.",
+   "agrees": [
+    "canon.mb-grid-fields-from-columns-and-lines"
+   ]
+  },
+  {
+   "id": "canon.vignelli-syntactic-consistency",
+   "claim": "The same type, grid and spacing relationships repeat from screen to screen across the whole project.",
+   "source": {
+    "author": "Massimo Vignelli",
+    "work": "The Vignelli Canon, Syntactics (p.12)",
+    "url": "https://www.rit.edu/vignellicenter/sites/rit.edu.vignellicenter/files/documents/The%20Vignelli%20Canon.pdf",
+    "quote": "The consistency of a design is provided by the appropriate relationship of the various syntactical elements of the project: how type relates to grids and images from page to page throughout the whole project."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Reuse one set of font sizes, families, column edges and heading margins on every screen"
+   ],
+   "forbids": [
+    "Let each screen invent its own type or grid relationship"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Per-screen fingerprint across a journey: set of font-sizes, font-families, column edges, heading margins; diff between screens.",
+    "mustFail": "Screen A uses 16/24/32 with h2 margin-top 32; screen B uses 15/22/28 with h2 margin-top 20.",
+    "mustPass": "Identical sets on both screens."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A B2B tool used daily depends on identical type and grid relationships screen to screen for speed; other kinds are visited less repeatedly.",
+   "agrees": []
+  },
+  {
+   "id": "canon.mb-grid-fields-from-columns-and-lines",
+   "claim": "Size and place blocks in whole grid fields: column widths on x, whole text lines on y.",
+   "source": {
+    "author": "Josef Müller-Brockmann",
+    "work": "Grid Systems in Graphic Design (1981)",
+    "url": "https://archive.org/stream/GridSystemsInGraphicDesignJosefMullerBrockmann/Grid%20systems%20in%20graphic%20design%20-%20Josef%20Muller-Brockmann_djvu.txt",
+    "quote": "The fields correspond in depth to a specific number of lines of text and the width of the fields is identical with the width of the columns."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Make block heights and vertical gaps multiples of the body line-height",
+    "Make block widths span whole columns plus gutters"
+   ],
+   "forbids": [
+    "Size elements off the field",
+    "Place blocks at vertical positions that are not multiples of the line unit"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "With body line-height L: block tops, heights and vertical gaps as integer multiples of L (tolerance 1px); block widths equal to k columns plus (k−1) gutters for the detected column model.",
+    "mustFail": "Line-height 24px, cards 137px tall, gaps of 19/23/30px.",
+    "mustPass": "Cards 144 or 168px, gaps 24 or 48px, widths on 3-of-12 columns."
+   },
+   "exceptions": [
+    "A suitable grid is chosen by the designer; the grid is a means to orderliness, not the goal"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Dashboard widgets and KPI tiles are the clearest case of block heights and gaps needing to land on whole line-height multiples; other kinds still benefit, less strictly.",
+   "agrees": [
+    "canon.vignelli-grid-module-fits-the-job",
+    "canon.bringhurst-leading-is-a-rhythmic-unit"
+   ]
+  },
+  {
+   "id": "canon.mb-objective-intelligible",
+   "claim": "Titles, subtitles, text, illustrations and captions are set out in a clear, logical order so they read faster and are understood.",
+   "source": {
+    "author": "Josef Müller-Brockmann",
+    "work": "Grid Systems in Graphic Design (1981)",
+    "url": "https://archive.org/stream/GridSystemsInGraphicDesignJosefMullerBrockmann/Grid%20systems%20in%20graphic%20design%20-%20Josef%20Muller-Brockmann_djvu.txt",
+    "quote": "Information presented with clear and logically set out titles, subtitles, texts, illustrations and captions will not only be read more quickly and easily but the information will also be better understood."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Keep heading levels monotonic with one h1",
+    "Attach captions to their figures",
+    "Style each title level consistently"
+   ],
+   "forbids": [
+    "Skip heading levels",
+    "Leave captions as loose paragraphs",
+    "Carry hierarchy by decoration rather than position and type"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Heading order without skips, count of h1, captions attached to figures (figcaption or adjacent), consistent title styling per level.",
+    "mustFail": "h1 then h4, two h1s, captions as loose p elements.",
+    "mustPass": "Monotonic heading levels, figure/figcaption pairs."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Docs and articles depend on monotonic heading order and attached captions to be navigable; other kinds carry fewer headings and figures.",
+   "agrees": [
+    "usability.visual-hierarchy-for-scanning",
+    "craft.hierarchy-is-everything-squint-test"
+   ]
+  },
+  {
+   "id": "canon.bringhurst-measure-45-75",
+   "claim": "Body text runs 45–75 characters per line, 66 ideal; 40–50 in multi-column work.",
+   "source": {
+    "author": "Robert Bringhurst",
+    "work": "The Elements of Typographic Style §2.1.2 (via webtypography.net)",
+    "url": "http://webtypography.net/2.1.2",
+    "quote": "Anything from 45 to 75 characters is widely regarded as a satisfactory length of line for a single-column page set in a serifed text face in a text size."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set paragraph width in ems so the measure survives text resizing",
+    "Aim at 66 characters per line"
+   ],
+   "forbids": [
+    "Full-width paragraphs on wide viewports",
+    "Columns narrower than 40 characters"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Characters per rendered line for each paragraph block (Range.getClientRects per line, or width divided by average glyph advance).",
+    "mustFail": "A p at 1440px viewport rendering 160 characters per line; a 3-column layout at 28 per line.",
+    "mustPass": "Same text in a max-width 38em container (about 66–72 characters)."
+   },
+   "exceptions": [
+    "Numbers are for continuous text; short UI strings, labels, table cells and headings are excluded",
+    "Butterick's band is 45–90; a lens must say which it follows"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Long-form content is where continuous text actually runs to a measured line length; dashboards carry almost no continuous prose, and other kinds only occasionally.",
+   "agrees": [
+    "craft.line-length-50-75-characters"
+   ]
+  },
+  {
+   "id": "canon.bringhurst-leading-is-a-rhythmic-unit",
+   "claim": "The leading is the vertical unit; add and remove vertical space in multiples of it.",
+   "source": {
+    "author": "Robert Bringhurst",
+    "work": "The Elements of Typographic Style §2.2.1 / §2.2.2 (via webtypography.net)",
+    "url": "http://webtypography.net/2.2.1",
+    "quote": "You must choose not only the overall measure – the depth of the column or page – but also a basic rhythmical unit. This unit is the leading, which is the distance from one baseline to the next."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use a unitless line-height such as 1.5",
+    "Make vertical margins multiples of the line-height"
+   ],
+   "forbids": [
+    "Vertical spacing unrelated to the line unit",
+    "Line-height below 1 on running text"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Body line-height L; margins and paddings between text blocks as multiples of L (or L/2 if the lens allows).",
+    "mustFail": "L = 24px, paragraph margins 13px, heading margins 37px/9px.",
+    "mustPass": "Margins 24px, headings 48px above / 12px below."
+   },
+   "exceptions": [
+    "More leading for longer measures, darker faces, larger x-height and sans serifs: the ratio moves with the face"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.spacing-comes-from-a-scale",
+    "canon.mb-grid-fields-from-columns-and-lines"
+   ]
+  },
+  {
+   "id": "canon.bringhurst-compose-with-a-scale",
+   "claim": "Choose font sizes from a modest scale of related intervals, never one at a time.",
+   "source": {
+    "author": "Robert Bringhurst",
+    "work": "The Elements of Typographic Style §3.1.1 (via webtypography.net)",
+    "url": "http://webtypography.net/3.1.1",
+    "quote": "Use the old familiar scale, or use new scales of your own devising, but limit yourself, at first, to a modest set of distinct and related intervals."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Derive sizes as em multipliers of one base",
+    "Keep the set small"
+   ],
+   "forbids": [
+    "Pick a size to fit a slot"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distinct font-sizes and whether they fit base × r^n for some r in 1.125–1.618 within 1px; count and best-fit residual.",
+    "mustFail": "Sizes 13, 14, 15, 17, 19, 22, 27: no ratio fits, 7 steps.",
+    "mustPass": "16, 20, 25, 31: r about 1.25, 4 steps."
+   },
+   "exceptions": [
+    "'At first': new scales are permitted once the designer has one; the rule is about having a scale, not which"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A persuasive page's whole hierarchy rides on a small set of related sizes; other kinds tolerate more sizes for denser or deeper structure.",
+   "agrees": [
+    "craft.type-scale-few-font-sizes",
+    "canon.vignelli-two-type-sizes"
+   ]
+  },
+  {
+   "id": "canon.bringhurst-letterspace-caps-5-10",
+   "claim": "Letterspace all-caps and small-caps runs by 5–10% of the type size; do not letterspace lowercase.",
+   "source": {
+    "author": "Robert Bringhurst",
+    "work": "The Elements of Typographic Style §2.1.6 / §2.1.7 (via webtypography.net)",
+    "url": "http://webtypography.net/2.1.6",
+    "quote": "The normal value for letterspacing these sequences of small or full caps is 5% to 10% of the type size."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set letter-spacing 0.05–0.1em on caps labels, eyebrows and buttons"
+   ],
+   "forbids": [
+    "All-caps at zero tracking",
+    "Tracked lowercase body text"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For text with text-transform uppercase or all-caps content of ≥3 letters: computed letter-spacing divided by font-size; same ratio on lowercase paragraphs.",
+    "mustFail": "Uppercase nav labels at letter-spacing 0; body paragraph at letter-spacing 0.08em.",
+    "mustPass": "Caps at 0.05–0.1em, body at normal."
+   },
+   "exceptions": [
+    "Display type at large sizes may be tracked tighter (not stated on the fetched page)"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Category labels, badges and eyebrows on catalogue and product pages are the most common caps-text use; the same ratio applies wherever caps text appears.",
+   "agrees": [
+    "craft.letter-spacing-for-all-caps",
+    "canon.butterick-emphasis-sparingly"
+   ]
+  },
+  {
+   "id": "canon.butterick-body-size-15-25px",
+   "claim": "Body text on the web is 15–25 pixels.",
+   "source": {
+    "author": "Matthew Butterick",
+    "work": "Practical Typography, Summary of key rules",
+    "url": "https://practicaltypography.com/summary-of-key-rules.html",
+    "quote": "Point size should be 10–12 points in printed documents, 15–25 pixels on the web."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set paragraphs at 16–18px"
+   ],
+   "forbids": [
+    "Body copy at 12–14px",
+    "Oversized body text above 25px"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Computed font-size of the dominant text blocks by character count.",
+    "mustFail": "p at 13px.",
+    "mustPass": "p at 16–18px."
+   },
+   "exceptions": [
+    "Captions, labels and UI chrome are not covered by the summary line"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Docs and articles carry sustained reading where the 15px floor matters most; dense data and admin tables commonly run smaller systems by convention.",
+   "agrees": [
+    "craft.body-16px-line-height-1-5",
+    "modern.readable-type-sizes-and-weights"
+   ]
+  },
+  {
+   "id": "canon.butterick-line-spacing-120-145",
+   "claim": "Body line-height is 1.2–1.45 times the font size.",
+   "source": {
+    "author": "Matthew Butterick",
+    "work": "Practical Typography, Summary of key rules",
+    "url": "https://practicaltypography.com/summary-of-key-rules.html",
+    "quote": "Line spacing should be 120–145% of the point size."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set line-height 1.2–1.45 on paragraphs"
+   ],
+   "forbids": [
+    "Line-height 1.0–1.15 on running text",
+    "Line-height above 1.5 on running text"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "line-height divided by font-size for each paragraph.",
+    "mustFail": "16px text with 18px line-height (1.125); 16px with 32px (2.0).",
+    "mustPass": "16px text with 22px line-height (1.375)."
+   },
+   "exceptions": [
+    "Headlines and short lines are outside body line spacing",
+    "Vignelli's print ratios (1.08–1.14) are print-only; every situation may require a different ratio"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Persuasive body copy needs comfortable spacing to be read once and believed; other kinds carry less running text so the ratio matters less often.",
+   "agrees": [
+    "craft.body-16px-line-height-1-5"
+   ]
+  },
+  {
+   "id": "canon.butterick-emphasis-sparingly",
+   "claim": "One emphasis device at a time: bold or italic, never both; underline only links; caps only under one line and tracked.",
+   "source": {
+    "author": "Matthew Butterick",
+    "work": "Practical Typography, Summary of key rules",
+    "url": "https://practicaltypography.com/summary-of-key-rules.html",
+    "quote": "Use bold or italic as little as possible, and not together."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Bold-only headings",
+    "Caps only on one-line labels with 5–12% tracking",
+    "Underline only on links"
+   ],
+   "forbids": [
+    "Bold italic",
+    "Underlined non-links",
+    "All-caps paragraphs",
+    "Centred body text"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Elements with font-weight ≥600 and italic; underline on non-anchors; uppercase on blocks rendering more than one line; centred multi-line paragraphs; uppercase runs with letter-spacing under 0.05em.",
+    "mustFail": "A bold-italic underlined subheading and an all-caps two-line intro paragraph.",
+    "mustPass": "Bold-only headings, caps only on one-line labels at 0.06em, underline only on links."
+   },
+   "exceptions": [
+    "Underline for web links",
+    "All caps under one line of text"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A flow completed once must not bury the one instruction that matters under bold or caps noise; other kinds carry the same risk less often.",
+   "agrees": [
+    "usability.von-restorff-one-emphasis",
+    "craft.letter-spacing-for-all-caps",
+    "craft.center-text-only-under-three-lines"
+   ]
+  },
+  {
+   "id": "canon.tufte-data-ink-ratio",
+   "claim": "Show the data; erase ink that does not change when the data changes, and ink that repeats it.",
+   "source": {
+    "author": "Edward Tufte",
+    "work": "The Visual Display of Quantitative Information (1983), pp.106–121",
+    "url": "https://guypursey.com/blog/202001041530-tufte-principles-visual-display-quantitative-information",
+    "quote": "Above all else show the data. Maximize the data-ink ratio. Erase non-data-ink. Erase redundant data-ink. Revise and edit."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Label values directly on marks",
+    "Keep gridlines few and lighter than data"
+   ],
+   "forbids": [
+    "Gridlines heavier than data",
+    "Boxed plot areas and redundant axes",
+    "Legends that repeat labels",
+    "One value said four ways"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "In an SVG/canvas chart: non-data elements (gridlines, frames, ticks, legend entries) versus data elements (bars, points, path segments); stroke weight of gridlines versus data marks.",
+    "mustFail": "Bar chart with 12 dark 1px #333 gridlines, a full frame, y-axis ticks and a value label on every bar.",
+    "mustPass": "Same bars with direct value labels and no gridlines, or 3 light #eee gridlines and no frame."
+   },
+   "exceptions": [
+    "Maximize the data-ink ratio, within reason",
+    "Principles should not be applied rigidly; better to violate any than place graceless marks"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "A chart rule: applies wherever a chart is drawn, mainly data screens; marketing, content and workspace only sometimes carry one, and shop and transaction flows rarely do.",
+   "agrees": [
+    "usability.minimalist-no-competing-information",
+    "canon.tufte-forgo-chartjunk"
+   ]
+  },
+  {
+   "id": "canon.tufte-forgo-chartjunk",
+   "claim": "No decoration on charts: no 3-D, gradients, patterns, background images or heavy grids.",
+   "source": {
+    "author": "Edward Tufte",
+    "work": "The Visual Display of Quantitative Information (1983)",
+    "url": "https://en.wikipedia.org/wiki/Chartjunk",
+    "quote": "Forgo chartjunk, including moiré vibration, the grid, and the duck."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Flat single-colour marks on a quiet ground"
+   ],
+   "forbids": [
+    "3-D bars and perspective transforms",
+    "Gradient or hatched fills on data marks",
+    "Background images behind data",
+    "Pictorial charts"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "In chart DOM/CSS: gradient or pattern fills on data marks, perspective or 3-D transforms, background-image on the plot area, gridline stroke darker than data stroke.",
+    "mustFail": "Bars with fill url(#stripes) inside a container with transform rotateX(20deg).",
+    "mustPass": "Flat single-colour bars."
+   },
+   "exceptions": [
+    "Later research debates exceptions; Tufte's own text gives none"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "A chart rule: applies wherever a chart is drawn, mainly data screens; shop and transaction flows rarely carry one.",
+   "agrees": [
+    "canon.tufte-data-ink-ratio"
+   ]
+  },
+  {
+   "id": "canon.tufte-smallest-effective-difference",
+   "claim": "Make every visual distinction as subtle as it can be while still reading clearly.",
+   "source": {
+    "author": "Edward Tufte",
+    "work": "Visual Explanations (1997), p.73",
+    "url": "https://boxesandarrows.com/three-lessons-from-tufte-special-deliverable-6/",
+    "quote": "Make all visual distinctions as subtle as possible, but still clear and effective."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Light grey before dark grey, grey before colour",
+    "Dividers and borders lighter than body text",
+    "Mute secondary elements"
+   ],
+   "forbids": [
+    "Black borders and saturated dividers around quiet content",
+    "Secondary elements with more contrast than the primary content"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Luminance contrast of non-data, non-text elements (borders, dividers, gridlines, rules) against their background; structural lines above a lens threshold such as 3:1; secondary elements exceeding the primary content's contrast.",
+    "mustFail": "hr with border 1px solid #000 on white; card borders at #333.",
+    "mustPass": "Dividers at #e5e5e5 (about 1.2:1), borders lighter than body text."
+   },
+   "exceptions": [
+    "The distinction must still be clear and effective",
+    "WCAG text contrast is a floor this rule must not undercut"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.de-emphasize-to-emphasize-up-pop-down-pop",
+    "craft.fewer-borders",
+    "craft.separation-order-space-then-lines-then-boxes"
+   ]
+  },
+  {
+   "id": "canon.tufte-one-plus-one-equals-three",
+   "claim": "Two adjacent marks make a third unintended object; separate layers by value and space, not by lines and boxes.",
+   "source": {
+    "author": "Edward Tufte",
+    "work": "Envisioning Information (1990), ch.3 Layering and Separation",
+    "url": "https://www.antoinebuteau.com/lessons-from-edward-tufte/",
+    "quote": ""
+   },
+   "evidence": "folklore",
+   "prefers": [
+    "Separate layers by light and dark rather than lines",
+    "One kind of information per layer",
+    "Whitespace between cards"
+   ],
+   "forbids": [
+    "Boxes inside boxes",
+    "Double rules and touching borders",
+    "Table cells bordered on all four sides",
+    "Striped backgrounds"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Nesting depth of bordered, shadowed or filled boxes; adjacent sibling borders touching or within 2px; table cells with border on all sides.",
+    "mustFail": "Card (border) inside section (border) inside table with all-cell borders: depth 3, 40 touching borders.",
+    "mustPass": "Same content with whitespace between cards, one horizontal rule per table row, depth ≤1.",
+    "probe": "page.nesting"
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.fewer-borders",
+    "modern.fewer-borders-more-space",
+    "modern.cards-are-a-choice-not-a-default",
+    "canon.gestalt-common-region"
+   ]
+  },
+  {
+   "id": "canon.tufte-small-multiples",
+   "claim": "Compare with repeated same-scale panels, not one overloaded chart.",
+   "source": {
+    "author": "Edward Tufte",
+    "work": "Envisioning Information (1990), p.67",
+    "url": "https://www.antoinebuteau.com/lessons-from-edward-tufte/",
+    "quote": "At the heart of quantitative reasoning is a single question: Compared to what?"
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Same width, height, axis domain and encoding across sibling panels",
+    "Index panels by category or time"
+   ],
+   "forbids": [
+    "One chart with many overlaid series",
+    "Comparison panels with differing axis scales"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For sibling charts: equal size, equal axis domain (tick labels or scale attributes), same mark encoding. For one chart: number of overlaid series (more than 5 is a candidate).",
+    "mustFail": "Three comparison panels with y-axes 0–100, 0–40, 0–1000; one line chart with 9 series.",
+    "mustPass": "Three panels, identical size and domain."
+   },
+   "exceptions": [
+    "Different domains are legitimate when the comparison is of shape, not magnitude (inference, not Tufte's text)"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "A chart-set rule: only data screens and some workspace reports show several charts side by side.",
+   "agrees": []
+  },
+  {
+   "id": "canon.tufte-graphical-integrity",
+   "claim": "The size of a mark is directly proportional to the number it shows; bars start at zero; one visual dimension per data dimension.",
+   "source": {
+    "author": "Edward Tufte",
+    "work": "The Visual Display of Quantitative Information (1983), graphical integrity",
+    "url": "https://guypursey.com/blog/202001041530-tufte-principles-visual-display-quantitative-information",
+    "quote": "Show data variation, not design variation."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Bars from a zero baseline",
+    "Areas proportional to values"
+   ],
+   "forbids": [
+    "Truncated bar axes",
+    "3-D bars for 1-D data",
+    "Pictograms scaled in both width and height",
+    "Cherry-picked ranges"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Bar charts whose y-domain minimum is not 0; linear-fit residual of bar pixel heights against labelled values (lie factor); pictograms scaled in two dimensions.",
+    "mustFail": "Bars for 80/85/90 drawn from a 75 baseline, the 90 bar looking 3× the 80 bar.",
+    "mustPass": "Same values drawn from 0."
+   },
+   "exceptions": [
+    "Line charts and dot plots may omit zero; the rule is about the representation being proportional"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "A chart rule: applies wherever numbers are drawn, mainly data screens and some workspace reports.",
+   "agrees": []
+  },
+  {
+   "id": "canon.gestalt-proximity",
+   "claim": "Things that belong together sit closer to each other than to anything else.",
+   "source": {
+    "author": "Aurora Harley, NN/g",
+    "work": "The Principle of Proximity in Visual Design (2020-08-02)",
+    "url": "https://www.nngroup.com/articles/gestalt-proximity/",
+    "quote": "Items close together are likely to be perceived as part of the same group — sharing similar functionality or traits."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Keep a label closer to its field than to the previous field",
+    "Make gaps within a group smaller than gaps between groups",
+    "Check grouping at every breakpoint"
+   ],
+   "forbids": [
+    "Equal spacing everywhere",
+    "Groupings that collapse on reflow"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For labelled fields: distance(label, its input) < distance(label, previous input). For groups: max intra-group gap < min inter-group gap. Re-run at 3 viewports.",
+    "mustFail": "Form with margin-bottom 8px on labels and 8px on inputs, so the label is equidistant from both fields.",
+    "mustPass": "Label 4px above its field, 24px below the previous."
+   },
+   "exceptions": [
+    "Fails when responsive reflow breaks groups",
+    "Fails when items sit far from where the user is looking",
+    "Fails when unrelated items are grouped so a function is camouflaged"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Dense forms and tables in workspace tools depend most on grouping surviving reflow; other kinds still need it, with fewer fields at stake.",
+   "agrees": [
+    "craft.law-of-locality",
+    "usability.natural-mapping-and-proximity"
+   ]
+  },
+  {
+   "id": "canon.gestalt-similarity",
+   "claim": "Things that look alike are read as alike: one link colour only for links, same styling only for equal actions.",
+   "source": {
+    "author": "Aurora Harley, NN/g",
+    "work": "The Principle of Similarity (2020-09-06)",
+    "url": "https://www.nngroup.com/articles/gestalt-similarity/",
+    "quote": "Items which share a visual characteristic are perceived as more related than items that are dissimilar."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Reserve the link colour for interactive elements",
+    "Same size means same importance, same shape means same kind",
+    "One filled button, others outlined"
+   ],
+   "forbids": [
+    "Link colour on non-interactive text",
+    "Identical styling for primary and secondary actions",
+    "Promotional content styled like regular items"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Colour of anchors and buttons; non-interactive text nodes in that colour; computed style of the primary CTA compared with other buttons (identical is a flag).",
+    "mustFail": "Headings in the link blue; Delete and Save both filled blue.",
+    "mustPass": "Link blue only on links; one filled button, others outlined."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Catalogue and product pages must distinguish primary from secondary actions and real items from promotional ones; the same principle applies to any interactive element.",
+   "agrees": [
+    "craft.button-hierarchy-one-primary",
+    "usability.banner-blindness-dont-style-content-like-ads",
+    "usability.signifiers-make-clickable-look-clickable"
+   ]
+  },
+  {
+   "id": "canon.gestalt-common-region",
+   "claim": "A boundary groups what is inside it; draw one only where whitespace alone cannot group.",
+   "source": {
+    "author": "Aurora Harley, NN/g",
+    "work": "The Principle of Common Region (2020-07-12)",
+    "url": "https://www.nngroup.com/articles/common-region/",
+    "quote": "Items within a boundary are perceived as a group and assumed to share some common characteristic or functionality."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Ask whether whitespace alone can group before drawing a box",
+    "Use a card only to unify heterogeneous content"
+   ],
+   "forbids": [
+    "Nested boxes",
+    "A box around a single item",
+    "Full-width coloured blocks that read as the page's end"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Bordered or filled containers holding exactly one child; nesting depth of containers; full-viewport-width background changes near the fold.",
+    "mustFail": "Every list item in its own card, inside a bordered section, inside a bordered page wrapper (depth 3).",
+    "mustPass": "List items separated by space, one container at most.",
+    "probe": "page.nesting"
+   },
+   "exceptions": [
+    "Cards are endorsed when they unify heterogeneous content",
+    "Boundaries are legitimate where proximity alone is ambiguous"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "canon.tufte-one-plus-one-equals-three",
+    "craft.fewer-borders",
+    "craft.separation-order-space-then-lines-then-boxes",
+    "modern.cards-are-a-choice-not-a-default"
+   ]
+  },
+  {
+   "id": "canon.gestalt-closure",
+   "claim": "Let something cross the fold or the container edge so the eye knows more continues.",
+   "source": {
+    "author": "Alita Kendrick, NN/g",
+    "work": "The Principle of Closure (2021-07-18)",
+    "url": "https://www.nngroup.com/articles/principle-closure/",
+    "quote": "People will fill in blanks to perceive a complete object whenever an external stimulus partially matches that object."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Show a partial next item in scrollers and carousels",
+    "Let the next section's heading peek above the fold",
+    "Label simplified icons"
+   ],
+   "forbids": [
+    "A section boundary landing exactly on the fold",
+    "Cut-offs too small to read as continuing"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "At each named viewport: an element crossing the viewport bottom edge; for horizontal scrollers, the last visible item extending past the container edge by a lens-set number of px.",
+    "mustFail": "At 1280×800 the hero ends at y=800 exactly and the next section starts below with a full-width colour change.",
+    "mustPass": "The next section's heading is 40% visible at the fold."
+   },
+   "exceptions": [
+    "Works less well when viewport sizes are unpredictable",
+    "Icons still need labels and testing"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Persuasive scrolling pages rely most on a peeking next section to pull the reader down; screens designed to fit one viewport don't need the cue.",
+   "agrees": []
+  }
+ ]
+}

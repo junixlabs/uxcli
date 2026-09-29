@@ -26,7 +26,7 @@ export const OPERATOR =
 const REGISTERED = SUITES.map(s => s.file);
 
 const PAGE = { id: 'page.__pair', sc: '1.1.1', kind: 'page', method: { status: 'method-validated' }, measure() {}, explain() {} };
-const DIRS = ['contrast', 'focus-visible', 'text-spacing', 'text-overlap',
+const DIRS = ['contrast', 'focus-visible', 'text-spacing', 'text-overlap', 'nesting',
   'error-prevention', 'error-identification', 'redundant-entry', 'consistent-navigation'];
 
 export function pair() {

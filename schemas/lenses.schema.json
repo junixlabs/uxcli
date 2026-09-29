@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/lenses.schema.json",
+  "title": "uxcli lenses (project)",
+  "description": "The project's word on the shipped lenses — .uxcli/lenses.json. Every lens is on unless named in off; turning one off is a decision with a name on it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "off": { "type": "array", "items": { "enum": ["marketing", "content", "data", "workspace", "shop", "transaction"] } },
+    "by": {
+      "type": "object", "additionalProperties": false, "required": ["type", "ref"],
+      "properties": { "type": { "enum": ["person", "role", "agent"] }, "ref": { "type": "string", "minLength": 1 }, "onBehalfOf": { "type": "string", "minLength": 1 } }
+    },
+    "why": { "type": "string" },
+    "when": { "type": "string" }
+  }
+}

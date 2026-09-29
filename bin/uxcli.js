@@ -42,6 +42,9 @@ const usage = `usage:
       what uxcli would put in dir, and where dir stands in the sequence (commitments signed, journeys confirmed, runs recorded) — measured from disk, printed, and nothing written;
       --apply creates the shipped skill in dir/.claude/skills/uxcli/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
+  uxcli lens [show <kind>]            the shipped lenses — named designers' viewpoints by kind of UI (marketing, content, data, workspace, shop, transaction)
+  uxcli review <state>/<variant> --lens=<kind> --write   an empty review beside the drawing; a URL with --name=<n> reviews a screen
+  uxcli review check                  every review complete, fresh against its drawing, and not contradicted by a probe
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7, why text-overlap)
 exit: 0 no fail (findings included) · 2 at least one fail · 1 the run could not be carried out
 browser: playwright-core; set UXCLI_CHROME to a Chromium binary if none is installed for playwright.`;
@@ -65,7 +68,7 @@ try {
     // and overwrite each other, packet and index row together; same target now means same directory,
     // which is what the index always assumed.
     const { dir: outDir, shots } = await prepare(opt('out'), new Date().toISOString());
-    if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast, text-overlap${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
+    if (process.stderr.isTTY) process.stderr.write(`opening ${url} · chromium 1280×800 · focus-visible, text-spacing, contrast, text-overlap, nesting${flags.has('--prove') ? ' · --prove: one planted defect per pass' : ''}\n`);
     const result = await runPage(url, { state: opt('state'), outDir: shots, src: opt('src'), prove: flags.has('--prove') });
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     result.exit = exitFor({ verdicts: result.probes.map(p => p.verdict), couldNotRun: !!result.error });
@@ -124,6 +127,35 @@ try {
     const { mockups, mockupsCard } = await import('../src/mockups.js'); const r = await mockups(args[0] || '.', { viewport: opt('viewport') || '390x844' });
     console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : mockupsCard(r));
     process.exit(r.exit);
+  } else if (cmd === 'lens') {
+    // The shipped lenses: named designers' viewpoints, grouped by the kind of UI they are read against.
+    const L = await import('../src/lens.js'); const J = await import('../src/journey.js');
+    const root = J.findRoot(path.resolve(opt('src') || '.')); const lib = L.library(); const proj = L.projectLenses(root);
+    if (args[0] === 'show' && args[1]) {
+      const l = lib.lenses.find(x => x.id === args[1]); if (!l) { console.error(`no lens ${args[1]}; have: ${lib.lenses.map(x => x.id).join(', ')}`); process.exit(1); }
+      console.log(flags.has('--json') ? JSON.stringify(l, null, 1) : L.lensShowCard(l, proj));
+    } else console.log(flags.has('--json') ? JSON.stringify({ lenses: lib.lenses.map(l => ({ id: l.id, name: l.name, when: l.when, viewpoints: l.viewpoints.length, on: !proj.off.includes(l.id) })), off: proj.off, problems: [...lib.problems, ...proj.problems] }, null, 1) : L.lensListCard(lib, proj));
+    process.exit(lib.problems.length || proj.problems.length ? 1 : 0);
+  } else if (cmd === 'review' && args[0] === 'check') {
+    const L = await import('../src/lens.js'); const J = await import('../src/journey.js');
+    const root = J.findRoot(path.resolve(opt('src') || '.')); if (!root) { console.error('no .uxcli/policy/policy.json here or above'); process.exit(1); }
+    const r = await L.reviewCheck(root); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : L.reviewCheckCard(r));
+    process.exit(r.ok ? 0 : 1);
+  } else if (cmd === 'review' && args[0]) {
+    // An empty review for one lens: every viewpoint present, nothing answered. A mockup is <state>/<variant>; a screen is a URL with --name.
+    const L = await import('../src/lens.js'); const J = await import('../src/journey.js');
+    const root = J.findRoot(path.resolve(opt('src') || '.')); if (!root) { console.error('no .uxcli/policy/policy.json here or above'); process.exit(1); }
+    const lib = L.library(); const kind = opt('lens'); const l = lib.lenses.find(x => x.id === kind);
+    if (!l) { console.error(`--lens=<kind>, one of ${lib.lenses.map(x => x.id).join(', ')}`); process.exit(1); }
+    let target;
+    if (isUrl(args[0])) { if (!opt('name')) { console.error('a screen review needs --name=<file name under .uxcli/reviews/>'); process.exit(1); } target = { kind: 'screen', url: args[0], name: opt('name') }; }
+    else { const [state, variant] = args[0].split('/'); const h = L.mockupHash(root, state, variant); if (!h) { console.error(`no drawing .uxcli/mockups/${state}/${variant}.html`); process.exit(1); } target = { kind: 'mockup', state, variant, sha256: h }; }
+    const by = { type: 'agent', ref: opt('as') || 'agent', onBehalfOf: opt('for') || '<the person running you>' };
+    const doc = L.reviewTemplate(l, target.kind === 'screen' ? { kind: 'screen', url: target.url } : target, by);
+    const file = L.reviewPath(root, target, l.id);
+    if (flags.has('--write')) { if (fs.existsSync(file)) { console.error(`${path.relative(process.cwd(), file)} exists; fill it, or delete it to start again`); process.exit(1); } fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(doc, null, 1) + '\n'); console.log(`wrote ${path.relative(process.cwd(), file)} · ${l.viewpoints.length} viewpoints to answer · then uxcli review check`); }
+    else console.log(JSON.stringify(doc, null, 1));
+    process.exit(0);
   } else if (cmd === 'doctor') {
     const { doctor, doctorCard } = await import('../src/doctor.js'); const r = await doctor(args[0] || '.');
     console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : doctorCard(r));
@@ -151,7 +183,8 @@ try {
     const want = args[1] ? args[1].replace(/^.*\//, '').replace(/\.json$/, '') : null;
     const b = brief({ actors: P.actors, insights: P.insights, journeys: P.journeys.map(j => j.value).filter(Boolean), commitments: P.commitments.map(c => c.value).filter(Boolean), index: idx, journeyId: want });
     b.problems.push(...P.problems);
-    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b));
+    const LN = await import('../src/lens.js'); const lp = LN.projectLenses(root); b.lenses = { on: LN.KINDS.filter(k => !lp.off.includes(k)), off: lp.off };
+    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b) + `\n\n  lenses   on: ${b.lenses.on.join(', ')}${b.lenses.off.length ? ` · off: ${b.lenses.off.join(', ')}` : ''}\n           pick the one for what the person does on this screen; uxcli lens show <kind> before you draw, uxcli review check before you say done`);
     process.exit(want && !b.journey ? 1 : 0);
   } else if (cmd === 'diff' && args[0] && args[1]) {
     const { diff, diffCard, gateExit } = await import('../src/diff.js'); const d = diff(path.resolve(args[0]), path.resolve(args[1]));

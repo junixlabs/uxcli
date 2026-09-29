@@ -1,0 +1,115 @@
+{
+ "schema_version": 1,
+ "id": "content",
+ "name": "Content and docs",
+ "when": "Docs, articles, blogs and help centres: long text read and navigated by section.",
+ "picks": [
+  {
+   "viewpoint": "usability.signifiers-make-clickable-look-clickable",
+   "note": "Same rule, also stated as: modern.signifiers-survive-flatness (Kate Moran (NN/G)); modern.no-dead-zones-and-honest-clickability (Rauno Freiberg)."
+  },
+  {
+   "viewpoint": "usability.visual-hierarchy-for-scanning",
+   "note": "Same rule, also stated as: craft.hierarchy-is-everything-squint-test (Erik D. Kennedy); canon.mb-objective-intelligible (Josef Müller-Brockmann)."
+  },
+  {
+   "viewpoint": "usability.fitts-target-size-and-distance",
+   "note": "Same rule, also stated as: craft.tap-targets-and-control-height (Erik D. Kennedy); modern.hit-targets-meet-platform-minimums (Apple)."
+  },
+  {
+   "viewpoint": "usability.speak-the-users-language"
+  },
+  {
+   "viewpoint": "usability.no-false-affordances"
+  },
+  {
+   "viewpoint": "usability.follow-conventions",
+   "note": "Same rule, also stated as: modern.boring-and-familiar-beats-novel (Scott Berkun)."
+  },
+  {
+   "viewpoint": "usability.banner-blindness-dont-style-content-like-ads"
+  },
+  {
+   "viewpoint": "usability.aesthetic-usability-effect-bias"
+  },
+  {
+   "viewpoint": "usability.natural-mapping-and-proximity"
+  },
+  {
+   "viewpoint": "usability.mindless-clicks-not-fewer-clicks"
+  },
+  {
+   "viewpoint": "usability.start-with-user-needs-design-with-data"
+  },
+  {
+   "viewpoint": "craft.fewer-borders",
+   "note": "Same rule, also stated as: canon.gestalt-common-region (Aurora Harley, NN/g); canon.rams-as-little-design-as-possible (Dieter Rams); modern.fewer-borders-more-space (Adam Wathan & Steve Schoger); canon.tufte-smallest-effective-difference (Edward Tufte); canon.tufte-one-plus-one-equals-three (Edward Tufte)."
+  },
+  {
+   "viewpoint": "craft.spacing-and-sizing-system",
+   "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov)."
+  },
+  {
+   "viewpoint": "craft.separation-order-space-then-lines-then-boxes"
+  },
+  {
+   "viewpoint": "craft.body-16px-line-height-1-5",
+   "note": "Same rule, also stated as: canon.butterick-body-size-15-25px (Matthew Butterick); modern.readable-type-sizes-and-weights (Rauno Freiberg)."
+  },
+  {
+   "viewpoint": "craft.line-length-50-75-characters",
+   "note": "Same rule, also stated as: canon.bringhurst-measure-45-75 (Robert Bringhurst)."
+  },
+  {
+   "viewpoint": "craft.center-text-only-under-three-lines",
+   "note": "Same rule, also stated as: canon.vignelli-flush-left (Massimo Vignelli)."
+  },
+  {
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple)."
+  },
+  {
+   "viewpoint": "craft.size-isnt-everything-use-weight-and-colour"
+  },
+  {
+   "viewpoint": "craft.greys-dont-have-to-be-grey-never-use-black"
+  },
+  {
+   "viewpoint": "craft.start-with-too-much-whitespace"
+  },
+  {
+   "viewpoint": "craft.type-scale-few-font-sizes"
+  },
+  {
+   "viewpoint": "craft.line-height-tightens-as-text-grows"
+  },
+  {
+   "viewpoint": "canon.bringhurst-leading-is-a-rhythmic-unit"
+  },
+  {
+   "viewpoint": "modern.cards-are-a-choice-not-a-default"
+  },
+  {
+   "viewpoint": "modern.no-junk-drawer-menus-or-unlabeled-icons",
+   "note": "Same rule, also stated as: usability.dont-make-me-think (Steve Krug)."
+  },
+  {
+   "viewpoint": "modern.interactions-feel-immediate-under-200ms"
+  },
+  {
+   "viewpoint": "modern.motion-values-proportional-to-trigger"
+  },
+  {
+   "viewpoint": "modern.animate-only-transform-and-opacity"
+  },
+  {
+   "viewpoint": "modern.focus-is-visible-and-unobscured"
+  },
+  {
+   "viewpoint": "modern.numbers-and-text-do-not-shift-layout"
+  },
+  {
+   "viewpoint": "modern.defaults-are-decisions-you-inherited"
+  }
+ ]
+}

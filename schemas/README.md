@@ -14,6 +14,10 @@ key before `uxcli init` does.
 | `profile.schema.json` | `.uxcli/profiles/<id>.json` | `src/core/model/profile.js` |
 | `proposal.schema.json` | `.uxcli/proposals/P-xxxx.json` | read as data; not parsed |
 | `pick.schema.json` | `.uxcli/mockups/<state>/pick.json` | `src/core/mockups.js` `parsePick` |
+| `viewpoints.schema.json` | `lenses/viewpoints/<school>.json` (shipped) | `src/core/model/lens.js` `parseViewpoints` |
+| `lens.schema.json` | `lenses/<kind>.json` (shipped) | `parseLens`, `resolveLens` |
+| `review.schema.json` | `.uxcli/mockups/<state>/<variant>.<lens>.review.json`, `.uxcli/reviews/<name>.<lens>.review.json` | `parseReview` |
+| `lenses.schema.json` | `.uxcli/lenses.json` | `parseLensesFile` |
 
 The parsers are the law. A schema says what keys a file may carry and what type each has; a parser
 also says what the values must mean — a `strength` claimed above what the signals give, a

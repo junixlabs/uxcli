@@ -1,6 +1,7 @@
 // page.text-overlap · text painted over text · provenance opinion. Spec in spec.md; falsification pair in pair.json. Origin: junixlabs/uxcli#1.
 import { THIRD } from '../../util.js';
 import { explain } from '../../core/explain/text-overlap.js';
+import { settleAnimations } from '../../browser.js';
 
 // Collects every visible text box on the page and returns the pairs whose boxes intersect beyond the spec's bounds.
 const COLLECT = ([THIRD, LIMIT]) => {
@@ -70,13 +71,6 @@ const COLLECT = ([THIRD, LIMIT]) => {
   return { boxes: boxes.length, pairs, sample };
 };
 
-// Finite animations and transitions are given up to 2.5 s to finish before text is read, so entrance motion is not measured as overlap. Infinite ones stay excluded per element.
-// Sampled in a loop after two frames: transitions started by scroll observers begin a frame after the runner's settle, and a single early sample would miss them.
-const settleAnimations = page => page.evaluate(() => new Promise(done => {
-  const t0 = performance.now(); const finite = () => document.getAnimations().filter(a => { const t = a.effect?.getTiming?.(); return t && t.iterations !== Infinity && a.playState === 'running'; });
-  const step = () => { if (performance.now() - t0 > 2500) return done('timeout'); const run = finite(); if (!run.length) return done('settled'); Promise.all(run.map(a => a.finished.catch(() => null))).then(() => requestAnimationFrame(() => requestAnimationFrame(step))); };
-  requestAnimationFrame(() => requestAnimationFrame(step));
-})).catch(() => null);
 
 export default {
   id: 'page.text-overlap', sc: 'overlap', kind: 'page', provenance: 'opinion', rule: 'visible text is not painted over other visible text',

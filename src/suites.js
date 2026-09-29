@@ -34,4 +34,5 @@ export const SUITES = [
   { tag: 'mock', title: 'the agent draws, a person picks', file: 'mockup-pairs.mjs', miss: 'refused' },
   { tag: 'map', title: 'drift is what the run said, nothing more', file: 'map-pairs.mjs', miss: 'seen' },
   { tag: 'page', title: 'the instrument measures its own pages', file: 'page-pairs.mjs', miss: 'seen' },
+  { tag: 'lens', title: 'a viewpoint has a name, a review answers all', file: 'lens-pairs.mjs', miss: 'refused' },
 ];

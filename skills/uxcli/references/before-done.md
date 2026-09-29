@@ -12,9 +12,10 @@ ends with a word you may or may not say.
 
 ## What exit 0 does not cover
 
-`uxcli run <url>` runs four probes, and only these: `focus-visible` (2.4.7), `contrast` (1.4.3),
-`text-spacing` (1.4.12) — three WCAG criteria whose method is validated — and `text-overlap`, which
-is provenance `opinion` and method-unproven, so it can only ever report a `finding`. A journey run
+`uxcli run <url>` runs five probes, and only these: `focus-visible` (2.4.7), `contrast` (1.4.3),
+`text-spacing` (1.4.12) — three WCAG criteria whose method is validated — `text-overlap`, which
+is provenance `opinion`, and `nesting` (a box inside a box inside a box), provenance `research`;
+both are method-unproven, so they can only ever report a `finding`. A journey run
 measures the states the journey declares and the commitments signed over it; a commitment whose
 method is unproven can only report a `finding`.
 
@@ -39,7 +40,9 @@ UI is good, that is a different question and this instrument did not answer it.
    says could not be measured; do not retry until it passes.
 4. Report with the card, not a paraphrase: probe or commitment, verdict, `what`, `where`, `check`.
    Then the exit code of the last run and the packet path it printed.
-5. Say done only if that exit code was 0, and say what was measured. If anything else, say what
+5. Read the screen through its lens (`references/lenses.md`) and run `uxcli review check`. Report
+   what the review says breaks, as the review's claim, beside the run's verdicts.
+6. Say done only if that exit code was 0, and say what was measured. If anything else, say what
    stands in the way.
 
 ## What you do not do

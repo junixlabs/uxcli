@@ -1,0 +1,12 @@
+{
+ "kind": "page",
+ "operator": "index.html: the phone number sits in a bordered field inside a shadowed card inside a bordered panel (three boxes); the must-pass twin unboxes the panel (a heading and space; two). Both twins carry a section set off from the next by a top rule only (a line, not a box), a bordered button inside the card (a control, not counted), a table with bordered cells (a grid, not counted), a bordered box with no text, and an ins.adsbygoogle block three boxes deep: the third-party exclusion must keep the probe silent on it.",
+ "hashes": {
+  "mustFail": {
+   "index.html": "d8975a2bd116f05ccc0b26cbd67816652c345590b0b2ae5be600c41693761308"
+  },
+  "mustPass": {
+   "index.html": "2c9eec4ea1239cabd19fb5d428aa550a9971ea0f2d783bc60384147b5e22664e"
+  }
+ }
+}

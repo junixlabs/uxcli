@@ -1,0 +1,141 @@
+{
+ "schema_version": 1,
+ "id": "data",
+ "name": "Data and dashboards",
+ "when": "Dashboards, analytics, monitoring and reports: numbers and charts read again and again.",
+ "picks": [
+  {
+   "viewpoint": "usability.feedback-within-a-second",
+   "note": "Same rule, also stated as: modern.interactions-feel-immediate-under-200ms (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn)."
+  },
+  {
+   "viewpoint": "usability.signifiers-make-clickable-look-clickable",
+   "note": "Same rule, also stated as: modern.signifiers-survive-flatness (Kate Moran (NN/G)); modern.no-dead-zones-and-honest-clickability (Rauno Freiberg)."
+  },
+  {
+   "viewpoint": "usability.fitts-target-size-and-distance",
+   "note": "Same rule, also stated as: craft.tap-targets-and-control-height (Erik D. Kennedy); modern.hit-targets-meet-platform-minimums (Apple)."
+  },
+  {
+   "viewpoint": "usability.visibility-of-system-status",
+   "note": "Same rule, also stated as: modern.feedback-is-local-and-optimistic (Rauno Freiberg)."
+  },
+  {
+   "viewpoint": "usability.speak-the-users-language"
+  },
+  {
+   "viewpoint": "usability.no-false-affordances"
+  },
+  {
+   "viewpoint": "usability.natural-mapping-and-proximity",
+   "note": "Same rule, also stated as: craft.law-of-locality (Erik D. Kennedy)."
+  },
+  {
+   "viewpoint": "usability.omit-needless-words"
+  },
+  {
+   "viewpoint": "usability.aesthetic-usability-effect-bias"
+  },
+  {
+   "viewpoint": "usability.clearly-marked-emergency-exit"
+  },
+  {
+   "viewpoint": "usability.start-with-user-needs-design-with-data"
+  },
+  {
+   "viewpoint": "craft.fewer-borders",
+   "note": "Same rule, also stated as: canon.gestalt-common-region (Aurora Harley, NN/g); canon.rams-as-little-design-as-possible (Dieter Rams); modern.fewer-borders-more-space (Adam Wathan & Steve Schoger); canon.tufte-smallest-effective-difference (Edward Tufte); canon.tufte-one-plus-one-equals-three (Edward Tufte)."
+  },
+  {
+   "viewpoint": "craft.spacing-and-sizing-system",
+   "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov)."
+  },
+  {
+   "viewpoint": "craft.separation-order-space-then-lines-then-boxes"
+  },
+  {
+   "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop"
+  },
+  {
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple)."
+  },
+  {
+   "viewpoint": "craft.dont-overlook-empty-states-teach-by-example",
+   "note": "Same rule, also stated as: modern.every-state-is-designed (Vercel Labs)."
+  },
+  {
+   "viewpoint": "craft.hierarchy-is-everything-squint-test"
+  },
+  {
+   "viewpoint": "craft.greys-dont-have-to-be-grey-never-use-black"
+  },
+  {
+   "viewpoint": "craft.type-scale-few-font-sizes"
+  },
+  {
+   "viewpoint": "craft.align-with-readability-in-mind"
+  },
+  {
+   "viewpoint": "canon.bringhurst-leading-is-a-rhythmic-unit",
+   "note": "Same rule, also stated as: canon.mb-grid-fields-from-columns-and-lines (Josef Müller-Brockmann)."
+  },
+  {
+   "viewpoint": "canon.tufte-data-ink-ratio",
+   "note": "Same rule, also stated as: canon.tufte-forgo-chartjunk (Edward Tufte)."
+  },
+  {
+   "viewpoint": "canon.tufte-small-multiples"
+  },
+  {
+   "viewpoint": "canon.tufte-graphical-integrity"
+  },
+  {
+   "viewpoint": "modern.no-junk-drawer-menus-or-unlabeled-icons",
+   "note": "Same rule, also stated as: usability.dont-make-me-think (Steve Krug); craft.labels-are-a-last-resort (Steve Schoger (attendee notes by ynotdraw))."
+  },
+  {
+   "viewpoint": "modern.cards-are-a-choice-not-a-default"
+  },
+  {
+   "viewpoint": "modern.frequent-actions-do-not-animate",
+   "note": "Same rule, also stated as: modern.delight-scales-with-rarity (Benji Taylor)."
+  },
+  {
+   "viewpoint": "modern.motion-values-proportional-to-trigger"
+  },
+  {
+   "viewpoint": "modern.animate-only-transform-and-opacity"
+  },
+  {
+   "viewpoint": "modern.motion-has-an-origin"
+  },
+  {
+   "viewpoint": "modern.honour-prefers-reduced-motion"
+  },
+  {
+   "viewpoint": "modern.animations-are-interruptible"
+  },
+  {
+   "viewpoint": "modern.readable-type-sizes-and-weights"
+  },
+  {
+   "viewpoint": "modern.focus-is-visible-and-unobscured"
+  },
+  {
+   "viewpoint": "modern.numbers-and-text-do-not-shift-layout"
+  },
+  {
+   "viewpoint": "modern.shadows-share-one-light-source"
+  },
+  {
+   "viewpoint": "modern.glass-and-blur-earn-their-place"
+  },
+  {
+   "viewpoint": "modern.boring-and-familiar-beats-novel"
+  },
+  {
+   "viewpoint": "modern.defaults-are-decisions-you-inherited"
+  }
+ ]
+}

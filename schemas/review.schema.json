@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/review.schema.json",
+  "title": "uxcli review",
+  "description": "One lens read against one drawing or screen — .uxcli/mockups/<state>/<variant>.review.json or .uxcli/reviews/<name>.json. Every viewpoint of the lens is answered; an agent signs on a person's say-so.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "lens", "target", "answers", "by", "when"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "lens": { "enum": ["marketing", "content", "data", "workspace", "shop", "transaction"] },
+    "target": {
+      "type": "object", "additionalProperties": false, "required": ["kind"],
+      "properties": {
+        "kind": { "enum": ["mockup", "screen"] },
+        "state": { "type": "string", "minLength": 1 },
+        "variant": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "the drawing as it was when reviewed; a changed drawing makes the review stale" },
+        "url": { "type": "string", "minLength": 1 },
+        "run": { "type": "string", "minLength": 1, "description": "the run directory whose screenshot was reviewed" }
+      }
+    },
+    "answers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object", "additionalProperties": false, "required": ["verdict"],
+        "properties": { "verdict": { "enum": ["holds", "breaks", "n/a"] }, "where": { "type": "string" }, "note": { "type": "string" } }
+      }
+    },
+    "by": {
+      "type": "object", "additionalProperties": false, "required": ["type", "ref"],
+      "properties": { "type": { "enum": ["person", "role", "agent"] }, "ref": { "type": "string", "minLength": 1 }, "onBehalfOf": { "type": "string", "minLength": 1 } }
+    },
+    "when": { "type": "string", "minLength": 1 },
+    "note": { "type": "string" }
+  }
+}

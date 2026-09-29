@@ -66,8 +66,10 @@ Node 20+. `npx -y @junixlabs/uxcli <command>` works without installing.
 uxcli init --apply --origin=http://localhost:3000    # a rule file, the skill, .uxcli/ with the floor policy
 uxcli context show handle-inbound-lead               # read before you design
 uxcli mockups                                        # the screens drawn as the journey's flow; a person picks
+uxcli lens show workspace                            # named designers' viewpoints for this kind of UI
+uxcli review check                                   # every lens review complete, fresh, not contradicted by a probe
 uxcli run .uxcli/journeys/handle-inbound-lead.json   # measure after
-uxcli run http://localhost:3000/leads/1 --prove      # one screen: four probes, each pass made to earn it
+uxcli run http://localhost:3000/leads/1 --prove      # one screen: five probes, each pass made to earn it
 uxcli map                                            # the journey as screens: declared, observed, the difference, the verdicts
 ```
 
@@ -89,6 +91,19 @@ a journey with several lanes plays whole. A variant opens large with its pins an
 outlined where the browser found them (the `hooks` toggle shows them on the thumbnails too); two variants ticked `compare` sit side by side;
 the journey tabs filter the page to what one journey names. A picture someone made of a screen goes in
 `refs/` under that screen and is shown as a reference, never as a variant.
+
+`lens` is a library of viewpoints from named designers, 123 of them in four schools — usability
+(Nielsen, Norman, Krug, Baymard, Wroblewski, GOV.UK), practitioner craft (Wathan & Schoger, Kennedy),
+the classic canon (Rams, Vignelli, Müller-Brockmann, Bringhurst, Butterick, Tufte, Gestalt via NN/g) and
+modern product craft (Rauno Freiberg, Emil Kowalski, Linear, Vercel, Apple, Material, Ström, Brignull) —
+each with its author, work, page and words, packaged by the kind of UI it is read against: `marketing`,
+`content`, `data`, `workspace`, `shop`, `transaction`. Viewpoints that several schools state as one rule
+are one line of the checklist. `uxcli review <state>/<variant> --lens=<kind> --write` puts an empty review
+beside a drawing; the agent answers every viewpoint (holds with where, breaks with where and why, n/a with
+why) looking at the photograph, and `uxcli review check` refuses a review that skips one, is older than the
+drawing, or says `holds` where a probe the viewpoint names counted a break. The mockups page shows each
+review on its variant as the reviewer's claim. uxcli holds the library and checks the form; the rules are the
+designers', and a review is never a verdict. Every lens is on; `.uxcli/lenses.json` turns one off, with a name.
 
 `map` writes one page for the whole project: each journey as a strip of steps on a canvas, with
 four views — MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not),
@@ -155,6 +170,7 @@ The shape of every file: [`examples/crm/.uxcli/`](examples/crm/.uxcli/) and
 | screen | `contrast` | WCAG 1.4.3 | spec | ✅ 80 unseen pages, 0 false fails |
 | screen | `text-spacing` | WCAG 1.4.12 | spec | ✅ 80 unseen pages, 0 false fails |
 | screen | `text-overlap` | text painted over text | **opinion** | ⏳ unproven → `finding` |
+| screen | `nesting` | a box inside a box inside a box (Refactoring UI, Tufte, NN/g) | **research** | ⏳ unproven → `finding` |
 | journey | every signal in a declared state | the project's own journey | project | decided by the run |
 | journey | every measurement in a signed commitment | the project's own commitment | project | `method-validated` may fail; `method-unproven` may only find |
 
@@ -167,6 +183,9 @@ uxcli guide "<what you are about to do>"   # which command and which file, for a
 uxcli init [dir] [--apply --origin=URL]    # where the project stands and the first undone thing; --apply creates, never edits
 uxcli context show [journey]          # what to read before designing
 uxcli mockups [dir] [--viewport=WxH[,WxH…]]  # every screen's variants photographed; the picked ones as each journey's flow
+uxcli lens [show <kind>]              # the shipped lenses: named designers' viewpoints by kind of UI
+uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside a drawing (a URL with --name reviews a screen)
+uxcli review check                    # every review complete, fresh, and not contradicted by a probe
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
 uxcli run <url>                       # measure one screen       --prove --state=FILE --src=DIR

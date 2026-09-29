@@ -1,0 +1,1247 @@
+{
+ "schema_version": 1,
+ "school": "usability",
+ "name": "Usability and psychology",
+ "research": "docs/lenses/usability.md",
+ "viewpoints": [
+  {
+   "id": "usability.visibility-of-system-status",
+   "claim": "Every action with consequences shows the user something changed, as quickly as possible, so they always know what the system is doing.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "10 Usability Heuristics for User Interface Design, heuristic #1",
+    "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+    "quote": "The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Show a visible trace of every state change",
+    "Give feedback immediately, or as quickly as possible",
+    "Disable and label a control while its action runs"
+   ],
+   "forbids": [
+    "Submit silently",
+    "Change state with no visible trace",
+    "Show an action's result only somewhere else"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Drive an action, then diff DOM or pixels over the next frames: did anything visibly change within 1 s; is there a live region, status text, spinner or busy state?",
+    "mustFail": "A Save button posts and re-renders identical pixels for 3 s, then updates.",
+    "mustPass": "Same button disabled with 'Saving…' within 100 ms, then 'Saved' in a status element."
+   },
+   "exceptions": [
+    "Below 0.1 s no special feedback is needed beyond showing the result"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages have few stateful actions beyond a form submit or a subscribe click.",
+   "agrees": []
+  },
+  {
+   "id": "usability.feedback-within-a-second",
+   "claim": "Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "Response Times: The 3 Important Limits (1993)",
+    "url": "https://www.nngroup.com/articles/response-times-3-important-limits/",
+    "quote": "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Use a progress indicator for any action over about 1 s",
+    "Use a looped indicator for 2–9 s waits",
+    "Use a percent-done indicator for 10 s or more"
+   ],
+   "forbids": [
+    "Leave dead time with no indicator",
+    "Show a percent-done bar that lies badly"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.",
+    "mustFail": "A click triggers a 2.5 s fetch with no DOM change until the response.",
+    "mustPass": "Same fetch, spinner or skeleton painted under 400 ms after the click."
+   },
+   "exceptions": [
+    "Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages rarely trigger a wait worth a progress indicator.",
+   "agrees": [
+    "modern.interactions-feel-immediate-under-200ms"
+   ]
+  },
+  {
+   "id": "usability.speak-the-users-language",
+   "claim": "Write in the words the actor already uses; no internal jargon, error codes or unexplained abbreviations.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "10 Usability Heuristics for User Interface Design, heuristic #2",
+    "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+    "quote": "The design should speak the users' language. Use words, phrases, and concepts familiar to the user, rather than internal jargon."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use words the user understands without looking them up",
+    "Spell acronyms out in full on each page",
+    "Write 'for example', not 'eg' or 'ie'"
+   ],
+   "forbids": [
+    "Show bare error codes",
+    "Expose internal entity names",
+    "Use unexplained abbreviations"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Flag bare error codes (e.g. ERR-422, Error 0x…), all-caps acronyms not defined on the page, and Latin abbreviations; whether a term is jargon for this actor needs the journey's actor.",
+    "mustFail": "'ERR_VALIDATION_422: payload rejected'.",
+    "mustPass": "'Check the email address — it needs an @.'"
+   },
+   "exceptions": [
+    "Expert-only tools where the domain term is the users' language — match the user, do not simplify per se"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "usability.clearly-marked-emergency-exit",
+   "claim": "Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "10 Usability Heuristics for User Interface Design, heuristic #3",
+    "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+    "quote": "Users often perform actions by mistake. They need a clearly marked 'emergency exit' to leave the unwanted action without having to go through an extended process."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Support Undo and Redo",
+    "Show a clear Cancel or close control",
+    "Label the exit clearly and make it discoverable"
+   ],
+   "forbids": [
+    "Open a modal with no close",
+    "Build a wizard step with no back",
+    "Ship a destructive action with no undo"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.",
+    "mustFail": "A dialog whose only button is 'Continue' and which ignores Escape.",
+    "mustPass": "Same dialog with 'Cancel' and Escape wired."
+   },
+   "exceptions": [
+    "Legally required interstitials — the exit must still be visible, not necessarily free of consequence"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages open a dialog only occasionally, for a cookie or subscribe popup.",
+   "agrees": []
+  },
+  {
+   "id": "usability.minimalist-no-competing-information",
+   "claim": "Everything on the screen competes with the primary goal; remove what does not serve it so the main action stays visible.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "10 Usability Heuristics for User Interface Design, heuristic #8",
+    "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+    "quote": "Every extra unit of information in an interface competes with the relevant units of information and diminishes their relative visibility."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Prioritise content and features that support the primary goal",
+    "Keep the primary action in the first viewport",
+    "Let the small screen force focus on what matters"
+   ],
+   "forbids": [
+    "Let decorative elements distract",
+    "Let secondary content outweigh the primary action"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "At 360 px: count distinct interactive elements above the fold; whether the journey's primary action is within the first viewport; count of elements sharing the accent colour.",
+    "mustFail": "At 360 px the 'Continue' button sits below three promo cards and a newsletter box.",
+    "mustPass": "Same page, 'Continue' in the first viewport."
+   },
+   "exceptions": [
+    "Dense expert dashboards where the irreducible information is large"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Content, dashboards, admin tools and catalogue pages can legitimately carry a large irreducible amount of information (Tesler's law).",
+   "agrees": []
+  },
+  {
+   "id": "usability.help-in-context",
+   "claim": "The best help is none; when a field needs explaining, put a short hint beside it at the moment it is needed, not on another page.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "10 Usability Heuristics for User Interface Design, heuristic #10",
+    "url": "https://www.nngroup.com/articles/ten-usability-heuristics/",
+    "quote": "Whenever possible, present the documentation in context right at the moment that the user requires it."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use hint text for help relevant to most users",
+    "Keep hint text to one short sentence without full stops",
+    "Associate the hint with its input via aria-describedby"
+   ],
+   "forbids": [
+    "Put help only on a separate page",
+    "Put links inside hint text",
+    "Write lengthy explanations"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For inputs with a format expectation (date, postcode, card): a hint associated via aria-describedby and rendered adjacent, same column, within one line-height; hint length in sentences.",
+    "mustFail": "A date field whose format rules live only in a 'Help' link in the footer.",
+    "mustPass": "'For example, 27 3 2007' under the label."
+   },
+   "exceptions": [
+    "Nielsen's own first sentence: it is best if the system needs no additional explanation"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages carry no inputs to hint at; dashboards and catalogue pages carry few.",
+   "agrees": []
+  },
+  {
+   "id": "usability.signifiers-make-clickable-look-clickable",
+   "claim": "Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.",
+   "source": {
+    "author": "Kate Moran, NN/g",
+    "work": "Flat UI Elements Attract Less Attention and Cause Uncertainty (2017)",
+    "url": "https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/",
+    "quote": "22% more time"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Make links stand out from body text",
+    "Make buttons resemble physical buttons with rectangular shapes",
+    "Apply consistent treatment throughout the site",
+    "Provide signifiers rather than rely on affordances"
+   ],
+   "forbids": [
+    "Style linked text as static text",
+    "Use ghost buttons as the default",
+    "Use disabled buttons if avoidable",
+    "Rely on a label to say that a control is a control"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each a[href], button, [role=button]: computed colour, underline, border and background versus surrounding text; a link matching body colour with no underline and no other differentiator is weak; count disabled buttons.",
+    "mustFail": "a { color: inherit; text-decoration: none } inside a paragraph.",
+    "mustPass": "Same link with a distinct hue or an underline."
+   },
+   "exceptions": [
+    "Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger)",
+    "Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.signifiers-survive-flatness"
+   ]
+  },
+  {
+   "id": "usability.no-false-affordances",
+   "claim": "Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.",
+   "source": {
+    "author": "Hoa Loranger, NN/g",
+    "work": "Beyond Blue Links: Making Clickable Elements Recognizable (2015)",
+    "url": "https://www.nngroup.com/articles/clickable-elements/",
+    "quote": "Avoid making non-clickable items (like headings) resemble buttons."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Reserve link colour and underline for links",
+    "Reserve button shape and fill for buttons"
+   ],
+   "forbids": [
+    "Give static items hyperlink colours",
+    "Underline non-interactive text",
+    "Make headings or badges resemble buttons"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).",
+    "mustFail": "A <span class=\"btn\">Premium</span> badge styled exactly like the real buttons.",
+    "mustPass": "Same badge as a pill with no button colour and no pointer cursor."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.no-dead-zones-and-honest-clickability"
+   ]
+  },
+  {
+   "id": "usability.natural-mapping-and-proximity",
+   "claim": "Put a control next to the thing it changes and a label next to its field; gaps between groups must exceed gaps within them.",
+   "source": {
+    "author": "Marieke McCloskey, NN/g",
+    "work": "Form Design Quick Fix: Group Form Elements Effectively Using White Space (2013)",
+    "url": "https://www.nngroup.com/articles/form-design-white-space/",
+    "quote": "items near each other appear related"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Place labels as close to their fields as possible",
+    "Group related fields together",
+    "Place related targets close to each other",
+    "Put the call to action near the final form fields"
+   ],
+   "forbids": [
+    "Put a control far from the thing it changes",
+    "Separate groups by less space than their members"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Distance from each label to its own input versus the nearest other input; gap within a fieldset versus gap between fieldsets; distance from last input to the submit button.",
+    "mustFail": "Left labels 240 px from their inputs, uniform 16 px gaps everywhere.",
+    "mustPass": "Labels 4 px above inputs, 8 px within groups, 32 px between groups."
+   },
+   "exceptions": [
+    "Left-aligned labels are acceptable if space is constrained and labels are of similar length"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "canon.gestalt-proximity",
+    "craft.law-of-locality"
+   ]
+  },
+  {
+   "id": "usability.constraints-shift-complexity-to-the-system",
+   "claim": "Complexity that cannot be removed goes to the system, not the user: default what can be inferred, hide what is rarely needed.",
+   "source": {
+    "author": "Larry Tesler, via Jon Yablonski (Laws of UX)",
+    "work": "Tesler's Law — Laws of UX",
+    "url": "https://lawsofux.com/teslers-law/",
+    "quote": "For any system there is a certain amount of complexity which cannot be reduced"
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Set billing address equal to shipping by default",
+    "Hide Address Line 2 behind an expandable link",
+    "Collapse coupon code fields by default",
+    "Offer account creation after checkout completion"
+   ],
+   "forbids": [
+    "Ask for what the system can infer or default",
+    "Show rarely used fields by default"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count visible required inputs the page could default (no 'same as shipping' control, both address blocks open); presence of autocomplete tokens on address and payment inputs.",
+    "mustFail": "Two full address forms shown, no 'same as shipping' control.",
+    "mustPass": "One address form plus a checked 'Billing address is the same' toggle."
+   },
+   "exceptions": [
+    "Tognazzini's counter-view: users resist complexity reduction and attempt harder tasks when systems get simpler"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages take no input to default or hide; dashboards and catalogue pages ask for little.",
+   "agrees": []
+  },
+  {
+   "id": "usability.dont-make-me-think",
+   "claim": "A page's purpose and controls should be self-evident; nothing on it should raise a question the user must answer before acting.",
+   "source": {
+    "author": "Steve Krug",
+    "work": "Don't Make Me Think (2nd ed.), chapter 1 — Krug's First Law of Usability",
+    "url": "https://sensible.com/downloads/dmmt-toc.pdf",
+    "quote": "Don't make me think!"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Make the page's purpose obvious at a glance",
+    "Make every control self-evident"
+   ],
+   "forbids": [
+    "Raise a question the user must answer before acting"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "Look at the screen cold: is there anything you have to work out before you can act? The law is the sum of the other entries; a machine measures its symptoms, not the law.",
+    "mustFail": "",
+    "mustPass": ""
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "usability.mindless-clicks-not-fewer-clicks",
+   "claim": "Do not count clicks; make each one an unambiguous choice with clear link text that says where it goes.",
+   "source": {
+    "author": "Steve Krug",
+    "work": "Don't Make Me Think, Revisited — chapter 4 (Krug's Second Law of Usability)",
+    "url": "https://ptgmedia.pearsoncmg.com/images/9780321965516/samplepages/0321965515.pdf",
+    "quote": "It doesn't matter how many times I have to click, as long as each click is a mindless, unambiguous choice."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Write link text that identifies its target",
+    "Use breadcrumbs and hub pages for scent",
+    "Keep clear labelling with strong information scent"
+   ],
+   "forbids": [
+    "Count clicks as the metric",
+    "Use generic links like 'Click here' or 'Learn more'"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count links and buttons whose text is generic ('Click here', 'Learn more', 'Read more', bare 'Next') or duplicates another link's text with a different target; do not measure path length.",
+    "mustFail": "Three cards each with a 'Learn more' link to different pages.",
+    "mustPass": "'See pricing', 'Read the security policy', 'Compare plans'."
+   },
+   "exceptions": [
+    "Fewer clicks matter more when the same path is drilled repeatedly or pages take long to load (Krug)"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Dashboards, admin tools and transaction flows lean on a small set of known controls rather than open link navigation.",
+   "agrees": []
+  },
+  {
+   "id": "usability.visual-hierarchy-for-scanning",
+   "claim": "Design for scanning, not reading: headings that out-rank body text, bold key phrases, lists, and no walls of unformatted text.",
+   "source": {
+    "author": "Kara Pernice, NN/g",
+    "work": "F-Shaped Pattern of Reading on the Web (2017, rev. 2026)",
+    "url": "https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/",
+    "quote": "The F-shaped scanning pattern is bad for users and businesses."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Use prominent headings with information-rich opening words",
+    "Bold key phrases; employ lists and bullets",
+    "Remove unnecessary content"
+   ],
+   "forbids": [
+    "Leave walls of unstructured text",
+    "Let headings fail to out-rank body text visually",
+    "Let visual weight contradict importance"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Heading font-size and weight monotonic with level (h1 ≥ h2 ≥ h3 ≥ body); longest paragraph in words; ratio of headings and list items to total text blocks.",
+    "mustFail": "h2 rendered at 14 px regular while body is 16 px; 400-word paragraphs, no lists.",
+    "mustPass": "h2 at 24 px semibold, paragraphs ≤ 80 words, one list."
+   },
+   "exceptions": [
+    "The pattern needs moderate, not high, interest — highly motivated readers read"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Dashboards read numbers and charts more than prose, and admin tools and transaction screens carry less body text to scan.",
+   "agrees": [
+    "craft.hierarchy-is-everything-squint-test"
+   ]
+  },
+  {
+   "id": "usability.omit-needless-words",
+   "claim": "Cut word count by half: no happy-talk intros, no instruction paragraphs before forms, no marketese, sentence case everywhere.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "How Users Read on the Web (1997)",
+    "url": "https://www.nngroup.com/articles/how-users-read-on-the-web/",
+    "quote": "People rarely read Web pages word by word; instead, they scan the page"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Reduce word count by half compared to traditional writing",
+    "Limit paragraphs to one idea each",
+    "Use sentence case everywhere except proper nouns"
+   ],
+   "forbids": [
+    "Open with welcome or happy talk",
+    "Put instruction paragraphs before forms",
+    "Use promotional language ('marketese')",
+    "Set labels in ALL CAPS or Title Case"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Word count between a form's heading and its first input; word count of blocks starting 'Welcome' or 'Thank you for'; buttons and labels in all caps or Title Case; sentence count in instructions.",
+    "mustFail": "A 120-word paragraph explaining how to fill a 3-field form.",
+    "mustPass": "Heading, three labelled fields and one hint."
+   },
+   "exceptions": [
+    "Nielsen also asks for outbound links to build trust — brevity is not zero text"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Long-form docs and product descriptions legitimately carry more prose than the brevity rule assumes.",
+   "agrees": []
+  },
+  {
+   "id": "usability.follow-conventions",
+   "claim": "Work the way the sites and platforms users already know; a convention beats a locally optimised novelty.",
+   "source": {
+    "author": "Jakob Nielsen",
+    "work": "OK-Cancel or Cancel-OK? (2008)",
+    "url": "https://www.nngroup.com/articles/ok-cancel-or-cancel-ok/",
+    "quote": "Following platform conventions is more important than optimizing an individual dialog box."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Keep button order identical in every dialog",
+    "Highlight the most common button as default, except for dangerous actions",
+    "Prefer descriptive labels over 'OK'",
+    "Let users keep a familiar version for a while when changing"
+   ],
+   "forbids": [
+    "Invent a new pattern for a solved problem",
+    "Vary the same control's placement between screens"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Logo in header links home; a search input has type=search or a search label; primary/secondary button order is the same in every dialog; cart and account icons stay where they were on other screens.",
+    "mustFail": "Two dialogs on one site with opposite Cancel/Confirm order.",
+    "mustPass": "Identical order everywhere."
+   },
+   "exceptions": [
+    "Desktop apps follow their own OS: Windows OK-first, Apple OK-last"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Dashboards follow fewer platform-wide conventions than pages built from standard chrome; a stripped-down transaction flow may carry none of that chrome to check.",
+   "agrees": [
+    "modern.boring-and-familiar-beats-novel"
+   ]
+  },
+  {
+   "id": "usability.fitts-target-size-and-distance",
+   "claim": "Make targets big, space them apart, and put them where the pointer already is; touch targets at least 1 cm square.",
+   "source": {
+    "author": "Aurora Harley, NN/g",
+    "work": "Touch Targets on Touchscreens (2019)",
+    "url": "https://www.nngroup.com/articles/touch-target-size/",
+    "quote": "at least 1cm × 1cm (0.4in x 0.4in)"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Make targets big",
+    "Give icons labels so the label extends the target",
+    "Keep ample spacing between targets",
+    "Put the call to action near the final form fields"
+   ],
+   "forbids": [
+    "Pack icon-only 24 px controls edge to edge on touch layouts",
+    "Crowd targets"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Bounding box of each interactive element at the mobile viewport (1 cm ≈ 38 CSS px; 24/44 px are the usual proxies); centre-to-centre spacing; distance from last input to submit; label inside the clickable box.",
+    "mustFail": "20×20 px icon buttons 4 px apart.",
+    "mustPass": "44×44 px hit areas, 8 px gap."
+   },
+   "exceptions": [
+    "Infinite targets along screen edges for mouse — size matters less at an edge",
+    "Primary CTAs, moving users, children and the elderly need larger than the minimum"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "craft.tap-targets-and-control-height",
+    "modern.hit-targets-meet-platform-minimums"
+   ]
+  },
+  {
+   "id": "usability.hicks-fewer-choices-when-time-matters",
+   "claim": "Fewer equal-weight choices at a decision point, with one recommended; but never use seven as a cap on menu length.",
+   "source": {
+    "author": "Jon Yablonski (Laws of UX)",
+    "work": "Hick's Law — Laws of UX",
+    "url": "https://lawsofux.com/hicks-law/",
+    "quote": "The time it takes to make a decision increases with the number and complexity of choices."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Minimise choices when response time is critical",
+    "Highlight a recommended option",
+    "Keep longer menus if the alternative is abstract labels"
+   ],
+   "forbids": [
+    "Offer many equal-weight primary actions at one decision point",
+    "Use the 'magical number seven' to justify design limits",
+    "Simplify to the point of abstraction"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count same-weight primary actions in a view; count options in a select or radio group with no recommended default. A menu's item count alone is not a failure.",
+    "mustFail": "A pricing page with 6 plans, none highlighted, 6 identical 'Choose' buttons.",
+    "mustPass": "Same 6 plans, one marked 'Recommended' with the only filled button."
+   },
+   "exceptions": [
+    "Recognition, not recall, governs menus — length is a scan cost, not a memory cost (Nielsen)"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Reading content has no timed decision point to reduce choices at; dashboards and admin tools present choices but rarely under time pressure.",
+   "agrees": []
+  },
+  {
+   "id": "usability.aesthetic-usability-effect-bias",
+   "claim": "Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.",
+   "source": {
+    "author": "Kate Moran, NN/g",
+    "work": "The Aesthetic-Usability Effect (2024, rev. 2026)",
+    "url": "https://www.nngroup.com/articles/aesthetic-usability-effect/",
+    "quote": "Users' tendency to perceive attractive products as more usable. People tend to believe that things that look better will work better — even if they aren't actually more effective or efficient."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Rate your own screen after the measurable checks, not before",
+    "Treat polish as tolerance for minor problems only"
+   ],
+   "forbids": [
+    "Read polish as usability",
+    "Let an attractive surface hide a usability problem"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.",
+    "mustFail": "",
+    "mustPass": ""
+   },
+   "exceptions": [
+    "With severe usability issues, or functionality sacrificed for aesthetics, users lose patience"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "usability.postel-tolerant-input",
+   "claim": "Accept every reasonable form of an input — spaces, dashes, case, whitespace — and normalise it, instead of rejecting it.",
+   "source": {
+    "author": "Jon Yablonski (Laws of UX)",
+    "work": "Postel's Law — Laws of UX",
+    "url": "https://lawsofux.com/postels-law/",
+    "quote": "Be liberal in what you accept, and conservative in what you send."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Accept variable input and translate it to your format",
+    "Normalise on blur",
+    "Define boundaries and give clear feedback"
+   ],
+   "forbids": [
+    "Reject spaces or dashes in card or phone numbers",
+    "Reject leading or trailing whitespace in email",
+    "Treat email as case-sensitive",
+    "Force a date format the field could parse"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Drive each formatted field with equivalent variants ('4111 1111 1111 1111' vs '4111111111111111', ' a@b.co ', '+44 20…' vs '02…') and compare validation outcomes.",
+    "mustFail": "A card field shows an error for spaces.",
+    "mustPass": "Same value accepted and normalised on blur."
+   },
+   "exceptions": [
+    "Inputs where ambiguity is dangerous, such as dates in medical or legal contexts"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages take no formatted input; dashboards and catalogue pages take little beyond a search or promo box.",
+   "agrees": []
+  },
+  {
+   "id": "usability.von-restorff-one-emphasis",
+   "claim": "One visually distinct primary action per view, left-aligned with the form, and distinguished by more than colour.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Button component",
+    "url": "https://design-system.service.gov.uk/components/button/",
+    "quote": "Avoid using multiple default buttons on a single page. Having more than one main call to action reduces their impact, and makes it harder for users to know what to do next."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Make key actions visually distinctive",
+    "Use restraint so emphases do not compete",
+    "Align the primary button to the left edge of the form",
+    "Highlight the default, except for dangerous actions"
+   ],
+   "forbids": [
+    "Put two or more filled primary buttons in one view",
+    "Signal emphasis by colour alone"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Cluster interactive elements by computed background, border and weight; the most emphatic cluster per view must have one member; primary's left edge aligns with the inputs; emphasis differs in weight, fill or border, not colour only.",
+    "mustFail": "'Save' and 'Cancel' both solid brand-colour buttons.",
+    "mustPass": "'Save' filled, 'Cancel' as a text link."
+   },
+   "exceptions": [
+    "Do not pre-highlight a dangerous action as the default (Nielsen)"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Docs pages and dashboards often carry no single primary action to emphasise.",
+   "agrees": [
+    "craft.button-hierarchy-one-primary"
+   ]
+  },
+  {
+   "id": "usability.progress-indication-in-flows",
+   "claim": "In flows of three or more steps give some sense of position; do not assume a step bar helps — GOV.UK removed one with no effect.",
+   "source": {
+    "author": "Jon Yablonski (Laws of UX)",
+    "work": "Goal-Gradient Effect — Laws of UX",
+    "url": "https://lawsofux.com/goal-gradient-effect/",
+    "quote": "The tendency to approach a goal increases with proximity to the goal."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Show a step or position label in long flows",
+    "Update the position between steps"
+   ],
+   "forbids": [
+    "Leave a long wizard with no step label anywhere",
+    "Cite the Zeigarnik effect as the reason for a progress bar",
+    "Fake progress to manipulate"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Presence of a step or position element in flows with 3 or more steps, and whether it updates between steps.",
+    "mustFail": "A 6-step wizard with no step label anywhere.",
+    "mustPass": "'Step 2 of 6' or a heading that changes each step."
+   },
+   "exceptions": [
+    "Short flows — GOV.UK's own guidance omits indicators by default",
+    "Artificial 'endowed progress' edges toward manipulation — flag, do not recommend"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Only multi-step flows have a position to show; marketing, content, data and shop screens are single views, admin only when it runs a setup wizard.",
+   "agrees": []
+  },
+  {
+   "id": "usability.peak-end-finish-well",
+   "claim": "End every journey on a reachable confirmation with a next step, never on an error, a blank page or a dead end.",
+   "source": {
+    "author": "Jon Yablonski (Laws of UX)",
+    "work": "Peak-End Rule — Laws of UX",
+    "url": "https://lawsofux.com/peak-end-rule/",
+    "quote": "People judge an experience largely based on how they felt at its peak and at its end, rather than the total sum or average of every moment of the experience."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Design the final moment of the journey deliberately",
+    "Give the terminal state a confirmation and an onward link"
+   ],
+   "forbids": [
+    "End a flow on an error",
+    "End a flow on a blank page",
+    "End a flow on a dead end with no next step"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "After the final action: a confirmation screen or status exists, is reachable, has at least one onward link and no error state.",
+    "mustFail": "Form submit returns to the same page with fields cleared and no message.",
+    "mustPass": "'Application sent — reference ABC123. What happens next…' with a link."
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Dashboards and reading content have no terminal state; a marketing, admin or shop task ends well only when its action hands off to a flow elsewhere.",
+   "agrees": []
+  },
+  {
+   "id": "usability.banner-blindness-dont-style-content-like-ads",
+   "claim": "Keep essential content and the primary action in the main column, styled like content, never in a right rail, top strip or animated coloured box.",
+   "source": {
+    "author": "Kara Pernice, NN/g",
+    "work": "Banner Blindness Revisited (2018)",
+    "url": "https://www.nngroup.com/articles/banner-blindness-old-and-new-findings/",
+    "quote": "Users have learned to ignore content that resembles ads, is close to ads, or appears in locations traditionally dedicated to ads."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Put essential content in the main column",
+    "Style key notices like content"
+   ],
+   "forbids": [
+    "Put the primary CTA in the right rail or a top banner strip",
+    "Give a key notice animation, coloured background or fancy formatting",
+    "Place essential content next to real ads"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Is the journey's primary action or a required notice positioned in the right rail (x > 70% of desktop viewport) or in a full-width top strip with background fill and animation?",
+    "mustFail": "'Complete your profile' only as an animated right-rail card.",
+    "mustPass": "Same prompt inline in the main column on a plain background."
+   },
+   "exceptions": [
+    "On mobile, large inline ads do get fixated — the effect is weaker for inline placement"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "A one-thing-per-page transaction screen, and dense admin and dashboard layouts, carry less of a rail or banner strip in which to misplace content.",
+   "agrees": []
+  },
+  {
+   "id": "usability.placeholders-are-not-labels",
+   "claim": "Every input has a visible label outside the field; placeholder text is never the label, the hint or the only format example.",
+   "source": {
+    "author": "Katie Sherwin, NN/g",
+    "work": "Placeholders in Form Fields Are Harmful (2014)",
+    "url": "https://www.nngroup.com/articles/form-design-placeholders/",
+    "quote": "Disappearing placeholder text strains users' short-term memory."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Give every text input a visible label",
+    "Put hints outside empty form fields"
+   ],
+   "forbids": [
+    "Use placeholder text in place of a label",
+    "Use placeholder text for hints or examples",
+    "Hide the label visually and rely on the placeholder"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Any input or textarea with a placeholder and no visible associated label, or with a visually hidden label; placeholder used as the only format example.",
+    "mustFail": "<input placeholder=\"Email\"> with no label.",
+    "mustPass": "<label for=e>Email</label><input id=e>."
+   },
+   "exceptions": [
+    "A single-field search where the button label carries the meaning is the usual carve-out; the fetched page states none explicitly"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing, content, dashboard and catalogue pages carry at most a search or email field.",
+   "agrees": []
+  },
+  {
+   "id": "usability.labels-above-fields",
+   "claim": "Stack the label above its field, left edges aligned, a few pixels apart, so label and field are read in one fixation.",
+   "source": {
+    "author": "Marieke McCloskey, NN/g",
+    "work": "Form Design Quick Fix: Group Form Elements Effectively Using White Space (2013)",
+    "url": "https://www.nngroup.com/articles/form-design-white-space/",
+    "quote": "users can see the text field in the same fixation as the label"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Top-align labels for familiar data like names, addresses and payment",
+    "Let users move in one direction: downward"
+   ],
+   "forbids": [
+    "Put left labels far from their fields",
+    "Use right-justified labels with a ragged left edge",
+    "Put the label inside the field"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each label/input pair: label box bottom ≤ input box top and label left edge ≈ input left edge within a few px; if side by side, the gap between label right edge and input left edge.",
+    "mustFail": "Right-aligned labels in a 200 px column, inputs in a second column, 24 px gap.",
+    "mustPass": "Labels stacked above inputs, 4–8 px gap."
+   },
+   "exceptions": [
+    "Landscape phones: switch to left-aligned to keep the field visible above the keyboard (Baymard)",
+    "Left-aligned is acceptable when labels are of similar length and as close to the fields as possible (NN/g)"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages carry no labelled fields; dashboards and catalogue pages carry few.",
+   "agrees": []
+  },
+  {
+   "id": "usability.single-column-forms",
+   "claim": "Forms run in one vertical column; only coherent entities like city/state/ZIP or card/expiry/CVV share a row.",
+   "source": {
+    "author": "Baymard Institute",
+    "work": "Form Field Usability: Avoid Extensive Multicolumn Layouts (2023)",
+    "url": "https://baymard.com/blog/avoid-multi-column-forms",
+    "quote": "Use a single-column layout to support users' visual understanding of forms"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Keep one vertical path through the form",
+    "Allow a shared row only for a single coherent entity"
+   ],
+   "forbids": [
+    "Lay out two independent question columns"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Cluster inputs by left x-coordinate; more than one column of independent inputs, not in the same fieldset or an allowed coherent row, fails.",
+    "mustFail": "Name and email in column 1, phone and company in column 2.",
+    "mustPass": "All four stacked, with expiry and CVV side by side."
+   },
+   "exceptions": [
+    "Coherent-entity rows: city/state/ZIP and card number/expiry/security code"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages carry no multi-field forms; dashboards and catalogue pages rarely have one with more than a field or two, and expert admin tools may intentionally use denser multi-column layouts for speed.",
+   "agrees": []
+  },
+  {
+   "id": "usability.field-width-matches-expected-input",
+   "claim": "Size each input to the data it expects: short boxes for year, postcode and CVV; one consistent width for variable data like email.",
+   "source": {
+    "author": "Jamie Holst, Baymard Institute",
+    "work": "Form Field Usability: Matching User Expectations (2010)",
+    "url": "https://baymard.com/blog/form-field-usability-matching-user-expectations",
+    "quote": "Matching your customer's expectations – even when it comes to the subconscious expectations of how wide an input field should be – is crucial."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Fit fixed-length data with a width that matches it",
+    "Give variable common data one consistent width"
+   ],
+   "forbids": [
+    "Make a CVV box as wide as an address line",
+    "Let a card-number field visibly truncate"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Rendered input width in ch of its font versus maxlength, inputmode, autocomplete token or pattern length: cc-csc wider than ~8 ch, postal-code at full width, or email narrower than ~20 ch.",
+    "mustFail": "CVV input at 100% width.",
+    "mustPass": "CVV at 5 ch, card number at 22 ch."
+   },
+   "exceptions": [
+    "Full-width inputs on narrow phones are the norm — check at desktop widths or compare relative widths within the form"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages carry no typed inputs of known length; dashboards and catalogue pages carry few.",
+   "agrees": []
+  },
+  {
+   "id": "usability.inline-validation-after-leaving-field",
+   "claim": "Validate a hard field after the user leaves it, never on focus or while typing, and clear the error live once it is fixed.",
+   "source": {
+    "author": "Luke Wroblewski with Etre",
+    "work": "Inline Validation in Web Forms (A List Apart #291, 2009)",
+    "url": "https://alistapart.com/article/inline-validation-in-web-forms/",
+    "quote": "22% increase in success rates … 42% decrease in completion times … 47% decrease in eye fixations"
+   },
+   "evidence": "study",
+   "prefers": [
+    "Validate on blur or when the input reaches its expected length",
+    "Re-check on each keystroke once an error shows and clear it when fixed",
+    "Keep success and error messages visible rather than fading",
+    "Reserve inline validation for hard fields like username and password"
+   ],
+   "forbids": [
+    "Validate before and while typing",
+    "Show an error on focus of an empty field",
+    "Validate only on submit"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Drive a field: focus shows no error; typing an invalid value shows none (unless length threshold reached); blur shows an error adjacent via aria-describedby; typing a fix clears it without blur.",
+    "mustFail": "Error text renders the moment the field receives focus.",
+    "mustPass": "Error only after blur, cleared on the corrected keystroke."
+   },
+   "exceptions": [
+    "Simple fields need none; premature validation was worse than none (Wroblewski)"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages carry no hard fields worth validating inline; dashboards and catalogue pages rarely do either.",
+   "agrees": []
+  },
+  {
+   "id": "usability.fewer-checkout-fields",
+   "claim": "Count fields, not steps: a guest checkout needs about eight, with optional fields collapsed behind links and billing defaulted to shipping.",
+   "source": {
+    "author": "Baymard Institute",
+    "work": "Checkout Optimization: minimize form fields (2024)",
+    "url": "https://baymard.com/blog/checkout-flow-average-form-fields",
+    "quote": "The number of form fields in a checkout impacts overall usability far more than the number of steps."
+   },
+   "evidence": "study",
+   "prefers": [
+    "Consolidate to a single 'Full Name' field",
+    "Hide Address Line 2 and the coupon field behind links",
+    "Default billing to shipping",
+    "Offer account creation after purchase"
+   ],
+   "forbids": [
+    "Count steps as the metric",
+    "Show every optional field by default"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count visible input, select and textarea across the checkout (excluding hidden and collapsed); optional fields shown expanded; separate first/last name fields; an open coupon field.",
+    "mustFail": "14 visible fields including Address Line 2, Company, coupon and two address blocks.",
+    "mustPass": "8 fields with 'Add address line 2' and 'Have a coupon?' as disclosure links."
+   },
+   "exceptions": [
+    "Regulatory or fraud fields that genuinely cannot be defaulted",
+    "The minimum of 8 assumes a standard guest checkout"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "yes"
+   },
+   "kindsWhy": "The count is calibrated on checkout and sign-up, which are transaction screens; it transfers loosely to admin create-record forms and not at all to marketing, content, data or shop screens, which are not checkouts.",
+   "agrees": []
+  },
+  {
+   "id": "usability.one-thing-per-page",
+   "claim": "Split a public-facing form so each page asks one question, decision or piece of information, with eligibility questions first.",
+   "source": {
+    "author": "GOV.UK Service Manual",
+    "work": "Structuring forms (2018)",
+    "url": "https://www.gov.uk/service-manual/design/form-structure",
+    "quote": "Start by splitting the form across multiple pages with each page containing just one thing"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Ask one question per page",
+    "Start with questions that reveal ineligibility",
+    "Branch so people answer only relevant questions",
+    "Break complex tasks into smaller steps"
+   ],
+   "forbids": [
+    "Put a long multi-section form in a public-facing transactional service"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count distinct questions (label groups or fieldsets) per page in a flow; count required inputs per page.",
+    "mustFail": "One page with 9 unrelated questions.",
+    "mustPass": "9 pages, one question each, with a check-answers page."
+   },
+   "exceptions": [
+    "Be consistent, not uniform: internal expert tools and repeat users may prefer denser pages"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "no",
+    "workspace": "no",
+    "shop": "no",
+    "transaction": "yes"
+   },
+   "kindsWhy": "The rule is for public transactional flows; the other five kinds are not structured as a sequence of one-question pages.",
+   "agrees": []
+  },
+  {
+   "id": "usability.start-with-user-needs-design-with-data",
+   "claim": "Name the actor and their need before drawing a screen, then let measured behaviour, not hunches or looks, decide what changes.",
+   "source": {
+    "author": "GDS / GOV.UK",
+    "work": "Government Design Principles, principles 1, 3 and 4",
+    "url": "https://www.gov.uk/guidance/government-design-principles",
+    "quote": "Service design starts with identifying user needs. If you don't know what the user needs are, you won't build the right thing."
+   },
+   "evidence": "author",
+   "prefers": [
+    "State the actor and need before the screen",
+    "Measure real behaviour",
+    "Start small and iterate"
+   ],
+   "forbids": [
+    "Design to a hunch",
+    "Design to an aesthetic"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "Does the journey name its actor and need (uxcli context show), and is the design decision traceable to observed behaviour rather than a hunch or a look?",
+    "mustFail": "",
+    "mustPass": ""
+   },
+   "exceptions": [],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  }
+ ]
+}

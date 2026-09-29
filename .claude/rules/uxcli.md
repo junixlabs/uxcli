@@ -8,4 +8,4 @@ Signing is not the same act as erasing a verdict. Do not edit a commitment, a jo
 
 Before designing or changing a screen, read `uxcli context show <journey>`: the actor's unknowns, the insights at the confidence their evidence allows, the states the screen must hold and the hooks each needs. Then draw the screen before building it: two or three variants under `.uxcli/mockups/<state>/`, `uxcli mockups` to see them as the journey's flow, and a person picks in `pick.json`. Build the picked variant to that card; do not invent what it does not carry.
 
-Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: four probes found no fail. The `uxcli` skill is the sequence, and its `references/before-done.md` lists what those probes do not look at.
+Never say UI work is finished before uxcli exits 0 — and exit 0 is a floor, not a verdict on the interface: five probes found no fail. The `uxcli` skill is the sequence, and its `references/before-done.md` lists what those probes do not look at.

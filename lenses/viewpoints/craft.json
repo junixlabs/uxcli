@@ -1,0 +1,1313 @@
+{
+ "schema_version": 1,
+ "school": "craft",
+ "name": "Practitioner craft",
+ "research": "docs/lenses/craft.md",
+ "viewpoints": [
+  {
+   "id": "craft.fewer-borders",
+   "claim": "Separate elements with space, a background shift, a shadow or striping before reaching for a border; too many borders make a design busy.",
+   "source": {
+    "author": "Adam Wathan & Steve Schoger",
+    "work": "Refactoring UI",
+    "url": "https://www.refactoringui.com/",
+    "quote": "Borders are a great way to distinguish two elements from one another, but using too many of them can make your design feel busy and cluttered."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Separate groups with space",
+    "Shift the background colour or add a shadow instead of a line",
+    "Zebra-stripe table rows instead of ruling them"
+   ],
+   "forbids": [
+    "Use a 1px border as the default grouping device",
+    "Wrap a nav in a panel that only needs to recede",
+    "Rule every table row with a border when striping would do"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For every text node, count ancestors with a visible border, non-none box-shadow or outline; report max nesting depth and bordered boxes per viewport.",
+    "mustFail": "Card with border:1px solid inside a bordered section inside a bordered page container, all only grouping (depth 3).",
+    "mustPass": "Same DOM; outer two borders replaced by margin-top:32px and a #f7f7f8 band; only the card keeps its border (depth 1).",
+    "probe": "page.nesting"
+   },
+   "exceptions": [
+    "Form inputs and the one object a person acts on keep their border",
+    "Keylines that make disconnected content feel connected",
+    "Decorative borders as style once the count is low"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.fewer-borders-more-space"
+   ]
+  },
+  {
+   "id": "craft.separation-order-space-then-lines-then-boxes",
+   "claim": "Use the lightest separator that works: more space first, then a keyline or background band, and a box only for the object that is acted on.",
+   "source": {
+    "author": "Adam Wathan & Steve Schoger; Erik D. Kennedy",
+    "work": "Refactoring UI (fewer-borders tactic); 7 Rules for Creating Gorgeous UI, Part 1",
+    "url": "https://www.refactoringui.com/",
+    "quote": ""
+   },
+   "evidence": "folklore",
+   "prefers": [
+    "Separate with whitespace by default",
+    "Add a keyline or background band only when space alone fails",
+    "Box only the object a person acts on"
+   ],
+   "forbids": [
+    "Reach for a card or border first"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Between sibling groups, record which separator is used: gap at least 2x the inner gap (space), hr or border-bottom (line), bordered or shadowed wrapper (box); report the inner/outer gap ratio.",
+    "mustFail": "Three sibling groups each in a bordered box, 8px between boxes and 8px inside them.",
+    "mustPass": "Same groups, no wrappers, 8px inside and 32px between."
+   },
+   "exceptions": [
+    "Dense data such as tables where zebra stripes or keylines are used",
+    "Interactive cards that are the unit of action"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.fewer-borders-more-space"
+   ]
+  },
+  {
+   "id": "craft.hierarchy-is-everything-squint-test",
+   "claim": "Squint: the most important thing must catch the eye first and the least important last; one element dominates each screen.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "4 Rules for Intuitive UX",
+    "url": "https://www.learnui.design/blog/4-rules-intuitive-ux.html",
+    "quote": "If you squint your eyes, the Most Important Thing should catch your eye first – and the least important elements should catch your eye last."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Give each screen one dominant element",
+    "Emphasize the most-used functionality",
+    "De-emphasize, hide or remove the rarely used"
+   ],
+   "forbids": [
+    "Make the primary action grey and unnoticeable beside a bigger, brighter Help",
+    "Render two identical grey buttons where one is the main action"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Given a declared primary action, score every interactive element as area x contrast x font-weight factor; the declared primary must rank first, and no set of buttons may sit within 10% of each other.",
+    "mustFail": "Submit as a grey 12px text button, Help as a 16px filled blue button.",
+    "mustPass": "Submit filled in brand colour at 16px, Help a plain text link."
+   },
+   "exceptions": [
+    "Page titles are the only element styled all-out up-pop",
+    "A browsing page such as a gallery may have no single most important thing"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "usability.visual-hierarchy-for-scanning"
+   ]
+  },
+  {
+   "id": "craft.size-isnt-everything-use-weight-and-colour",
+   "claim": "Build text hierarchy from two or three colours and two weights; use size only for real levels.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 19 Sep 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "Font size isn't always the best way to emphasize or de-emphasize text, try using color and font weight instead"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use primary, secondary and tertiary text greys",
+    "Use two font weights",
+    "Style section labels small, bold, uppercase and softer"
+   ],
+   "forbids": [
+    "Give every level of importance its own font-size",
+    "Render labels as big bold headings"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count distinct computed text colours and font-weights; check that secondary text differs from primary by colour or weight, not only by size.",
+    "mustFail": "Six text levels realised as six font-sizes, all #000, all weight 400.",
+    "mustPass": "Three sizes, three greys, two weights."
+   },
+   "exceptions": [
+    "Display and marketing headlines where size is the hierarchy"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Maybe outside content: applies to the heading and meta-text blocks, not to charts, tables of values, product tiles or form fields.",
+   "agrees": []
+  },
+  {
+   "id": "craft.de-emphasize-to-emphasize-up-pop-down-pop",
+   "claim": "To emphasize, quiet the competitors as much as you loudify the hero; never stack every up-pop property on non-title elements.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "7 Rules for Creating Gorgeous UI, Part 2",
+    "url": "https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-2.html",
+    "quote": "If an element needs emphasis, apply BOTH up-pop and down-pop styles — but slightly MORE up-pop."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set big numbers light and lower-contrast",
+    "Set small labels uppercase and bold",
+    "Make the competitor quieter rather than the hero louder"
+   ],
+   "forbids": [
+    "Stack big, bold, bright and uppercase on any element that is not the page title"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Flag text at 2x body size or more that is also font-weight 700+, full contrast and uppercase, when it is not the page h1.",
+    "mustFail": "Stat card: number 48px/800/#000, label 18px/800/#000/uppercase.",
+    "mustPass": "Number 48px/300/#334; label 12px/700/uppercase/#777 with letter-spacing."
+   },
+   "exceptions": [
+    "The page title may be all-out up-pop"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Maybe on content, workspace and transaction: applies where one element must lead (page title, primary action), not to uniform text or rows.",
+   "agrees": []
+  },
+  {
+   "id": "craft.dont-use-grey-text-on-coloured-backgrounds",
+   "claim": "On a coloured background, soften text by hand-picking a tint of the background hue, never by neutral grey or reduced opacity.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 12 Jun 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "Pure grey text always looks 'off' on a colored background. A quick fix is to saturate your text with a bit of the background hue."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Pick a text colour that shares the background hue at reduced contrast",
+    "Rotate the hue toward a brighter neighbour for perceived brightness"
+   ],
+   "forbids": [
+    "Put zero-saturation grey text on a saturated background",
+    "Soften text on colour with opacity below 1 or an rgba alpha"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For text whose effective background has HSL saturation above 30%: fail if text saturation is under 5% with lightness 20–80%, or if text opacity or alpha is below 1.",
+    "mustFail": "background:#2563eb; color:#9ca3af",
+    "mustPass": "background:#2563eb; color:#bfdbfe"
+   },
+   "exceptions": [
+    "White and near-black text are not grey for this rule",
+    "Disabled states are a separate convention"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Maybe everywhere: applies only where text sits on a coloured background (hero bands, banners, badges, coloured panels).",
+   "agrees": []
+  },
+  {
+   "id": "craft.greys-dont-have-to-be-grey-never-use-black",
+   "claim": "Tint the neutral scale toward the brand hue and never use pure black for text.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 19 Mar 2018)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "'Grey' doesn't have to mean Grey™. Try saturating your greys with a bit of blue or brown for a cooler or warmer feel."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Tint the grey scale toward the brand hue",
+    "Raise saturation at the light and dark ends of the scale"
+   ],
+   "forbids": [
+    "Use #000 for text",
+    "Use pure zero-saturation greys as the whole neutral palette"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count text, border and background colours with saturation 0 and lightness under 15%, and the share of neutral swatches with saturation exactly 0.",
+    "mustFail": "color:#000 body text on #fff",
+    "mustPass": "color:#1f2937"
+   },
+   "exceptions": [
+    "It does not always work; worth a trial",
+    "High-contrast or accessibility modes and print"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": []
+  },
+  {
+   "id": "craft.start-with-too-much-whitespace",
+   "claim": "Start with far more breathing room than feels necessary and remove it until it works; browser-default spacing is the largest mistake.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "7 Rules for Creating Gorgeous UI, Part 1",
+    "url": "https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html",
+    "quote": "To make UI that looks designed, add a lot of breathing room. … Sometimes a ridiculous amount."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Pad controls at least the text's own height",
+    "Space list and nav items twice the text height",
+    "Separate groups with much more space than sits within them"
+   ],
+   "forbids": [
+    "Ship browser-default spacing with everything smashed toward the top"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Ratio of vertical padding to font-size on list items, nav items and buttons; ratio of gap between groups to gap within a group.",
+    "mustFail": "Nav links padding:2px 4px at 14px; sections margin:0.",
+    "mustPass": "Nav links padding:12px 16px; sections margin-top:48px."
+   },
+   "exceptions": [
+    "Dense professional, interaction-heavy tools may compress, but spacing must stay consistent"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "no",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "No on workspace, whose screens want density for repeated work; maybe on data and transaction around the header and group gaps, not inside tables or fields.",
+   "agrees": [
+    "canon.vignelli-white-space-is-the-silence"
+   ]
+  },
+  {
+   "id": "craft.spacing-and-sizing-system",
+   "claim": "Draw every margin, padding and gap from one scale, and make space between groups clearly larger than space within them.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 13 Jul 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "Using multiples to define your spacing is a great way to achieve vertical rhythm and provides a formula to justify your choices"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Take spacing from a ladder of multiples of 4",
+    "Make between-group gaps larger than within-group gaps"
+   ],
+   "forbids": [
+    "Use one-off values such as 13px or 27px",
+    "Use equal gaps across a group boundary"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Collect all computed margin, padding and gap values above 0; report distinct values and how many are off a 4px grid; compare label-to-field gap with field-to-next-label gap.",
+    "mustFail": "Paddings {7, 11, 13, 18, 27}; label to input 12px and input to next label 12px.",
+    "mustPass": "Paddings {8, 12, 16, 24, 32}; label to input 4px, field to field 24px."
+   },
+   "exceptions": [
+    "Optical adjustments on icons and hanging punctuation sit a pixel or two off-scale"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.spacing-comes-from-a-scale",
+    "canon.gestalt-proximity"
+   ]
+  },
+  {
+   "id": "craft.grids-are-overrated-content-dictates-width",
+   "claim": "Let content dictate its own width and the layout follow; do not stretch components because the screen grew.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "Why Beginning Designers Don't Need Grids, Type Scales, or Color Theory",
+    "url": "https://www.learnui.design/blog/why-beginning-designers-dont-need-grids-type-scales-color-theory.html",
+    "quote": "The hassle with grids is that they force the content into a specific width. Content should always dictate it's own width … and the layout should follow suit."
+   },
+   "evidence": "author",
+   "prefers": [
+    "On mobile align to three rulers: 16px left, centre, 16px right",
+    "Keep content at fixed sizes such as a 72px thumbnail"
+   ],
+   "forbids": [
+    "Stretch every element wider because the phone got wider",
+    "Size components by percentage so they shrink below their content's need"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "At 360–414px viewport, every content edge sits at 16px (or one consistent gutter) from the viewport edge and nothing overflows horizontally.",
+    "mustFail": "Page with padding:0 at 375px whose text touches the edge, or a width:8.33% column producing a 26px cell.",
+    "mustPass": "16px gutters, fixed 72px thumbnail, text fills the rest."
+   },
+   "exceptions": [
+    "Strict grids for posters and websites where the artistry of the composition matters more than the information"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "No on data, where dashboards fill the width on purpose; maybe on marketing, content, workspace and shop for forms, cards and text blocks that should not stretch.",
+   "agrees": []
+  },
+  {
+   "id": "craft.type-scale-few-font-sizes",
+   "claim": "Use about four font sizes from a fixed scale; reuse the default size for body, menus, lists and controls.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "The Responsive Website Font Size Guidelines",
+    "url": "https://www.learnui.design/blog/mobile-desktop-website-font-size-guidelines.html",
+    "quote": "Even the most interaction-heavy pages can typically look just fine with about 4 font sizes total."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use header, default, secondary (default minus 2px) and one wildcard size",
+    "Reuse the default size across body, menus, lists and controls"
+   ],
+   "forbids": [
+    "Invent a new size per component",
+    "Apply a strict modular or golden-ratio scale to responsive pages"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count distinct computed font-size values on visible text per viewport and how many fall outside the declared scale.",
+    "mustFail": "11 distinct sizes {11,12,13,14,15,16,17,18,19,22,26}.",
+    "mustPass": "{12,14,16,24} — four values, all on the scale."
+   },
+   "exceptions": [
+    "Sizes must stay distinguishable, so large text may step many points apart",
+    "Marketing pages may add a display size"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "canon.vignelli-two-type-sizes",
+    "canon.bringhurst-compose-with-a-scale"
+   ]
+  },
+  {
+   "id": "craft.body-16px-line-height-1-5",
+   "claim": "Body copy at 16px or more with 1.5 line height; inputs at 16px or more on mobile.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 1 Jun 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "If in doubt, 16px font with 1.5 line height is pretty good safe for body copy."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set body at 16px or more, secondary about 2px smaller",
+    "Set inputs at 16px or more on mobile",
+    "Set text-heavy desktop pages at 18–24px"
+   ],
+   "forbids": [
+    "Set body text under 16px on phones",
+    "Set inputs under 16px on iOS"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "At a 375px viewport, computed font-size of paragraph text and of input, textarea and select; line-height divided by font-size for paragraphs.",
+    "mustFail": "p{font-size:13px;line-height:1.1} input{font-size:14px}",
+    "mustPass": "p{font-size:16px;line-height:1.5} input{font-size:16px}"
+   },
+   "exceptions": [
+    "Interaction-heavy desktop pages may go to 14px",
+    "Captions sit 2px under body by design"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "No on data, whose numbers and tables run dense; maybe on marketing, workspace and shop for their paragraphs and inputs only.",
+   "agrees": [
+    "canon.butterick-body-size-15-25px",
+    "canon.butterick-line-spacing-120-145",
+    "modern.readable-type-sizes-and-weights",
+    "modern.mobile-inputs-do-not-zoom-or-trap"
+   ]
+  },
+  {
+   "id": "craft.line-height-tightens-as-text-grows",
+   "claim": "Line height is proportional: tighten it as text gets larger and loosen it as lines get longer.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 27 Feb 2018)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "1.5 may work great for body copy, but as text gets larger, your line-height should get tighter."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Set headings around 1.1–1.25 and body around 1.5",
+    "Give longer measures more leading"
+   ],
+   "forbids": [
+    "Inherit one line-height:1.5 onto 40px headlines",
+    "Set line-height:1 on paragraphs"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each text element compute line-height divided by font-size; the ratio on headlines at 2x body or larger must be smaller than the body ratio.",
+    "mustFail": "h1{font-size:40px;line-height:1.6} p{line-height:1.6}",
+    "mustPass": "h1{line-height:1.15} p{line-height:1.5}"
+   },
+   "exceptions": [
+    "Single-line headings where line height is invisible",
+    "No one-size-fits-all number; assert direction only"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "no",
+    "workspace": "no",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "No on data, workspace and transaction, which have no large display type or long lines; maybe on shop for product headings and descriptions.",
+   "agrees": []
+  },
+  {
+   "id": "craft.line-length-50-75-characters",
+   "claim": "Cap paragraph measure at 50–75 characters per line and do not let it fall under about 30.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "The Responsive Website Font Size Guidelines",
+    "url": "https://www.learnui.design/blog/mobile-desktop-website-font-size-guidelines.html",
+    "quote": "Body text should have 50-75 characters per line."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Cap paragraph width with max-width in ch"
+   ],
+   "forbids": [
+    "Stretch paragraphs across a 1440px viewport"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each p with 3 or more rendered lines, estimate characters per line from element width divided by average glyph advance.",
+    "mustFail": "A p 1200px wide at 16px type, about 150 characters per line.",
+    "mustPass": "Same paragraph with max-width:65ch."
+   },
+   "exceptions": [
+    "Tables and forms are not paragraph text",
+    "Blurbs under 3 lines are not measured"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "no",
+    "workspace": "no",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "No on data, workspace and transaction, which carry no long paragraphs; maybe on marketing and shop for body copy and product descriptions.",
+   "agrees": [
+    "canon.bringhurst-measure-45-75"
+   ]
+  },
+  {
+   "id": "craft.letter-spacing-for-all-caps",
+   "claim": "Pair uppercase text with positive letter-spacing; track large bold headlines slightly negative.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 31 May 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "All-caps can sometimes be difficult to read. Consider using letter-spacing to give your text a little more room to breathe"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Pair text-transform:uppercase with about 0.05em letter-spacing and a slightly smaller size",
+    "Track large bold headlines about -1%"
+   ],
+   "forbids": [
+    "Leave uppercase labels at letter-spacing:normal"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For text with text-transform:uppercase or all-caps content of 4 or more letters, fail if computed letter-spacing is normal or 0.",
+    "mustFail": ".label{text-transform:uppercase}",
+    "mustPass": ".label{text-transform:uppercase;letter-spacing:.05em}"
+   },
+   "exceptions": [
+    "Logos and wordmarks",
+    "Single-letter avatars",
+    "Monospace text"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Maybe everywhere: applies only where uppercase labels, eyebrows or table headers or large bold headlines occur.",
+   "agrees": [
+    "canon.bringhurst-letterspace-caps-5-10"
+   ]
+  },
+  {
+   "id": "craft.balance-weight-and-contrast-icons-lighter",
+   "claim": "Counterbalance heavy icons beside text by giving them a softer colour than the text; keep one icon set.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 8 Jun 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "If I am using icons that have more weight than the text, I typically make the icons slightly lighter than the text for inactive states"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Colour inactive icons a lighter grey than their text",
+    "Use one consistent icon set and stroke weight"
+   ],
+   "forbids": [
+    "Set icons at full black beside 70% grey text",
+    "Mix outline and filled icon families in one bar"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each inline svg or icon adjacent to text, compare its fill or stroke contrast against the background with the text's; the icon's must not exceed the text's.",
+    "mustFail": "Nav items with text #374151 and icons #000.",
+    "mustPass": "Same nav with icons #9ca3af."
+   },
+   "exceptions": [
+    "Active or selected state where the icon takes the brand colour",
+    "Icon-only buttons with nothing to balance against"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "No on content and transaction, where icons beside text are rare; maybe elsewhere for nav, toolbars and icon-labelled lists.",
+   "agrees": []
+  },
+  {
+   "id": "craft.light-comes-from-the-sky-shadow-offset",
+   "claim": "Light comes from above: shadows get a slight positive vertical offset, raised things are lighter on top, inset things darker.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "7 Rules for Creating Gorgeous UI, Part 1",
+    "url": "https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html",
+    "quote": "Light comes from the sky so frequently and consistently that for it to come from below actually looks freaky."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Give box-shadows a positive y offset and near-zero x offset",
+    "Shade inset elements darker at the top and raised elements lighter at the top"
+   ],
+   "forbids": [
+    "Use negative y offsets that light from below",
+    "Use heavy x offsets",
+    "Use one huge unblurred shadow"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Parse every computed box-shadow; fail any non-inset shadow with offset-y below 0 or |offset-x| greater than offset-y.",
+    "mustFail": "box-shadow: 0 -4px 8px rgba(0,0,0,.2)",
+    "mustPass": "box-shadow: 0 4px 8px rgba(0,0,0,.2)"
+   },
+   "exceptions": [
+    "Flat design with no shadows at all",
+    "A top bar's shadow cast below it is still y-positive",
+    "Sticky footers casting upward are a known trade-off the source does not bless"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "No on content, which has no raised surfaces; maybe elsewhere where cards, menus or modals cast shadows.",
+   "agrees": [
+    "modern.shadows-share-one-light-source"
+   ]
+  },
+  {
+   "id": "craft.shadows-convey-elevation-ladder",
+   "claim": "Use a fixed ladder of about five shadows mapped to element kinds: button, dropdown, panel, modal; larger shadow means closer.",
+   "source": {
+    "author": "Steve Schoger (attendee notes by ynotdraw)",
+    "work": "Practical Solutions to Common UI Design Problems, CSS Day 2019",
+    "url": "https://gist.github.com/ynotdraw/9351627d7509cc35813eeac4245cab3b",
+    "quote": "use multiple shadows, larger shadow, closer it feels to the user."
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Define about five shadow tokens and map each element kind to a rung"
+   ],
+   "forbids": [
+    "Give a modal a smaller shadow than a card",
+    "Write ad-hoc shadows per component"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Collect distinct non-inset box-shadow strings, expect at most 5–6; rank by blur plus offset; the dialog or modal shadow must rank above card and button shadows.",
+    "mustFail": "14 distinct shadows; modal 0 1px 2px, card 0 20px 40px.",
+    "mustPass": "Four tokens with the modal on the top rung."
+   },
+   "exceptions": [
+    "Flat systems with no shadows",
+    "Elevation carried by colour, lighter objects feel closer"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "No on content, which has no raised surfaces; maybe elsewhere where buttons, dropdowns, panels or modals are elevated.",
+   "agrees": []
+  },
+  {
+   "id": "craft.black-and-white-first-limit-hues",
+   "claim": "Design in greyscale first, then add one accent hue with purpose; vary by saturation and brightness, not by more hues.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "7 Rules for Creating Gorgeous UI, Part 1",
+    "url": "https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html",
+    "quote": "Design black and white first … Add color last, and even then, only with purpose."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use greyscale plus one or two accent hues",
+    "Vary colour by saturation and brightness within a hue"
+   ],
+   "forbids": [
+    "Use complementary or triadic colour-theory palettes as UI palettes",
+    "Give each section its own hue"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Cluster computed colours with saturation above 25% by hue within 15 degrees; count clusters, excluding declared semantic states such as error, success and warning.",
+    "mustFail": "Seven hue clusters on a settings screen: blue nav, green cards, purple buttons, orange tags.",
+    "mustPass": "One brand hue plus neutrals plus a declared red for errors."
+   },
+   "exceptions": [
+    "Sporty, flashy or cartoony brands that need a colour-fluent designer",
+    "Data-visualisation palettes"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Maybe except shop: applies to the UI chrome palette, not to brand imagery, chart series or status colours.",
+   "agrees": []
+  },
+  {
+   "id": "craft.align-with-readability-in-mind",
+   "claim": "Keep few strong left edges, right-align comparable numbers with tabular figures, and hang punctuation so edges line up.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 15 Jun 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "Aligning text is an easy way to clean up your design and make your content much more scannable."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Keep few, strong left edges",
+    "Right-align numeric columns with tabular figures",
+    "Hang bullets, icons and punctuation so text edges align"
+   ],
+   "forbids": [
+    "Align a right-aligned image to ragged left-aligned text",
+    "Centre columns of numbers"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count distinct left-edge x positions of text blocks in a container at 1px tolerance; for td cells matching a number or currency pattern, text-align must be right or end and tabular figures must be set.",
+    "mustFail": "Price column text-align:left with no tnum; card title, body and button at x = 24, 27 and 31.",
+    "mustPass": "Price column right-aligned with tnum; all three at x = 24."
+   },
+   "exceptions": [
+    "IDs, ZIP codes and phone numbers stay left-aligned",
+    "Centred layouts under 3 lines"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "No on marketing, which has no columns of comparable numbers; maybe on content, shop and transaction for tables, prices and order summaries.",
+   "agrees": []
+  },
+  {
+   "id": "craft.center-text-only-under-three-lines",
+   "claim": "Centre text only when there are fewer than three lines, and rarely even then; body text is left-aligned.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "100 Things a UX/UI Designer Should Know",
+    "url": "https://www.learnui.design/blog/100-things-ux-ui-designer-know.html",
+    "quote": "When to center text — Only when there are fewer than 3 lines of it. And, even then, rarely."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Left-align body text",
+    "Centre only short headings or empty-state lines"
+   ],
+   "forbids": [
+    "Centre paragraphs"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For every block with text-align:center, count rendered line boxes from Range client rects; fail at 3 or more.",
+    "mustFail": "A six-line centred paragraph.",
+    "mustPass": "Same text left-aligned, or a two-line centred subtitle."
+   },
+   "exceptions": [
+    "Poetry, quotes or hero copy the project explicitly commits to"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "no",
+    "workspace": "no",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "No on data and workspace, which do not centre text blocks; maybe on marketing, shop and transaction for heroes, banners and confirmation messages.",
+   "agrees": [
+    "canon.vignelli-flush-left"
+   ]
+  },
+  {
+   "id": "craft.button-hierarchy-one-primary",
+   "claim": "One filled brand-colour button per view; secondaries outlined, tertiaries as text, destructive actions quiet with a confirmation step.",
+   "source": {
+    "author": "Steve Schoger",
+    "work": "Little UI Details (tweet, 2 Aug 2017)",
+    "url": "https://digitalsynopsis.com/design/useful-ui-ux-design-tips/",
+    "quote": "You want your primary button to stand out much more than your secondary / danger actions."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Fill exactly one button per view or dialog in the brand colour",
+    "Outline secondary actions and set tertiary actions as text",
+    "Keep destructive actions quiet unless they are the primary job"
+   ],
+   "forbids": [
+    "Let a green button compete with the primary",
+    "Put a big red Delete beside a small Save",
+    "Colour every link brand blue"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Classify buttons as filled, outlined or text from computed style; fail if a view or dialog has more than one filled button of distinct hues, or a delete-labelled button is filled while the confirming action is not.",
+    "mustFail": "Dialog with filled blue Save and filled red Delete.",
+    "mustPass": "Filled Save, text-link Delete."
+   },
+   "exceptions": [
+    "Segmented or toggle groups",
+    "Toolbars of equal-weight actions",
+    "A page whose only job is the destructive action, where red is primary"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Maybe on content and data: applies to the few action bars and toolbars they carry, not to reading or chart areas.",
+   "agrees": [
+    "usability.von-restorff-one-emphasis"
+   ]
+  },
+  {
+   "id": "craft.labels-are-a-last-resort",
+   "claim": "Let values carry their own format; when a label is needed it is small, soft and subordinate to the value.",
+   "source": {
+    "author": "Steve Schoger (attendee notes by ynotdraw)",
+    "work": "Practical Solutions to Common UI Design Problems, CSS Day 2019",
+    "url": "https://gist.github.com/ynotdraw/9351627d7509cc35813eeac4245cab3b",
+    "quote": "Most of the time you don't need a label at all!"
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Show values that carry their own format, such as $29 or a city name, without a prefix",
+    "Make any needed label small, softer and subordinate",
+    "Design the UI independently of the database fields"
+   ],
+   "forbids": [
+    "Dump Field: value pairs where the label outweighs the value"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Detect dt/dd pairs and Word: prefixes; when present, the label's size x weight x contrast must not exceed the value's.",
+    "mustFail": "dt 16px/700/#000, dd 14px/400/#666.",
+    "mustPass": "dt 12px/600/#888 uppercase, dd 16px/500/#111."
+   },
+   "exceptions": [
+    "Form inputs need labels for accessibility",
+    "Data that is ambiguous without a name, such as two dates or two counts"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "No on marketing and content, which show few labelled values, and on transaction, where form fields need their labels; maybe on shop for spec lists.",
+   "agrees": []
+  },
+  {
+   "id": "craft.text-on-images-needs-consistent-contrast",
+   "claim": "Put an overlay, scrim, box, blur or floor fade between photo and text, and test legibility at every viewport.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "7 Rules for Creating Gorgeous UI, Part 2",
+    "url": "https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-2.html",
+    "quote": "There are only a few ways of reliably and beautifully overlaying text on images"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Place an overlay, gradient or scrim between the photo and the text",
+    "Test legibility at every screen size"
+   ],
+   "forbids": [
+    "Set raw text on an un-darkened photo",
+    "Rely on a photo's out-of-focus area that moves when the image changes"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For text stacked over an img or background-image, sample painted pixels behind each glyph box from a screenshot; fail if minimum contrast is under 3:1 or the contrast spread across the box exceeds a threshold.",
+    "mustFail": "White 18px text over a bright sky and sea photo with no overlay.",
+    "mustPass": "Same with a linear-gradient(rgba(0,0,0,.45),…) overlay."
+   },
+   "exceptions": [
+    "Decorative text that is not read, such as watermarks",
+    "A fixed, dark, low-contrast image"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "no",
+    "workspace": "no",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "No on data, workspace and transaction, which do not set text on photos; maybe on content and shop for header images and banners.",
+   "agrees": []
+  },
+  {
+   "id": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "claim": "Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "100 Things a UX/UI Designer Should Know",
+    "url": "https://www.learnui.design/blog/100-things-ux-ui-designer-know.html",
+    "quote": "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Style coloured badges as a soft background with dark text",
+    "Pair every colour state with an icon or label"
+   ],
+   "forbids": [
+    "Set white text on yellow, green or red fills that fail 4.5:1",
+    "Convey status by colour only"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.",
+    "mustFail": "background:#22c55e; color:#fff 12px badge, about 2.2:1.",
+    "mustPass": "background:#dcfce7; color:#166534."
+   },
+   "exceptions": [
+    "Disabled controls",
+    "Logos",
+    "Incidental text, per WCAG itself"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.contrast-and-not-colour-alone"
+   ]
+  },
+  {
+   "id": "craft.supercharge-the-defaults",
+   "claim": "Style form controls instead of shipping browser defaults, keep one corner radius, and give inputs 40–48px of height.",
+   "source": {
+    "author": "Steve Schoger (attendee notes by ynotdraw)",
+    "work": "Practical Solutions to Common UI Design Problems, CSS Day 2019",
+    "url": "https://gist.github.com/ynotdraw/9351627d7509cc35813eeac4245cab3b",
+    "quote": "Don't use default radio buttons and checkboxes. Create your own!"
+   },
+   "evidence": "secondary",
+   "prefers": [
+    "Style checkboxes, radios and the select arrow",
+    "Use one corner radius across the screen",
+    "Make inputs 40 or 48px tall with an off-white background on a white page"
+   ],
+   "forbids": [
+    "Ship browser-default checkbox, radio or select rendering",
+    "Mix radii such as 2, 4, 8 and 999 on one screen"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Checkbox, radio and select with appearance auto and no accent-color count as default; count distinct border-radius values on controls and cards excluding pills; flag inputs under 40px tall at desktop.",
+    "mustFail": "Native checkboxes, radii {2,3,6,10}, inputs 28px tall.",
+    "mustPass": "accent-color or custom controls, radius {4}, inputs 40px."
+   },
+   "exceptions": [
+    "Content-heavy sites where native controls are a deliberate accessibility choice"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "No on content, which has no form controls; maybe on marketing, data and shop for sign-up boxes, filters and quantity pickers.",
+   "agrees": [
+    "modern.defaults-are-decisions-you-inherited",
+    "modern.radii-are-few-and-concentric"
+   ]
+  },
+  {
+   "id": "craft.law-of-locality",
+   "claim": "Put a control where its effect will appear, not where there happens to be room.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "4 Rules for Intuitive UX",
+    "url": "https://www.learnui.design/blog/4-rules-intuitive-ux.html",
+    "quote": "Put interface elements where they effect change. … when a user wants to make a change to the system, they will unwittingly glance at where that change will happen."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Place Add at the end or top of the list it adds to",
+    "Anchor the control if the list can grow off-screen"
+   ],
+   "forbids": [
+    "Bury actions in a menu or floating button where nobody will look",
+    "Copy a floating action button because a respected company did"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Given a declared control-to-target pairing, measure pixel distance between the control box and the target region and whether both are in the viewport at once; fail beyond a signed threshold or off-screen.",
+    "mustFail": "New playlist in a top-right kebab menu with the list at the bottom-left.",
+    "mustPass": "The button as the last row of the list."
+   },
+   "exceptions": [
+    "When the end of the list is unreliable, the nearest logical place such as the top",
+    "Global actions belong in global chrome"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "No on marketing, whose single call to action has no local effect; maybe on content, workspace, shop and transaction for filters, inline edits and summaries.",
+   "agrees": [
+    "usability.natural-mapping-and-proximity"
+   ]
+  },
+  {
+   "id": "craft.anything-but-dropdowns",
+   "claim": "Before a dropdown, try a switch, segmented control, radios, cards, typeahead, calendar, text input or stepper.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "4 Rules for Intuitive UX",
+    "url": "https://www.learnui.design/blog/4-rules-intuitive-ux.html",
+    "quote": "Any time you feel tempted to use a dropdown, ask yourself if one of these 12 controls is better instead. … dropdowns are pretty much the worst control."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Use a switch, checkbox or segmented button for two options",
+    "Use radios, segmented buttons or cards for two to five options",
+    "Use typeahead for long lists, a calendar or text input for dates, a stepper for counts"
+   ],
+   "forbids": [
+    "Use a select for five or fewer options",
+    "Use three selects for a date",
+    "Ship a 195-country select without search on mobile"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each select: fail at 5 or fewer options unless committed as a rarely changed default; fail 2–3 adjacent selects with day, month, year options; flag over 30 options at 375px with no typeahead.",
+    "mustFail": "A select with Yes/No; date of birth as three selects.",
+    "mustPass": "A switch; input type=date or a masked text field."
+   },
+   "exceptions": [
+    "Users rarely need to change the default value",
+    "There are very few options",
+    "The user is not on mobile"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "No on marketing and content, which carry no choice controls; maybe on data for filter and range pickers.",
+   "agrees": []
+  },
+  {
+   "id": "craft.tap-targets-and-control-height",
+   "claim": "Touch targets are at least 44×44; inputs and the buttons beside them share one height of 40 or 48px.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "100 Things a UX/UI Designer Should Know",
+    "url": "https://www.learnui.design/blog/100-things-ux-ui-designer-know.html",
+    "quote": "The minimum tap target size on both iOS and Android — On iOS: 44x44pt. On Android: 48x48pt."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Give touch viewports hit areas of 44×44 or more",
+    "Match button height to the inputs beside it"
+   ],
+   "forbids": [
+    "Use 26px-wide grid cells as targets",
+    "Make buttons shorter than the inputs they sit beside"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "At 375px, getBoundingClientRect of every a, button, input and role=button: fail under 44 in width or height (under 24 for inline text links); in a form row, button and input heights within 2px.",
+    "mustFail": "32px icon buttons; a 36px input beside a 44px button.",
+    "mustPass": "44px all round."
+   },
+   "exceptions": [
+    "Inline text links in running prose",
+    "Dense desktop-only tools if the project commits to no touch"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "",
+   "agrees": [
+    "modern.hit-targets-meet-platform-minimums",
+    "usability.fitts-target-size-and-distance"
+   ]
+  },
+  {
+   "id": "craft.dont-overlook-empty-states-teach-by-example",
+   "claim": "Design the first-load and empty states with sample data or an example, a message and a call to action; never a blank page.",
+   "source": {
+    "author": "Erik D. Kennedy",
+    "work": "4 Rules for Intuitive UX",
+    "url": "https://www.learnui.design/blog/4-rules-intuitive-ux.html",
+    "quote": "Use the 'first load' experience to provide sample data, showing by example what the properly-working app will look like"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Show a designed empty state with message, example and call to action",
+    "Seed sample data on first load",
+    "Show examples rather than descriptions"
+   ],
+   "forbids": [
+    "Show a totally blank page on first load",
+    "Show a table header with no rows and no message"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "In the journey's declared empty state, find list or table containers with 0 data children; require a visible sentence inside or adjacent and at least one actionable element.",
+    "mustFail": "A table with thead only.",
+    "mustPass": "Same plus an empty-state block with copy and a Create the first… button."
+   },
+   "exceptions": [
+    "Zero-hit search results need a message but no sample data",
+    "Transient loading states"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "No on marketing, content and transaction, which never render empty; maybe on shop for no-results and empty-cart states.",
+   "agrees": [
+    "modern.every-state-is-designed"
+   ]
+  },
+  {
+   "id": "craft.four-layers-before-pixels-dribbblisation",
+   "claim": "Resolve outcome, system and interaction before visual design; pixels that do not serve a stated job are art, not design.",
+   "source": {
+    "author": "Paul Adams",
+    "work": "The dribbblisation of design (Intercom, 2013)",
+    "url": "https://www.intercom.com/blog/the-dribbblisation-of-design/",
+    "quote": "The grid, font, colour, and aesthetic style are irrelevant if the other three layers haven't been resolved first. … that's art not design."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Work top-down: outcome, then system, then interactions, then visual design",
+    "Frame every problem as a job: when, I want to, so I can",
+    "Prototype with real data"
+   ],
+   "forbids": [
+    "Ship flat PNGs and pixel-perfect executions that solve no stated problem",
+    "Redesign others' products without their constraints",
+    "Apply interchangeable styling regardless of the product"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "Do the journey and understanding files exist and name the actor's job before the screen is measured, and does the visual layer serve that job? A machine checks the first; a person the second."
+   },
+   "exceptions": [
+    "Executing beautiful looking things is an important skill; the visual layer is last, not worthless"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Maybe everywhere: a process check on whether the screen serves a stated job, reviewable only when the brief is available.",
+   "agrees": [
+    "usability.start-with-user-needs-design-with-data"
+   ]
+  },
+  {
+   "id": "craft.growth-design-psychology-principles",
+   "claim": "Design for how people filter, find meaning, act in time and remember: fewer choices, chunking, one salient element, recognition, clear defaults, used ethically.",
+   "source": {
+    "author": "Growth.Design (Dan Benoni, Louis-Xavier Lavallée)",
+    "work": "106 Cognitive Biases & Principles That Affect Your UX",
+    "url": "https://growth.design/psychology",
+    "quote": "Every time users interact with your product, they: filter the information, seek the meaning of it, act within a given time, store bits of the interaction in their memories."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Offer fewer choices per step",
+    "Chunk forms and information",
+    "Make exactly one element salient in a group",
+    "Favour recognition over recall and set a clear default"
+   ],
+   "forbids": [
+    "Use the same levers as dark patterns"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count interactive choices visible in one step; count elements carrying the accent hue within a group, expecting exactly one; proximity and target size are covered by the spacing and tap-target entries.",
+    "mustFail": "24 equal buttons in one step; all six plan cards highlighted.",
+    "mustPass": "Five buttons plus a more control; one plan card highlighted."
+   },
+   "exceptions": [
+    "The catalogue is descriptive, not a rulebook; each principle carries an ethics caveat"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Maybe on content, data and workspace: applies to their choice points and defaults, not to reading or repeated work.",
+   "agrees": [
+    "usability.hicks-fewer-choices-when-time-matters",
+    "usability.von-restorff-one-emphasis",
+    "usability.fitts-target-size-and-distance",
+    "usability.peak-end-finish-well",
+    "canon.gestalt-proximity",
+    "modern.no-deceptive-patterns"
+   ]
+  }
+ ]
+}

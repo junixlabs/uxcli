@@ -7,8 +7,9 @@ import focusVisible from './probes/focus-visible/probe.js';
 import textSpacing from './probes/text-spacing/probe.js';
 import contrast from './probes/contrast/probe.js';
 import textOverlap from './probes/text-overlap/probe.js';
+import nesting from './probes/nesting/probe.js';
 
-export const PAGE_PROBES = [focusVisible, textSpacing, contrast, textOverlap];
+export const PAGE_PROBES = [focusVisible, textSpacing, contrast, textOverlap, nesting];
 
 // A page that is still changing when it is read gives a verdict that is a coin flip between runs:
 // this project's own landing page runs a scripted intro for seven seconds after settle(), and a probe

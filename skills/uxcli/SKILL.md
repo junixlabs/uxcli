@@ -40,7 +40,10 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    ```
 
    It photographs every variant, draws each journey as a flow of the picked ones, and prints the
-   page. A person picks in `pick.json`; you never pick for them. `references/mockups.md` is the shape.
+   page. Then read each variant through the lens for its kind of UI (`uxcli lens show <kind>`), fill
+   one review per variant (`uxcli review <state>/<variant> --lens=<kind> --write`), and run `uxcli
+   review check` until it exits 0; `references/lenses.md` is the sequence. A person picks in
+   `pick.json`; you never pick for them. `references/mockups.md` is the shape.
 4. **Build to the card.** Build the picked variant. Use the hooks and states the card names. Do not invent a hook, a state, or a fact
    about the user that the card does not carry. An unknown is not yours to fill: ask, or leave the gap
    visible in what you build.
@@ -53,6 +56,7 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
 
    Read each card. A `fail` names the element, the place, the rule and how to check it yourself; fix
    that element and run again. Never edit a journey, a commitment or a probe to make a run pass.
+   Then review the built screen through its lens, the same way, and `uxcli review check`.
 6. **Say done only at exit 0**, and say what was measured. Anything else, say what stands in the way.
    `references/before-done.md` is the full sequence and the list of what exit 0 does not cover.
 
@@ -89,6 +93,7 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `references/journey.md` | the card says no journey, or a flow has changed shape: states as signals, hooks, workflows |
 | `references/mockups.md` | a screen the journey names has no mockup or no pick: variants, hooks, `pick.json` |
 | `references/understand.md` | the card says no understanding, or an insight the screen leans on is missing or a hypothesis |
+| `references/lenses.md` | you drew variants or changed a screen: the checklist by kind of UI, the review, `review check` |
 | `references/principles.md` | a verdict is `not-committed` and the project should decide; proposing a commitment |
 | `examples/crm/.uxcli/` in the package | the shape of every file — take the shape, not the facts |
 

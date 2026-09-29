@@ -118,3 +118,11 @@ export async function shot(page, regionSelector, highlight = []) {
 }
 export const fieldSelector = f => f.id ? '#' + CSS_escape(f.id) : f.name ? `[name="${f.name.replace(/"/g, '\\"')}"]` : null;
 const CSS_escape = s => s.replace(/([^a-zA-Z0-9_-])/g, '\\$1');
+
+// Finite animations and transitions are given up to 2.5 s to finish before text is read, so entrance motion is not measured as overlap. Infinite ones stay excluded per element.
+// Sampled in a loop after two frames: transitions started by scroll observers begin a frame after the runner's settle, and a single early sample would miss them.
+export const settleAnimations = page => page.evaluate(() => new Promise(done => {
+  const t0 = performance.now(); const finite = () => document.getAnimations().filter(a => { const t = a.effect?.getTiming?.(); return t && t.iterations !== Infinity && a.playState === 'running'; });
+  const step = () => { if (performance.now() - t0 > 2500) return done('timeout'); const run = finite(); if (!run.length) return done('settled'); Promise.all(run.map(a => a.finished.catch(() => null))).then(() => requestAnimationFrame(() => requestAnimationFrame(step))); };
+  requestAnimationFrame(() => requestAnimationFrame(step));
+})).catch(() => null);

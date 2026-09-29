@@ -108,6 +108,7 @@ export function mockupsCard(m) {
       const r = s.receipts?.[v]; if (!r) continue;
       const line = receiptLine(r);
       L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} ${v.padEnd(14)} ${line}${!s.pick && s.hashes?.[v] ? `\n  ${''.padEnd(14)} ${''.padEnd(32)} ${''.padEnd(14)} sha256 ${s.hashes[v]}` : ''}`);
+      for (const rv of s.reviews?.[v] || []) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} ${''.padEnd(14)} ${rv.lens} lens · ${rv.value ? `${rv.value.by.type} ${rv.value.by.ref} · ` : ''}${rv.value ? Object.values(rv.value.answers).filter(a => a.verdict === 'breaks').length + ' break of ' + Object.keys(rv.value.answers).length : 'refused: ' + rv.problems[0]}`);
     }
   }
   const drawn = m.screens.filter(s => s.variants.length).length; const picked = m.screens.filter(s => s.pick).length;
