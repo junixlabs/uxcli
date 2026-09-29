@@ -10,6 +10,11 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- `uxcli init` on a project that is already set up now checks the skill too: a file this uxcli ships
+  and the project lacks is listed and created by `--apply`, a file that differs is reported stale and
+  never overwritten (delete it to take the new one). Before, the existing-project path printed the level
+  card and never looked, so a project set up by an older uxcli kept that skill forever and its agent
+  never saw a reference or a lens added since.
 - Lenses: 123 viewpoints from named designers in four schools — usability (Nielsen and NN/g,
   Norman, Krug, Laws of UX, Baymard, Wroblewski, GOV.UK), practitioner craft (Wathan & Schoger,
   Erik Kennedy, Paul Adams), the classic canon (Rams, Vignelli, Müller-Brockmann, Bringhurst,

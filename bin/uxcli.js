@@ -198,10 +198,11 @@ try {
   } else if (cmd === 'init') {
     const J = await import('../src/journey.js'); const root = J.findRoot(path.resolve(args[0] || '.'));
     if (root) {
-      const { initCard } = await import('../src/core/report/index.js'); const { firstStep } = await import('../src/init.js');
+      const { initCard } = await import('../src/core/report/index.js'); const { firstStep, skillRefresh, skillRefreshLines } = await import('../src/init.js');
       const P = J.loadProject(root); const idx = J.writeProjection(P);
-      const out = { ...idx, next: firstStep(P, idx), ...(P.problems.length && { problems: P.problems }) };
-      console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : initCard(out));
+      const skill = skillRefresh(root, { apply: flags.has('--apply') });
+      const out = { ...idx, next: firstStep(P, idx), skill, ...(P.problems.length && { problems: P.problems }) };
+      console.log(flags.has('--json') ? JSON.stringify(out, null, 1) : initCard(out) + skillRefreshLines(skill, flags.has('--apply')).join('\n'));
       process.exit(0);
     }
     const { init, initCard } = await import('../src/init.js'); const r = init(path.resolve(args[0] || '.'), { apply: flags.has('--apply'), origin: opt('origin') || null }); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : initCard(r));

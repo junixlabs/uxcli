@@ -183,6 +183,19 @@ export function init(project, { apply = false, origin = null } = {}) {
   return { project, apply, items: list.map(({ rel, status, note }) => note ? { rel, status, note } : { rel, status }), state: s, next: next(s, after) };
 }
 
+// The skill files alone, for a project that is already set up. A project initialised by an older uxcli
+// kept that uxcli's skill forever: the existing-project path printed the level card and never looked,
+// so a reference or a lens added since never reached the agent working there. Missing files are
+// created with --apply; a file that differs is reported stale and never overwritten.
+export function skillRefresh(project, { apply = false } = {}) {
+  const list = items(project, null).filter(i => i.rel.startsWith(path.join('.claude', 'skills')));
+  if (apply) for (const it of list.filter(i => i.status === 'create')) { const dst = path.join(project, it.rel); fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.writeFileSync(dst, fs.readFileSync(it.src)); }
+  return list.filter(i => i.status !== 'kept').map(({ rel, status }) => ({ rel, status }));
+}
+export const skillRefreshLines = (list, apply) => !list.length ? [] : ['', `  skill (${list.length} not as shipped)`,
+  ...list.map(i => `    ${i.status === 'create' ? (apply ? 'created     ' : 'would create') : 'stale       '} ${i.rel}${i.status === 'stale' ? '  differs from the copy shipped with this uxcli; delete it to take the new one' : ''}`),
+  ...(!apply && list.some(i => i.status === 'create') ? ['    uxcli init --apply creates the missing ones; nothing is overwritten'] : [])];
+
 export const CI_STEP = `      - name: uxcli
         run: |
           npx @junixlabs/uxcli run <url of the screen under test>

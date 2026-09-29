@@ -12,7 +12,7 @@
 // Run directly for the card, or call pair() from `uxcli gate`.
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { init } from '../src/init.js';
+import { init, skillRefresh } from '../src/init.js';
 
 // Every path under the tree with the hash of each file's bytes. Mtimes are not in it: the question is
 // whether the project changed, not whether something touched it.
@@ -62,11 +62,23 @@ export function pair() {
   if (fs.readFileSync(mine, 'utf8') !== MINE) problems.push('--apply overwrote a rules file the project already had');
   if (r3.items.find(i => i.rel.endsWith('uxcli.md'))?.status !== 'stale') problems.push('a rules file that differs from the shipped one was not reported as stale');
 
+  // a project set up by an older uxcli: one skill file missing, one edited. The refresh plan writes
+  // nothing; --apply brings back the missing one and leaves the edited one, reported stale.
+  const lensFile = path.join(tmp, '.claude', 'skills', 'uxcli', 'lenses', 'data.md'); fs.rmSync(lensFile);
+  const router = path.join(tmp, '.claude', 'skills', 'uxcli', 'SKILL.md'); const OLD = '# an older uxcli skill\n'; fs.writeFileSync(router, OLD);
+  const b2 = fingerprint(tmp); const plan = skillRefresh(tmp);
+  if (added(b2, fingerprint(tmp)).length) problems.push('the skill refresh plan wrote to the project');
+  if (!plan.some(i => i.rel.endsWith(path.join('lenses', 'data.md')) && i.status === 'create')) problems.push('a skill file missing from a set-up project was not proposed');
+  skillRefresh(tmp, { apply: true });
+  if (!fs.existsSync(lensFile)) problems.push('--apply on a set-up project did not bring back the missing skill file');
+  if (fs.readFileSync(router, 'utf8') !== OLD) problems.push('--apply on a set-up project overwrote a skill file that differs');
+  if (skillRefresh(tmp).find(i => i.rel.endsWith('SKILL.md'))?.status !== 'stale') problems.push('an older SKILL.md was not reported stale');
+
   fs.rmSync(tmp, { recursive: true, force: true }); fs.rmSync(tmp2, { recursive: true, force: true });
   return { ok: !problems.length, problems, wrote: wrote.length, created: created.length };
 }
 
-export const OPERATOR = 'a project carrying its own CLAUDE.md and src/: the plan must leave every byte as it found it, --apply must create, and a rules file the project already wrote must survive --apply as stale';
+export const OPERATOR = 'a project carrying its own CLAUDE.md and src/: the plan must leave every byte as it found it, --apply must create, and a rules file the project already wrote must survive --apply as stale; on a project set up by an older uxcli, a missing skill file is proposed and created by --apply while an edited one is kept and reported stale';
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const r = pair();
