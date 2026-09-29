@@ -15,6 +15,8 @@ Entries are written per release. The log is the source material, not the text.
   only the variant — the thing a person picks — is a box, its photograph a shadow. Boxed nesting on
   the page (an element's ancestors that draw a border, shadow or outline) fell from five deep to
   four, measured in a browser rather than by eye.
+  One play button per journey: the lane carries it, and the journey header offers `play all` only
+  when there is more than one lane to chain.
 - The mockups page redrawn after three frames an image model made from an open brief
   (`docs/design/mockups-page/`): a dark sidebar that lists the journeys and filters by them; each
   journey a numbered section with its lanes and, under them, one numbered card per screen (1.1,

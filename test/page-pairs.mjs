@@ -83,6 +83,7 @@ export async function pair() {
     must('all did not bring the other journey back', await page.evaluate(() => !document.getElementById('handle-inbound-lead').hidden));
     await page.click('[data-toggle="hooks"]'); await page.waitForTimeout(100);
     must('the hooks toggle does not outline the hooks on the frames', await page.evaluate(() => [...document.querySelectorAll('.variant .hk')].some(h => getComputedStyle(h).display !== 'none')));
+    must('a one-lane journey offers play twice', await page.evaluate(() => document.querySelectorAll('[data-play="handle-inbound-lead/open-and-call"]').length === 1));
     must('play journey is offered for a journey with one lane', await page.evaluate(() => !document.querySelector('[data-play="journey:handle-inbound-lead"]')) && await page.evaluate(() => !!document.querySelector('[data-play="journey:authenticate"]')));
     await page.click('[data-play="journey:authenticate"]'); await page.waitForTimeout(100);
     const pj = await page.evaluate(() => document.getElementById('proto').querySelector('.p-n').textContent);

@@ -123,7 +123,7 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
     const pickedN = named.filter(id => byId[id]?.pick).length;
     const cards = mine.map(id => card(byId[id]));
     return `<article class="journey" id="${esc(j.id)}" data-journeys="${esc(j.id)}">
-      <header class="j-h"><span class="j-n">${m.journeys.indexOf(j) + 1}</span><h2>${esc(j.id)}</h2><span class="goal">${esc(j.goal || '')}</span><span class="j-state ${pickedN === named.length && named.length ? 'done' : ''}">${pickedN}/${named.length} picked</span>${lanes.length ? `<button class="play" type="button" data-play="${lanes.length > 1 ? `journey:${esc(j.id)}` : esc(`${j.id}/${lanes[0].id}`)}">▶ play</button>` : ''}</header>
+      <header class="j-h"><span class="j-n">${m.journeys.indexOf(j) + 1}</span><h2>${esc(j.id)}</h2><span class="goal">${esc(j.goal || '')}</span><span class="j-state ${pickedN === named.length && named.length ? 'done' : ''}">${pickedN}/${named.length} picked</span>${lanes.length > 1 ? `<button class="play" type="button" data-play="journey:${esc(j.id)}">▶ play all</button>` : ''}</header>
       <div class="flow">${rows.join('')}</div>
       <div class="cards">${cards.join('')}</div>
     </article>`;
