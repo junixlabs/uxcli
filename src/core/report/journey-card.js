@@ -79,6 +79,7 @@ function blockedCard(run) {
   for (const w of b.which || []) L.push(...bullet(w));
   if (!(b.which || []).length) L.push(...bullet('not recorded'));
   if (r.requested || r.effective) L.push('', ...row('reach', reachText(r)));
+  if (b.fix) L.push('', ...row('fix', b.fix));
   L.push('', `  exit ${run.exit ?? 1} — the run could not be carried out; no verdict was produced and none is implied`);
   return join(L);
 }

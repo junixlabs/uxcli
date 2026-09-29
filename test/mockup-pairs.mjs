@@ -4,11 +4,12 @@
 // is its last ui interaction; a hook written with a run-time param still finds the mockup's hook.
 // The page: the picked variant is the one the flow draws; the others sit in the gallery with the
 // status the pick gives them; a screen with variants and no pick is drawn as `no pick yet`.
-import { parsePick, statusOf, screensOf, hookOf, mockupsCard } from '../src/core/mockups.js';
+import { parsePick, statusOf, screensOf, hookOf, receiptOf, mockupsCard } from '../src/core/mockups.js';
+import crypto from 'node:crypto';
 import { flowRow, galleryHtml } from '../src/core/wireflow.js';
-import { read } from './example-data.mjs';
+import { read, text } from './example-data.mjs';
 
-export const OPERATOR = 'a pick without by{}, a pick naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; '
+export const OPERATOR = 'a pick without by{}, without sha256, over a drawing that changed, naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; a drawing missing a wanted hook, reaching for a CDN or carrying lorem fails its receipt; '
   + 'the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
   + 'the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
 
@@ -16,11 +17,23 @@ export function pair() {
   const problems = []; let checks = 0;
   const must = (what, cond) => { checks++; if (!cond) problems.push(what); };
   const variants = ['a-list', 'b-kanban'];
-  const good = { schema_version: 1, pick: 'a-list', parts: { 'b-kanban': 'the counters' }, by: { type: 'role', ref: 'product-owner' } };
+  const H = 'a'.repeat(64); const hashes = { 'a-list': H, 'b-kanban': 'b'.repeat(64) };
+  const good = { schema_version: 1, pick: 'a-list', sha256: H, parts: { 'b-kanban': 'the counters' }, by: { type: 'role', ref: 'product-owner' } };
+  const sha = rel => crypto.createHash('sha256').update(text(rel)).digest('hex');
 
   // must-pass
-  must('a well-formed pick was refused', parsePick(good, variants).value?.pick === 'a-list');
-  must('the example pick was refused', parsePick(read('mockups/agent.lead_detail/pick.json'), ['a-stacked', 'b-call-first']).value !== null);
+  must('a well-formed pick was refused', parsePick(good, variants, hashes).value?.pick === 'a-list');
+  must('the example pick was refused', parsePick(read('mockups/agent.lead_detail/pick.json'), ['a-stacked', 'b-call-first'], { 'b-call-first': sha('mockups/agent.lead_detail/b-call-first.html') }).value !== null);
+  // must-fail: a pick over a drawing that moved, and a pick that names no drawing
+  must('a pick whose drawing changed was accepted', parsePick(good, variants, { 'a-list': 'c'.repeat(64) }).problems.some(p => /pick predates the drawing/.test(p)));
+  must('a pick without sha256 was accepted', parsePick({ ...good, sha256: undefined }, variants, hashes).problems.some(p => /sha256 missing/.test(p)));
+  // the receipt: hooks found, nothing reached for over the network, no filler
+  const ok = receiptOf({ html: '<main data-uxcli="lead-board"><button data-uxcli="call-action">Gọi</button></main>', wanted: ['[data-uxcli=lead-board]', '[data-uxcli=call-action]'], found: ['[data-uxcli=lead-board]', '[data-uxcli=call-action]'] });
+  must('a sound drawing fails its receipt', ok.ok && ok.hooks.found.length === 2);
+  const bad = receiptOf({ html: '<link rel="stylesheet" href="https://cdn.example/x.css"><p>Lorem ipsum dolor</p>', wanted: ['[data-uxcli=call-action]'], found: [] });
+  must('a drawing missing a hook, reaching for a CDN and full of lorem passes its receipt', !bad.ok && bad.hooks.missing.length === 1 && bad.external.length === 1 && bad.lorem);
+  const want = screensOf([read('journeys/handle-inbound-lead.json')]).find(s => s.id === 'agent.lead_detail');
+  must('a screen does not want its own signal hooks and what leaves it', want.hooks.includes('[data-uxcli=lead-phone]') && want.hooks.includes('[data-uxcli=call-action]'));
   // must-fail
   must('a pick without by{} was accepted', parsePick({ ...good, by: undefined }, variants).problems.some(p => /nobody stands behind/.test(p)));
   must('a pick naming a variant not on disk was accepted', parsePick({ ...good, pick: 'c-none' }, variants).problems.some(p => /not a variant on disk/.test(p)));
@@ -29,7 +42,7 @@ export function pair() {
   must('a wrong schema_version was accepted', parsePick({ ...good, schema_version: 2 }, variants).problems.length > 0);
 
   // status
-  const pk = parsePick(good, variants).value;
+  const pk = parsePick(good, variants, hashes).value;
   must('statuses wrong', statusOf('a-list', pk) === 'pick' && statusOf('b-kanban', pk) === 'part' && statusOf('c', pk) === 'not-taken' && statusOf('a-list', null) === 'no-pick');
 
   // screens from the example journeys: order, leaving hook, param stripped

@@ -3,11 +3,11 @@
 // mockups, then each screen's variants side by side with the status the pick gives them.
 // in:  .uxcli/mockups/<state>/<variant>.html, .uxcli/mockups/<state>/pick.json, .uxcli/journeys/
 // out: .uxcli/mockups/index.html, .uxcli/mockups/.shots/<state>/<variant>.png; the card on stdout
-import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL } from 'node:url';
+import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import { pathToFileURL } from 'node:url';
 import { findRoot, loadProject } from './journey.js';
 import { launch } from './browser.js';
 import { observe } from './adapters/chrome/index.js';
-import { parsePick, statusOf, screensOf, hookOf, mockupsCard } from './core/mockups.js';
+import { parsePick, statusOf, screensOf, hookOf, receiptOf, mockupsCard } from './core/mockups.js';
 import { esc, flowRow, galleryHtml, WIREFLOW_CSS } from './core/wireflow.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
@@ -17,9 +17,10 @@ export function discover(root) {
   const journeys = P.journeys.map(j => j.value).filter(Boolean);
   const screens = screensOf(journeys).map(s => {
     const dir = path.join(base, s.id); const variants = listVariants(dir); let pick = null; const problems = [];
+    const hashes = Object.fromEntries(variants.map(v => [v, crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, `${v}.html`))).digest('hex')]));
     const pf = path.join(dir, 'pick.json');
-    if (fs.existsSync(pf)) { let doc; try { doc = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { problems.push(`not JSON: ${e.message}`); } if (doc) { const r = parsePick(doc, variants); pick = r.value; problems.push(...r.problems); } }
-    return { ...s, dir, variants, pick, problems };
+    if (fs.existsSync(pf)) { let doc; try { doc = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { problems.push(`not JSON: ${e.message}`); } if (doc) { const r = parsePick(doc, variants, hashes); pick = r.value; problems.push(...r.problems); } }
+    return { ...s, dir, variants, hashes, pick, problems };
   });
   return { root, base, project: P, journeys, screens };
 }
@@ -28,7 +29,7 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
   const root = findRoot(from); const m = discover(root);
   const [vw, vh] = viewport.split('x').map(Number);
   const shotsDir = path.join(m.base, '.shots'); fs.rmSync(shotsDir, { recursive: true, force: true });
-  const shots = {}; const rects = {};
+  const shots = {}; const rects = {}; const receipts = {};
   if (m.screens.some(s => s.variants.length)) {
     const browser = await launch();
     try {
@@ -37,9 +38,10 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
         for (const v of s.variants) {
           await page.goto(pathToFileURL(path.join(s.dir, `${v}.html`)).href, { waitUntil: 'load', timeout: 30000 });
           await page.waitForTimeout(200);
-          const hooks = [...new Set(s.leaves.map(l => hookOf(l.target)).filter(Boolean))];
+          const hooks = [...new Set([...s.hooks, ...s.leaves.map(l => hookOf(l.target)).filter(Boolean)])];
           const obs = await observe(page, { selectors: hooks });
           rects[`${s.id}/${v}`] = Object.fromEntries(hooks.map(h => [h, obs.dom?.[h] || null]));
+          receipts[`${s.id}/${v}`] = receiptOf({ html: fs.readFileSync(path.join(s.dir, `${v}.html`), 'utf8'), wanted: hooks, found: hooks.filter(h => obs.dom?.[h]) });
           fs.mkdirSync(path.join(shotsDir, s.id), { recursive: true });
           await page.screenshot({ path: path.join(shotsDir, s.id, `${v}.png`) });
           shots[`${s.id}/${v}`] = `.shots/${s.id}/${v}.png`;
@@ -49,15 +51,15 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
     } finally { await browser.close(); }
   }
   for (const s of m.screens) {
-    s.hooksMissing = [];
-    if (!s.pick) continue;
-    for (const l of s.leaves) { const h = hookOf(l.target); if (h && !rects[`${s.id}/${s.pick.pick}`]?.[h]) s.hooksMissing.push({ hook: h, variant: s.pick.pick, action: l.action }); }
+    s.receipts = Object.fromEntries(s.variants.map(v => [v, receipts[`${s.id}/${v}`]]).filter(([, r]) => r));
+    // a pick over a drawing that fails its receipt is refused, like a delivery that fails validation
+    if (s.pick && s.receipts[s.pick.pick] && !s.receipts[s.pick.pick].ok) { s.problems.push(`picked ${s.pick.pick} fails its receipt: ${s.receipts[s.pick.pick].problems.join('; ')}`); s.pick = null; }
   }
   const page = path.join(m.base, 'index.html');
   fs.mkdirSync(m.base, { recursive: true });
   fs.writeFileSync(page, pageHtml(m, { vw, vh, shots, rects }));
   const refused = m.screens.some(s => s.problems.length);
-  return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, pick: s.pick, problems: s.problems, hooksMissing: s.hooksMissing })), exit: refused ? 1 : 0 };
+  return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, hashes: s.hashes, pick: s.pick, problems: s.problems, receipts: s.receipts })), exit: refused ? 1 : 0 };
 }
 
 export { mockupsCard };

@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "pick": "a-list",
+  "sha256": "6a6ee24d3b0c47e1f5cbda189a69ee52748a6a60768661aca522304175530dbb",
   "parts": {
     "b-kanban": "the three counters above the list"
   },

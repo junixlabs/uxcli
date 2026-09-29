@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "pick": "a-card",
+  "sha256": "b97d1d5174dda6c03a67b8ff118e7930d5a77ba0f31b5313428dc67b3d30d1d5",
   "by": {
     "type": "role",
     "ref": "product-owner"

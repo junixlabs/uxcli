@@ -1,6 +1,6 @@
 // The run engine, shown failing where it must and silent where it must, against the example data.
 import { effectiveReach } from '../src/core/run/reach.js';
-import { plan, blockedAt } from '../src/core/run/plan.js';
+import { plan, blockedAt, FIX } from '../src/core/run/plan.js';
 import { packet, seal, effectsFrom } from '../src/core/run/packet.js';
 import { verdicts } from '../src/core/run/verdicts.js';
 import { weakens } from '../src/core/run/weaken.js';
@@ -104,10 +104,10 @@ export function pair() {
   must('a constraint that could not be observed was treated as a breach', unknown.status === 'completed' && unknown.breaches.length === 0 && unknown.reach.constraints.some(c => c.held === null));
 
   // Runtime blocks, from the observer's own results.
-  must('a prerequisite measured false did not block', eq(blockedAt({ prerequisites: [{ step: 's1', state: 'agent.workspace_ready', held: false, why: ['GET /api/me → 401'] }] }), { reason: 'prerequisite_not_satisfied', which: ['s1.before agent.workspace_ready: không giữ — GET /api/me → 401'] }));
+  must('a prerequisite measured false did not block', eq(blockedAt({ prerequisites: [{ step: 's1', state: 'agent.workspace_ready', held: false, why: ['GET /api/me → 401'] }] }), { reason: 'prerequisite_not_satisfied', which: ['s1.before agent.workspace_ready: không giữ — GET /api/me → 401'], fix: FIX.prerequisite_not_satisfied }));
   must('a prerequisite measured null blocked', blockedAt({ prerequisites: [{ step: 's1', state: 'agent.workspace_ready', held: null }] }) === null);
-  must('a rejected identity did not block as identity_rejected', eq(blockedAt({ identity: { rejected: [{ field: 'tenantId', why: 'không thuộc syntheticTenants' }] } }), { reason: 'identity_rejected', which: ['tenantId: không thuộc syntheticTenants'] }));
-  must('a fixture derive() could not value did not block', eq(blockedAt({ fixtures: [{ step: 'f0', profile: 'lead-new-unassigned', problems: ['leads.responseSlaMinutes không có giá trị'] }] }), { reason: 'prerequisite_not_satisfied', which: ['f0 lead-new-unassigned: leads.responseSlaMinutes không có giá trị'] }));
+  must('a rejected identity did not block as identity_rejected', eq(blockedAt({ identity: { rejected: [{ field: 'tenantId', why: 'không thuộc syntheticTenants' }] } }), { reason: 'identity_rejected', which: ['tenantId: không thuộc syntheticTenants'], fix: FIX.identity_rejected }));
+  must('a fixture derive() could not value did not block', eq(blockedAt({ fixtures: [{ step: 'f0', profile: 'lead-new-unassigned', problems: ['leads.responseSlaMinutes không có giá trị'] }] }), { reason: 'prerequisite_not_satisfied', which: ['f0 lead-new-unassigned: leads.responseSlaMinutes không có giá trị'], fix: FIX.prerequisite_not_satisfied }));
 
   // Effects from the observer: the class, never a blocked request.
   const net = [{ method: 'POST', path: '/api/calls', effectClass: 'database_write' }, { method: 'POST', path: '/api/login', effectClass: 'account_mutation', blocked: true, intercepted: { status: 500 } }, { method: 'GET', path: '/api/me' }];

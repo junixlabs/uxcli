@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "pick": "b-call-first",
+  "sha256": "476d863f55aaf301061975b324a3c8be70f6303412bc54f84b2d5b5fb3a4c5e3",
   "parts": {
     "a-stacked": "the full requirement block"
   },

@@ -25,15 +25,22 @@ picked variant keeps them.
 .uxcli/mockups/agent.lead_detail/pick.json
 { "schema_version": 1,
   "pick": "b-call-first",
+  "sha256": "<sha256 of b-call-first.html — uxcli mockups prints it under each unpicked variant>",
   "parts": { "a-stacked": "the full requirement block" },
   "by": { "type": "role", "ref": "product-owner" },
   "note": "The call action must be on screen without scrolling (C-001).",
   "when": "2026-09-28" }
 ```
 
-`pick` names the variant that gets built. `parts` names what was taken from another variant into
-it. `by` names who stands behind the choice; without it the pick is refused. Shape:
-`schemas/pick.schema.json`; example: `examples/crm/.uxcli/mockups/`.
+`pick` names the variant that gets built and `sha256` names the drawing as it was when chosen: if
+the file changes afterwards the pick is stale and refused until someone looks again and updates
+the hash. `parts` names what was taken from another variant into it. `by` names who stands behind
+the choice; without it the pick is refused. Shape: `schemas/pick.schema.json`; example:
+`examples/crm/.uxcli/mockups/`.
+
+Every variant gets a receipt on the card: the hooks the screen wants (its own signals and what
+leaves it) found or missing, whether the file reaches for anything over the network, and whether
+it carries lorem ipsum. A pick over a variant that fails its receipt is refused.
 
 ## The sequence
 

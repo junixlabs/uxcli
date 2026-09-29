@@ -67,5 +67,12 @@ export function blockedAt({ prerequisites = [], identity = null, fixtures = [] }
     reach_insufficient: [],
   };
   const reason = REASONS.find(r => which[r].length);
-  return reason ? { reason, which: which[reason] } : null;
+  return reason ? { reason, which: which[reason], fix: FIX[reason] } : null;
 }
+// One thing to do per reason, the way `doctor` names the command that fixes a missing row. Not advice
+// about the product: the run could not be carried out, and this is where the instrument was stopped.
+export const FIX = {
+  prerequisite_not_satisfied: 'the state the step starts from must hold first: read `why` above; a fixture problem is the profile or its provisioner (.uxcli/profiles/<id>.json)',
+  identity_rejected: 'the identity profile the journey requires is refused by policy or missing: .uxcli/profiles/<id>.json, and policy.identity in .uxcli/policy/policy.json (a signer raises it)',
+  reach_insufficient: 'the policy caps reach below what the workflow needs: raise reachMax in .uxcli/policy/policy.json with a signer, or run a workflow within reach',
+};

@@ -151,7 +151,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const plans = workflows.map(w => ({ w, p: plan(journey, policy, envName, scenario, { prerequisites: prereqs, workflow: w.id }) }));
   const blockedNow = idRejected ? blockedAt({ identity: idRejected }) : plans.every(x => x.p.status === 'blocked') ? plans[0].p : null;
   if (blockedNow) {
-    const run = seal(packet({ id, journey, definitionHash, env: envName, viewport, scenario, reach: plans[0].p.reach, effects: { declared: [], observed: [] }, ranAt, blocked: { reason: blockedNow.reason, which: blockedNow.which } }), []);
+    const run = seal(packet({ id, journey, definitionHash, env: envName, viewport, scenario, reach: plans[0].p.reach, effects: { declared: [], observed: [] }, ranAt, blocked: { reason: blockedNow.reason, which: blockedNow.which, fix: blockedNow.fix } }), []);
     return finish(run, async r => { if (idValues) identity.cleanupVerified = cleanup(idProfile.value, idValues, { cwd: root, env: shell }).verified; return { ...r, scenario: { identity, fixtures: [] } }; });
   }
 

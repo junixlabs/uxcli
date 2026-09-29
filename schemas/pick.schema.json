@@ -8,6 +8,7 @@
   "required": [
     "schema_version",
     "pick",
+    "sha256",
     "by"
   ],
   "properties": {
@@ -18,6 +19,11 @@
       "type": "string",
       "minLength": 1,
       "description": "the variant that gets built: <variant>.html beside this file, without the extension"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 of <pick>.html as it was when picked; a changed drawing makes the pick stale until someone looks again"
     },
     "parts": {
       "type": "object",

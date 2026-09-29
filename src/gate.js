@@ -165,7 +165,7 @@ export async function gate({ log = console.log } = {}) {
     log(`arch   the ladder covers the set  must-fail: ${(ladder.length ? 'gap' : 'holds').padEnd(6)} must-pass: ${(ladder.length ? ladder.length + ' gaps' : 'all seven').padEnd(14)} ${'source'.padEnd(17)} ${ladder.length ? 'FAIL  ' + ladder.join('; ') : 'ok'}`);
     log('       operator: the attention order ranks every one of the seven verdicts and nothing that is not one of them');
     for (const s of SUITES) {
-      const { pair, OPERATOR } = await import(`../test/${s.file}`); const r = pair();
+      const { pair, OPERATOR } = await import(`../test/${s.file}`); const r = await pair();
       if (!r.ok) ok = false;
       log(`${s.tag.padEnd(6)} ${s.title.padEnd(29)} must-fail: ${(r.ok ? s.miss : 'missed').padEnd(7)} must-pass: ${(r.checks + ' checks').padEnd(14)} ${'source'.padEnd(17)} ${r.ok ? 'ok' : 'FAIL  ' + r.problems.join('; ')}`);
       log(`       operator: ${OPERATOR}`);

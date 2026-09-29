@@ -62,12 +62,12 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 
 | Card says | Do |
 |---|---|
-| `FAIL` | fix the element at `where`, run again; the cap and the commitment id tell you whose rule it is |
+| `FAIL` | fix the element at `where`, run again; the cap and the commitment id tell you whose rule it is. Two runs in a row with no fewer fails: stop, report what is left in the card's words, and do not touch the declaration |
 | `finding` | report it in the probe's words as a finding, never as a pass; fix the element if it is yours — the cap is on the method, not the defect |
 | `not-committed` | nobody signed this; propose it (`references/principles.md`), do not sign it yourself |
 | `unmeasurable` | say what could not be measured and why; do not retry until it passes |
 | `not-applicable` | nothing to do here; the condition did not occur |
-| `blocked` (exit 1) | no verdict was reached; read the reason (identity, fixture, reach) and report it; this is not a UX fail |
+| `blocked` (exit 1) | no verdict was reached; read the reason and the `fix` line (identity, fixture, reach) and report it; this is not a UX fail |
 | exit 0 | no probe found a fail; report what ran and what it did not look at |
 
 ## Invariants
@@ -78,6 +78,8 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 - uxcli writes no claim about the product. Every sentence on a card was authored by the project or
   measured by the browser. Do not add UX opinion to what it printed.
 - Exit 0 is a floor. It is a statement about the probes that ran, not about the interface.
+- Repair is bounded. One diagnosed element per fix, one run per fix; when two consecutive runs do not
+  lower the fail count, the next message is a report, not another attempt.
 
 ## Read only these files
 

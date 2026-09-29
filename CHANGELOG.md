@@ -10,6 +10,17 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- A pick names the drawing it chose: `pick.json` carries `sha256` of the picked file, and a pick
+  over a drawing that changed since is refused until someone looks again. Every variant gets a
+  receipt on the `mockups` card — the hooks the screen wants found or missing, anything reached for
+  over the network, lorem ipsum — and a pick over a variant that fails its receipt is refused.
+- A blocked run's card carries a `fix` line per reason (prerequisite, identity, reach): the file or
+  the policy field, not advice about the product.
+- The gate opens the pages uxcli writes (`map`, `mockups`) in Chrome at 1440×900, 1600×1000 and
+  1920×1080 and refuses a page whose scroller overflows sideways or that leaves the canvas mostly
+  empty on a large display; the four page probes run on the map (`test/page-pairs.mjs`).
+- The skill bounds repair: one diagnosed element per fix, one run per fix, and two consecutive
+  runs with no fewer fails end in a report, not another attempt.
 - `uxcli map`: the journey map, one page per project at `.uxcli/map/index.html`. Each journey is a
   strip of steps on a canvas; four views — MODEL (the picked mockups), RUN (the last run's
   screenshots, each state held or not), DIFF (declared beside observed), IMPACT (what the
