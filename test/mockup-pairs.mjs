@@ -6,12 +6,12 @@
 // status the pick gives them; a screen with variants and no pick is drawn as `no pick yet`.
 import { parsePick, statusOf, screensOf, hookOf, receiptOf, tokensOf, drawingHash, mockupsCard } from '../src/core/mockups.js';
 import crypto from 'node:crypto';
-import { flowRow, galleryHtml } from '../src/core/wireflow.js';
+import { flowRow, galleryHtml, protoHtml, PROTO_JS } from '../src/core/wireflow.js';
 import { read, text } from './example-data.mjs';
 
 export const OPERATOR = 'a pick without by{}, without sha256, over a drawing that changed, naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; a drawing missing a wanted hook, reaching for a CDN or carrying lorem fails its receipt; '
   + 'a variant painting a colour no shared token carries is reported, one on the palette is not, and a token change changes the drawing\'s hash; the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
-  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
+  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
 
 export function pair() {
   const problems = []; let checks = 0;
@@ -77,6 +77,10 @@ export function pair() {
   must('the flow does not say no pick yet for an unpicked screen', /no pick yet · 2 variants/.test(f));
   must('a flow frame with a hotspot below the fold is not marked', /offhot/.test(flowRow({ id: 'w', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's', hot: { off: true, target: '[data-uxcli=call-action]', scrolls: 2 } }, { shot: 'b.png', title: 't', hot: null }], links: [{ label: 's1' }] })));
 
+  // the prototype: a lane with play gets the button, the overlay and the script exist and parse
+  must('a playable lane has no play button', /<button class="play" type="button" data-play="j\/w">/.test(flowRow({ id: 'w', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's' }], links: [], play: 'j/w' })));
+  must('a lane without play grew a button', !/data-play/.test(flowRow({ id: 'w', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's' }], links: [] })));
+  must('the prototype script does not parse', (() => { try { new Function(PROTO_JS); return true; } catch { return false; } })() && /id="proto"/.test(protoHtml()));
   // the card names the refused pick and the screen with no pick
   const card = mockupsCard({ dir: '.', screens: [{ id: 'a', variants: ['x'], pick: null, problems: ['by{type, ref} missing'] }, { id: 'b', variants: ['y'], pick: null, problems: [] }, { id: 'c', variants: [], pick: null, problems: [] }] });
   must('the card does not say REFUSED for a bad pick', /REFUSED\s+a/.test(card) && /by\{type, ref\} missing/.test(card));

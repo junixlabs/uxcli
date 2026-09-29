@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
-export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, '
+export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, '
   + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
@@ -51,6 +51,19 @@ export async function pair() {
         if (name === 'map' && size[0] === 1920) must(`map at 1920×1080: the canvas uses ${Math.round((r.used || 0) * 100)}% of its height`, r.used != null && r.used >= 1 / 3);
       }
     }
+    // the prototype on the mockups page: play opens the first picked frame, the hotspot leads to the next, arrows step, escape closes
+    await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(MOCK, { waitUntil: 'load' }); await page.waitForTimeout(300);
+    const perr = []; page.on('pageerror', e => perr.push(String(e)));
+    await page.click('[data-play="handle-inbound-lead/open-and-call"]'); await page.waitForTimeout(100);
+    const p0 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, src: img.getAttribute('src'), seen: img.naturalWidth > 0 && img.getBoundingClientRect().height > 200 && getComputedStyle(el.querySelector('.noshot')).display === 'none', hot: !el.querySelector('.hot').hidden || !el.querySelector('.p-off').hidden }; });
+    must(`play did not open on the first picked frame (${JSON.stringify(p0)})`, p0.open && p0.n === '1 / 3' && /agent\.workspace_ready\/a-list\.png$/.test(p0.src || '') && p0.seen && p0.hot);
+    await page.click('#proto .hot:not([hidden]), #proto .p-off:not([hidden])'); await page.waitForTimeout(100);
+    must('the hotspot did not lead to the next frame', (await page.textContent('#proto .p-n')) === '2 / 3');
+    await page.keyboard.press('ArrowRight'); await page.waitForTimeout(50); await page.keyboard.press('ArrowLeft'); await page.waitForTimeout(50);
+    must('the arrow keys did not step', (await page.textContent('#proto .p-n')) === '2 / 3');
+    await page.keyboard.press('Escape'); await page.waitForTimeout(50);
+    must('escape did not close the prototype', await page.evaluate(() => document.getElementById('proto').hidden));
+    must(`the prototype threw: ${perr[0] || ''}`, !perr.length);
     // must-fail: the same reading sees a planted overflow
     await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(MAP + '#j/handle-inbound-lead/run/1', { waitUntil: 'load' }); await page.waitForTimeout(300);
     const planted = await page.evaluate(() => { const d = document.createElement('div'); d.style.cssText = 'width:3000px;height:10px'; document.querySelector('.canvas').appendChild(d); const c = document.querySelector('.canvas'); return c.scrollWidth > c.clientWidth + 1; });

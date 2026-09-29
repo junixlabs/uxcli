@@ -8,7 +8,7 @@ import { findRoot, loadProject } from './journey.js';
 import { launch } from './browser.js';
 import { observe } from './adapters/chrome/index.js';
 import { parsePick, statusOf, screensOf, hookOf, receiptOf, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
-import { esc, flowRow, galleryHtml, WIREFLOW_CSS } from './core/wireflow.js';
+import { esc, flowRow, galleryHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
 
@@ -80,7 +80,7 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
 export { mockupsCard };
 
 function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
-  const byId = Object.fromEntries(m.screens.map(s => [s.id, s]));
+  const byId = Object.fromEntries(m.screens.map(s => [s.id, s])); const proto = {};
   const flows = m.journeys.map(j => {
     const rows = (j.workflows || []).filter(w => (w.steps || []).some(s => s.before)).map(w => {
       const steps = w.steps.filter(s => s.kind !== 'fixture' && s.before);
@@ -100,7 +100,8 @@ function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
         return { shot, alt: `${id} · ${v || 'no pick'}`, title: id, pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note };
       });
       const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: (st.interactions || []).filter(x => x.type === 'navigation' || x.type === 'api').map(x => x.type === 'navigation' ? x.to : x.request).join(' · ') || null }));
-      return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links });
+      const play = `${j.id}/${w.id}`; proto[play] = { vw, vh, frames: frames.map(f => ({ shot: f.shot, title: f.title, missing: f.shot ? null : f.missing, hot: f.hot })), links };
+      return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links, play });
     });
     return `<article class="journey" id="${esc(j.id)}"><h2>${esc(j.id)}<span class="goal">${esc(j.goal || '')}</span></h2><div class="flow">${rows.join('')}</div></article>`;
   });
@@ -162,6 +163,9 @@ ${flows.join('\n')}
 ${galleries.join('\n')}
 </main>
 <footer>uxcli mockups · a person picks in .uxcli/mockups/&lt;state&gt;/pick.json · the picked variant is what gets built</footer>
+${protoHtml()}
+<script>window.UXCLI_PROTO=${JSON.stringify(proto).replace(/</g, '\\u003c')}</script>
+<script>${PROTO_JS}</script>
 </body>
 </html>
 `;

@@ -69,7 +69,8 @@ pick over a variant that fails its receipt is refused; an off-palette colour is 
 2. Draw each state's variants into `.uxcli/mockups/<state>/`.
 3. `uxcli mockups` — the page it prints shows every journey as a flow of the picked variants and
    every screen's variants side by side: green is picked, amber is part of a pick, grey is not taken.
-   Open it, or give its path to the person deciding.
+   `▶ play` on a lane walks the picked frames as a prototype, hotspot to next frame. Open it, or
+   give its path to the person deciding.
 4. A person picks. Then build the picked variant, and `uxcli run` measures the build.
 
 You draw the variants and you never write `pick.json` on your own judgement: a pick is a person's, or you write it on a person's say-so and `note` names who said so. You never draw a variant that drops a hook the journey names in order to make the screen simpler. You never build a screen that has variants and no pick.

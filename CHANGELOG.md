@@ -10,6 +10,10 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page plays: `▶ play` on a lane opens its picked frames one at a time, the hotspot
+  the step acts on leading to the next frame (below the fold, a dashed bar under the picture says
+  how far), arrow keys step, Escape closes. Nothing is drawn that the flow does not already carry;
+  the page pair clicks through it (`test/page-pairs.mjs`).
 - `uxcli mockups --viewport=WxH,WxH…`: the first viewport is the one the flow, the hooks and the
   pins are read at; each further one is photographed beside it in the gallery. An element in a
   variant carrying `data-uxcli-note="…"` gets a numbered pin at its place on the frame and its text

@@ -42,9 +42,34 @@ export function flowRow(row) {
       cells.push(`<div class="conn"><svg viewBox="0 0 120 1000" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M0 ${y0} C 60 ${y0}, 60 500, 112 500" fill="none"/></svg><span class="head" style="top:50%"></span><div class="label"><b>${esc(link.label)}</b>${link.text ? esc(link.text) : ''}${link.sub ? `<span>${esc(link.sub)}</span>` : ''}</div></div>`);
     }
   });
-  const head = row.id ? `<div class="lane-h"><span class="lane-id">${esc(row.id)}</span>${row.kind ? `<span class="lane-kind ${esc(row.kind)}">${esc(row.kind)}</span>` : ''}<span class="lane-n">${row.frames.length} screens</span></div>` : '';
+  const play = row.play ? `<button class="play" type="button" data-play="${esc(row.play)}">▶ play</button>` : '';
+  const head = row.id ? `<div class="lane-h"><span class="lane-id">${esc(row.id)}</span>${row.kind ? `<span class="lane-kind ${esc(row.kind)}">${esc(row.kind)}</span>` : ''}<span class="lane-n">${row.frames.length} screens</span>${play}</div>` : '';
   return `<section class="lane" style="--vw:${vw};--vh:${vh}">${head}<div class="row"><div class="cells">${cells.join('')}</div></div></section>`;
 }
+
+// The prototype: the frames of one lane walked one at a time, the hotspot leading to the next
+// frame as the step's target does. window.UXCLI_PROTO = { [play]: { vw, vh, frames: [{ shot, title,
+// missing, hot }], links: [{ label, text }] } }. Arrow keys step, Escape closes; nothing is added to
+// the frames beyond what the flow already draws.
+export const protoHtml = () => `<div class="proto" id="proto" hidden role="dialog" aria-label="prototype" tabindex="-1">
+  <div class="p-stage"><div class="p-screen"><img alt=""><div class="noshot" hidden></div><div class="hot" hidden></div></div><div class="p-off" hidden></div></div>
+  <div class="p-bar"><span class="p-n"></span><span class="p-title"></span><span class="p-link"></span><span class="p-keys">← → · esc</span><button type="button" class="p-close">close</button></div>
+</div>`;
+export const PROTO_JS = `(function(){var P=window.UXCLI_PROTO||{},el=document.getElementById('proto');if(!el)return;
+var img=el.querySelector('img'),scr=el.querySelector('.p-screen'),no=el.querySelector('.noshot'),hot=el.querySelector('.hot'),off=el.querySelector('.p-off'),cur=null,k=0,last=null;
+function pc(n,of){return (100*n/of).toFixed(2)+'%'}
+function show(){var f=cur.frames[k],L=cur.links[k],next=k<cur.frames.length-1;
+scr.style.aspectRatio=cur.vw+'/'+cur.vh;img.hidden=!f.shot;no.hidden=!!f.shot;if(f.shot)img.src=f.shot;else no.textContent=f.missing||'no picture';
+var h=f.hot;hot.hidden=!(next&&h&&h.x!=null);off.hidden=!(next&&h&&(h.off||h.edge));
+if(!hot.hidden){hot.style.left=pc(h.x,cur.vw);hot.style.top=pc(h.y,cur.vh);hot.style.width=pc(h.w,cur.vw);hot.style.height=pc(h.h,cur.vh)}
+if(!off.hidden)off.textContent=h.off?'\u2193 '+(h.target||'')+' \u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \u2014 continue':'\u2192 continue (hook not in the drawing)';
+el.querySelector('.p-n').textContent=(k+1)+' / '+cur.frames.length;el.querySelector('.p-title').textContent=f.title||'';el.querySelector('.p-link').textContent=L?(L.label+(L.text?' \u00b7 '+L.text:'')):'';}
+function open(id){cur=P[id];if(!cur)return;k=0;last=document.activeElement;el.hidden=false;document.body.classList.add('playing');show();el.focus();}
+function close(){el.hidden=true;document.body.classList.remove('playing');if(last&&last.focus)last.focus();}
+function step(d){if(!cur)return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open(b.getAttribute('data-play'));return}
+if(el.hidden)return;if(e.target.closest('.p-close')){close();return}if(e.target.closest('.hot')||e.target.closest('.p-off')){step(1);return}if(e.target===el)close();});
+document.addEventListener('keydown',function(e){if(el.hidden)return;if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
 
 // A gallery: one screen, its variants side by side, each with the status the pick gives it.
 // variant: { name, shot, status: 'pick' | 'part' | 'not-taken' | 'no-pick', note? }
@@ -73,6 +98,7 @@ export const pinsHtml = (pins = [], { vw, vh }) => pins.map((n, i) => {
 }).join('');
 
 export const WIREFLOW_CSS = `
+[hidden]{display:none!important}
 :root{--fw:300px;--gw:360px;--cw:150px;--r:10px}
 @media (min-width:1700px){:root{--fw:340px;--gw:420px}}
 @media (max-width:760px){:root{--fw:220px;--gw:100%;--cw:110px}}
@@ -129,6 +155,22 @@ export const WIREFLOW_CSS = `
 .status{font:700 11px/1 var(--mono);letter-spacing:.04em;padding:5px 9px;border-radius:999px;margin-left:auto;background:var(--well);color:var(--dim);white-space:nowrap}
 .status.pick{background:var(--pass);color:#fff}.status.part{background:var(--finding);color:#fff}
 .variant .fnote{padding:0 2px}
+.play{margin-left:12px;font:600 11px/1 var(--mono);letter-spacing:.04em;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--accent);cursor:pointer}
+.play:hover{border-color:var(--accent)}
+.play:focus-visible,.p-close:focus-visible,.proto .hot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.proto{position:fixed;inset:0;z-index:100;background:rgba(10,12,16,.82);display:grid;grid-template-rows:1fr auto;padding:24px}
+.proto[hidden]{display:none}
+body.playing{overflow:hidden}
+.p-stage{display:grid;place-items:center;min-height:0;gap:10px;grid-auto-rows:min-content;align-content:center}
+.p-screen{position:relative;max-width:100%;max-height:calc(100vh - 140px);height:calc(100vh - 140px);background:#fff;border-radius:8px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6);overflow:hidden}
+.p-screen img{display:block;width:100%;height:100%;object-fit:contain}
+.p-screen .noshot{position:absolute;inset:0}
+.p-screen .hot{cursor:pointer;pointer-events:auto;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(255,255,255,.7)}50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 35%,transparent)}}
+.p-off{cursor:pointer;font:12px/1.3 var(--mono);color:#fff;background:var(--fail);padding:8px 14px;border-radius:999px;border:2px dashed rgba(255,255,255,.6)}
+.p-bar{display:flex;align-items:center;gap:16px;padding:14px 4px 0;color:#fff;font:13px var(--sans)}
+.p-bar .p-n{font:600 12px var(--mono);opacity:.7}.p-bar .p-title{font:600 14px var(--mono)}.p-bar .p-link{opacity:.85;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.p-bar .p-keys{font:11px var(--mono);opacity:.6}
+.p-close{font:600 12px var(--mono);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;cursor:pointer}
 .pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
 .pin.off{border:2px dashed #fff;line-height:16px}
 .notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}
