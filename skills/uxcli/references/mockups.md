@@ -19,6 +19,26 @@ next step leaves from; a variant without it is drawn with the connection leaving
 note saying which hook is missing. Hooks in the mockup are hooks in the build: whoever builds the
 picked variant keeps them.
 
+## Notes on the drawing, and more than one viewport
+
+Say what a part of the drawing is for on the element itself: `data-uxcli-note="the call action stays
+above the fold (C-001)"`. `uxcli mockups` numbers each note as a pin at that element's place on the
+frame and lists the texts under the picture; the person deciding reads the drawing and the reasons
+in one place. A note below the fold pins to the bottom edge. Photograph at more than one viewport
+with `--viewport=1440x900,390x844`: the first is where the flow, the hooks and the pins are read,
+the rest are pictured beside it, so a desktop drawing shows what it does on a phone before anyone
+decides it is desktop-only.
+
+## Shared tokens
+
+When the screens share a palette, put it once in `.uxcli/mockups/_shared/tokens.css` as custom
+properties and link it from each variant with `<link rel="stylesheet" href="../_shared/tokens.css">`.
+The file is part of the drawing: the pick's `sha256` covers the variant and every shared file it
+links, so changing a token is changing the picked drawing, and the receipt says which colours a
+variant paints that no shared token carries (`2 colours off the shared palette: #0f6b4f #b06a00`).
+A variant that deliberately leaves the palette says so in its name or a comment; one that drifts
+from it by accident is what the line is for.
+
 ## What a pick is
 
 ```
@@ -39,8 +59,9 @@ the choice; without it the pick is refused. Shape: `schemas/pick.schema.json`; e
 `examples/crm/.uxcli/mockups/`.
 
 Every variant gets a receipt on the card: the hooks the screen wants (its own signals and what
-leaves it) found or missing, whether the file reaches for anything over the network, and whether
-it carries lorem ipsum. A pick over a variant that fails its receipt is refused.
+leaves it) found or missing, whether the file reaches for anything over the network, whether
+it carries lorem ipsum, and, when the project shares tokens, which colours are off the palette. A
+pick over a variant that fails its receipt is refused; an off-palette colour is reported, not refused.
 
 ## The sequence
 

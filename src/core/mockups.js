@@ -10,6 +10,8 @@
 // that moved: the person chose something else than what is there now, and the pick is refused
 // until someone looks again. An agent may write the file on a person's say-so and says so in note.
 
+import crypto from 'node:crypto';
+
 export function parsePick(doc, variants = [], hashes = {}) {
   const problems = [];
   if (!doc || typeof doc !== 'object') return { value: null, problems: ['pick.json is not an object'] };
@@ -62,14 +64,35 @@ export const hookOf = target => target ? target.replace(/\[[^\]]*\{[^}]*\}[^\]]*
 // saw of the hooks the screen wants; external is every resource the file reaches for over the
 // network (a mockup is self-contained or it is a page that may look different tomorrow); lorem is
 // filler where the actor's words should be.
-export function receiptOf({ html = '', wanted = [], found = [] }) {
+// Shared tokens: .uxcli/mockups/_shared/<file>.css, linked from a variant as ../_shared/<file>.css.
+// What a variant takes from there is part of the drawing, so the pick's hash covers it; and the
+// receipt says which colours the variant's own style paints that are not on the shared palette.
+export const sharedRefs = html => [...new Set([...html.matchAll(/href\s*=\s*["']?\.\.\/_shared\/([^"'\s>]+\.css)/gi)].map(m => m[1]))];
+export const drawingHash = buffers => { const h = crypto.createHash('sha256'); for (const b of buffers) h.update(b); return h.digest('hex'); };
+const COLOUR = /#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})\b|(?:rgba?|hsla?)\([^)]*\)/gi;
+const norm = c => { c = c.toLowerCase().replace(/\s+/g, ''); return /^#[0-9a-f]{3,4}$/.test(c) ? '#' + [...c.slice(1)].map(x => x + x).join('') : c; };
+export function paletteOf(css) { return new Set([...css.matchAll(/--[\w-]+\s*:\s*([^;}]+)/g)].flatMap(m => (m[1].match(COLOUR) || []).map(norm))); }
+// shared: { [file]: css }. null when the project shares nothing; else which files the variant links
+// and every colour literal in its own <style> that no shared token carries.
+export function tokensOf({ html = '', shared = {} }) {
+  const files = Object.keys(shared); if (!files.length) return null;
+  const linked = sharedRefs(html).filter(f => shared[f] !== undefined);
+  const palette = new Set(linked.flatMap(f => [...paletteOf(shared[f])]));
+  const own = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)].map(m => m[1]).join('\n');
+  const off = [...new Set((own.match(COLOUR) || []).map(norm))].filter(c => !palette.has(c));
+  return { files, linked, off };
+}
+
+export function receiptOf({ html = '', wanted = [], found = [], shared = {} }) {
   const external = [...html.matchAll(/(?:src|href)\s*=\s*["']?(https?:\/\/[^"'\s>]+)/gi)].map(m => m[1])
     .concat([...html.matchAll(/@import\s+(?:url\()?["']?(https?:\/\/[^"')\s]+)/gi)].map(m => m[1]));
   const missing = wanted.filter(h => !found.includes(h));
   const lorem = /lorem ipsum/i.test(html);
   const problems = [...missing.map(h => `hook ${h} not in the drawing`), ...external.map(u => `reaches for ${u}`), ...(lorem ? ['lorem ipsum where the actor\'s words should be'] : [])];
-  return { hooks: { wanted, found: wanted.filter(h => found.includes(h)), missing }, external, lorem, problems, ok: !problems.length };
+  return { hooks: { wanted, found: wanted.filter(h => found.includes(h)), missing }, external, lorem, tokens: tokensOf({ html, shared }), problems, ok: !problems.length };
 }
+
+const tokensLine = t => !t ? '' : !t.linked.length ? ` · _shared/${t.files.join(', ')} not linked` : t.off.length ? ` · ${t.off.length} colour${t.off.length === 1 ? '' : 's'} off the shared palette: ${t.off.slice(0, 4).join(' ')}${t.off.length > 4 ? ' …' : ''}` : ' · on the shared palette';
 
 // screens: [{ id, variants: [name], pick: value|null, problems: [], receipts?: { [variant]: receipt }, hashes?: { [variant]: sha256 } }]
 export function mockupsCard(m) {
@@ -82,7 +105,7 @@ export function mockupsCard(m) {
     for (const p of s.problems) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} pick.json: ${p}`);
     for (const v of s.variants) {
       const r = s.receipts?.[v]; if (!r) continue;
-      const line = r.ok ? `hooks ${r.hooks.found.length}/${r.hooks.wanted.length} · self-contained` : r.problems.join(' · ');
+      const line = (r.ok ? `hooks ${r.hooks.found.length}/${r.hooks.wanted.length} · self-contained` : r.problems.join(' · ')) + tokensLine(r.tokens);
       L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} ${v.padEnd(14)} ${line}${!s.pick && s.hashes?.[v] ? `\n  ${''.padEnd(14)} ${''.padEnd(32)} ${''.padEnd(14)} sha256 ${s.hashes[v]}` : ''}`);
     }
   }

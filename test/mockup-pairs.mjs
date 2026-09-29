@@ -4,14 +4,14 @@
 // is its last ui interaction; a hook written with a run-time param still finds the mockup's hook.
 // The page: the picked variant is the one the flow draws; the others sit in the gallery with the
 // status the pick gives them; a screen with variants and no pick is drawn as `no pick yet`.
-import { parsePick, statusOf, screensOf, hookOf, receiptOf, mockupsCard } from '../src/core/mockups.js';
+import { parsePick, statusOf, screensOf, hookOf, receiptOf, tokensOf, drawingHash, mockupsCard } from '../src/core/mockups.js';
 import crypto from 'node:crypto';
 import { flowRow, galleryHtml } from '../src/core/wireflow.js';
 import { read, text } from './example-data.mjs';
 
 export const OPERATOR = 'a pick without by{}, without sha256, over a drawing that changed, naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; a drawing missing a wanted hook, reaching for a CDN or carrying lorem fails its receipt; '
-  + 'the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
-  + 'the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
+  + 'a variant painting a colour no shared token carries is reported, one on the palette is not, and a token change changes the drawing\'s hash; the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
+  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
 
 export function pair() {
   const problems = []; let checks = 0;
@@ -32,6 +32,16 @@ export function pair() {
   must('a sound drawing fails its receipt', ok.ok && ok.hooks.found.length === 2);
   const bad = receiptOf({ html: '<link rel="stylesheet" href="https://cdn.example/x.css"><p>Lorem ipsum dolor</p>', wanted: ['[data-uxcli=call-action]'], found: [] });
   must('a drawing missing a hook, reaching for a CDN and full of lorem passes its receipt', !bad.ok && bad.hooks.missing.length === 1 && bad.external.length === 1 && bad.lorem);
+  // shared tokens: off-palette colours reported; on-palette not; no _shared → nothing to say; the hash moves with the tokens
+  const shared = { 'tokens.css': ':root{--ink:#1D2126;--surface:#fff}' };
+  const off = tokensOf({ html: '<link rel="stylesheet" href="../_shared/tokens.css"><style>a{color:var(--ink);background:#FFFFFF;border-color:#0f6b4f}</style>', shared });
+  must('an off-palette colour was not reported, or an on-palette one was', off.linked.length === 1 && off.off.length === 1 && off.off[0] === '#0f6b4f');
+  must('a variant that does not link the shared file is not told so', tokensOf({ html: '<style>a{color:#1d2126}</style>', shared }).linked.length === 0);
+  must('a project with nothing shared got a tokens line', tokensOf({ html: '<style>a{color:#123}</style>', shared: {} }) === null);
+  must('the receipt does not carry the tokens', receiptOf({ html: '<style>a{color:#123}</style>', shared }).tokens.off[0] === '#112233');
+  must('a token change does not change the drawing hash', drawingHash([Buffer.from('<p>x')]) !== drawingHash([Buffer.from('<p>x'), ':root{--a:#000}']) && drawingHash([Buffer.from('<p>x')]) === drawingHash(['<p>x']));
+  must('the example variant that links _shared paints off the palette', (() => { const t = tokensOf({ html: text('mockups/agent.call_started/a-banner.html'), shared: { 'tokens.css': text('mockups/_shared/tokens.css') } }); return t.linked.length === 1 && t.off.length === 0; })());
+  must('the card does not say where a colour is off the palette', /2 colours off the shared palette: #0f6b4f #b06a00/.test(mockupsCard({ dir: '.', screens: [{ id: 'a', variants: ['x'], pick: null, problems: [], receipts: { x: { ok: true, hooks: { found: [1], wanted: [1] }, problems: [], tokens: { files: ['tokens.css'], linked: ['tokens.css'], off: ['#0f6b4f', '#b06a00'] } } } }] })));
   const want = screensOf([read('journeys/handle-inbound-lead.json')]).find(s => s.id === 'agent.lead_detail');
   must('a screen does not want its own signal hooks and what leaves it', want.hooks.includes('[data-uxcli=lead-phone]') && want.hooks.includes('[data-uxcli=call-action]'));
   // must-fail
@@ -57,6 +67,10 @@ export function pair() {
 
   // the page
   const g = galleryHtml({ id: 'x', title: 'agent.workspace_ready', vw: 390, vh: 844, variants: [{ name: 'a-list', shot: 'a.png', status: 'pick' }, { name: 'b-kanban', shot: 'b.png', status: 'part', note: 'the counters' }, { name: 'c', shot: 'c.png', status: 'not-taken' }] });
+  const gp = galleryHtml({ id: 'y', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick', pins: [{ text: 'stays above the fold', x: 100, y: 200, w: 200, h: 50 }, { text: 'below', x: 0, y: 950, w: 10, h: 10 }], more: [{ vw: 390, vh: 844, shot: 'a@390x844.png' }] }] });
+  must('a note is not pinned at its element or listed', /class="pin" style="left:13.89%;top:25.00%"/.test(gp) && /<li>stays above the fold<\/li>/.test(gp));
+  must('a note below the fold is not pinned to the bottom edge', /class="pin off" style="left:0.35%;top:100.00%"/.test(gp));
+  must('a further viewport is not pictured beside the first', /class="mini"><div class="screen" style="aspect-ratio:390\/844"><a href="a@390x844.png">/.test(gp) && /390×844/.test(gp));
   must('the gallery does not mark pick, part and not taken', /class="variant pick"/.test(g) && /class="variant part"/.test(g) && /not taken/.test(g) && /taken: the counters/.test(g));
   const f = flowRow({ id: 'w', kind: 'happy', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's1', pill: { text: 'a-list', tone: 'ok' }, hot: { x: 10, y: 20, w: 100, h: 30 } }, { shot: null, title: 's2', missing: 'no pick yet · 2 variants', hot: null }], links: [{ label: 's1', text: 'tap' }] });
   must('the flow does not draw the hotspot from the rect', /class="hot" style="left:2.56%;top:2.37%;width:25.64%;height:3.55%"/.test(f));

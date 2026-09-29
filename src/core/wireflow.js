@@ -55,12 +55,22 @@ export function galleryHtml(g) {
     <header class="g-h"><div><h3>${esc(g.title)}</h3>${g.sub ? `<span class="sub">${esc(g.sub)}</span>` : ''}</div><span class="g-state ${picked ? 'pick' : 'no-pick'}">${picked ? `picked · ${esc(picked.name)}` : g.variants.some(v => v.shot) ? 'waiting for a pick' : 'not drawn yet'}</span></header>
     ${g.note ? `<blockquote class="why">${esc(g.note)}</blockquote>` : ''}
     <div class="variants" style="--vw:${g.vw};--vh:${g.vh}">${g.variants.map(v => `<div class="variant ${v.status}">
-      <div class="screen" style="aspect-ratio:${g.vw}/${g.vh}">${v.shot ? `<a href="${esc(v.shot)}"><img src="${esc(v.shot)}" alt="${esc(v.name)}" loading="lazy" width="${g.vw}" height="${g.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'no picture')}</div>`}</div>
+      <div class="screen" style="aspect-ratio:${g.vw}/${g.vh}">${v.shot ? `<a href="${esc(v.shot)}"><img src="${esc(v.shot)}" alt="${esc(v.name)}" loading="lazy" width="${g.vw}" height="${g.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'no picture')}</div>`}${pinsHtml(v.pins, g)}</div>
       <div class="cap"><span class="state">${esc(v.name)}</span><span class="status ${v.status}">${esc(word[v.status] || v.status)}</span></div>
       ${v.status === 'part' && v.note ? `<p class="fnote">taken: ${esc(v.note)}</p>` : ''}
+      ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
+      ${v.more?.length ? `<div class="more">${v.more.map(x => `<figure class="mini"><div class="screen" style="aspect-ratio:${x.vw}/${x.vh}"><a href="${esc(x.shot)}"><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a></div><figcaption>${x.vw}×${x.vh}</figcaption></figure>`).join('')}</div>` : ''}
     </div>`).join('')}</div>
   </section>`;
 }
+
+// A pinned note: an element in the drawing carrying data-uxcli-note. The pin sits at the element's
+// centre in the frame; one below the fold sits on the frame's bottom edge, dashed, since the picture
+// stops where the viewport did.
+export const pinsHtml = (pins = [], { vw, vh }) => pins.map((n, i) => {
+  const off = n.y >= vh; const cx = n.x + n.w / 2, cy = off ? vh : Math.min(vh, n.y + n.h / 2);
+  return `<i class="pin${off ? ' off' : ''}" style="left:${pct(cx, vw)};top:${pct(cy, vh)}" title="${esc(n.text)}">${i + 1}</i>`;
+}).join('');
 
 export const WIREFLOW_CSS = `
 :root{--fw:300px;--gw:360px;--cw:150px;--r:10px}
@@ -119,4 +129,11 @@ export const WIREFLOW_CSS = `
 .status{font:700 11px/1 var(--mono);letter-spacing:.04em;padding:5px 9px;border-radius:999px;margin-left:auto;background:var(--well);color:var(--dim);white-space:nowrap}
 .status.pick{background:var(--pass);color:#fff}.status.part{background:var(--finding);color:#fff}
 .variant .fnote{padding:0 2px}
+.pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
+.pin.off{border:2px dashed #fff;line-height:16px}
+.notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}
+.notes li::marker{font:700 11px var(--mono);color:var(--finding)}
+.more{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;padding-top:4px;border-top:1px dashed var(--line)}
+.mini{margin:0;display:grid;gap:4px;flex:1 1 0;min-width:60px;max-width:min(46%,180px)}
+.mini figcaption{font:11px var(--mono);color:var(--dim);text-align:center}
 `;

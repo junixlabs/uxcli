@@ -10,6 +10,14 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- `uxcli mockups --viewport=WxH,WxH…`: the first viewport is the one the flow, the hooks and the
+  pins are read at; each further one is photographed beside it in the gallery. An element in a
+  variant carrying `data-uxcli-note="…"` gets a numbered pin at its place on the frame and its text
+  under the picture; a note below the fold pins to the frame's bottom edge.
+- Shared tokens for mockups: `.uxcli/mockups/_shared/<file>.css`, linked from a variant as
+  `../_shared/<file>.css`. The pick's `sha256` covers the variant and the shared files it links, so
+  a token change is a drawing change; the receipt names every colour a variant paints that no shared
+  token carries, and says when a variant does not link the shared file at all.
 - A pick names the drawing it chose: `pick.json` carries `sha256` of the picked file, and a pick
   over a drawing that changed since is refused until someone looks again. Every variant gets a
   receipt on the `mockups` card — the hooks the screen wants found or missing, anything reached for

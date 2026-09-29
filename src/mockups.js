@@ -3,11 +3,11 @@
 // mockups, then each screen's variants side by side with the status the pick gives them.
 // in:  .uxcli/mockups/<state>/<variant>.html, .uxcli/mockups/<state>/pick.json, .uxcli/journeys/
 // out: .uxcli/mockups/index.html, .uxcli/mockups/.shots/<state>/<variant>.png; the card on stdout
-import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto'; import { pathToFileURL } from 'node:url';
+import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL } from 'node:url';
 import { findRoot, loadProject } from './journey.js';
 import { launch } from './browser.js';
 import { observe } from './adapters/chrome/index.js';
-import { parsePick, statusOf, screensOf, hookOf, receiptOf, mockupsCard } from './core/mockups.js';
+import { parsePick, statusOf, screensOf, hookOf, receiptOf, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
 import { esc, flowRow, galleryHtml, WIREFLOW_CSS } from './core/wireflow.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
@@ -15,21 +15,28 @@ const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f =>
 export function discover(root) {
   const P = loadProject(root); const base = path.join(root, '.uxcli', 'mockups');
   const journeys = P.journeys.map(j => j.value).filter(Boolean);
+  const sharedDir = path.join(base, '_shared');
+  const shared = fs.existsSync(sharedDir) ? Object.fromEntries(fs.readdirSync(sharedDir).filter(f => f.endsWith('.css')).sort().map(f => [f, fs.readFileSync(path.join(sharedDir, f), 'utf8')])) : {};
   const screens = screensOf(journeys).map(s => {
     const dir = path.join(base, s.id); const variants = listVariants(dir); let pick = null; const problems = [];
-    const hashes = Object.fromEntries(variants.map(v => [v, crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, `${v}.html`))).digest('hex')]));
+    // the hash covers the drawing and what it takes from _shared: a token change is a drawing change
+    const hashes = Object.fromEntries(variants.map(v => { const html = fs.readFileSync(path.join(dir, `${v}.html`)); return [v, drawingHash([html, ...sharedRefs(html.toString()).filter(f => shared[f] !== undefined).map(f => shared[f])])]; }));
     const pf = path.join(dir, 'pick.json');
     if (fs.existsSync(pf)) { let doc; try { doc = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { problems.push(`not JSON: ${e.message}`); } if (doc) { const r = parsePick(doc, variants, hashes); pick = r.value; problems.push(...r.problems); } }
     return { ...s, dir, variants, hashes, pick, problems };
   });
-  return { root, base, project: P, journeys, screens };
+  return { root, base, project: P, journeys, screens, shared };
 }
 
+// viewport: 'WxH' or 'WxH,WxH,…'. The first is the one the flow, the hooks and the pins are read at;
+// each further one adds a picture of every variant beside the first (<variant>@WxH.png).
 export async function mockups(from, { viewport = '390x844' } = {}) {
   const root = findRoot(from); const m = discover(root);
-  const [vw, vh] = viewport.split('x').map(Number);
+  const sizes = viewport.split(',').map(v => v.trim().split('x').map(Number)).filter(([w, h]) => w > 0 && h > 0);
+  if (!sizes.length) throw new Error(`--viewport=WxH[,WxH…], not "${viewport}"`);
+  const [vw, vh] = sizes[0]; const more = sizes.slice(1);
   const shotsDir = path.join(m.base, '.shots'); fs.rmSync(shotsDir, { recursive: true, force: true });
-  const shots = {}; const rects = {}; const receipts = {};
+  const shots = {}; const rects = {}; const receipts = {}; const pins = {}; const extra = {};
   if (m.screens.some(s => s.variants.length)) {
     const browser = await launch();
     try {
@@ -41,10 +48,18 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
           const hooks = [...new Set([...s.hooks, ...s.leaves.map(l => hookOf(l.target)).filter(Boolean)])];
           const obs = await observe(page, { selectors: hooks });
           rects[`${s.id}/${v}`] = Object.fromEntries(hooks.map(h => [h, obs.dom?.[h] || null]));
-          receipts[`${s.id}/${v}`] = receiptOf({ html: fs.readFileSync(path.join(s.dir, `${v}.html`), 'utf8'), wanted: hooks, found: hooks.filter(h => obs.dom?.[h]) });
+          receipts[`${s.id}/${v}`] = receiptOf({ html: fs.readFileSync(path.join(s.dir, `${v}.html`), 'utf8'), wanted: hooks, found: hooks.filter(h => obs.dom?.[h]), shared: m.shared });
+          pins[`${s.id}/${v}`] = await page.$$eval('[data-uxcli-note]', els => els.map(e => { const r = e.getBoundingClientRect(); return { text: e.getAttribute('data-uxcli-note') || '', x: r.x, y: r.y, w: r.width, h: r.height }; }));
           fs.mkdirSync(path.join(shotsDir, s.id), { recursive: true });
           await page.screenshot({ path: path.join(shotsDir, s.id, `${v}.png`) });
           shots[`${s.id}/${v}`] = `.shots/${s.id}/${v}.png`;
+          extra[`${s.id}/${v}`] = [];
+          for (const [w, h] of more) {
+            await page.setViewportSize({ width: w, height: h }); await page.waitForTimeout(150);
+            await page.screenshot({ path: path.join(shotsDir, s.id, `${v}@${w}x${h}.png`) });
+            extra[`${s.id}/${v}`].push({ vw: w, vh: h, shot: `.shots/${s.id}/${v}@${w}x${h}.png` });
+          }
+          if (more.length) await page.setViewportSize({ width: vw, height: vh });
         }
       }
       await context.close();
@@ -57,14 +72,14 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
   }
   const page = path.join(m.base, 'index.html');
   fs.mkdirSync(m.base, { recursive: true });
-  fs.writeFileSync(page, pageHtml(m, { vw, vh, shots, rects }));
+  fs.writeFileSync(page, pageHtml(m, { vw, vh, shots, rects, pins, extra }));
   const refused = m.screens.some(s => s.problems.length);
-  return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, hashes: s.hashes, pick: s.pick, problems: s.problems, receipts: s.receipts })), exit: refused ? 1 : 0 };
+  return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), viewports: sizes.map(([w, h]) => `${w}x${h}`), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, hashes: s.hashes, pick: s.pick, problems: s.problems, receipts: s.receipts })), exit: refused ? 1 : 0 };
 }
 
 export { mockupsCard };
 
-function pageHtml(m, { vw, vh, shots, rects }) {
+function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
   const byId = Object.fromEntries(m.screens.map(s => [s.id, s]));
   const flows = m.journeys.map(j => {
     const rows = (j.workflows || []).filter(w => (w.steps || []).some(s => s.before)).map(w => {
@@ -91,7 +106,7 @@ function pageHtml(m, { vw, vh, shots, rects }) {
   });
   const galleries = m.screens.map(s => galleryHtml({
     id: `screen-${s.id}`, title: s.id, sub: s.journeys.join(' · '), vw, vh, note: s.pick ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''}${s.pick.note ? ' — ' + s.pick.note : ''}` : null,
-    variants: s.variants.length ? s.variants.map(v => ({ name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null }))
+    variants: s.variants.length ? s.variants.map(v => ({ name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null, pins: pins[`${s.id}/${v}`] || [], more: extra[`${s.id}/${v}`] || [] }))
       : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
   }));
   const picked = m.screens.filter(s => s.pick).length;

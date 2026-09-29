@@ -80,6 +80,9 @@ and what the last run saw. It gives no advice.
 page: each journey as a flow of the picked variants, connected from the element the next step acts
 on, and each screen's variants side by side — green picked, amber part of a pick, grey not taken.
 A person picks in `pick.json`; the agent never picks for them. The picked variant is what gets built.
+A palette shared in `mockups/_shared/tokens.css` is covered by the pick's hash, and each variant's
+receipt names the colours it paints off that palette. Further viewports (`--viewport=1440x900,390x844`)
+are photographed beside the first, and an element carrying `data-uxcli-note` gets a numbered pin on the frame.
 
 `map` writes one page for the whole project: each journey as a strip of steps on a canvas, with
 four views — MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not),
@@ -157,7 +160,7 @@ uxcli demo <empty dir>                # a real product with a planted defect, me
 uxcli guide "<what you are about to do>"   # which command and which file, for a situation
 uxcli init [dir] [--apply --origin=URL]    # where the project stands and the first undone thing; --apply creates, never edits
 uxcli context show [journey]          # what to read before designing
-uxcli mockups [dir] [--viewport=WxH]  # every screen's variants photographed; the picked ones as each journey's flow
+uxcli mockups [dir] [--viewport=WxH[,WxH…]]  # every screen's variants photographed; the picked ones as each journey's flow
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
 uxcli run <url>                       # measure one screen       --prove --state=FILE --src=DIR
