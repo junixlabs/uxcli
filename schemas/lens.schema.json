@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/junixlabs/uxcli/schemas/lens.schema.json",
   "title": "uxcli lens",
-  "description": "A lens — lenses/<kind>.json: a kind of UI and the viewpoints read against it, each picked from a school's pool by id.",
+  "description": "A lens — skills/uxcli/lenses/<kind>.json: a kind of UI and the viewpoints read against it, each picked from a school's pool by id.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "id", "name", "when", "picks"],

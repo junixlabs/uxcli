@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/junixlabs/uxcli/schemas/viewpoints.schema.json",
   "title": "uxcli viewpoints pool",
-  "description": "One school's viewpoints — lenses/viewpoints/<school>.json. Each is a named designer's rule with the page it was read from; a lens for a kind of UI picks from these.",
+  "description": "One school's viewpoints — skills/uxcli/lenses/viewpoints/<school>.json. Each is a named designer's rule with the page it was read from; a lens for a kind of UI picks from these.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "school", "name", "research", "viewpoints"],

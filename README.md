@@ -98,7 +98,8 @@ the classic canon (Rams, Vignelli, Müller-Brockmann, Bringhurst, Butterick, Tuf
 modern product craft (Rauno Freiberg, Emil Kowalski, Linear, Vercel, Apple, Material, Ström, Brignull) —
 each with its author, work, page and words, packaged by the kind of UI it is read against: `marketing`,
 `content`, `data`, `workspace`, `shop`, `transaction`. Viewpoints that several schools state as one rule
-are one line of the checklist. `uxcli review <state>/<variant> --lens=<kind> --write` puts an empty review
+are one line of the checklist. The lenses live inside the skill (`skills/uxcli/lenses/<kind>.md`, installed
+into the project by `init`), so an agent reads the checklist for its kind of UI before it draws. `uxcli review <state>/<variant> --lens=<kind> --write` puts an empty review
 beside a drawing; the agent answers every viewpoint (holds with where, breaks with where and why, n/a with
 why) looking at the photograph, and `uxcli review check` refuses a review that skips one, is older than the
 drawing, or says `holds` where a probe the viewpoint names counted a break. The mockups page shows each

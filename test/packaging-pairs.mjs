@@ -39,7 +39,7 @@ export function pair() {
   // files match
   const pkg = JSON.parse(read('package.json'));
   for (const f of pkg.files) must(`package.json files names ${f}, which is not on disk`, fs.existsSync(path.join(ROOT, f)));
-  for (const need of ['skills', 'lenses', 'schemas', 'examples', 'test']) must(`package.json files does not ship ${need}`, pkg.files.includes(need));
+  for (const need of ['skills', 'schemas', 'examples', 'test']) must(`package.json files does not ship ${need}`, pkg.files.includes(need));
   must('package.json files ships experiments/', !pkg.files.includes('experiments'));
   must('packProblems does not see a missing root', packProblems('bin/uxcli.js\nsrc/x.js\n').length > 0);
   must('packProblems flags a complete listing', !packProblems(pkg.files.map(f => `${f}/x`).join('\n')).length);

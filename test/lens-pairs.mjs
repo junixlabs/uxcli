@@ -4,13 +4,13 @@
 // the drawing, and says "holds" nowhere a probe the viewpoint names has counted a break.
 import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 import { parseViewpoints, parseLens, resolveLens, parseLensesFile, parseReview, reviewTemplate, KINDS } from '../src/core/model/lens.js';
-import { library, reviewCheck, mockupHash } from '../src/lens.js';
+import { library, reviewCheck, mockupHash, lensMarkdown, LENS_DIR } from '../src/lens.js';
 import { validate } from './lib/json-schema.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const schema = n => JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', `${n}.schema.json`), 'utf8'));
 
-export const OPERATOR = 'every shipped pool and lens satisfies its schema and parser, every viewpoint names an author, a work and a URL, and only folklore goes unquoted; a viewpoint with no source, a lens pick in no pool, and a pick whose viewpoint says no to the lens are refused; '
+export const OPERATOR = 'every shipped pool and lens satisfies its schema and parser, each lens\'s checklist in the skill equals the rendering of its JSON and one missing a viewpoint does not, every viewpoint names an author, a work and a URL, and only folklore goes unquoted; a viewpoint with no source, a lens pick in no pool, and a pick whose viewpoint says no to the lens are refused; '
   + 'a review missing one answer, answering a viewpoint the lens does not carry, claiming holds or breaks without where, saying n/a without why, signed by an agent on nobody\'s behalf, or older than its drawing is refused, and a complete one is accepted; turning a lens off without a name is refused; '
   + 'on a drawing three boxes deep, a review that says the fewer-borders viewpoint holds is refused by page.nesting, and on the two-box twin the same review stands';
 
@@ -22,11 +22,14 @@ export async function pair() {
   const lib = library();
   must(`the shipped library has problems: ${lib.problems.slice(0, 3).join('; ')}`, !lib.problems.length);
   must(`not every kind has a lens (${lib.lenses.map(l => l.id).join(', ')})`, KINDS.every(k => lib.lenses.some(l => l.id === k)));
-  for (const f of fs.readdirSync(path.join(ROOT, 'lenses/viewpoints')).filter(f => f.endsWith('.json'))) {
-    const bad = validate(schema('viewpoints'), JSON.parse(fs.readFileSync(path.join(ROOT, 'lenses/viewpoints', f), 'utf8')));
+  for (const f of fs.readdirSync(path.join(ROOT, 'skills/uxcli/lenses/viewpoints')).filter(f => f.endsWith('.json'))) {
+    const bad = validate(schema('viewpoints'), JSON.parse(fs.readFileSync(path.join(ROOT, 'skills/uxcli/lenses/viewpoints', f), 'utf8')));
     must(`viewpoints/${f} fails its schema: ${bad.slice(0, 2).join('; ')}`, !bad.length);
   }
-  for (const k of KINDS) { const f = path.join(ROOT, 'lenses', `${k}.json`); if (fs.existsSync(f)) { const bad = validate(schema('lens'), JSON.parse(fs.readFileSync(f, 'utf8'))); must(`${k}.json fails its schema: ${bad.slice(0, 2).join('; ')}`, !bad.length); } }
+  for (const k of KINDS) { const f = path.join(ROOT, 'skills/uxcli/lenses', `${k}.json`); if (fs.existsSync(f)) { const bad = validate(schema('lens'), JSON.parse(fs.readFileSync(f, 'utf8'))); must(`${k}.json fails its schema: ${bad.slice(0, 2).join('; ')}`, !bad.length); } }
+  // the checklist an agent reads is the list review check asks about: <kind>.md equals the rendering of <kind>.json
+  for (const l of lib.lenses) { const f = path.join(LENS_DIR, `${l.id}.md`); must(`skills/uxcli/lenses/${l.id}.md is missing or differs from ${l.id}.json — rebuild it (docs/lenses/build-lenses.mjs)`, fs.existsSync(f) && fs.readFileSync(f, 'utf8') === lensMarkdown(l)); }
+  { const l = lib.lenses[0]; const drifted = lensMarkdown({ ...l, viewpoints: l.viewpoints.slice(1) }); must('a checklist missing a viewpoint matched its lens', drifted !== fs.readFileSync(path.join(LENS_DIR, `${l.id}.md`), 'utf8')); }
   const every = lib.pools.flatMap(p => p.viewpoints);
   must('a shipped viewpoint has no URL', every.every(v => /^https?:\/\//.test(v.source.url)));
   must('a shipped viewpoint other than folklore has no quote', every.every(v => v.evidence === 'folklore' || v.source.quote));

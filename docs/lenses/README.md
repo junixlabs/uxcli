@@ -158,7 +158,7 @@ skill **validates against the checklist**.
 
 Built: six kinds by what the person does on the screen — `marketing`, `content`, `data`, `workspace`,
 `shop`, `transaction` (mobile is a viewport, not a kind). The four schools stay as pools
-(`lenses/viewpoints/<school>.json`), each viewpoint marked yes/no/maybe per kind; a lens is the "yes"
+(`skills/uxcli/lenses/viewpoints/<school>.json`), each viewpoint marked yes/no/maybe per kind; a lens is the "yes"
 viewpoints for its kind, with viewpoints that name each other directly folded into one line (star
 folds: chains of agrees merged unrelated rules and were dropped). `uxcli review check` is the
 validation: a review must answer every viewpoint, say where, be signed on someone's behalf, be fresher

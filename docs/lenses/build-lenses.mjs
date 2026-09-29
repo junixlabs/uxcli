@@ -1,7 +1,7 @@
 // Assemble lenses/<kind>.json from the four pools: every viewpoint that says yes to the kind, with
 // viewpoints that state the same rule (agrees links) folded into one pick whose note names the others.
 import fs from 'node:fs'; import path from 'node:path';
-const LIB = new URL('../../lenses', import.meta.url).pathname;
+const LIB = new URL('../../skills/uxcli/lenses', import.meta.url).pathname;
 const SCHOOLS = ['usability', 'craft', 'canon', 'modern'];
 const PROBES = { 'page.nesting': ['craft.fewer-borders', 'canon.tufte-one-plus-one-equals-three', 'canon.gestalt-common-region', 'modern.fewer-borders-more-space'] };
 const pools = SCHOOLS.map(s => JSON.parse(fs.readFileSync(path.join(LIB, 'viewpoints', `${s}.json`), 'utf8')));
@@ -39,3 +39,8 @@ for (const kind of Object.keys(WHEN)) {
   fs.writeFileSync(path.join(LIB, `${kind}.json`), JSON.stringify({ schema_version: 1, id: kind, name: NAME[kind], when: WHEN[kind], picks }, null, 1) + '\n');
   console.log(kind.padEnd(12), 'yes', String(yes.length).padStart(3), 'picks', String(picks.length).padStart(3), 'folded', yes.length - picks.length);
 }
+// the checklist each lens is read as, installed with the skill
+const { library, lensMarkdown } = await import('../../src/lens.js');
+const lib = library(); if (lib.problems.length) { console.error(lib.problems.join('\n')); process.exit(1); }
+for (const l of lib.lenses) fs.writeFileSync(path.join(LIB, `${l.id}.md`), lensMarkdown(l));
+console.log('wrote', lib.lenses.map(l => `${l.id}.md`).join(', '));

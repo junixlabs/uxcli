@@ -16,7 +16,7 @@ Entries are written per release. The log is the source material, not the text.
   Butterick, Tufte, Gestalt) and modern product craft (Rauno Freiberg, Emil Kowalski, Linear, Vercel,
   Comeau, Apple, Material, Ström, Brignull) — each with author, work, URL and the words, distilled
   from research that fetched every page it cites (`docs/lenses/`).
-  They ship as `lenses/viewpoints/<school>.json` and are packaged by the kind of UI they are read
+  They ship inside the skill as `skills/uxcli/lenses/viewpoints/<school>.json` and are packaged by the kind of UI they are read
   against — `marketing`, `content`, `data`, `workspace`, `shop`, `transaction` — with rules that
   several schools state folded into one line. `uxcli lens` lists them, `uxcli lens show <kind>` prints
   the checklist, `uxcli review <state>/<variant> --lens=<kind> --write` writes an empty review beside a
@@ -24,8 +24,9 @@ Entries are written per release. The log is the source material, not the text.
   unanswered, claims without saying where, is signed by an agent on nobody's behalf, is older than the
   drawing, or says `holds` where a probe the viewpoint names counted a break. The mockups page and card
   show each review on its variant; `context show` prints the lenses on. Every lens is on; a project
-  turns one off in `.uxcli/lenses.json` with a name. The skill reads the lens after drawing and before
-  done (`references/lenses.md`). Schemas: `viewpoints`, `lens`, `review`, `lenses`.
+  turns one off in `.uxcli/lenses.json` with a name. The lenses live inside the skill: `skills/uxcli/lenses/<kind>.md` is each
+  checklist as the agent reads it, installed by `init` and held equal to its JSON by the gate; the skill
+  reads it before drawing, reviews against it after, and again before done (`references/lenses.md`). Schemas: `viewpoints`, `lens`, `review`, `lenses`.
 - `page.nesting`, a fifth page probe: text inside three or more nested boxes (a border on two sides or
   more, a shadow, an outline; controls, table cells and one-sided rules are not boxes). Provenance
   `research` (Refactoring UI "Use fewer borders", Tufte "1 + 1 = 3", NN/g common region),

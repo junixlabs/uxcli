@@ -1,6 +1,6 @@
 ---
 name: uxcli
-description: Measure UI work with real Chrome before saying it is done, and read the project's UX context (actor, insights, journey states, signed commitments) before designing a screen. Use whenever a task touches an interface — building or changing a screen, form or flow, being asked whether UI work is finished, or writing a journey, commitment or understanding file under .uxcli/. Returns exit codes and cited evidence, never opinions.
+description: Measure UI work with real Chrome before saying it is done, and read the project's UX context (actor, insights, journey states, signed commitments) before designing a screen. Use whenever a task touches an interface — building or changing a screen, form or flow, being asked whether UI work is finished, or writing a journey, commitment or understanding file under .uxcli/. Carries named designers' checklists by kind of UI (marketing, content, data, workspace, shop, transaction) to draw to and review against. Returns exit codes and cited evidence; a review is the reviewer's claim, never a verdict.
 license: MIT
 metadata:
   version: "0.8"
@@ -32,7 +32,10 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    needs, the commitments already signed over it, and what the last run saw. Read it top to bottom.
    If there is no journey or no understanding on disk, the card says so; go to `references/understand.md`
    and `references/journey.md` before writing any UI.
-3. **Draw before you build.** For each state the card names, draw two or three variants into
+3. **Draw before you build.** First pick the lens for what the person does on this screen —
+   `marketing`, `content`, `data`, `workspace`, `shop` or `transaction` — and read its checklist,
+   `lenses/<kind>.md` in this skill: named designers' rules, each with its source and what to look
+   at. Draw to it. For each state the card names, draw two or three variants into
    `.uxcli/mockups/<state>/<variant>.html`, with the same `data-uxcli` hooks the journey names. Then:
 
    ```bash
@@ -40,9 +43,9 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    ```
 
    It photographs every variant, draws each journey as a flow of the picked ones, and prints the
-   page. Then read each variant through the lens for its kind of UI (`uxcli lens show <kind>`), fill
-   one review per variant (`uxcli review <state>/<variant> --lens=<kind> --write`), and run `uxcli
-   review check` until it exits 0; `references/lenses.md` is the sequence. A person picks in
+   page. Then review each variant against that checklist, looking at the photograph: `uxcli review
+   <state>/<variant> --lens=<kind> --write`, answer every viewpoint, redraw what breaks, and run
+   `uxcli review check` until it exits 0; `references/lenses.md` is the sequence. A person picks in
    `pick.json`; you never pick for them. `references/mockups.md` is the shape.
 4. **Build to the card.** Build the picked variant. Use the hooks and states the card names. Do not invent a hook, a state, or a fact
    about the user that the card does not carry. An unknown is not yours to fill: ask, or leave the gap
@@ -93,7 +96,8 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `references/journey.md` | the card says no journey, or a flow has changed shape: states as signals, hooks, workflows |
 | `references/mockups.md` | a screen the journey names has no mockup or no pick: variants, hooks, `pick.json` |
 | `references/understand.md` | the card says no understanding, or an insight the screen leans on is missing or a hypothesis |
-| `references/lenses.md` | you drew variants or changed a screen: the checklist by kind of UI, the review, `review check` |
+| `lenses/<kind>.md` | before you draw or change a screen: the checklist for its kind of UI — `marketing`, `content`, `data`, `workspace`, `shop`, `transaction` |
+| `references/lenses.md` | how to pick the lens, answer it, write the review, and pass `review check` |
 | `references/principles.md` | a verdict is `not-committed` and the project should decide; proposing a commitment |
 | `examples/crm/.uxcli/` in the package | the shape of every file — take the shape, not the facts |
 
@@ -114,5 +118,5 @@ so rather than describing a screen you did not measure.
 ## Output
 
 Return: the command you ran, the exit code, and the card's `what · where · rule · check` for every
-verdict that is not `pass`. Name a `finding` as a finding. Do not claim exit 0 for a run you did not
+verdict that is not `pass`. For every review, the lens, `review check`'s line and each `breaks` in the review's words. Name a `finding` as a finding. Do not claim exit 0 for a run you did not
 make on the final files, and do not claim a visual review you did not perform.

@@ -13,7 +13,7 @@ export const ANSWERS = ['holds', 'breaks', 'n/a'];
 const ID = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const strs = v => Array.isArray(v) && v.every(isStr);
 
-// One school's pool: lenses/viewpoints/<school>.json.
+// One school's pool: skills/uxcli/lenses/viewpoints/<school>.json.
 export function parseViewpoints(doc) {
   const problems = [];
   if (!isObj(doc)) return { value: null, problems: ['not an object'] };
@@ -48,7 +48,7 @@ export function parseViewpoints(doc) {
   return { value: problems.length ? null : { school: doc.school, name: doc.name, research: doc.research, viewpoints }, problems };
 }
 
-// One lens: lenses/<kind>.json — a kind of UI and the viewpoints read against it.
+// One lens: skills/uxcli/lenses/<kind>.json — a kind of UI and the viewpoints read against it.
 export function parseLens(doc) {
   const problems = [];
   if (!isObj(doc)) return { value: null, problems: ['not an object'] };

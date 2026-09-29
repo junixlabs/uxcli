@@ -1,4 +1,4 @@
-// Lenses on disk: the shipped library (lenses/viewpoints/*.json, lenses/<kind>.json), the project's
+// Lenses on disk: the shipped library, inside the skill (skills/uxcli/lenses/viewpoints/*.json, <kind>.json, and <kind>.md — the checklist an agent reads, installed with the skill), the project's
 // word on them (.uxcli/lenses.json), and reviews (a lens read against a mockup variant or a screen).
 // The model is pure (src/core/model/lens.js); this file reads files and, for `review check`, runs the
 // probes a viewpoint names so an answer of "holds" cannot stand where the instrument counted a break.
@@ -7,7 +7,7 @@ import { KINDS, parseViewpoints, parseLens, resolveLens, parseLensesFile, parseR
 import { drawingHash, sharedRefs } from './core/mockups.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const LIB = path.join(ROOT, 'lenses');
+const LIB = path.join(ROOT, 'skills', 'uxcli', 'lenses');
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));
 
 export function library() {
@@ -144,3 +144,24 @@ export function reviewCheckCard(r) {
 
 export { reviewTemplate, KINDS };
 export const mockupHash = hashOf;
+
+// The checklist as the agent reads it: skills/uxcli/lenses/<kind>.md, written from the lens and its
+// pools and installed with the skill. The gate holds it equal to this rendering, so the file an agent
+// reads and the list `review check` asks about are the same list.
+export function lensMarkdown(l) {
+  const L = [`# ${l.name} — the \`${l.id}\` lens`, '', l.when, '',
+    `${l.viewpoints.length} viewpoints from named designers. Answer every one for the screen you are looking at: \`holds\` with where, \`breaks\` with where and what, \`n/a\` with why. The sequence, the review file and \`uxcli review check\` are in \`../references/lenses.md\`. The rules are the designers', not uxcli's and not yours.`, ''];
+  l.viewpoints.forEach((v, i) => {
+    L.push(`## ${i + 1}. \`${v.id}\``, '', v.claim, '');
+    L.push(`- **Source:** ${v.source.author}, *${v.source.work}* — ${v.source.url}${v.evidence === 'study' ? ' (study)' : v.evidence === 'secondary' ? ' (secondary)' : v.evidence === 'folklore' ? ' (folklore: the wording is not verified)' : ''}`);
+    if (v.source.quote) L.push(`- **In their words:** "${v.source.quote}"`);
+    if (v.prefers.length) L.push(`- **Do:** ${v.prefers.join('; ')}`);
+    if (v.forbids.length) L.push(`- **Don't:** ${v.forbids.join('; ')}`);
+    L.push(`- **Look at:** ${v.measure.what}${v.measure.probe ? ` Counted by \`${v.measure.probe}\`: \`review check\` refuses a \`holds\` it contradicts.` : ''}`);
+    if (v.exceptions.length) L.push(`- **Unless:** ${v.exceptions.join('; ')}`);
+    if (v.note) L.push(`- **Also stated as:** ${v.note.replace(/^Same rule, also stated as: /, '')}`);
+    L.push('');
+  });
+  return L.join('\n');
+}
+export const LENS_DIR = LIB;
