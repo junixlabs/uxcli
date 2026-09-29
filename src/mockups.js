@@ -84,7 +84,7 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
   fs.mkdirSync(m.base, { recursive: true });
   fs.writeFileSync(page, pageHtml(m, { vw, vh, sizes, shots, rects, pins, extra }));
   const refused = m.screens.some(s => s.problems.length);
-  return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), viewports: sizes.map(([w, h]) => `${w}x${h}`), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, hashes: s.hashes, pick: s.pick, problems: s.problems, receipts: s.receipts })), exit: refused ? 1 : 0 };
+  return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), viewports: sizes.map(([w, h]) => `${w}x${h}`), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, hashes: s.hashes, pick: s.pick, problems: s.problems, receipts: s.receipts, reviews: s.reviews })), exit: refused ? 1 : 0 };
 }
 
 export { mockupsCard };

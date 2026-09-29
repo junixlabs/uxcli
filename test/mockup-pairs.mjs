@@ -11,7 +11,7 @@ import { read, text } from './example-data.mjs';
 
 export const OPERATOR = 'a pick without by{}, without sha256, over a drawing that changed, naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; a drawing missing a wanted hook, reaching for a CDN or carrying lorem fails its receipt; '
   + 'a variant painting a colour no shared token carries is reported, one on the palette is not, and a token change changes the drawing\'s hash; the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
-  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; a reference picture is shown beside the variants as a reference and never as a pick; a hook is outlined only where the browser found it, and a photographed variant opens in the viewer and can be compared; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
+  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; a reference picture is shown beside the variants as a reference and never as a pick; a hook is outlined only where the browser found it, and a photographed variant opens in the viewer and can be compared; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none; a lens review is shown on its variant with what breaks, and a refused one says refused';
 
 export function pair() {
   const problems = []; let checks = 0;
@@ -67,6 +67,10 @@ export function pair() {
 
   // the page
   const g = galleryHtml({ id: 'x', title: 'agent.workspace_ready', vw: 390, vh: 844, variants: [{ name: 'a-list', shot: 'a.png', status: 'pick' }, { name: 'b-kanban', shot: 'b.png', status: 'part', note: 'the counters' }, { name: 'c', shot: 'c.png', status: 'not-taken' }] });
+  // a lens review on a variant is shown as the reviewer's claim, with what breaks; a refused one says refused
+  const grv = galleryHtml({ id: 'r', title: 't', vw: 390, vh: 844, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick', reviews: [{ lens: 'data', line: '8 of 40 hold · 19 break', by: 'agent claude', breaks: [{ id: 'craft.fewer-borders', where: 'card > well > shot', note: 'three boxes' }] }, { lens: 'shop', line: 'refused: 3 of 31 viewpoints unanswered', breaks: [], refused: true }] }] });
+  must('a review on a variant is not shown with its lens, its line and its breaks', /<details class="review"><summary><b>data lens<\/b> · 8 of 40 hold · 19 break · agent claude/.test(grv) && grv.includes('craft.fewer-borders') && grv.includes('card &gt; well &gt; shot'));
+  must('a refused review is not marked refused', /class="review refused"><summary><b>shop lens<\/b> · refused:/.test(grv));
   const gp = galleryHtml({ id: 'y', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick', pins: [{ text: 'stays above the fold', x: 100, y: 200, w: 200, h: 50 }, { text: 'below', x: 0, y: 950, w: 10, h: 10 }], more: [{ vw: 390, vh: 844, shot: 'a@390x844.png' }] }] });
   must('a note is not pinned at its element or listed', /class="pin" style="left:13.89%;top:25.00%"/.test(gp) && /<li>stays above the fold<\/li>/.test(gp));
   must('a note below the fold is not pinned to the bottom edge', /class="pin off" style="left:0.35%;top:100.00%"/.test(gp));
