@@ -107,6 +107,7 @@ export function galleryHtml(g) {
       ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
       ${v.more?.length ? `<div class="more">${v.more.map(x => `<figure class="mini"><div class="screen" style="aspect-ratio:${x.vw}/${x.vh}"><a href="${esc(x.shot)}"><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a></div><figcaption>${x.vw}×${x.vh}</figcaption></figure>`).join('')}</div>` : ''}
     </div>`).join('')}</div>
+    ${g.refs?.length ? `<div class="refs"><span class="refs-h">references · pictures someone made, not drawings that can be picked</span><div class="refs-row">${g.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption><span class="state">${esc(r.name)}</span><span class="status not-taken">reference</span></figcaption></figure>`).join('')}</div></div>` : ''}
   </section>`;
 }
 
@@ -209,6 +210,12 @@ body.hooks .hk{display:block}
 .p-stage.two{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:center;justify-items:center}
 .p-stage.two .p-screen{max-width:100%}
 .proto .hk{display:block}
+.refs{display:grid;gap:8px;padding-top:14px;border-top:1px dashed var(--line)}
+.refs-h{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.refs-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--gw),1fr));gap:24px;align-items:start}
+.ref{margin:0;display:grid;gap:8px;padding:12px;border-radius:12px;border:1px dashed var(--line);background:var(--surface)}
+.ref a{display:block;border-radius:8px;overflow:hidden;outline:1px solid var(--line-soft)}.ref img{display:block;width:100%;height:auto}
+.ref figcaption{display:flex;align-items:center;padding:2px 2px 0}
 .pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
 .pin.off{border:2px dashed #fff;line-height:16px}
 .notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}

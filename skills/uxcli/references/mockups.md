@@ -29,6 +29,14 @@ with `--viewport=1440x900,390x844`: the first is where the flow, the hooks and t
 the rest are pictured beside it, so a desktop drawing shows what it does on a phone before anyone
 decides it is desktop-only.
 
+## Reference pictures
+
+A picture someone made of the screen — a style frame from an image model, a sketch, a competitor's
+page — goes in `.uxcli/mockups/<state>/refs/<name>.png`. `uxcli mockups` shows it under that
+screen's variants, labelled `reference`, and opens it large on click. It is never a variant: it
+carries no hooks, it cannot be picked, and its hash is not part of any pick. Draw the variant it
+inspires; the reference stays beside it so the person deciding sees where the drawing came from.
+
 ## Shared tokens
 
 When the screens share a palette, put it once in `.uxcli/mockups/_shared/tokens.css` as custom

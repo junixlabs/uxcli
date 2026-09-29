@@ -86,7 +86,8 @@ are photographed beside the first, and an element carrying `data-uxcli-note` get
 Each lane plays as a prototype: the hotspot leads to the next picked frame, arrow keys step, Escape closes;
 a journey with several lanes plays whole. A variant opens large with its pins and the journey's hooks
 outlined where the browser found them (the `hooks` toggle shows them on the thumbnails too); two variants ticked `compare` sit side by side;
-the journey tabs filter the page to what one journey names.
+the journey tabs filter the page to what one journey names. A picture someone made of a screen goes in
+`refs/` under that screen and is shown as a reference, never as a variant.
 
 `map` writes one page for the whole project: each journey as a strip of steps on a canvas, with
 four views — MODEL (the picked mockups), RUN (the last run's screenshots, each state held or not),

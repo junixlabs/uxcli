@@ -11,6 +11,8 @@ import { parsePick, statusOf, screensOf, hookOf, receiptOf, sharedRefs, drawingH
 import { esc, flowRow, galleryHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
+// <state>/refs/*.png|jpg|webp: pictures someone made of the screen (a style frame, a sketch, a competitor's page). Shown beside the variants, never picked, never hashed.
+const listRefs = dir => fs.existsSync(path.join(dir, 'refs')) ? fs.readdirSync(path.join(dir, 'refs')).filter(f => /\.(png|jpe?g|webp)$/i.test(f)).sort() : [];
 
 export function discover(root) {
   const P = loadProject(root); const base = path.join(root, '.uxcli', 'mockups');
@@ -23,7 +25,7 @@ export function discover(root) {
     const hashes = Object.fromEntries(variants.map(v => { const html = fs.readFileSync(path.join(dir, `${v}.html`)); return [v, drawingHash([html, ...sharedRefs(html.toString()).filter(f => shared[f] !== undefined).map(f => shared[f])])]; }));
     const pf = path.join(dir, 'pick.json');
     if (fs.existsSync(pf)) { let doc; try { doc = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { problems.push(`not JSON: ${e.message}`); } if (doc) { const r = parsePick(doc, variants, hashes); pick = r.value; problems.push(...r.problems); } }
-    return { ...s, dir, variants, hashes, pick, problems };
+    return { ...s, dir, variants, refs: listRefs(dir), hashes, pick, problems };
   });
   return { root, base, project: P, journeys, screens, shared };
 }
@@ -115,6 +117,7 @@ function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
     id: `screen-${s.id}`, title: s.id, sub: s.journeys.join(' · '), vw, vh, note: s.pick ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''}${s.pick.note ? ' — ' + s.pick.note : ''}` : null,
     variants: s.variants.length ? s.variants.map(v => ({ name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null, pins: pins[`${s.id}/${v}`] || [], more: extra[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), view: shots[`${s.id}/${v}`] ? `view:${s.id}/${v}` : null }))
       : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
+    refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${s.id} · reference · ${f}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),
   }) + '</div>');
   const picked = m.screens.filter(s => s.pick).length;
   return `<!doctype html>

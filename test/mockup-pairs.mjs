@@ -11,7 +11,7 @@ import { read, text } from './example-data.mjs';
 
 export const OPERATOR = 'a pick without by{}, without sha256, over a drawing that changed, naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; a drawing missing a wanted hook, reaching for a CDN or carrying lorem fails its receipt; '
   + 'a variant painting a colour no shared token carries is reported, one on the palette is not, and a token change changes the drawing\'s hash; the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
-  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; a hook is outlined only where the browser found it, and a photographed variant opens in the viewer and can be compared; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
+  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; a reference picture is shown beside the variants as a reference and never as a pick; a hook is outlined only where the browser found it, and a photographed variant opens in the viewer and can be compared; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none';
 
 export function pair() {
   const problems = []; let checks = 0;
@@ -86,6 +86,9 @@ export function pair() {
   must('a found hook is not outlined, or an unfound one is', /class="hk" style="left:10.00%;top:10.00%;width:20.00%;height:5.00%"><b>\[data-uxcli=x\]<\/b>/.test(gh) && !/data-uxcli=none/.test(gh));
   must('a variant does not open in the viewer or carry a compare box', /data-view="view:s\/a"/.test(gh) && /data-cmp="view:s\/a"/.test(gh));
   must('hooksHtml draws a hook the browser did not find', hooksHtml([{ sel: 'x', x: 0, y: 0, w: 0, h: 0 }], { vw: 10, vh: 10 }) === '');
+  // a reference picture sits beside the variants, marked reference, and is never a pick
+  const gr = galleryHtml({ id: 'r', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick' }], refs: [{ name: 'chatgpt', src: 's/refs/chatgpt.png', view: 'ref:s/chatgpt.png' }] });
+  must('a reference is not drawn beside the variants as a reference', /class="ref"><a href="s\/refs\/chatgpt.png" data-view="ref:s\/chatgpt.png">/.test(gr) && /class="status not-taken">reference</.test(gr) && !/data-cmp="ref:/.test(gr));
   // the card names the refused pick and the screen with no pick
   const card = mockupsCard({ dir: '.', screens: [{ id: 'a', variants: ['x'], pick: null, problems: ['by{type, ref} missing'] }, { id: 'b', variants: ['y'], pick: null, problems: [] }, { id: 'c', variants: [], pick: null, problems: [] }] });
   must('the card does not say REFUSED for a bad pick', /REFUSED\s+a/.test(card) && /by\{type, ref\} missing/.test(card));

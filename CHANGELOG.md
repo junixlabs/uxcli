@@ -10,6 +10,9 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- Reference pictures: `.uxcli/mockups/<state>/refs/*.png` (a style frame, a sketch, a competitor's
+  page) are shown under that screen's variants labelled `reference`, open large on click, and are
+  never a variant — no hooks, no pick, no hash.
 - The mockups page reads like a design file: a variant opens large in a viewer with its pins, its
   notes and every hook the journey names outlined where the browser found it, labelled with the
   selector (the `hooks` toggle shows the outlines on the thumbnails too); two variants ticked `compare` open side by side; the journey
