@@ -71,6 +71,7 @@ const PROJECT = path.join(UXCLI, 'project.json'), POLICY = path.join(UXCLI, 'pol
 const who = () => { try { return execSync('git config user.name', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || os.userInfo().username; } catch { return os.userInfo().username; } };
 const projectId = project => { try { return JSON.parse(fs.readFileSync(path.join(project, 'package.json'), 'utf8')).name.replace(/^@[^/]+\//, ''); } catch { return path.basename(project); } };
 export const floorPolicy = (origin, signer, at = new Date().toISOString()) => ({
+  schema_version: 1,
   note: `written by uxcli init --apply on ${at}, on ${signer.ref}'s say-so; the floor — raise reachMax only by editing this file`,
   defaultEnvironment: 'local',
   project: { reachMax: 'observe', constraints: [] },

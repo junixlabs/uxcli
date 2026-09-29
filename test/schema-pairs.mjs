@@ -14,7 +14,7 @@ const listPicks = dir => fs.existsSync(dir) ? fs.readdirSync(dir).sort().map(d =
 export const WHERE = { actor: 'understanding/actors', insight: 'understanding/insights', journey: 'journeys', commitment: 'commitments', policy: 'policy', profile: 'profiles', proposal: 'proposals', pick: 'mockups' };
 export const PROJECTS = ['examples/crm/.uxcli', 'test/fixtures/crm/.uxcli'];
 
-export function pair() {
+export async function pair() {
   const problems = []; let checks = 0;
   for (const [name, sub] of Object.entries(WHERE)) {
     const S = schema(name);
@@ -31,6 +31,8 @@ export function pair() {
       if (req) { checks++; const cut = { ...doc }; delete cut[req]; if (!validate(S, cut).some(p => p.includes(`missing required "${req}"`))) problems.push(`${name}: removing ${req} from ${rel} was not refused`); }
     }
   }
+  // what init writes must itself be the shape: the floor policy was shipped without schema_version on 2026-09-29
+  checks++; { const { floorPolicy } = await import('../src/init.js'); const bad = validate(schema('policy'), floorPolicy('http://localhost:3000', { type: 'person', ref: 'x' })); if (bad.length) problems.push(`init's floor policy fails policy.schema.json: ${bad.slice(0, 3).join('; ')}`); }
   // the validator itself: a schema keyword it does not implement is a problem, never silently true
   checks++; if (!validate({ type: 'object', propertyNames: {} }, {}).length) problems.push('the validator ignored a keyword it does not implement');
   return { ok: !problems.length, checks, problems };
@@ -39,7 +41,7 @@ export function pair() {
 export const OPERATOR = 'every file under examples/ and test/fixtures/ .uxcli/ satisfies its schema; the same file with an unknown key, or a required key removed, is refused; a schema keyword the validator does not implement is a problem';
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const r = pair();
+  const r = await pair();
   console.log(r.ok ? `PASS shape · ${r.checks} checks` : 'FAIL ' + r.problems.join('\n     '));
   process.exit(r.ok ? 0 : 1);
 }
