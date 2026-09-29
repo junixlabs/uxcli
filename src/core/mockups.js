@@ -92,6 +92,7 @@ export function receiptOf({ html = '', wanted = [], found = [], shared = {} }) {
   return { hooks: { wanted, found: wanted.filter(h => found.includes(h)), missing }, external, lorem, tokens: tokensOf({ html, shared }), problems, ok: !problems.length };
 }
 
+export const receiptLine = r => (r.ok ? `hooks ${r.hooks.found.length}/${r.hooks.wanted.length} · self-contained` : r.problems.join(' · ')) + tokensLine(r.tokens);
 const tokensLine = t => !t ? '' : !t.linked.length ? ` · _shared/${t.files.join(', ')} not linked` : t.off.length ? ` · ${t.off.length} colour${t.off.length === 1 ? '' : 's'} off the shared palette: ${t.off.slice(0, 4).join(' ')}${t.off.length > 4 ? ' …' : ''}` : ' · on the shared palette';
 
 // screens: [{ id, variants: [name], pick: value|null, problems: [], receipts?: { [variant]: receipt }, hashes?: { [variant]: sha256 } }]
@@ -105,7 +106,7 @@ export function mockupsCard(m) {
     for (const p of s.problems) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} pick.json: ${p}`);
     for (const v of s.variants) {
       const r = s.receipts?.[v]; if (!r) continue;
-      const line = (r.ok ? `hooks ${r.hooks.found.length}/${r.hooks.wanted.length} · self-contained` : r.problems.join(' · ')) + tokensLine(r.tokens);
+      const line = receiptLine(r);
       L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} ${v.padEnd(14)} ${line}${!s.pick && s.hashes?.[v] ? `\n  ${''.padEnd(14)} ${''.padEnd(32)} ${''.padEnd(14)} sha256 ${s.hashes[v]}` : ''}`);
     }
   }

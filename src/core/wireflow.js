@@ -67,11 +67,13 @@ var stage=el.querySelector('.p-stage'),cur=null,k=0,last=null,mode='play';
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function pc(n,of){return (100*n/of).toFixed(2)+'%'}
 function box(h,cls,inner){return '<i class="'+cls+'" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'">'+(inner||'')+'</i>'}
-function screen(f,live){var h=f.hot,s='<div class="p-screen" style="aspect-ratio:'+cur.vw+'/'+cur.vh+'">';
+function screen(f,live){var h=f.hot,s='<div class="p-cell"><div class="p-screen" style="aspect-ratio:'+cur.vw+'/'+cur.vh+'">';
 s+=f.shot?'<img src="'+esc(f.shot)+'" alt="">':'<div class="noshot">'+esc(f.missing||'no picture')+'</div>';
 (f.hooks||[]).forEach(function(x){if(x.w>0)s+=box(x,'hk','<b>'+esc(x.sel)+'</b>')});
 (f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+n.w/2,cy=off?cur.vh:Math.min(cur.vh,n.y+n.h/2);s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
 if(live&&h&&h.x!=null)s+='<div class="hot" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'"></div>';
+s+='</div>';
+if(mode==='compare'){s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Pick '+esc(f.title.split(' \u00b7 ').pop())+'</button>':'')+'</div>'}
 s+='</div>';
 if(live&&h&&(h.off||h.edge))s+='<div class="p-off">'+(h.off?'\\u2193 '+esc(h.target||'')+' \\u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \\u2014 continue':h.lane?'\\u2192 next lane: '+esc(h.lane):'\\u2192 continue (hook not in the drawing)')+'</div>';
 return s}
@@ -92,25 +94,38 @@ var v=e.target.closest('[data-view]');if(v){e.preventDefault();open('view',P[v.g
 var f=e.target.closest('[data-filter]');if(f){filter(f.getAttribute('data-filter'));return}
 var t=e.target.closest('[data-toggle]');if(t){document.body.classList.toggle(t.getAttribute('data-toggle'));t.classList.toggle('on');return}
 if(el.hidden)return;if(e.target.closest('.p-close')){close();return}if(e.target.closest('.hot')||e.target.closest('.p-off')){step(1);return}if(e.target===el)close();});
-document.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('[data-cmp]'))compare();});
+document.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('[data-cmp]'))compare();if(e.target.matches&&e.target.matches('[data-pick]'))pickBar(e.target.getAttribute('data-pick'));});
+document.addEventListener('click',function(e){var v=e.target.closest('[data-vp]');if(v&&v.tagName==='BUTTON'){document.body.setAttribute('data-vp',v.getAttribute('data-vp'));[].forEach.call(document.querySelectorAll('button[data-vp]'),function(x){x.classList.toggle('on',x===v)});return}
+var pk=e.target.closest('[data-pickv]');if(pk){var r=document.querySelector('[data-pick="'+pk.getAttribute('data-pickv')+'"]');if(r){r.checked=true;pickBar(r.getAttribute('data-pick'))}close();return}
+if(e.target.closest('.pb-close')){var bar=document.getElementById('pickbar');if(bar)bar.hidden=true;return}
+var cp=e.target.closest('.pb-copy');if(cp){var ta=document.querySelector('#pickbar textarea');ta.select();try{navigator.clipboard.writeText(ta.value)}catch(x){document.execCommand('copy')}cp.textContent='copied';setTimeout(function(){cp.textContent='copy'},1500)}});
+function pickBar(id){var H=window.UXCLI_HASHES||{},bar=document.getElementById('pickbar');if(!bar)return;var parts=id.split('/'),state=parts[0],variant=parts[1];
+var doc={schema_version:1,pick:variant,sha256:H[id]||'<sha256 from uxcli mockups>',by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)};
+bar.querySelector('.pb-path').textContent='.uxcli/mockups/'+state+'/pick.json';bar.querySelector('textarea').value=JSON.stringify(doc,null,2);bar.hidden=false;}
 document.addEventListener('keydown',function(e){if(el.hidden)return;if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
 
 // A gallery: one screen, its variants side by side, each with the status the pick gives it.
 // variant: { name, shot, status: 'pick' | 'part' | 'not-taken' | 'no-pick', note? }
 export function galleryHtml(g) {
-  const word = { pick: 'pick', part: 'part', 'not-taken': 'not taken', 'no-pick': 'no pick yet' };
+  const word = { pick: 'picked', part: 'part', 'not-taken': 'not taken', 'no-pick': '' };
   const picked = g.variants.find(v => v.status === 'pick');
-  return `<section class="gallery" id="${esc(g.id)}">
-    <header class="g-h"><div><h3>${esc(g.title)}</h3>${g.sub ? `<span class="sub">${esc(g.sub)}</span>` : ''}</div><span class="g-state ${picked ? 'pick' : 'no-pick'}">${picked ? `picked · ${esc(picked.name)}` : g.variants.some(v => v.shot) ? 'waiting for a pick' : 'not drawn yet'}</span></header>
+  const letter = k => String.fromCharCode(65 + k);
+  const screens = v => (v.screens?.length ? v.screens : [{ vw: g.vw, vh: g.vh, shot: v.shot, hooks: v.hooks, pins: v.pins }]).map((x, k) =>
+    `<div class="screen" data-vp="${x.vw}x${x.vh}" style="aspect-ratio:${x.vw}/${x.vh}">${x.shot ? `<a href="${esc(x.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'no picture')}</div>`}${k === 0 ? hooksHtml(v.hooks, x) + pinsHtml(v.pins, x) : ''}</div>`).join('');
+  return `<section class="gallery ${picked ? 'has-pick' : ''}" id="${esc(g.id)}">
+    <header class="g-h">${g.n ? `<span class="g-n">${esc(g.n)}</span>` : ''}<h3>${esc(g.title)}</h3>${g.action ? `<span class="g-act">→ ${esc(g.action)}</span>` : ''}${g.sub ? `<span class="sub">${esc(g.sub)}</span>` : ''}<span class="g-state ${picked ? 'pick' : 'no-pick'}">${picked ? `picked · ${esc(picked.name)}` : g.variants.some(v => v.shot) ? `${g.variants.filter(v => v.shot).length} variants · pick one` : 'not drawn yet'}</span></header>
     ${g.note ? `<blockquote class="why">${esc(g.note)}</blockquote>` : ''}
-    <div class="variants" style="--vw:${g.vw};--vh:${g.vh}">${g.variants.map(v => `<div class="variant ${v.status}">
-      <div class="screen" style="aspect-ratio:${g.vw}/${g.vh}">${v.shot ? `<a href="${esc(v.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(v.shot)}" alt="${esc(v.name)}" loading="lazy" width="${g.vw}" height="${g.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'no picture')}</div>`}${hooksHtml(v.hooks, g)}${pinsHtml(v.pins, g)}</div>
-      <div class="cap"><span class="state">${esc(v.name)}</span>${v.view ? `<label class="cmpbox"><input type="checkbox" data-cmp="${esc(v.view)}">compare</label>` : ''}<span class="status ${v.status}">${esc(word[v.status] || v.status)}</span></div>
+    <div class="g-body">
+    <div class="variants">${g.variants.map((v, k) => `<div class="variant ${v.status}">
+      <div class="screens">${screens(v)}</div>
+      <div class="cap">${v.pickId ? `<label class="pickbox"><input type="radio" name="pick-${esc(g.id)}" data-pick="${esc(v.pickId)}"${v.status === 'pick' ? ' checked' : ''}><b>${letter(k)}</b></label>` : `<b class="letter">${letter(k)}</b>`}<span class="state">${esc(v.name)}</span>${v.pins?.length ? `<span class="ms">${v.pins.length} pin${v.pins.length > 1 ? 's' : ''}</span>` : ''}${v.view ? `<label class="cmpbox"><input type="checkbox" data-cmp="${esc(v.view)}">compare</label>` : ''}${word[v.status] ? `<span class="status ${v.status}">${word[v.status]}</span>` : ''}</div>
+      ${v.receipt ? `<div class="receipt">${esc(v.receipt)}</div>` : ''}
+      ${v.status === 'pick' && v.sig ? `<div class="sig">✓ ${esc(v.sig)}</div>` : ''}
       ${v.status === 'part' && v.note ? `<p class="fnote">taken: ${esc(v.note)}</p>` : ''}
       ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
-      ${v.more?.length ? `<div class="more">${v.more.map(x => `<figure class="mini"><div class="screen" style="aspect-ratio:${x.vw}/${x.vh}"><a href="${esc(x.shot)}"><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a></div><figcaption>${x.vw}×${x.vh}</figcaption></figure>`).join('')}</div>` : ''}
     </div>`).join('')}</div>
-    ${g.refs?.length ? `<div class="refs"><span class="refs-h">references · not pickable</span><div class="refs-row">${g.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption><span class="state">${esc(r.name)}</span><span class="status not-taken">reference</span></figcaption></figure>`).join('')}</div></div>` : ''}
+    ${g.refs?.length ? `<div class="refs"><span class="refs-h">reference</span>${g.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption>${esc(r.name)}</figcaption></figure>`).join('')}</div>` : ''}
+    </div>
   </section>`;
 }
 
@@ -185,7 +200,7 @@ export const WIREFLOW_CSS = `
 .g-state.pick{background:var(--pass-soft);color:var(--pass)}
 .why{margin:0;padding:8px 14px;border-left:3px solid var(--line);font:13px/1.5 var(--sans);color:var(--dim);max-width:80ch}
 .variants{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:18px;align-items:start}
-.variant{display:grid;gap:8px;min-width:0;padding:12px;border-radius:12px;background:var(--canvas);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:18px 18px;border:1px solid var(--line)}
+.variant{display:grid;gap:8px;min-width:0;padding:10px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line)}
 .variant.pick{border-color:var(--pass);box-shadow:0 0 0 3px var(--pass-soft)}
 .variant.part{border-color:var(--finding);box-shadow:0 0 0 3px var(--finding-soft)}
 .variant.not-taken{opacity:.72}.variant.not-taken:hover{opacity:1}
@@ -218,15 +233,30 @@ body.hooks .hk{display:block}
 .tabs [data-filter].on{color:var(--accent);border-bottom-color:var(--accent)}
 .cmpbox{display:inline-flex;align-items:center;gap:4px;margin-left:10px;font:11px var(--mono);color:var(--dim);cursor:pointer}
 .cmpbox input{margin:0;accent-color:var(--accent)}
-.p-stage.two{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:center;justify-items:center}
-.p-stage.two .p-screen{max-width:100%}
+.p-stage.two{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:start;justify-items:center}
+.p-stage.two .p-screen{max-width:100%;height:calc(100vh - 230px)}
 .proto .hk{display:block}
-.refs{display:grid;gap:8px;padding-top:14px;border-top:1px dashed var(--line)}
+.g-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start}
+.g-n{font:700 13px var(--mono);color:var(--dim)}.g-act{font:13px var(--sans);color:var(--dim)}
+.screens{position:relative}
+body[data-vp] .screens .screen{display:none}body[data-vp="1440x900"] .screens .screen[data-vp="1440x900"],body[data-vp="1024x768"] .screens .screen[data-vp="1024x768"],body[data-vp="768x1024"] .screens .screen[data-vp="768x1024"],body[data-vp="390x844"] .screens .screen[data-vp="390x844"],body[data-vp="1920x1080"] .screens .screen[data-vp="1920x1080"],body[data-vp="1280x800"] .screens .screen[data-vp="1280x800"]{display:block}
+body:not([data-vp]) .screens .screen:not(:first-child){display:none}
+.pickbox{display:inline-flex;align-items:center;gap:6px;cursor:pointer}.pickbox input{margin:0;accent-color:var(--pass);width:16px;height:16px}.pickbox b,.letter{font:800 13px var(--sans);width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--well);color:var(--ink)}
+.variant.pick .pickbox b{background:var(--pass);color:#fff}.variant.part .pickbox b{background:var(--finding);color:#fff}
+.receipt{font:11px var(--mono);color:var(--dim);padding:0 2px}
+.sig{font:600 12px var(--mono);color:var(--pass);padding:6px 10px;border-radius:8px;background:var(--pass-soft);justify-self:start}
+.vpsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.vpsw button{font:600 11px var(--mono);padding:6px 10px;border:0;background:var(--surface);color:var(--dim);cursor:pointer}.vpsw button.on{background:var(--accent);color:#fff}
+.pickbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.15);padding:14px clamp(16px,2vw,32px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:start}
+.pickbar[hidden]{display:none}.pickbar .pb-h{display:grid;gap:4px;font:13px var(--sans);color:var(--dim);max-width:34ch}.pickbar .pb-h b{font:600 13px var(--mono);color:var(--ink);overflow-wrap:anywhere}
+.pickbar textarea{width:100%;height:96px;font:12px/1.4 var(--mono);color:var(--ink);background:var(--well);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
+.pickbar .pb-act{display:grid;gap:8px}.pickbar button{font:600 12px var(--mono);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.pickbar .pb-copy{background:var(--accent);color:#fff;border-color:transparent}
+.p-cell{display:grid;gap:8px;min-width:0;justify-items:center}.p-under{display:flex;gap:12px;align-items:start;justify-content:space-between;width:100%;color:#fff}.p-notes{margin:0;padding-left:18px;font:12px/1.45 var(--sans);opacity:.9;display:grid;gap:2px}.p-notes li::marker{font:700 11px var(--mono);color:var(--finding)}
+.p-pickv{flex:none;font:600 12px var(--mono);padding:8px 14px;border-radius:999px;border:0;background:var(--pass);color:#fff;cursor:pointer}
+.refs{display:grid;gap:8px;width:150px}
 .refs-h{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
-.refs-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:18px;align-items:start}
-.ref{margin:0;display:grid;gap:8px;padding:12px;border-radius:12px;border:1px dashed var(--line);background:var(--surface)}
-.ref a{display:block;border-radius:8px;overflow:hidden;outline:1px solid var(--line-soft)}.ref img{display:block;width:100%;height:auto}
-.ref figcaption{display:flex;align-items:center;padding:2px 2px 0}
+.ref{margin:0;display:grid;gap:4px}
+.ref a{display:block;border-radius:6px;overflow:hidden;outline:1px dashed var(--line)}.ref img{display:block;width:100%;height:auto}
+.ref figcaption{font:10px var(--mono);color:var(--dim);overflow-wrap:anywhere}
 .pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
 .pin.off{border:2px dashed #fff;line-height:16px}
 .notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}

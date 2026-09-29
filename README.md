@@ -79,7 +79,8 @@ and what the last run saw. It gives no advice.
 `mockups` photographs every variant the agent drew under `.uxcli/mockups/<state>/` and writes one
 page: each journey as a flow of the picked variants, connected from the element the next step acts
 on, and each screen's variants side by side — green picked, amber part of a pick, grey not taken.
-A person picks in `pick.json`; the agent never picks for them. The picked variant is what gets built.
+A person picks in `pick.json`; the agent never picks for them. Ticking a variant on the page fills in the
+`pick.json` to write, hash included; the page itself writes nothing. The picked variant is what gets built.
 A palette shared in `mockups/_shared/tokens.css` is covered by the pick's hash, and each variant's
 receipt names the colours it paints off that palette. Further viewports (`--viewport=1440x900,390x844`)
 are photographed beside the first, and an element carrying `data-uxcli-note` gets a numbered pin on the frame.

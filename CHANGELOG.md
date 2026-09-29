@@ -10,6 +10,14 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page redrawn after three frames an image model made from an open brief
+  (`docs/design/mockups-page/`): a dark sidebar that lists the journeys and filters by them; each
+  journey a numbered section with its lanes and, under them, one numbered card per screen (1.1,
+  1.2 …) holding the variants side by side — pick box, letter, pins, receipt, the pick's
+  signature with the hash prefix — and the reference pictures in a column; a viewport switch that
+  turns every photograph on the page to 1024×768 or 390×844; compare opens two variants with their
+  notes and a `Pick a-canvas` button. Ticking a variant, on the page or in compare, fills a bar with
+  the `pick.json` to write — pick, sha256, by, when — and a copy button; the page writes nothing.
 - The mockups page redrawn as a contact sheet: dark canvas, light frames. A screen nobody has
   picked yet shows its candidates inside its frame in the flow (stacked for a landscape viewport,
   side by side for a portrait one) instead of an empty box; the galleries fill the width; the

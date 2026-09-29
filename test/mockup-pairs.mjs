@@ -70,7 +70,9 @@ export function pair() {
   const gp = galleryHtml({ id: 'y', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick', pins: [{ text: 'stays above the fold', x: 100, y: 200, w: 200, h: 50 }, { text: 'below', x: 0, y: 950, w: 10, h: 10 }], more: [{ vw: 390, vh: 844, shot: 'a@390x844.png' }] }] });
   must('a note is not pinned at its element or listed', /class="pin" style="left:13.89%;top:25.00%"/.test(gp) && /<li>stays above the fold<\/li>/.test(gp));
   must('a note below the fold is not pinned to the bottom edge', /class="pin off" style="left:0.35%;top:100.00%"/.test(gp));
-  must('a further viewport is not pictured beside the first', /class="mini"><div class="screen" style="aspect-ratio:390\/844"><a href="a@390x844.png">/.test(gp) && /390×844/.test(gp));
+  const gv = galleryHtml({ id: 'y2', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'pick', view: 'view:s/a', pickId: 's/a', sig: 'role product-owner · 2026-09-29 · abc1234', receipt: 'hooks 2/2 · self-contained', screens: [{ vw: 1440, vh: 900, shot: 'a.png' }, { vw: 390, vh: 844, shot: 'a@390x844.png' }] }] });
+  must('a further viewport is not pictured as a switchable screen', /class="screen" data-vp="390x844" style="aspect-ratio:390\/844"><a href="a@390x844.png"/.test(gv) && /class="screen" data-vp="1440x900"/.test(gv));
+  must('a picked variant does not carry its signature, receipt and a checked pick box', /class="sig">✓ role product-owner · 2026-09-29 · abc1234</.test(gv) && /class="receipt">hooks 2\/2 · self-contained</.test(gv) && /data-pick="s\/a" checked/.test(gv));
   must('the gallery does not mark pick, part and not taken', /class="variant pick"/.test(g) && /class="variant part"/.test(g) && /not taken/.test(g) && /taken: the counters/.test(g));
   const f = flowRow({ id: 'w', kind: 'happy', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's1', pill: { text: 'a-list', tone: 'ok' }, hot: { x: 10, y: 20, w: 100, h: 30 } }, { shot: null, title: 's2', missing: 'no pick yet · 2 variants', hot: null }], links: [{ label: 's1', text: 'tap' }] });
   must('the flow does not draw the hotspot from the rect', /class="hot" style="left:2.56%;top:2.37%;width:25.64%;height:3.55%"/.test(f));
@@ -90,7 +92,7 @@ export function pair() {
   must('hooksHtml draws a hook the browser did not find', hooksHtml([{ sel: 'x', x: 0, y: 0, w: 0, h: 0 }], { vw: 10, vh: 10 }) === '');
   // a reference picture sits beside the variants, marked reference, and is never a pick
   const gr = galleryHtml({ id: 'r', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick' }], refs: [{ name: 'chatgpt', src: 's/refs/chatgpt.png', view: 'ref:s/chatgpt.png' }] });
-  must('a reference is not drawn beside the variants as a reference', /class="ref"><a href="s\/refs\/chatgpt.png" data-view="ref:s\/chatgpt.png">/.test(gr) && /class="status not-taken">reference</.test(gr) && !/data-cmp="ref:/.test(gr));
+  must('a reference is not drawn beside the variants as a reference', /class="ref"><a href="s\/refs\/chatgpt.png" data-view="ref:s\/chatgpt.png">/.test(gr) && /class="refs-h">reference</.test(gr) && !/data-cmp="ref:/.test(gr) && !/data-pick="ref/.test(gr));
   // the card names the refused pick and the screen with no pick
   const card = mockupsCard({ dir: '.', screens: [{ id: 'a', variants: ['x'], pick: null, problems: ['by{type, ref} missing'] }, { id: 'b', variants: ['y'], pick: null, problems: [] }, { id: 'c', variants: [], pick: null, problems: [] }] });
   must('the card does not say REFUSED for a bad pick', /REFUSED\s+a/.test(card) && /by\{type, ref\} missing/.test(card));

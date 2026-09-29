@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
-export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, two compare boxes show two frames, the journey filter hides what the journey does not name, the hooks toggle outlines them, play journey chains the lanes, '
+export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, two compare boxes show two frames, picking from the compare view fills the pick bar and writes nothing, the journey filter hides what the journey does not name, the hooks toggle outlines them, play journey chains the lanes, '
   + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
@@ -71,7 +71,11 @@ export async function pair() {
     await page.check('[data-cmp="view:agent.lead_detail/a-stacked"]'); await page.check('[data-cmp="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(150);
     const c2 = await page.evaluate(() => { const el = document.getElementById('proto'); return { open: !el.hidden, screens: el.querySelectorAll('.p-screen').length, n: el.querySelector('.p-n').textContent }; });
     must(`two compare boxes did not open two frames (${JSON.stringify(c2)})`, c2.open && c2.screens === 2 && c2.n === 'compare');
-    await page.keyboard.press('Escape'); await page.waitForTimeout(50);
+    // picking from the compare view fills the pick bar with the file to write, never writes it
+    await page.click('[data-pickv="agent.lead_detail/a-stacked"]'); await page.waitForTimeout(100);
+    const pb = await page.evaluate(() => { const b = document.getElementById('pickbar'); let doc = null; try { doc = JSON.parse(b.querySelector('textarea').value); } catch {} return { shown: !b.hidden, path: b.querySelector('.pb-path').textContent, pick: doc?.pick, sha: doc?.sha256, closed: document.getElementById('proto').hidden }; });
+    must(`the pick bar did not carry a-stacked's pick.json (${JSON.stringify(pb)})`, pb.shown && pb.path === '.uxcli/mockups/agent.lead_detail/pick.json' && pb.pick === 'a-stacked' && /^[0-9a-f]{64}$/.test(pb.sha || '') && pb.closed);
+    must('the page wrote pick.json itself', !fs.existsSync(path.join(tmp, '.uxcli', 'mockups', 'agent.lead_detail', 'pick.json')) || JSON.parse(fs.readFileSync(path.join(tmp, '.uxcli', 'mockups', 'agent.lead_detail', 'pick.json'), 'utf8')).pick === 'b-call-first');
     await page.click('[data-filter="authenticate"]'); await page.waitForTimeout(100);
     const flt = await page.evaluate(() => ({ lead: document.getElementById('handle-inbound-lead').hidden, auth: document.getElementById('authenticate').hidden, login: document.querySelector('[data-journeys="authenticate"]')?.hidden, detail: document.querySelector('[data-journeys="handle-inbound-lead"]')?.hidden }));
     must(`the journey filter did not hide what the journey does not name (${JSON.stringify(flt)})`, flt.lead === true && flt.auth === false && flt.login === false && flt.detail === true);

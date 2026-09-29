@@ -7,7 +7,7 @@ import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL }
 import { findRoot, loadProject } from './journey.js';
 import { launch } from './browser.js';
 import { observe } from './adapters/chrome/index.js';
-import { parsePick, statusOf, screensOf, hookOf, receiptOf, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
+import { parsePick, statusOf, screensOf, hookOf, receiptOf, receiptLine, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
 import { esc, flowRow, galleryHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
@@ -74,17 +74,24 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
   }
   const page = path.join(m.base, 'index.html');
   fs.mkdirSync(m.base, { recursive: true });
-  fs.writeFileSync(page, pageHtml(m, { vw, vh, shots, rects, pins, extra }));
+  fs.writeFileSync(page, pageHtml(m, { vw, vh, sizes, shots, rects, pins, extra }));
   const refused = m.screens.some(s => s.problems.length);
   return { dir: path.relative(process.cwd(), root) || '.', page: path.relative(process.cwd(), page), viewports: sizes.map(([w, h]) => `${w}x${h}`), screens: m.screens.map(s => ({ id: s.id, variants: s.variants, hashes: s.hashes, pick: s.pick, problems: s.problems, receipts: s.receipts })), exit: refused ? 1 : 0 };
 }
 
 export { mockupsCard };
 
-function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
-  const byId = Object.fromEntries(m.screens.map(s => [s.id, s])); const proto = {};
+function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extra = {} }) {
+  const byId = Object.fromEntries(m.screens.map(s => [s.id, s])); const proto = {}; const hashes = {};
   const hooksOf = key => Object.entries(rects[key] || {}).filter(([, d]) => d?.rect).map(([sel, d]) => ({ sel, x: d.rect.x, y: d.rect.y, w: d.rect.w, h: d.rect.h }));
-  for (const s of m.screens) for (const v of s.variants) proto[`view:${s.id}/${v}`] = { vw, vh, frames: [{ shot: shots[`${s.id}/${v}`] || null, title: `${s.id} · ${v}`, missing: shots[`${s.id}/${v}`] ? null : 'no picture', pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`) }], links: [] };
+  for (const s of m.screens) for (const v of s.variants) {
+    hashes[`${s.id}/${v}`] = s.hashes?.[v];
+    proto[`view:${s.id}/${v}`] = { vw, vh, frames: [{ shot: shots[`${s.id}/${v}`] || null, title: `${s.id} · ${v}`, missing: shots[`${s.id}/${v}`] ? null : 'no picture', pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), pick: `${s.id}/${v}` }], links: [] };
+  }
+  // the screens in the order a reader meets them, numbered by the journey that first names them
+  const numbered = new Map(); const order = [];
+  m.journeys.forEach((j, ji) => { let k = 0; for (const w of j.workflows || []) for (const st of w.steps || []) { if (st.kind === 'fixture' || !st.before) continue; for (const id of [st.before, st.after]) if (id && !numbered.has(id)) { numbered.set(id, { n: `${ji + 1}.${++k}`, journey: j.id, action: null }); order.push(id); } if (numbered.get(st.before) && !numbered.get(st.before).action) numbered.get(st.before).action = st.action || null; } });
+  for (const s of m.screens) if (!numbered.has(s.id)) { numbered.set(s.id, { n: '', journey: s.journeys[0] || '', action: null }); order.push(s.id); }
   const flows = m.journeys.map(j => {
     const lanes = [];
     const rows = (j.workflows || []).filter(w => (w.steps || []).some(s => s.before)).map(w => {
@@ -103,77 +110,119 @@ function pageHtml(m, { vw, vh, shots, rects, pins = {}, extra = {} }) {
         const missing = !s ? 'not a screen any journey names' : !s.variants.length ? `no mockup yet\n.uxcli/mockups/${id}/<variant>.html` : `no pick yet · ${s.variants.length} variant${s.variants.length === 1 ? '' : 's'}`;
         const note = acting && hook && v && !rects[`${id}/${v}`]?.[hook] ? `hook ${hook} not in ${v}.html` : null;
         const candidates = !v && s ? s.variants.map(c => ({ name: c, shot: shots[`${id}/${c}`] || null, view: shots[`${id}/${c}`] ? `view:${id}/${c}` : null })) : [];
-        return { shot, alt: `${id} · ${v || 'no pick'}`, title: id, pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [], candidates, view: v ? `view:${id}/${v}` : null };
+        return { shot, alt: `${id} · ${v || 'no pick'}`, title: `${numbered.get(id)?.n || ''} ${id}`.trim(), pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [], candidates, view: v ? `view:${id}/${v}` : null };
       });
       const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: (st.interactions || []).filter(x => x.type === 'navigation' || x.type === 'api').map(x => x.type === 'navigation' ? x.to : x.request).join(' · ') || null }));
       const play = `${j.id}/${w.id}`; const pf = frames.map(f => ({ shot: f.shot, title: f.title, missing: f.shot ? null : f.missing, hot: f.hot, pins: f.pins, hooks: f.hooks }));
       proto[play] = { vw, vh, frames: pf, links }; lanes.push({ id: w.id, frames: pf, links });
       return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links, play });
     });
-    // the whole journey played: lane after lane, the last frame of one leading to the first of the next
     if (lanes.length) proto[`journey:${j.id}`] = { vw, vh, frames: lanes.flatMap((l, i) => l.frames.map((f, k) => k === l.frames.length - 1 && lanes[i + 1] ? { ...f, hot: { edge: true, lane: lanes[i + 1].id } } : f)), links: lanes.flatMap((l, i) => [...l.links, ...(lanes[i + 1] ? [{ label: lanes[i + 1].id, text: 'next lane' }] : [])]) };
-    return `<article class="journey" id="${esc(j.id)}" data-journeys="${esc(j.id)}"><h2>${esc(j.id)}<span class="goal">${esc(j.goal || '')}</span>${lanes.length > 1 ? `<button class="play" type="button" data-play="journey:${esc(j.id)}">▶ play journey</button>` : ''}</h2><div class="flow">${rows.join('')}</div></article>`;
+    const mine = order.filter(id => numbered.get(id).journey === j.id);
+    const named = [...new Set(m.journeys.find(x => x.id === j.id) ? mine : [])];
+    const pickedN = named.filter(id => byId[id]?.pick).length;
+    const cards = mine.map(id => card(byId[id]));
+    return `<article class="journey" id="${esc(j.id)}" data-journeys="${esc(j.id)}">
+      <header class="j-h"><span class="j-n">${m.journeys.indexOf(j) + 1}</span><h2>${esc(j.id)}</h2><span class="goal">${esc(j.goal || '')}</span><span class="j-state ${pickedN === named.length && named.length ? 'done' : ''}">${pickedN}/${named.length} picked</span>${lanes.length ? `<button class="play" type="button" data-play="${lanes.length > 1 ? `journey:${esc(j.id)}` : esc(`${j.id}/${lanes[0].id}`)}">▶ play</button>` : ''}</header>
+      <div class="flow">${rows.join('')}</div>
+      <div class="cards">${cards.join('')}</div>
+    </article>`;
   });
-  const galleries = m.screens.map(s => `<div data-journeys="${esc(s.journeys.join(' '))}">` + galleryHtml({
-    id: `screen-${s.id}`, title: s.id, sub: s.journeys.join(' · '), vw, vh, note: s.pick ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''}${s.pick.note ? ' — ' + s.pick.note : ''}` : null,
-    variants: s.variants.length ? s.variants.map(v => ({ name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null, pins: pins[`${s.id}/${v}`] || [], more: extra[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), view: shots[`${s.id}/${v}`] ? `view:${s.id}/${v}` : null }))
-      : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
-    refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${s.id} · reference · ${f}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),
-  }) + '</div>');
+  function card(s) {
+    if (!s) return '';
+    const meta = numbered.get(s.id) || {};
+    return galleryHtml({
+      id: `screen-${s.id}`, n: meta.n, title: s.id, action: meta.action, vw, vh, note: s.problems.length ? `pick.json: ${s.problems.join('; ')}` : null,
+      variants: s.variants.length ? s.variants.map(v => ({
+        name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null,
+        pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), view: shots[`${s.id}/${v}`] ? `view:${s.id}/${v}` : null, pickId: shots[`${s.id}/${v}`] ? `${s.id}/${v}` : null,
+        screens: [{ vw, vh, shot: shots[`${s.id}/${v}`] }, ...(extra[`${s.id}/${v}`] || [])],
+        receipt: s.receipts?.[v] ? receiptLine(s.receipts[v]) : null,
+        sig: s.pick && s.pick.pick === v ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''} · ${s.pick.sha256.slice(0, 7)}` : null,
+      })) : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
+      refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${s.id} · reference · ${f}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),
+    }).replace('<section class="gallery', `<section data-journeys="${esc(s.journeys.join(' '))}" class="gallery`);
+  }
   const picked = m.screens.filter(s => s.pick).length;
+  const name = m.project.project?.name || path.basename(m.root);
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(m.project.project?.name || path.basename(m.root))} mockups</title>
+<title>${esc(name)} mockups</title>
 <style>
 *,*::before,*::after{box-sizing:border-box}
-:root{color-scheme:dark;--bg:#111318;--canvas:#171a20;--dot:#2a2f38;--surface:#1c2027;--well:#262b34;--ink:#eceef1;--dim:#9aa3ae;--line:#2f353f;--line-soft:#272c35;--accent:#8b83ff;--accent-soft:#2a2850;--fail:#ff6b4d;--fail-soft:#4a221a;--finding:#e3b23a;--finding-soft:#4a3a12;--pass:#4ecb7f;--pass-soft:#173a26;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif}
-:root[data-theme="light"]{color-scheme:light;--bg:#eef0f3;--canvas:#f6f7f9;--dot:#d3d7dd;--surface:#fff;--well:#eaedf1;--ink:#16191d;--dim:#5f6670;--line:#d6dae0;--line-soft:#e6e9ed;--accent:#4f46e5;--accent-soft:#e6e4fb;--fail:#d3381c;--fail-soft:#fbe4df;--finding:#a56400;--finding-soft:#fbeccc;--pass:#178a4c;--pass-soft:#dcf3e5}
+:root{color-scheme:light;--bg:#f3f4f7;--canvas:#f8f9fb;--dot:#d8dce3;--surface:#fff;--well:#eceef3;--ink:#161a22;--dim:#5f6775;--line:#dcdfe6;--line-soft:#e8eaef;--accent:#4f46e5;--accent-soft:#e8e6fb;--fail:#d3381c;--fail-soft:#fbe4df;--finding:#c07a00;--finding-soft:#fbeccc;--pass:#178a4c;--pass-soft:#dcf3e5;--side:#0f1420;--side-ink:#e6e9ef;--side-dim:#8b94a5;--side-on:#1d2536;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,"Segoe UI",Inter,Helvetica,Arial,sans-serif;--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#111318;--canvas:#171a20;--dot:#2a2f38;--surface:#1c2027;--well:#262b34;--ink:#eceef1;--dim:#9aa3ae;--line:#2f353f;--line-soft:#272c35;--accent:#8b83ff;--accent-soft:#2a2850;--fail:#ff6b4d;--fail-soft:#4a221a;--finding:#e3b23a;--finding-soft:#4a3a12;--pass:#4ecb7f;--pass-soft:#173a26}
 html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);padding:0 0 80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans);padding:0 0 120px}
 a{color:var(--accent)}
-code{font:.92em var(--mono)}
-.top{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line);padding:14px clamp(16px,2.5vw,40px);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.top h1{margin:0;font:700 17px/1.2 var(--sans);letter-spacing:-.01em}
-.top .meta{display:flex;gap:8px;flex-wrap:wrap}
-.chip{font:600 11px/1 var(--mono);padding:6px 9px;border-radius:999px;background:var(--well);color:var(--dim)}
-.chip b{color:var(--ink)}
-.keys{margin-left:auto;display:flex;gap:14px;font:12px var(--sans);color:var(--dim)}
-.keys i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--line)}
+.app{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:var(--side);color:var(--side-ink);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
+.side .brand{font:800 20px/1 var(--sans);letter-spacing:-.02em;padding:6px 10px 18px;color:#fff}
+.side .proj{display:block;padding:10px 12px;border-radius:9px;background:var(--side-on);color:#fff;font:600 13px var(--sans);text-decoration:none;margin-bottom:10px;overflow-wrap:anywhere}
+.side .lab{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--side-dim);padding:8px 12px 4px}
+.side a[data-filter]{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--side-dim);text-decoration:none;font:500 13px var(--sans);cursor:pointer}
+.side a[data-filter].on{background:var(--side-on);color:#fff}
+.side a[data-filter] i{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font:700 10px var(--mono);background:rgba(255,255,255,.1);font-style:normal;flex:none}
+.side .foot{margin-top:auto;display:grid;gap:4px;padding:10px 12px;font:12px var(--mono);color:var(--side-dim)}.side .foot b{color:#fff;font-weight:600}
+.main{min-width:0}
+.top{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px clamp(16px,2vw,32px) 10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{margin:0;font:700 26px/1.1 var(--serif);letter-spacing:-.01em;flex:1;min-width:0}
+.top .tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tog{font:600 11px/1 var(--mono);letter-spacing:.04em;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--dim);cursor:pointer}
+.tog.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.keys{display:flex;gap:12px;font:12px var(--sans);color:var(--dim)}
+.keys i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--line)}
 .keys .k-pick i{background:var(--pass)}.keys .k-part i{background:var(--finding)}
-.tabs{position:sticky;top:57px;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);padding:0 clamp(16px,2.5vw,40px);display:flex;gap:4px;overflow-x:auto}
-.tabs a{padding:12px 12px;font:600 12px var(--mono);color:var(--dim);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
-.tabs a:hover{color:var(--ink)}
-.tabs .sep{align-self:center;width:1px;height:18px;background:var(--line);margin:0 8px}
-main{display:grid;gap:26px;padding:20px clamp(16px,2vw,32px) 0}
-h2.sec{margin:0;font:600 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
-.journey{display:grid;gap:10px}
-.journey h2{margin:0;display:flex;align-items:baseline;gap:12px;font:700 20px/1.2 var(--sans);letter-spacing:-.01em}
-.journey h2 .goal{font:14px var(--sans);color:var(--dim);font-weight:400}
-.sub{font:12px var(--mono);color:var(--dim)}
-.gallery{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-footer{padding:36px clamp(16px,2.5vw,40px) 0;font:12px var(--mono);color:var(--dim)}
+main{display:grid;gap:22px;padding:6px clamp(16px,2vw,32px) 0}
+.journey{display:grid;gap:14px;padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.j-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.j-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:inline-grid;place-items:center;font:700 13px var(--sans)}
+.j-h h2{margin:0;font:700 22px/1.1 var(--serif);letter-spacing:-.01em}
+.j-h .goal{font:13px var(--sans);color:var(--dim);flex:1;min-width:0}
+.j-state{font:600 11px var(--mono);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}.j-state.done{background:var(--pass-soft);color:var(--pass)}
+.flow{display:grid;gap:12px}
+.cards{display:grid;gap:14px}
+.gallery{background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.gallery.has-pick{border-color:var(--pass)}
+footer{padding:28px clamp(16px,2vw,32px) 0;font:12px var(--mono);color:var(--dim)}
 ${WIREFLOW_CSS}
+:root{--fw:220px;--gw:380px;--cw:110px}.lane.wide{--fw:clamp(200px,15vw,280px);--cw:100px}
+.variants{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr))}
+.row{padding:16px 14px 12px}.lane{background:var(--surface)}
+.cap{gap:8px}.cap .state{font:600 12px var(--mono)}
 </style>
 </head>
 <body>
+<div class="app">
+<aside class="side">
+  <div class="brand">uxcli</div>
+  <a class="proj" href="#">${esc(name)}</a>
+  <span class="lab">journeys</span>
+  <a data-filter="" class="on"><i>∗</i>all</a>
+  ${m.journeys.map((j, k) => `<a data-filter="${esc(j.id)}" href="#${esc(j.id)}"><i>${k + 1}</i>${esc(j.id)}</a>`).join('')}
+  <div class="foot"><span><b>${m.screens.length}</b> screens</span><span><b>${m.screens.filter(s => s.variants.length).length}</b> drawn</span><span><b>${picked}</b> picked</span></div>
+</aside>
+<div class="main">
 <header class="top">
-  <h1>${esc(m.project.project?.name || path.basename(m.root))}</h1>
-  <div class="meta"><span class="chip">${vw}×${vh}</span><span class="chip"><b>${m.screens.length}</b> screens</span><span class="chip"><b>${m.screens.filter(s => s.variants.length).length}</b> drawn</span><span class="chip"><b>${picked}</b> picked</span></div>
-  <div class="keys"><button type="button" class="tog" data-toggle="hooks">hooks</button><span class="k-pick"><i></i>picked</span><span class="k-part"><i></i>part of a pick</span><span><i></i>not taken</span></div>
+  <h1>${esc(name)}</h1>
+  <div class="tools">
+    <button type="button" class="tog" data-toggle="hooks">show hooks</button>
+    <span class="vpsw">${sizes.map(([w, h], k) => `<button type="button" data-vp="${w}x${h}" class="${k === 0 ? 'on' : ''}">${w}×${h}</button>`).join('')}</span>
+    <span class="keys"><span class="k-pick"><i></i>picked</span><span class="k-part"><i></i>part</span><span><i></i>not taken</span></span>
+  </div>
 </header>
-<nav class="tabs"><a href="#" data-filter="" class="on">all</a>${m.journeys.map(j => `<a href="#${esc(j.id)}" data-filter="${esc(j.id)}">${esc(j.id)}</a>`).join('')}<span class="sep"></span>${m.screens.map(s => `<a href="#screen-${esc(s.id)}">${esc(s.id)}</a>`).join('')}</nav>
 <main>
-<h2 class="sec">Flows</h2>
 ${flows.join('\n')}
-<h2 class="sec">Screens</h2>
-${galleries.join('\n')}
 </main>
-<footer>a person picks: .uxcli/mockups/&lt;state&gt;/pick.json</footer>
+<footer>a person picks: .uxcli/mockups/&lt;state&gt;/pick.json · tick a variant to get the file ready</footer>
+</div>
+</div>
+<div class="pickbar" id="pickbar" hidden><div class="pb-h"><span>write this to</span><b class="pb-path"></b><span>then run uxcli mockups again</span></div><textarea spellcheck="false"></textarea><div class="pb-act"><button type="button" class="pb-copy">copy</button><button type="button" class="pb-close">close</button></div></div>
 ${protoHtml()}
-<script>window.UXCLI_PROTO=${JSON.stringify(proto).replace(/</g, '\\u003c')}</script>
+<script>window.UXCLI_PROTO=${JSON.stringify(proto).replace(/</g, '\\u003c')};window.UXCLI_HASHES=${JSON.stringify(hashes).replace(/</g, '\\u003c')}</script>
 <script>${PROTO_JS}</script>
 </body>
 </html>

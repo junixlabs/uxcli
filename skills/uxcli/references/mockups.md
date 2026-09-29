@@ -81,7 +81,9 @@ pick over a variant that fails its receipt is refused; an off-palette colour is 
    chains the lanes. A variant opens large with its pins; `hooks` outlines the journey's hooks where
    the browser found them; two variants ticked `compare` sit side by side; a journey tab filters the
    page to what that journey names. Open it, or give its path to the person deciding.
-4. A person picks. Then build the picked variant, and `uxcli run` measures the build.
+4. A person picks: ticking a variant on the page fills a bar with the `pick.json` to write, hash
+   included; they write it (or say so, and you write it with `note` naming them). Then build the
+   picked variant, and `uxcli run` measures the build.
 
 You draw the variants and you never write `pick.json` on your own judgement: a pick is a person's, or you write it on a person's say-so and `note` names who said so. You never draw a variant that drops a hook the journey names in order to make the screen simpler. You never build a screen that has variants and no pick.
 
