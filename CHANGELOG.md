@@ -10,6 +10,12 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page is built from named components (`src/core/mockups-page.js`: Sidebar, Screen,
+  Flip, Drawing, DecisionBar, ReviewPopover, FlowView, Viewer, FileSheet) over one token set, and
+  leaves to the browser what it already does: a screen is shown by its anchor (`:target`, so back,
+  forward and reload keep it), A and B are a radio group, the viewer and the file sheet are
+  `<dialog>`, the review is a popover, the viewport and the hooks are form controls. The script only
+  fills the viewer and the file sheet and adds the keys.
 - The mockups page shows one screen at a time, as a decision: what the person does there, one
   drawing as large as the page allows with what the agent says it does differently (`about.json`),
   A and B flipped in place (keys 1, 2) or side by side, and a bar with the lens review, Neither, ask

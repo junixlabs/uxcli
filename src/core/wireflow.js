@@ -57,120 +57,8 @@ export function flowRow(row) {
   return `<section class="lane${vw > vh ? ' wide' : ''}" style="--vw:${vw};--vh:${vh}">${head}<div class="row"><div class="cells">${cells.join('')}</div></div></section>`;
 }
 
-// The prototype: the frames of one lane walked one at a time, the hotspot leading to the next
-// frame as the step's target does. window.UXCLI_PROTO = { [play]: { vw, vh, frames: [{ shot, title,
-// missing, hot }], links: [{ label, text }] } }. Arrow keys step, Escape closes; nothing is added to
-// the frames beyond what the flow already draws.
-export const protoHtml = () => `<div class="proto" id="proto" hidden role="dialog" aria-label="prototype" tabindex="-1">
-  <div class="p-stage"></div>
-  <div class="p-bar"><span class="p-n"></span><span class="p-title"></span><span class="p-link"></span><span class="p-keys">← → · esc</span><button type="button" class="p-close">Close</button></div>
-</div>`;
-// window.UXCLI_PROTO = { [id]: { vw, vh, frames: [{ shot, title, missing, hot, pins, hooks }], links: [{ label, text }] } }.
-// [data-play=id] walks the frames one at a time; [data-view=id] shows one; [data-compare=state] shows
-// the screen's drawings side by side; [data-pickv] and [data-revise] fill the pick bar; [data-go] shows a screen; [data-filter=journey] hides what the journey does not name; [data-toggle=hooks]
-// outlines the hooks. Arrow keys step, Escape closes.
-export const PROTO_JS = `(function(){var P=window.UXCLI_PROTO||{},el=document.getElementById('proto');if(!el)return;
-var stage=el.querySelector('.p-stage'),cur=null,k=0,last=null,mode='play';
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function pc(n,of){return (100*n/of).toFixed(2)+'%'}
-function box(h,cls,inner){return '<i class="'+cls+'" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'">'+(inner||'')+'</i>'}
-function screen(f,live){var h=f.hot,s='<div class="p-cell"><div class="p-screen" style="aspect-ratio:'+cur.vw+'/'+cur.vh+'">';
-s+=f.shot?'<img src="'+esc(f.shot)+'" alt="">':'<div class="noshot">'+esc(f.missing||'no picture')+'</div>';
-(f.hooks||[]).forEach(function(x){if(x.w>0)s+=box(x,'hk','<b>'+esc(x.sel)+'</b>')});
-(f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+Math.min(12,n.w/2),cy=off?cur.vh:Math.min(cur.vh,n.y+Math.min(12,n.h/2));s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
-if(live&&h&&h.x!=null)s+='<div class="hot" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'"></div>';
-s+='</div>';
-if(mode!=='play'){s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Choose '+esc(f.title.split(' \u00b7 ').slice(-2).join(' \u00b7 '))+'</button>':'')+'</div>'}
-s+='</div>';
-if(live&&h&&(h.off||h.edge))s+='<div class="p-off">'+(h.off?'\\u2193 '+esc(h.target||'')+' \\u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \\u2014 continue':h.lane?'\\u2192 next lane: '+esc(h.lane):'\\u2192 continue (hook not in the drawing)')+'</div>';
-return s}
-function show(){var n=cur.frames.length,one=mode!=='compare',f=cur.frames[k],L=cur.links&&cur.links[k];
-stage.className='p-stage'+(one?'':' two');stage.innerHTML=one?screen(f,mode==='play'&&k<n-1):cur.frames.map(function(x){return screen(x,false)}).join('');
-el.querySelector('.p-n').textContent=one?(k+1)+' / '+n:'compare';el.querySelector('.p-title').textContent=one?(f.title||''):cur.frames.map(function(x){return x.title}).join(' \\u00b7 ');
-var notes=(one&&f.pins&&f.pins.length)?f.pins.map(function(p,i){return (i+1)+' '+p.text}).join(' \\u00b7 '):'';
-el.querySelector('.p-link').textContent=mode==='play'&&L?(L.label+(L.text?' \\u00b7 '+L.text:'')):'';var pk=el.querySelector('.p-keys');if(mode==='play'){pk.hidden=false;pk.textContent='\u2190 \u2192 \u00b7 esc'}else pk.hidden=true;}
-function open(m,model){mode=m;cur=model;if(!cur)return;k=0;last=document.activeElement;el.hidden=false;document.body.classList.add('playing');show();el.focus();}
-function close(){el.hidden=true;document.body.classList.remove('playing');if(last&&last.focus)last.focus();}
-var vk=null;function sibs(){if(!vk||vk.indexOf('view:')!==0)return [];var st=vk.slice(5).split('/')[0];return Object.keys(P).filter(function(x){return x.indexOf('view:'+st+'/')===0})}
-function openView(id){if(!P[id])return;var was=!el.hidden;var keep=last;open('view',P[id]);if(was)last=keep;vk=id;var n=sibs().length;if(n>1)flip(sibs().indexOf(id));var kk=el.querySelector('.p-keys');kk.hidden=n<2;kk.textContent='\u2190 \u2192 other drawing \u00b7 esc';}
-function stepView(d,abs){var ks=sibs();if(ks.length<2)return;var i=abs!=null?abs:(ks.indexOf(vk)+d+ks.length)%ks.length;if(ks[i])openView(ks[i]);}
-function step(d){if(mode==='view'){stepView(d);return}if(!cur||mode!=='play')return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
-function compare(state){var ks=Object.keys(P).filter(function(x){return x.indexOf('view:'+state+'/')===0});if(ks.length<2)return;var a=P[ks[0]];
-open('compare',{vw:a.vw,vh:a.vh,frames:ks.map(function(x){return P[x].frames[0]}),links:[]});}
-function go(id,scroll){var b=document.getElementById('screen-'+id);if(!b)return;[].forEach.call(document.querySelectorAll('.view'),function(x){x.classList.toggle('off',x!==b)});
-[].forEach.call(document.querySelectorAll('[data-go]'),function(x){x.classList.toggle('on',x.getAttribute('data-go')===id)});var sel=document.querySelector('select.jump');if(sel&&scroll)sel.value=id;cur2=b;if(scroll){try{history.replaceState(null,'','#screen-'+id)}catch(x){}var st=b.querySelector('.stage');if(st)st.scrollTop=0;window.scrollTo(0,0)}}
-var cur2=null;
-function flip(k){var b=cur2;if(!b)return;var n=b.querySelectorAll('.opt').length;if(k<0||k>=n)return;
-[].forEach.call(b.querySelectorAll('.opt'),function(x){if(+x.getAttribute('data-k')===k)x.removeAttribute('data-off');else x.setAttribute('data-off','')});
-[].forEach.call(b.querySelectorAll('[data-flip]'),function(x){x.classList.toggle('on',+x.getAttribute('data-flip')===k)});
-[].forEach.call(b.querySelectorAll('.d-bar .review'),function(x){x.hidden=+x.getAttribute('data-of')!==k});
-[].forEach.call(b.querySelectorAll('.d-bar .choose'),function(x){x.classList.toggle('primary',+x.getAttribute('data-of')===k)});}
-function nextOpen(){var all=[].slice.call(document.querySelectorAll('.decision')),i=all.indexOf(cur2),n=all.length,b=null;for(var d=1;d<=n&&!b;d++){var x=all[(i+d+n)%n];if(x.getAttribute('data-state')==='open'&&!x.hasAttribute('data-chosen'))b=x}if(b)go(b.getAttribute('data-screen'),true);return !!b}
-var first=document.querySelector('.decision[data-state="open"]')||document.querySelector('.decision');var h0=(location.hash||'').replace(/^#screen-/,'');
-if(h0&&h0!==location.hash&&document.getElementById('screen-'+h0))go(h0,false);else if(first)go(first.getAttribute('data-screen'),false);document.body.classList.add('js');
-function filter(id){document.body.setAttribute('data-journey',id||'');[].forEach.call(document.querySelectorAll('[data-journeys]'),function(x){x.hidden=!!id&&x.getAttribute('data-journeys').split(' ').indexOf(id)<0});
-[].forEach.call(document.querySelectorAll('[data-filter]'),function(x){x.classList.toggle('on',(x.getAttribute('data-filter')||'')===(id||''))});}
-document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open('play',P[b.getAttribute('data-play')]);return}
-var v=e.target.closest('[data-view]');if(v){e.preventDefault();openView(v.getAttribute('data-view'));return}
-var f=e.target.closest('[data-filter]');if(f){filter(f.getAttribute('data-filter'));return}
-var g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.getAttribute('data-go'),true);return}
-var fl=e.target.closest('[data-flip]');if(fl){flip(+fl.getAttribute('data-flip'));return}
-var cm=e.target.closest('[data-compare]');if(cm){compare(cm.getAttribute('data-compare'));return}
-var rv=e.target.closest('[data-revise]');if(rv){reviseBar(rv.getAttribute('data-revise'));return}
-var t=e.target.closest('[data-toggle]');if(t){document.body.classList.toggle(t.getAttribute('data-toggle'));t.classList.toggle('on');return}
-if(el.hidden)return;if(e.target.closest('.p-close')){close();return}if(e.target.closest('.hot')||e.target.closest('.p-off')){step(1);return}if(e.target===el)close();});
-document.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('select.jump'))go(e.target.value,true);});
-document.addEventListener('click',function(e){var v=e.target.closest('[data-vp]');if(v&&v.tagName==='BUTTON'){document.body.setAttribute('data-vp',v.getAttribute('data-vp'));[].forEach.call(document.querySelectorAll('button[data-vp]'),function(x){x.classList.toggle('on',x===v)});return}
-var pk=e.target.closest('[data-pickv]');if(pk){pickBar(pk.getAttribute('data-pickv'));close();return}
-if(e.target.closest('.pb-next')){var bar0=document.getElementById('pickbar');if(!nextOpen())e.target.closest('.pb-next').textContent='Every screen has an answer';else if(bar0)bar0.hidden=true;return}
-if(e.target.closest('.pb-close')){var bar=document.getElementById('pickbar');if(bar)bar.hidden=true;return}
-var cp=e.target.closest('.pb-copy');if(cp){var ta=document.querySelector('#pickbar textarea');ta.focus();ta.select();var say=function(t){cp.textContent=t;setTimeout(function(){cp.textContent='Copy'},1800)};var fall=function(){var ok=false;try{ok=document.execCommand('copy')}catch(x){}say(ok?'Copied':'Selected, press \u2318C')};try{navigator.clipboard.writeText(ta.value).then(function(){say('Copied')},fall)}catch(x){fall()}}});
-function mark(state,btn){var b=document.getElementById('screen-'+state);if(!b)return;b.setAttribute('data-chosen','');[].forEach.call(document.querySelectorAll('.side [data-go="'+state+'"] .dot'),function(d){d.classList.add('chosen');d.title='Chosen here, file not saved yet'});[].forEach.call(b.querySelectorAll('.d-act button'),function(x){x.classList.toggle('on',x===btn)});}
-function bar(file,doc,hint){var b=document.getElementById('pickbar');if(!b)return;b.querySelector('.pb-path').textContent=file;b.querySelector('.pb-hint').textContent=hint;b.querySelector('textarea').value=JSON.stringify(doc,null,2);var n=b.querySelector('.pb-next');if(n)n.textContent='Next open screen';b.hidden=false;}
-function pickBar(id){var H=window.UXCLI_HASHES||{},parts=id.split('/'),state=parts[0],variant=parts[1];
-mark(state,document.querySelector('.decision [data-pickv="'+id+'"]'));
-bar('.uxcli/mockups/'+state+'/pick.json',{schema_version:1,pick:variant,sha256:H[id]||'<sha256 from uxcli mockups>',by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)},'Save this file, then run uxcli mockups again. The page writes nothing.');}
-function reviseBar(state){var H=window.UXCLI_HASHES||{},seen={};Object.keys(H).forEach(function(k){if(k.indexOf(state+'/')===0)seen[k.slice(state.length+1)]=H[k]});
-mark(state,document.querySelector('[data-revise="'+state+'"]'));
-bar('.uxcli/mockups/'+state+'/revise.json',{schema_version:1,note:'',seen:seen,by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)},'Write in note what should change, save the file, then ask the agent to redraw. The page writes nothing.');}
-document.addEventListener('keydown',function(e){if(!el.hidden&&mode==='view'&&/^[1-9]$/.test(e.key)){stepView(0,+e.key-1);e.preventDefault();return}if(el.hidden){if(/^[1-9]$/.test(e.key)&&!/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))flip(+e.key-1);return}if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
-
-// A decision: one screen, what the person does on it, one drawing at a time as large as the page
-// allows (A, B … flip in place), and a bar with the answers a person can give. The drawing being
-// looked at is the one its Choose button offers first.
-// d: { id, state, n, title, crumb, action, question, status: 'picked'|'revise'|'open'|'undrawn', vw, vh,
-//      variants: [{ name, shot, screens, hooks, pins, view, pickId, status, summary, part,
-//                   review: { lens, line, points: [{ id, text }], more, by, refused } }],
-//      refs: [{ name, src, view }], revise: { note, by } | null, tech: [{ label, lines: [text] }], problems: n }
+// The first sentence of a reviewer's note: what a person reads before opening the rest.
 export const firstSentence = t => { t = String(t ?? '').trim(); const m = t.match(/^.*?[.!?](?=\s|$)/); return m ? m[0] : t; };
-export const STATUS = { picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' };
-export function decisionHtml(d) {
-  const letter = k => String.fromCharCode(65 + k);
-  const drawn = d.variants.filter(v => v.shot);
-  const picked = d.variants.find(v => v.status === 'pick');
-  const first = Math.max(0, picked ? d.variants.indexOf(picked) : 0);
-  const screens = v => (v.screens?.length ? v.screens : [{ vw: d.vw, vh: d.vh, shot: v.shot }]).map((x, k) =>
-    `<div class="screen" data-vp="${x.vw}x${x.vh}" style="aspect-ratio:${x.vw}/${x.vh};--sw:${x.vw}">${x.shot ? `<a href="${esc(x.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(x.shot)}" alt="${esc(human(v.name))} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'No picture')}</div>`}${k === 0 ? hooksHtml(v.hooks, x) + pinsHtml(v.pins, x) : ''}</div>`).join('');
-  const review = (r, k) => !r ? '' : `<details class="review${r.refused ? ' refused' : ''}" data-of="${k}"${k === first ? '' : ' hidden'}><summary>Agent review of ${letter(k)}, ${esc(human(r.lens))} lens: ${esc(r.line)}</summary><div class="pop">${r.points.length ? `<ul>${r.points.map(x => `<li title="${esc(x.id)}">${esc(x.text)}</li>`).join('')}</ul>` : ''}${r.more ? `<p class="more-n">${r.more} more in technical details</p>` : ''}${r.by ? `<p class="by">${esc(r.by)}</p>` : ''}</div></details>`;
-  const flips = d.variants.length > 1 ? `<div class="seg" role="group" aria-label="Drawing">${d.variants.map((v, k) => `<button type="button" data-flip="${k}" class="${k === first ? 'on' : ''}" title="Key ${k + 1}"><b class="letter">${letter(k)}</b>${esc(human(v.name))}</button>`).join('')}</div>` : '';
-  const opts = d.variants.map((v, k) => `<figure class="opt ${v.status}" data-k="${k}"${k === first ? '' : ' data-off'}>
-      <figcaption><b class="letter">${letter(k)}</b><span class="opt-name" title="${esc(v.name)}.html">${esc(human(v.name))}</span>${v.status === 'pick' ? '<span class="tag pick">Chosen</span>' : v.status === 'part' ? '<span class="tag part">Part taken</span>' : ''}${v.summary ? `<span class="opt-sum">${esc(sentence(v.summary))}</span>` : ''}${v.status === 'part' && v.part ? `<span class="opt-sum">Taken into the pick: ${esc(v.part)}</span>` : ''}</figcaption>
-      <div class="screens">${screens(v)}</div>
-      ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(sentence(n.text))}</li>`).join('')}</ol>` : ''}
-    </figure>`).join('');
-  const chooses = drawn.map(v => { const k = d.variants.indexOf(v); return `<button type="button" class="choose${k === first ? ' primary' : ''}${v.status === 'pick' ? ' on' : ''}" data-pickv="${esc(v.pickId)}" data-of="${k}">Choose ${letter(k)} · ${esc(human(v.name))}</button>`; }).join('');
-  const bar = drawn.length ? `<div class="d-bar">${d.variants.map((v, k) => review(v.review, k)).join('') || '<span class="grow"></span>'}
-      <button type="button" class="neither${d.status === 'revise' ? ' on' : ''}" data-revise="${esc(d.state)}">Neither, ask for a revision</button>${chooses}</div>` : '';
-  const tech = d.tech?.length ? `<details class="tech"><summary>Technical details${d.problems ? ` · <span class="warn">${d.problems} problem${d.problems > 1 ? 's' : ''}</span>` : ''}</summary>${d.tech.map(t => `<div class="tech-row"><b>${esc(t.label)}</b>${t.lines.map(l => `<span>${esc(l)}</span>`).join('')}</div>`).join('')}</details>` : '';
-  const refs = d.refs?.length ? `<details class="refsbox"><summary>References (${d.refs.length})</summary><div class="refs">${d.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption title="${esc(r.name)}">${esc(human(r.name))}</figcaption></figure>`).join('')}</div></details>` : '';
-  const ask = d.question ? sentence(d.question) : d.action ? `The person here: ${d.action}` : null;
-  return `<section class="view decision ${d.status}${d.vw < d.vh ? ' portrait' : ''}" id="${esc(d.id)}" data-screen="${esc(d.state)}" data-state="${d.status}"${d.journeys ? ` data-journeys="${esc(d.journeys)}"` : ''}>
-    <header class="d-h"><div class="d-t">${d.crumb ? `<span class="crumb">${esc(d.crumb)}</span>` : ''}<h2 title="${esc(d.state)}">${d.n ? `<span class="d-n">${esc(d.n)}</span>` : ''}${esc(human(d.title))}</h2>${ask ? `<p class="d-q">${esc(ask)}</p>` : ''}${d.revise ? `<p class="d-rev"><b>Revision asked${d.revise.by ? ` by ${esc(d.revise.by)}` : ''}:</b> ${esc(d.revise.note)}</p>` : ''}</div>
-      <div class="d-tools"><span class="d-state ${d.status}">${esc(picked ? `Decided: ${human(picked.name)}` : STATUS[d.status])}</span>${flips}${drawn.length > 1 ? `<button type="button" class="ghost" data-compare="${esc(d.state)}">Side by side</button>` : ''}</div></header>
-    <div class="stage">${opts}${refs || tech ? `<div class="d-more">${refs}${tech}</div>` : ''}</div>
-    ${bar}
-  </section>`;
-}
 
 // A hook the journey names, outlined where the browser found it in the drawing; shown when the
 // page's hooks toggle is on. Nothing is drawn for a hook the browser did not find.
@@ -237,12 +125,6 @@ export const WIREFLOW_CSS = `
 .conn .label span{display:block;font:11px/1.35 var(--mono);color:var(--dim);margin-top:4px;padding-top:4px;border-top:1px dashed var(--line);overflow-wrap:anywhere}
 .g-state{margin-left:auto;font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}
 .g-state.pick{background:var(--pass-soft);color:var(--pass)}
-.play{margin-left:12px;font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--accent);cursor:pointer}
-.play:hover{border-color:var(--accent)}
-.play:focus-visible,.p-close:focus-visible,.proto .hot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.proto{position:fixed;inset:0;z-index:100;background:rgba(10,12,16,.95);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;grid-template-rows:minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);padding:24px}
-.proto[hidden]{display:none}
-body.playing{overflow:hidden}
 .p-stage{display:grid;place-items:center;min-height:0;gap:10px;grid-auto-rows:min-content;align-content:center}
 .p-screen{position:relative;max-width:100%;max-height:calc(100vh - 140px);height:calc(100vh - 140px);background:#fff;border-radius:8px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6);overflow:hidden}
 .p-screen img{display:block;width:100%;height:100%;object-fit:contain}
@@ -252,31 +134,17 @@ body.playing{overflow:hidden}
 .p-off{cursor:pointer;font:12px/1.3 var(--sans);color:#fff;background:var(--fail);padding:8px 14px;border-radius:999px;border:2px dashed rgba(255,255,255,.6)}
 .p-bar{display:flex;align-items:center;gap:16px;padding:14px 4px 0;color:#fff;font:13px var(--sans);min-width:0}.p-stage:not(.two) .p-screen{height:calc(100vh - 210px)}.p-under{max-width:1200px}.p-notes{font-size:13px!important}
 .p-bar .p-n{font:600 12px var(--sans);opacity:.7}.p-bar .p-title{font:600 14px var(--sans)}.p-bar .p-link{opacity:.85;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.p-bar .p-keys{font:11px var(--sans);opacity:.6}
-.p-close{font:600 12px var(--sans);padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;cursor:pointer}
 .hk{position:absolute;display:none;border:1.5px dashed var(--accent);border-radius:3px;pointer-events:none;font-style:normal}
 .hk b{position:absolute;left:-1.5px;top:-16px;font:600 9px/1 var(--mono);padding:3px 5px;border-radius:3px;background:var(--accent);color:#fff;white-space:nowrap}
-body.hooks .hk{display:block}
-.tog{font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--dim)}
-.tog.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .p-stage.two{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:start;justify-items:center}
 .p-stage.two .p-screen{max-width:100%;height:calc(100vh - 230px)}
-body.hooks .proto .hk{display:block}
 .screens{position:relative}
-body[data-vp] .screens .screen{display:none}body[data-vp="1440x900"] .screens .screen[data-vp="1440x900"],body[data-vp="1024x768"] .screens .screen[data-vp="1024x768"],body[data-vp="768x1024"] .screens .screen[data-vp="768x1024"],body[data-vp="390x844"] .screens .screen[data-vp="390x844"],body[data-vp="1920x1080"] .screens .screen[data-vp="1920x1080"],body[data-vp="1280x800"] .screens .screen[data-vp="1280x800"]{display:block}
-body:not([data-vp]) .screens .screen:not(:first-child){display:none}
-.vpsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.vpsw button{font:600 11px var(--sans);padding:6px 10px;border:0;background:var(--surface);color:var(--dim);cursor:pointer}.vpsw button.on{background:var(--accent);color:#fff}
-.pickbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.15);padding:14px clamp(16px,2vw,32px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:start}
-.pickbar[hidden]{display:none}.pickbar .pb-h{display:grid;gap:4px;font:13px var(--sans);color:var(--dim);max-width:34ch}.pickbar .pb-h b{font:600 13px var(--sans);color:var(--ink);overflow-wrap:anywhere}
-.pickbar textarea{width:100%;height:96px;font:12px/1.4 var(--mono);color:var(--ink);background:var(--well);border:1px solid var(--line);border-radius:8px;padding:8px;resize:vertical}
-.pickbar .pb-act{display:grid;gap:8px}.pickbar button{font:600 12px var(--sans);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.pickbar .pb-copy{background:var(--accent);color:#fff;border-color:transparent}
 .p-cell{display:grid;gap:8px;min-width:0;justify-items:center}.p-under{display:flex;gap:12px;align-items:start;justify-content:space-between;width:100%;color:#fff}.p-notes{margin:0;padding-left:18px;font:12px/1.45 var(--sans);opacity:.9;display:grid;gap:2px}.p-notes li::marker{font:700 11px var(--sans);color:var(--finding)}
-.p-pickv{flex:none;font:600 12px var(--sans);padding:8px 14px;border-radius:999px;border:0;background:var(--pass);color:#fff;cursor:pointer}
 .ref{margin:0;display:grid;gap:4px}
 .ref a{display:block;border-radius:6px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 16px -10px rgba(0,0,0,.3)}.ref img{display:block;width:100%;height:auto}
 .ref figcaption{font:11px/1.3 var(--sans);color:var(--dim);overflow-wrap:anywhere}
 .pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
 .pin.off{border:2px dashed #fff;line-height:16px}
 
-.tog{cursor:pointer}
 .refs{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px}.ref{width:160px}
 `;

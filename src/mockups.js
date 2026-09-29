@@ -10,7 +10,8 @@ import { observe } from './adapters/chrome/index.js';
 import { library, readReview } from './lens.js';
 import { reviewSummary, summaryLine } from './core/model/lens.js';
 import { parsePick, parseAbout, parseRevise, statusOf, screensOf, hookOf, receiptOf, receiptLine, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
-import { esc, human, sentence, firstSentence, flowRow, decisionHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
+import { human, sentence, firstSentence } from './core/wireflow.js';
+import { mockupsPage } from './core/mockups-page.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
 // <state>/refs/*.png|jpg|webp: pictures someone made of the screen (a style frame, a sketch, a competitor's page). Shown beside the variants, never picked, never hashed.
@@ -132,7 +133,7 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
       const play = `${j.id}/${w.id}`; const pf = frames.map(f => ({ ...f.play, missing: f.play.shot ? null : f.play.missing }));
       proto[play] = { vw, vh, frames: pf, links }; lanes.push({ id: w.id, frames: pf, links, play });
       // one lane: the journey's play button is the lane's, so the lane carries none of its own
-      return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links, play: wf.length > 1 ? play : null });
+      return { id: w.id, kind: w.kind, vw, vh, frames, links, play: wf.length > 1 ? play : null };
     });
     if (lanes.length > 1) proto[`journey:${j.id}`] = { vw, vh, frames: lanes.flatMap((l, i) => l.frames.map((f, k) => k === l.frames.length - 1 && lanes[i + 1] ? { ...f, hot: { edge: true, lane: lanes[i + 1].id } } : f)), links: lanes.flatMap((l, i) => [...l.links, ...(lanes[i + 1] ? [{ label: human(lanes[i + 1].id), text: 'next lane' }] : [])]) };
     const mine = mineOf(j);
@@ -168,132 +169,16 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
         pins: pins[key] || [], hooks: hooksOf(key), view: shots[key] ? `view:${key}` : null, pickId: shots[key] ? key : null,
         screens: [{ vw, vh, shot: shots[key] }, ...(extra[key] || [])], review };
     }) : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `No mockup yet\n.uxcli/mockups/${s.id}/<variant>.html` }];
-    return decisionHtml({
-      id: `screen-${s.id}`, state: s.id, n: meta.n, crumb: human(meta.journey || ''), title: s.id, action: meta.action, question: s.about?.question, journeys: s.journeys.join(' '), status, vw, vh, variants,
+    return ({
+      state: s.id, n: meta.n, crumb: human(meta.journey || ''), title: s.id, action: meta.action, question: s.about?.question, journeys: s.journeys.join(' '), status, vw, vh, variants,
       revise: s.revise && !s.revise.answered && !s.pick ? { note: s.revise.note, by: s.revise.by.ref } : null, tech, problems,
       refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${human(s.id)} · reference · ${human(f.replace(/\.(png|jpe?g|webp)$/i, ''))}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),
     });
   }
-  const all = m.screens; const doneAll = all.filter(decided).length;
-  const name = m.project.project?.name || path.basename(m.root);
-  const ST = id => ({ picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' }[statusOfScreen(byId[id])]);
-  const views = flows.map(f => f.mine.map(id => card(byId[id])).join('') + (f.rows.length ? `<section class="view flowview" id="screen-flow-${esc(f.j.id)}" data-screen="flow-${esc(f.j.id)}" data-journeys="${esc(f.j.id)}"><header class="d-h"><div class="d-t"><span class="crumb">${esc(human(f.j.id))}</span><h2>The flow of picked screens</h2>${f.j.goal ? `<p class="d-q">${esc(sentence(f.j.goal))}</p>` : ''}</div>${f.play ? `<div class="d-tools"><button class="play" type="button" data-play="${esc(f.play)}">▶ Play the flow</button></div>` : ''}</header><div class="stage"><div class="flow">${f.rows.join('')}</div></div></section>` : '')).join('\n');
-  const side = flows.map(f => `<div class="sj"><div class="sj-h"><span>${esc(human(f.j.id))}</span><em>${f.mine.filter(id => decided(byId[id])).length}/${f.mine.length}</em></div>
-    ${f.mine.map(id => `<a href="#screen-${esc(id)}" data-go="${esc(id)}"><span class="n">${esc(numbered.get(id).n)}</span><span class="nm">${esc(human(id))}</span><i class="dot ${statusOfScreen(byId[id])}" title="${esc(ST(id))}"></i></a>`).join('')}
-    ${f.rows.length ? `<a href="#screen-flow-${esc(f.j.id)}" data-go="flow-${esc(f.j.id)}" class="fl"><span class="n">▶</span><span class="nm">Flow</span></a>` : ''}</div>`).join('');
-  const jump = `<select class="jump" aria-label="Go to a screen">${flows.map(f => `<optgroup label="${esc(human(f.j.id))}">${f.mine.map(id => `<option value="${esc(id)}">${esc(numbered.get(id).n)} ${esc(human(id))} · ${esc(ST(id))}</option>`).join('')}${f.rows.length ? `<option value="flow-${esc(f.j.id)}">Flow of ${esc(human(f.j.id))}</option>` : ''}</optgroup>`).join('')}</select>`;
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>${esc(name)} mockups</title>
-<style>
-*,*::before,*::after{box-sizing:border-box}
-:root{color-scheme:light;--bg:#f5f6f8;--canvas:#eceef2;--stage:#e6e8ed;--dot:#d6dae1;--surface:#fff;--well:#eceef2;--ink:#15181e;--dim:#5f6673;--faint:#8b929e;--line:#d9dde4;--line-soft:#e7e9ee;--accent:#2f5bea;--accent-ink:#fff;--accent-soft:#e6ecfd;--fail:#c8361d;--fail-soft:#fbe4df;--finding:#8a5a00;--finding-soft:#f6ecd8;--pass:#1b7f4b;--pass-soft:#dcf1e4;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#111317;--canvas:#16191e;--stage:#0c0e11;--dot:#262a31;--surface:#1a1d23;--well:#23272f;--ink:#eceef1;--dim:#a0a7b2;--faint:#737b87;--line:#323944;--line-soft:#262b33;--accent:#7f9bff;--accent-ink:#0d1220;--accent-soft:#1f2848;--fail:#ff7a5e;--fail-soft:#46231b;--finding:#e0b25a;--finding-soft:#3d3118;--pass:#5cc98b;--pass-soft:#173a26}}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#111317;--canvas:#16191e;--stage:#0c0e11;--dot:#262a31;--surface:#1a1d23;--well:#23272f;--ink:#eceef1;--dim:#a0a7b2;--faint:#737b87;--line:#323944;--line-soft:#262b33;--accent:#7f9bff;--accent-ink:#0d1220;--accent-soft:#1f2848;--fail:#ff7a5e;--fail-soft:#46231b;--finding:#e0b25a;--finding-soft:#3d3118;--pass:#5cc98b;--pass-soft:#173a26}
-html{background:var(--bg)}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans)}
-a{color:var(--accent)}
-button{font:inherit;cursor:pointer}
-${WIREFLOW_CSS}
-.app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}
-.side{position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 14px 16px;display:flex;flex-direction:column;gap:2px}
-.side .proj{font:650 15px/1.3 var(--sans);padding:0 10px;overflow-wrap:anywhere}
-.side .cnt{font:13px var(--sans);color:var(--dim);padding:2px 10px 10px}
-.sj{display:grid;gap:1px;padding-top:12px}
-.sj-h{display:flex;gap:8px;padding:0 10px 4px;font:600 12px var(--sans);color:var(--faint)}.sj-h span{flex:1;min-width:0}.sj-h em{font-style:normal;font-variant-numeric:tabular-nums}
-.side a[data-go]{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;color:var(--ink);text-decoration:none;font:14px/1.3 var(--sans)}
-.side a[data-go] .n{color:var(--faint);font-variant-numeric:tabular-nums;width:24px;flex:none;font-size:13px}.side a[data-go] .nm{flex:1;min-width:0}
-.side a[data-go]:hover{background:var(--well)}.side a[data-go].on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:600}
-.side a.fl{color:var(--dim)}
-.dot{width:8px;height:8px;border-radius:50%;flex:none;border:1.5px solid var(--faint)}.dot.picked{background:var(--pass);border-color:var(--pass)}.dot.revise{background:var(--finding);border-color:var(--finding)}.dot.undrawn{border-style:dashed}.dot.chosen{border-color:var(--accent);background:var(--accent-soft)}
-.side .tools{margin-top:auto;display:grid;gap:10px;padding:16px 10px 0}
-.vpsw{display:inline-flex;flex-wrap:wrap;border-radius:8px;background:var(--well);padding:2px;justify-self:start}.vpsw button{font:600 12px var(--sans);padding:6px 9px;border:0;border-radius:6px;background:transparent;color:var(--dim);font-variant-numeric:tabular-nums}.vpsw button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
-.tog{justify-self:start;font:600 12px/1 var(--sans);padding:8px 10px;border-radius:8px;border:0;background:var(--well);color:var(--ink)}.tog.on{background:var(--accent-soft);color:var(--accent)}
-.side .hint{font:12px/1.45 var(--sans);color:var(--faint)}
-.jump{display:none;width:100%;font:600 15px var(--sans);padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
-.main{min-width:0;background:var(--surface)}
-.view{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0}
-.js .view{height:100vh}.js .view.off{display:none}
-.view+.view{border-top:1px solid var(--line-soft)}.js .view+.view{border-top:0}
-.d-h{display:flex;align-items:flex-end;gap:20px;padding:18px 32px 14px;flex-wrap:wrap}
-.d-t{flex:1;min-width:min(100%,320px);display:grid;gap:3px}
-.crumb{font:600 12px var(--sans);color:var(--faint)}
-.d-h h2{margin:0;font:650 22px/1.25 var(--sans);letter-spacing:-.01em;text-wrap:balance}.d-n{color:var(--faint);font-weight:500;margin-right:10px;font-variant-numeric:tabular-nums}
-.d-q{margin:0;font:15px/1.5 var(--sans);color:var(--dim);max-width:75ch}
-.d-rev{margin:4px 0 0;font:14px/1.5 var(--sans);max-width:75ch}.d-rev b{color:var(--finding);font-weight:600}
-.d-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.d-state{font:600 12px/1 var(--sans);padding:7px 10px;border-radius:999px;background:var(--well);color:var(--dim)}.d-state.picked{background:var(--pass-soft);color:var(--pass)}.d-state.revise{background:var(--finding-soft);color:var(--finding)}
-.seg{display:inline-flex;background:var(--well);border-radius:10px;padding:3px}.seg button{border:0;background:transparent;padding:7px 12px;border-radius:8px;font:600 14px var(--sans);color:var(--dim);display:flex;gap:8px;align-items:center}.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
-.ghost,.play{border:0;background:transparent;color:var(--accent);font:600 14px var(--sans);padding:8px 10px;border-radius:8px}.ghost:hover,.play:hover{background:var(--accent-soft)}
-.stage{background:var(--stage);overflow:auto;padding:18px 32px 24px;display:grid;align-content:start;gap:16px}
-.opt{margin:0;display:grid;gap:12px;min-width:0}.js .opt[data-off]{display:none}
-.opt figcaption{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.letter{font:700 11px/1 var(--sans);width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;background:var(--ink);color:var(--bg);flex:none;align-self:center}
-.seg .letter{background:var(--dim)}.seg button.on .letter,.opt.pick .letter{background:var(--ink)}
-.opt-name{font:600 15px var(--sans)}.opt-sum{flex-basis:100%;font:14px/1.5 var(--sans);color:var(--dim);max-width:80ch}
-.tag{font:600 11px/1 var(--sans);padding:4px 8px;border-radius:999px;align-self:center}.tag.pick{background:var(--pass-soft);color:var(--pass)}.tag.part{background:var(--well);color:var(--dim)}
-.opt .screen{max-width:min(100%,calc(var(--sw) * 1px))}
-.decision.portrait .opt .screens{max-width:420px}
-.opt .screen{border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 18px 44px -22px rgba(0,0,0,.4)}
-.opt.pick .screen{box-shadow:0 0 0 2px var(--pass),0 18px 44px -22px rgba(0,0,0,.4)}
-.notes{margin:0;padding-left:20px;font:14px/1.5 var(--sans);display:grid;gap:3px;max-width:80ch}.notes li::marker{font:700 12px var(--sans);color:var(--dim)}
-.d-more{display:grid;gap:6px}.d-more summary{cursor:pointer;font:500 13px var(--sans);color:var(--dim)}
-.warn{color:var(--finding)}
-.tech-row{display:grid;gap:2px;padding:8px 0 0;font:12px/1.5 var(--sans);color:var(--dim);overflow-wrap:anywhere}.tech-row b{color:var(--ink);font-weight:600}
-.refs{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px}.ref{width:180px}
-.d-bar{display:flex;align-items:center;gap:10px;padding:12px 32px;background:var(--surface);box-shadow:0 -1px 0 var(--line-soft);position:relative}
-.d-bar .review,.d-bar .grow{flex:1;min-width:0}
-.review summary{cursor:pointer;font:14px var(--sans);color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.review.refused summary{color:var(--fail)}
-.review .pop{position:absolute;left:24px;bottom:calc(100% + 8px);width:min(560px,calc(100% - 48px));background:var(--surface);border-radius:12px;padding:14px 16px;box-shadow:0 18px 50px -14px rgba(0,0,0,.4),0 0 0 1px var(--line-soft);font:14px/1.5 var(--sans)}
-.review ul{margin:0;padding-left:18px;display:grid;gap:6px}.review .more-n,.review .by{margin:8px 0 0;font:12px var(--sans);color:var(--dim)}
-.d-bar button{font:600 14px/1 var(--sans);padding:12px 16px;border-radius:9px;border:0;background:var(--well);color:var(--ink);white-space:nowrap}
-.d-bar .neither{background:transparent;color:var(--dim)}.d-bar .neither.on{color:var(--finding);background:var(--finding-soft)}
-.d-bar .choose{order:1}.d-bar .choose.primary{order:2;background:var(--accent);color:var(--accent-ink)}
-.d-bar .choose.on{box-shadow:inset 0 0 0 2px var(--pass)}
-.d-bar button:focus-visible,.side a:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.pin{width:18px;height:18px;margin:-9px 0 0 -9px;font-size:10px;line-height:18px;opacity:.9}
-.flow{display:grid;gap:14px}
-:root{--fw:260px;--cw:120px}.lane.wide{--fw:clamp(280px,24vw,420px);--cw:120px}
-.row{padding:16px 14px 12px}.lane{background:var(--canvas);border:0}.lane-h{background:transparent;border:0}
-.pickbar{left:auto;right:24px;bottom:84px;width:min(560px,calc(100% - 48px));grid-template-columns:minmax(0,1fr);gap:10px;border-radius:14px;border:0;box-shadow:0 20px 60px -16px rgba(0,0,0,.45),0 0 0 1px var(--line-soft)}
-.pickbar .pb-h{max-width:none}.pickbar .pb-act{display:flex;gap:8px;flex-wrap:wrap}.pickbar .pb-next{background:var(--surface)}
-.pickbar button{border-radius:9px}
-@media (max-width:900px){
-  .app{grid-template-columns:minmax(0,1fr)}.side{display:none}
-  .jump{display:block;margin:12px 16px 0;width:calc(100% - 32px)}
-  .js .view{height:auto}
-  .d-h,.stage,.d-bar{padding-left:16px;padding-right:16px}
-  .d-bar{position:sticky;bottom:0;flex-wrap:wrap}.d-bar .review{flex-basis:100%}.d-bar button{flex:1 1 auto}
-  .review .pop{left:16px;width:calc(100% - 32px)}
-  .pickbar{right:16px;width:calc(100% - 32px);bottom:156px}
-}
-</style>
-</head>
-<body>
-<div class="app">
-<aside class="side">
-  <div class="proj">${esc(name)}</div>
-  <div class="cnt">${doneAll} of ${all.length} screens decided</div>
-  ${side}
-  <div class="tools">
-    ${sizes.length > 1 ? `<span class="vpsw" role="group" aria-label="Screen size">${sizes.map(([w, h], k) => `<button type="button" data-vp="${w}x${h}" class="${k === 0 ? 'on' : ''}">${w}×${h}</button>`).join('')}</span>` : ''}
-    <button type="button" class="tog" data-toggle="hooks">Show hooks</button>
-    <span class="hint">Keys 1, 2 flip between drawings. The page writes nothing: a choice gives you the file to save.</span>
-  </div>
-</aside>
-<div class="main">
-${jump}
-${views}
-</div>
-</div>
-<div class="pickbar" id="pickbar" hidden><div class="pb-h"><span>Save as</span><b class="pb-path"></b><span class="pb-hint"></span></div><textarea spellcheck="false" aria-label="File contents"></textarea><div class="pb-act"><button type="button" class="pb-copy">Copy</button><button type="button" class="pb-next">Next open screen</button><button type="button" class="pb-close">Close</button></div></div>
-${protoHtml()}
-<script>window.UXCLI_PROTO=${JSON.stringify(proto).replace(/</g, '\\u003c')};window.UXCLI_HASHES=${JSON.stringify(hashes).replace(/</g, '\\u003c')}</script>
-<script>${PROTO_JS}</script>
-</body>
-</html>
-`;
+  const firstOpen = order.find(id => byId[id] && statusOfScreen(byId[id]) === 'open') || order.find(id => byId[id]);
+  return mockupsPage({
+    name: m.project.project?.name || path.basename(m.root), sizes, proto, hashes,
+    decided: m.screens.filter(decided).length, total: m.screens.length,
+    journeys: flows.map(f => ({ id: f.j.id, goal: f.j.goal, screens: f.mine.map(id => ({ ...card(byId[id]), first: id === firstOpen })), flow: f.rows.length ? { lanes: f.rows, play: f.play } : null })),
+  });
 }
