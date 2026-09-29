@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "question": "The agent has just opened a new lead and should be able to call while it is still warm.",
+  "variants": {
+    "a-stacked": "Every section of the lead in one column, in the order the form collected it; the call button comes after five sections.",
+    "b-call-first": "The name, the phone number and the call button first; the requirement block below them."
+  }
+}

@@ -31,6 +31,43 @@ export function parsePick(doc, variants = [], hashes = {}) {
   return { value: problems.length ? null : { pick: doc.pick, sha256: doc.sha256, parts, by: doc.by, note: doc.note || null, when: doc.when || null }, problems };
 }
 
+// about.json: { schema_version: 1, question?, variants?: { '<variant>': 'what this drawing does differently' } }
+// The agent's words about its own drawings, shown beside them so a person reads what differs before
+// choosing. Not hashed and never a pick: it describes the drawings, it does not sign anything.
+export function parseAbout(doc, variants = []) {
+  const problems = [];
+  if (!doc || typeof doc !== 'object') return { value: null, problems: ['about.json is not an object'] };
+  if (doc.schema_version !== 1) problems.push('schema_version must be 1');
+  if (doc.question !== undefined && (typeof doc.question !== 'string' || !doc.question)) problems.push('question must be a sentence');
+  const vs = doc.variants && typeof doc.variants === 'object' ? doc.variants : {};
+  for (const [v, t] of Object.entries(vs)) {
+    if (!variants.includes(v)) problems.push(`variants["${v}"] is not a variant on disk`);
+    if (typeof t !== 'string' || !t) problems.push(`variants["${v}"] says nothing`);
+  }
+  for (const k of Object.keys(doc)) if (!['schema_version', 'question', 'variants'].includes(k)) problems.push(`unknown key "${k}"`);
+  return { value: problems.length ? null : { question: doc.question || null, variants: vs }, problems };
+}
+
+// revise.json: { schema_version: 1, note, seen: { '<variant>': '<sha256>' }, by: { type, ref }, when? }
+// A person chose none of the drawings and says what should change. `seen` names the drawings as they
+// were; once the agent redraws (a hash moves, a variant comes or goes) the request is answered and
+// the screen is open again.
+export function parseRevise(doc, variants = [], hashes = {}) {
+  const problems = [];
+  if (!doc || typeof doc !== 'object') return { value: null, problems: ['revise.json is not an object'] };
+  if (doc.schema_version !== 1) problems.push('schema_version must be 1');
+  if (typeof doc.note !== 'string' || !doc.note.trim()) problems.push('note is empty: a revision says what should change');
+  if (!doc.by || typeof doc.by !== 'object' || !doc.by.type || !doc.by.ref) problems.push('by{type, ref} missing: a revision nobody asked for is not a revision');
+  const seen = doc.seen && typeof doc.seen === 'object' ? doc.seen : null;
+  if (!seen) problems.push('seen missing: a revision names the drawings it looked at by their hashes');
+  else for (const [v, h] of Object.entries(seen)) if (typeof h !== 'string' || !/^[0-9a-f]{64}$/.test(h)) problems.push(`seen["${v}"] is not a sha256`);
+  for (const k of Object.keys(doc)) if (!['schema_version', 'note', 'seen', 'by', 'when'].includes(k)) problems.push(`unknown key "${k}"`);
+  if (problems.length) return { value: null, problems };
+  const keys = Object.keys(seen).sort().join(' ');
+  const answered = keys !== [...variants].sort().join(' ') || Object.entries(seen).some(([v, h]) => hashes[v] && hashes[v] !== h);
+  return { value: { note: doc.note, by: doc.by, when: doc.when || null, answered }, problems };
+}
+
 export const statusOf = (variant, pick) => !pick ? 'no-pick' : pick.pick === variant ? 'pick' : pick.parts[variant] ? 'part' : 'not-taken';
 
 // The screens a project's journeys name, in the order a reader meets them: workflow by workflow,
@@ -101,9 +138,11 @@ export function mockupsCard(m) {
   if (!m.screens.length) { L.push('  no journey names a screen yet; a mockup answers to a state in .uxcli/journeys/'); return L.join('\n'); }
   for (const s of m.screens) {
     const n = s.variants.length;
-    const status = s.problems.length ? 'REFUSED' : !n ? 'no mockup' : s.pick ? `pick ${s.pick.pick}` : 'no pick yet';
+    const status = s.problems.length ? 'REFUSED' : !n ? 'no mockup' : s.pick ? `pick ${s.pick.pick}` : s.revise && !s.revise.answered ? 'revise asked' : 'no pick yet';
     L.push(`  ${status.padEnd(14)} ${s.id.padEnd(32)} ${n ? `${n} variant${n === 1 ? '' : 's'}: ${s.variants.join(', ')}` : `.uxcli/mockups/${s.id}/<variant>.html`}`);
     for (const p of s.problems) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} pick.json: ${p}`);
+    for (const p of s.fileProblems || []) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} ${p}`);
+    if (s.revise && !s.revise.answered && !s.pick) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} revise.json: ${s.revise.note}`);
     for (const v of s.variants) {
       const r = s.receipts?.[v]; if (!r) continue;
       const line = receiptLine(r);
@@ -112,10 +151,11 @@ export function mockupsCard(m) {
     }
   }
   const drawn = m.screens.filter(s => s.variants.length).length; const picked = m.screens.filter(s => s.pick).length;
-  L.push('', `  ${m.screens.length} screens · ${drawn} drawn · ${picked} picked`);
+  const revised = m.screens.filter(s => !s.pick && s.revise && !s.revise.answered).length;
+  L.push('', `  ${m.screens.length} screens · ${drawn} drawn · ${picked} picked${revised ? ` · ${revised} revision${revised > 1 ? 's' : ''} asked` : ''}`);
   if (m.page) L.push(`  page   ${m.page}`);
   L.push('', picked < m.screens.length
-    ? '  a person picks: .uxcli/mockups/<state>/pick.json with pick, by{type, ref}; parts{} for what was taken from another variant'
+    ? '  a person picks: .uxcli/mockups/<state>/pick.json with pick, by{type, ref}; parts{} for what was taken from another variant; or asks for a redraw in revise.json'
     : '  every screen is picked; build the picked variant to the hooks the journey names, then uxcli run');
   return L.join('\n');
 }

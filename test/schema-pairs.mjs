@@ -7,18 +7,19 @@ import { validate } from './lib/json-schema.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const schema = name => JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', `${name}.schema.json`), 'utf8'));
 const listJson = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.json')).sort().map(f => path.join(dir, f)) : [];
-// a pick sits beside the variants it chooses among: mockups/<state>/pick.json
-const listPicks = dir => fs.existsSync(dir) ? fs.readdirSync(dir).sort().map(d => path.join(dir, d, 'pick.json')).filter(f => fs.existsSync(f)) : [];
+// a pick, the agent's notes and a revision sit beside the variants they speak of: mockups/<state>/<name>.json
+const listBeside = (dir, name) => fs.existsSync(dir) ? fs.readdirSync(dir).sort().map(d => path.join(dir, d, `${name}.json`)).filter(f => fs.existsSync(f)) : [];
+const BESIDE = ['pick', 'about', 'revise'];
 
 // Which schema each directory under .uxcli/ answers to.
-export const WHERE = { actor: 'understanding/actors', insight: 'understanding/insights', journey: 'journeys', commitment: 'commitments', policy: 'policy', profile: 'profiles', proposal: 'proposals', pick: 'mockups' };
+export const WHERE = { actor: 'understanding/actors', insight: 'understanding/insights', journey: 'journeys', commitment: 'commitments', policy: 'policy', profile: 'profiles', proposal: 'proposals', pick: 'mockups', about: 'mockups', revise: 'mockups' };
 export const PROJECTS = ['examples/crm/.uxcli', 'test/fixtures/crm/.uxcli'];
 
 export async function pair() {
   const problems = []; let checks = 0;
   for (const [name, sub] of Object.entries(WHERE)) {
     const S = schema(name);
-    const files = PROJECTS.flatMap(p => (name === 'pick' ? listPicks : listJson)(path.join(ROOT, p, sub)));
+    const files = PROJECTS.flatMap(p => (BESIDE.includes(name) ? d => listBeside(d, name) : listJson)(path.join(ROOT, p, sub)));
     if (!files.length) problems.push(`${name}: no example file under ${PROJECTS.join(' or ')}/${sub} — a schema with no example is a claim with no evidence`);
     for (const f of files) {
       const doc = JSON.parse(fs.readFileSync(f, 'utf8')); const rel = path.relative(ROOT, f);

@@ -66,8 +66,8 @@ export const protoHtml = () => `<div class="proto" id="proto" hidden role="dialo
   <div class="p-bar"><span class="p-n"></span><span class="p-title"></span><span class="p-link"></span><span class="p-keys">← → · esc</span><button type="button" class="p-close">close</button></div>
 </div>`;
 // window.UXCLI_PROTO = { [id]: { vw, vh, frames: [{ shot, title, missing, hot, pins, hooks }], links: [{ label, text }] } }.
-// [data-play=id] walks the frames one at a time; [data-view=id] shows one; two [data-cmp] boxes show
-// two side by side; [data-filter=journey] hides what the journey does not name; [data-toggle=hooks]
+// [data-play=id] walks the frames one at a time; [data-view=id] shows one; [data-compare=state] shows
+// the screen's drawings side by side; [data-pickv] and [data-revise] fill the pick bar; [data-go] shows a screen; [data-filter=journey] hides what the journey does not name; [data-toggle=hooks]
 // outlines the hooks. Arrow keys step, Escape closes.
 export const PROTO_JS = `(function(){var P=window.UXCLI_PROTO||{},el=document.getElementById('proto');if(!el)return;
 var stage=el.querySelector('.p-stage'),cur=null,k=0,last=null,mode='play';
@@ -80,7 +80,7 @@ s+=f.shot?'<img src="'+esc(f.shot)+'" alt="">':'<div class="noshot">'+esc(f.miss
 (f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+n.w/2,cy=off?cur.vh:Math.min(cur.vh,n.y+n.h/2);s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
 if(live&&h&&h.x!=null)s+='<div class="hot" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'"></div>';
 s+='</div>';
-if(mode==='compare'){s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Pick '+esc(f.title.split(' \u00b7 ').pop())+'</button>':'')+'</div>'}
+if(mode==='compare'){s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Choose '+esc(f.title.split(' \u00b7 ').pop())+'</button>':'')+'</div>'}
 s+='</div>';
 if(live&&h&&(h.off||h.edge))s+='<div class="p-off">'+(h.off?'\\u2193 '+esc(h.target||'')+' \\u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \\u2014 continue':h.lane?'\\u2192 next lane: '+esc(h.lane):'\\u2192 continue (hook not in the drawing)')+'</div>';
 return s}
@@ -90,50 +90,79 @@ el.querySelector('.p-n').textContent=one?(k+1)+' / '+n:'compare';el.querySelecto
 var notes=(one&&f.pins&&f.pins.length)?f.pins.map(function(p,i){return (i+1)+' '+p.text}).join(' \\u00b7 '):'';
 el.querySelector('.p-link').textContent=mode==='play'&&L?(L.label+(L.text?' \\u00b7 '+L.text:'')):notes;el.querySelector('.p-keys').hidden=!(mode==='play');}
 function open(m,model){mode=m;cur=model;if(!cur)return;k=0;last=document.activeElement;el.hidden=false;document.body.classList.add('playing');show();el.focus();}
-function close(){el.hidden=true;document.body.classList.remove('playing');[].forEach.call(document.querySelectorAll('[data-cmp]:checked'),function(x){x.checked=false});if(last&&last.focus)last.focus();}
+function close(){el.hidden=true;document.body.classList.remove('playing');if(last&&last.focus)last.focus();}
 function step(d){if(!cur||mode!=='play')return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
-function compare(){var on=[].slice.call(document.querySelectorAll('[data-cmp]:checked'));if(on.length<2)return;var a=P[on[0].getAttribute('data-cmp')],b=P[on[1].getAttribute('data-cmp')];if(!a||!b)return;
-open('compare',{vw:a.vw,vh:a.vh,frames:[a.frames[0],b.frames[0]],links:[]});}
+function compare(state){var ks=Object.keys(P).filter(function(x){return x.indexOf('view:'+state+'/')===0});if(ks.length<2)return;var a=P[ks[0]];
+open('compare',{vw:a.vw,vh:a.vh,frames:ks.map(function(x){return P[x].frames[0]}),links:[]});}
+function go(id,scroll){var b=document.getElementById('screen-'+id);if(!b)return;var j=b.closest('.journey');if(j){[].forEach.call(j.querySelectorAll('.decision'),function(x){x.classList.toggle('off',x!==b)});[].forEach.call(j.querySelectorAll('.rail [data-go]'),function(x){x.classList.toggle('on',x.getAttribute('data-go')===id)})}
+[].forEach.call(document.querySelectorAll('.side [data-go]'),function(x){x.classList.toggle('on',x.getAttribute('data-go')===id)});var sel=document.querySelector('select.jump');if(sel&&scroll)sel.value=id;if(scroll&&j)j.scrollIntoView({block:'start'});}
+function nextOpen(){var all=[].slice.call(document.querySelectorAll('.decision[data-state="open"]:not([data-chosen])'));var b=all[0];if(b)go(b.getAttribute('data-screen'),true);return !!b}
+[].forEach.call(document.querySelectorAll('.journey'),function(j){var b=j.querySelector('.decision[data-state="open"]')||j.querySelector('.decision');if(b)go(b.getAttribute('data-screen'),false)});
+var h0=(location.hash||'').replace(/^#screen-/,'');if(h0&&h0!==location.hash)go(h0,true);document.body.classList.add('js');
 function filter(id){document.body.setAttribute('data-journey',id||'');[].forEach.call(document.querySelectorAll('[data-journeys]'),function(x){x.hidden=!!id&&x.getAttribute('data-journeys').split(' ').indexOf(id)<0});
 [].forEach.call(document.querySelectorAll('[data-filter]'),function(x){x.classList.toggle('on',(x.getAttribute('data-filter')||'')===(id||''))});}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open('play',P[b.getAttribute('data-play')]);return}
 var v=e.target.closest('[data-view]');if(v){e.preventDefault();open('view',P[v.getAttribute('data-view')]);return}
 var f=e.target.closest('[data-filter]');if(f){filter(f.getAttribute('data-filter'));return}
+var g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.getAttribute('data-go'),true);return}
+var cm=e.target.closest('[data-compare]');if(cm){compare(cm.getAttribute('data-compare'));return}
+var rv=e.target.closest('[data-revise]');if(rv){reviseBar(rv.getAttribute('data-revise'));return}
 var t=e.target.closest('[data-toggle]');if(t){document.body.classList.toggle(t.getAttribute('data-toggle'));t.classList.toggle('on');return}
 if(el.hidden)return;if(e.target.closest('.p-close')){close();return}if(e.target.closest('.hot')||e.target.closest('.p-off')){step(1);return}if(e.target===el)close();});
-document.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('[data-cmp]'))compare();if(e.target.matches&&e.target.matches('[data-pick]'))pickBar(e.target.getAttribute('data-pick'));});
+document.addEventListener('change',function(e){if(e.target.matches&&e.target.matches('select.jump'))go(e.target.value,true);});
 document.addEventListener('click',function(e){var v=e.target.closest('[data-vp]');if(v&&v.tagName==='BUTTON'){document.body.setAttribute('data-vp',v.getAttribute('data-vp'));[].forEach.call(document.querySelectorAll('button[data-vp]'),function(x){x.classList.toggle('on',x===v)});return}
-var pk=e.target.closest('[data-pickv]');if(pk){var r=document.querySelector('[data-pick="'+pk.getAttribute('data-pickv')+'"]');if(r){r.checked=true;pickBar(r.getAttribute('data-pick'))}close();return}
+var pk=e.target.closest('[data-pickv]');if(pk){pickBar(pk.getAttribute('data-pickv'));close();return}
+if(e.target.closest('.pb-next')){var bar0=document.getElementById('pickbar');if(!nextOpen())e.target.closest('.pb-next').textContent='Every screen has an answer';else if(bar0)bar0.hidden=true;return}
 if(e.target.closest('.pb-close')){var bar=document.getElementById('pickbar');if(bar)bar.hidden=true;return}
-var cp=e.target.closest('.pb-copy');if(cp){var ta=document.querySelector('#pickbar textarea');ta.select();try{navigator.clipboard.writeText(ta.value)}catch(x){document.execCommand('copy')}cp.textContent='copied';setTimeout(function(){cp.textContent='copy'},1500)}});
-function pickBar(id){var H=window.UXCLI_HASHES||{},bar=document.getElementById('pickbar');if(!bar)return;var parts=id.split('/'),state=parts[0],variant=parts[1];
-var doc={schema_version:1,pick:variant,sha256:H[id]||'<sha256 from uxcli mockups>',by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)};
-bar.querySelector('.pb-path').textContent='.uxcli/mockups/'+state+'/pick.json';bar.querySelector('textarea').value=JSON.stringify(doc,null,2);bar.hidden=false;}
+var cp=e.target.closest('.pb-copy');if(cp){var ta=document.querySelector('#pickbar textarea');ta.select();try{navigator.clipboard.writeText(ta.value)}catch(x){document.execCommand('copy')}cp.textContent='Copied';setTimeout(function(){cp.textContent='Copy'},1500)}});
+function mark(state,btn){var b=document.getElementById('screen-'+state);if(!b)return;b.setAttribute('data-chosen','');[].forEach.call(b.querySelectorAll('.d-act button'),function(x){x.classList.toggle('on',x===btn)});}
+function bar(file,doc,hint){var b=document.getElementById('pickbar');if(!b)return;b.querySelector('.pb-path').textContent=file;b.querySelector('.pb-hint').textContent=hint;b.querySelector('textarea').value=JSON.stringify(doc,null,2);var n=b.querySelector('.pb-next');if(n)n.textContent='Next open screen';b.hidden=false;}
+function pickBar(id){var H=window.UXCLI_HASHES||{},parts=id.split('/'),state=parts[0],variant=parts[1];
+mark(state,document.querySelector('.decision [data-pickv="'+id+'"]'));
+bar('.uxcli/mockups/'+state+'/pick.json',{schema_version:1,pick:variant,sha256:H[id]||'<sha256 from uxcli mockups>',by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)},'Save this file, then run uxcli mockups again. The page writes nothing.');}
+function reviseBar(state){var H=window.UXCLI_HASHES||{},seen={};Object.keys(H).forEach(function(k){if(k.indexOf(state+'/')===0)seen[k.slice(state.length+1)]=H[k]});
+mark(state,document.querySelector('[data-revise="'+state+'"]'));
+bar('.uxcli/mockups/'+state+'/revise.json',{schema_version:1,note:'',seen:seen,by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)},'Write in note what should change, save the file, then ask the agent to redraw. The page writes nothing.');}
 document.addEventListener('keydown',function(e){if(el.hidden)return;if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
 
-// A gallery: one screen, its variants side by side, each with the status the pick gives it.
-// variant: { name, shot, status: 'pick' | 'part' | 'not-taken' | 'no-pick', note? }
-export function galleryHtml(g) {
-  const word = { pick: 'Picked', part: 'Part', 'not-taken': 'Not taken', 'no-pick': '' };
-  const picked = g.variants.find(v => v.status === 'pick');
+// A decision: one screen, what the person does on it, its variants side by side with what each
+// does differently, the evidence behind a disclosure, and the three answers a person can give.
+// d: { id, state, n, title, action, question, status: 'picked'|'revise'|'open'|'undrawn', vw, vh,
+//      variants: [{ name, shot, screens, hooks, pins, view, pickId, status, summary, part, sig,
+//                   review: { lens, line, points: [{ id, text }], more, by, refused } }],
+//      refs: [{ name, src, view }], revise: { note, by } | null, tech: [{ label, lines: [text] }], problems: n }
+export const firstSentence = t => { t = String(t ?? '').trim(); const m = t.match(/^.*?[.!?](?=\s|$)/); return m ? m[0] : t; };
+const STATUS = { picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' };
+export function decisionHtml(d) {
   const letter = k => String.fromCharCode(65 + k);
-  const screens = v => (v.screens?.length ? v.screens : [{ vw: g.vw, vh: g.vh, shot: v.shot, hooks: v.hooks, pins: v.pins }]).map((x, k) =>
-    `<div class="screen" data-vp="${x.vw}x${x.vh}" style="aspect-ratio:${x.vw}/${x.vh}">${x.shot ? `<a href="${esc(x.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'No picture')}</div>`}${k === 0 ? hooksHtml(v.hooks, x) + pinsHtml(v.pins, x) : ''}</div>`).join('');
-  return `<section class="gallery ${picked ? 'has-pick' : ''}" id="${esc(g.id)}">
-    <header class="g-h">${g.n ? `<span class="g-n">${esc(g.n)}</span>` : ''}<h3 title="${esc(g.id?.replace(/^screen-/, '') || g.title)}">${esc(human(g.title))}</h3>${g.action ? `<span class="g-act">→ ${esc(sentence(g.action))}</span>` : ''}${g.sub ? `<span class="sub">${esc(g.sub)}</span>` : ''}<span class="g-state ${picked ? 'pick' : 'no-pick'}">${picked ? `Picked: ${esc(human(picked.name))}` : g.variants.some(v => v.shot) ? `${g.variants.filter(v => v.shot).length} variants, not picked` : 'Not drawn yet'}</span></header>
-    ${g.note ? `<blockquote class="why">${esc(g.note)}</blockquote>` : ''}
-    <div class="g-body">
-    <div class="variants">${g.variants.map((v, k) => `<div class="variant ${v.status}">
+  const drawn = d.variants.filter(v => v.shot);
+  const picked = d.variants.find(v => v.status === 'pick');
+  const screens = v => (v.screens?.length ? v.screens : [{ vw: d.vw, vh: d.vh, shot: v.shot }]).map((x, k) =>
+    `<div class="screen" data-vp="${x.vw}x${x.vh}" style="aspect-ratio:${x.vw}/${x.vh}">${x.shot ? `<a href="${esc(x.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(x.shot)}" alt="${esc(human(v.name))} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'No picture')}</div>`}${k === 0 ? hooksHtml(v.hooks, x) + pinsHtml(v.pins, x) : ''}</div>`).join('');
+  const review = r => !r ? '' : `<details class="review${r.refused ? ' refused' : ''}"><summary>Agent review, ${esc(human(r.lens))} lens: ${esc(r.line)}</summary>${r.points.length ? `<ul>${r.points.map(x => `<li title="${esc(x.id)}">${esc(x.text)}</li>`).join('')}</ul>` : ''}${r.more ? `<p class="more-n">${r.more} more in technical details</p>` : ''}${r.by ? `<p class="by">${esc(r.by)}</p>` : ''}</details>`;
+  const opts = d.variants.map((v, k) => `<figure class="opt ${v.status}">
       <div class="screens">${screens(v)}</div>
-      <div class="cap">${v.pickId ? `<label class="pickbox"><input type="radio" name="pick-${esc(g.id)}" data-pick="${esc(v.pickId)}"${v.status === 'pick' ? ' checked' : ''}><b>${letter(k)}</b></label>` : `<b class="letter">${letter(k)}</b>`}<span class="state" title="${esc(v.name)}.html">${esc(human(v.name))}</span>${v.pins?.length ? `<span class="ms">${v.pins.length} note${v.pins.length > 1 ? 's' : ''}</span>` : ''}${v.view ? `<label class="cmpbox"><input type="checkbox" data-cmp="${esc(v.view)}">Compare</label>` : ''}${word[v.status] ? `<span class="status ${v.status}">${word[v.status]}</span>` : ''}</div>
-      ${v.receipt ? `<div class="receipt">${esc(v.receipt)}</div>` : ''}
-      ${(v.reviews || []).map(r => `<details class="review${r.refused ? ' refused' : ''}"><summary><b>${esc(human(r.lens))} lens</b> · ${esc(r.line)}${r.by ? ` · ${esc(r.by)}` : ''}</summary>${r.breaks.length ? `<ul>${r.breaks.map(b => `<li><code>${esc(b.id)}</code> ${esc(b.where || '')}${b.note ? ` — ${esc(b.note)}` : ''}</li>`).join('')}</ul>` : ''}</details>`).join('')}
-      ${v.status === 'pick' && v.sig ? `<div class="sig">✓ ${esc(v.sig)}</div>` : ''}
-      ${v.status === 'part' && v.note ? `<p class="fnote">Taken: ${esc(v.note)}</p>` : ''}
-      ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
-    </div>`).join('')}</div>
-    ${g.refs?.length ? `<div class="refs"><span class="refs-h">Reference</span>${g.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption title="${esc(r.name)}">${esc(human(r.name))}</figcaption></figure>`).join('')}</div>` : ''}
-    </div>
+      <figcaption><span class="opt-h"><b class="letter">${letter(k)}</b><span class="opt-name" title="${esc(v.name)}.html">${esc(human(v.name))}</span>${v.status === 'pick' ? '<span class="tag pick">Chosen</span>' : v.status === 'part' ? '<span class="tag part">Part taken</span>' : ''}</span>
+      ${v.summary ? `<span class="opt-sum">${esc(sentence(v.summary))}</span>` : ''}
+      ${v.status === 'part' && v.part ? `<span class="opt-sum">Taken into the pick: ${esc(v.part)}</span>` : ''}</figcaption>
+      ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(sentence(n.text))}</li>`).join('')}</ol>` : ''}
+      ${review(v.review)}
+    </figure>`).join('');
+  const actions = drawn.length ? `<div class="d-act">
+      ${drawn.map(v => `<button type="button" class="choose${v.status === 'pick' ? ' on' : ''}" data-pickv="${esc(v.pickId)}">Choose ${letter(d.variants.indexOf(v))} · ${esc(human(v.name))}</button>`).join('')}
+      <button type="button" class="neither${d.status === 'revise' ? ' on' : ''}" data-revise="${esc(d.state)}">Neither, ask for a revision</button>
+      ${drawn.length > 1 ? `<button type="button" class="ghost" data-compare="${esc(d.state)}">Compare side by side</button>` : ''}
+    </div>` : '';
+  const tech = d.tech?.length ? `<details class="tech"><summary>Technical details${d.problems ? ` · <span class="warn">${d.problems} problem${d.problems > 1 ? 's' : ''}</span>` : ''}</summary>${d.tech.map(t => `<div class="tech-row"><b>${esc(t.label)}</b>${t.lines.map(l => `<span>${esc(l)}</span>`).join('')}</div>`).join('')}</details>` : '';
+  const refs = d.refs?.length ? `<details class="refsbox"><summary>References (${d.refs.length})</summary><div class="refs">${d.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption title="${esc(r.name)}">${esc(human(r.name))}</figcaption></figure>`).join('')}</div></details>` : '';
+  const ask = d.question ? sentence(d.question) : d.action ? `The person here: ${d.action}` : null;
+  return `<section class="decision ${d.status}${d.vw < d.vh ? ' portrait' : ''}" id="${esc(d.id)}" data-screen="${esc(d.state)}" data-state="${d.status}"${d.journeys ? ` data-journeys="${esc(d.journeys)}"` : ''}>
+    <header class="d-h">${d.n ? `<span class="d-n">${esc(d.n)}</span>` : ''}<h3 title="${esc(d.state)}">${esc(human(d.title))}</h3><span class="d-state ${d.status}">${esc(picked ? `Decided: ${human(picked.name)}` : STATUS[d.status])}</span></header>
+    ${ask ? `<p class="d-q">${esc(ask)}</p>` : ''}
+    ${d.revise ? `<p class="d-rev"><b>Revision asked${d.revise.by ? ` by ${esc(d.revise.by)}` : ''}:</b> ${esc(d.revise.note)}</p>` : ''}
+    <div class="opts n${Math.min(d.variants.length, 3)}">${opts}</div>
+    ${actions}
+    ${refs || tech ? `<div class="d-more">${refs}${tech}</div>` : ''}
   </section>`;
 }
 
@@ -200,22 +229,8 @@ export const WIREFLOW_CSS = `
 .conn .label{position:absolute;left:8px;right:8px;top:12px;font:12px/1.35 var(--sans);color:var(--ink);text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .conn .label b{display:block;font:700 11px var(--sans);color:var(--accent);margin-bottom:2px}
 .conn .label span{display:block;font:11px/1.35 var(--mono);color:var(--dim);margin-top:4px;padding-top:4px;border-top:1px dashed var(--line);overflow-wrap:anywhere}
-.gallery{display:grid;gap:14px}
-.g-h{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-.g-h h3{margin:0;display:inline;font:700 17px/1.3 var(--sans);letter-spacing:-.01em}
-.g-h .sub{font:12px var(--sans);color:var(--dim);margin-left:10px}
 .g-state{margin-left:auto;font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}
 .g-state.pick{background:var(--pass-soft);color:var(--pass)}
-.why{margin:0;padding:8px 14px;border-left:3px solid var(--line);font:13px/1.5 var(--sans);color:var(--dim);max-width:80ch}
-.variants{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:18px;align-items:start}
-.variant{display:grid;gap:8px;min-width:0;padding:10px;border-radius:12px;background:var(--surface);border:1.5px solid var(--line-soft)}
-.variant.pick{border-color:var(--pass);box-shadow:0 0 0 3px var(--pass-soft)}
-.variant.part{border-color:var(--finding);box-shadow:0 0 0 3px var(--finding-soft)}
-.variant.not-taken{opacity:.72}.variant.not-taken:hover{opacity:1}
-.variant .cap{padding:2px 2px 0}
-.status{font:700 11px/1 var(--sans);padding:5px 9px;border-radius:999px;margin-left:auto;background:var(--well);color:var(--dim);white-space:nowrap}
-.status.pick{background:var(--pass);color:#fff}.status.part{background:var(--finding);color:#fff}
-.variant .fnote{padding:0 2px}
 .play{margin-left:12px;font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--accent);cursor:pointer}
 .play:hover{border-color:var(--accent)}
 .play:focus-visible,.p-close:focus-visible,.proto .hot:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -235,25 +250,14 @@ body.playing{overflow:hidden}
 .hk{position:absolute;display:none;border:1.5px dashed var(--accent);border-radius:3px;pointer-events:none;font-style:normal}
 .hk b{position:absolute;left:-1.5px;top:-16px;font:600 9px/1 var(--mono);padding:3px 5px;border-radius:3px;background:var(--accent);color:#fff;white-space:nowrap}
 body.hooks .hk{display:block}
-.tog,.tabs [data-filter]{cursor:pointer}
 .tog{font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--dim)}
 .tog.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.tabs [data-filter].on{color:var(--accent);border-bottom-color:var(--accent)}
-.cmpbox{display:inline-flex;align-items:center;gap:4px;margin-left:10px;font:11px var(--sans);color:var(--dim);cursor:pointer}
-.cmpbox input{margin:0;accent-color:var(--accent)}
 .p-stage.two{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:18px;align-items:start;justify-items:center}
 .p-stage.two .p-screen{max-width:100%;height:calc(100vh - 230px)}
 .proto .hk{display:block}
-.g-body{display:grid;gap:14px;align-items:start}
-.g-n{font:700 12px var(--sans);color:var(--dim);padding:4px 7px;border-radius:6px;background:var(--well)}.g-act{font:13px var(--sans);color:var(--dim)}
 .screens{position:relative}
 body[data-vp] .screens .screen{display:none}body[data-vp="1440x900"] .screens .screen[data-vp="1440x900"],body[data-vp="1024x768"] .screens .screen[data-vp="1024x768"],body[data-vp="768x1024"] .screens .screen[data-vp="768x1024"],body[data-vp="390x844"] .screens .screen[data-vp="390x844"],body[data-vp="1920x1080"] .screens .screen[data-vp="1920x1080"],body[data-vp="1280x800"] .screens .screen[data-vp="1280x800"]{display:block}
 body:not([data-vp]) .screens .screen:not(:first-child){display:none}
-.pickbox{display:inline-flex;align-items:center;gap:6px;cursor:pointer}.pickbox input{margin:0;accent-color:var(--pass);width:16px;height:16px}.pickbox b,.letter{font:800 13px var(--sans);width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--well);color:var(--ink)}
-.variant.pick .pickbox b{background:var(--pass);color:#fff}.variant.part .pickbox b{background:var(--finding);color:#fff}
-.receipt{font:12px/1.4 var(--sans);color:var(--finding);padding:0 2px}
-.review{font:12px/1.45 var(--sans);color:var(--ink);padding:0 2px}.review summary{cursor:pointer;color:var(--dim)}.review summary b{color:var(--ink);font-weight:600}.review.refused summary{color:var(--fail)}.review ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px}.review code{font:11px var(--sans)}
-.sig{font:600 12px var(--mono);color:var(--pass);padding:6px 10px;border-radius:8px;background:var(--pass-soft);justify-self:start}
 .vpsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.vpsw button{font:600 11px var(--sans);padding:6px 10px;border:0;background:var(--surface);color:var(--dim);cursor:pointer}.vpsw button.on{background:var(--accent);color:#fff}
 .pickbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -8px 30px rgba(0,0,0,.15);padding:14px clamp(16px,2vw,32px);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:start}
 .pickbar[hidden]{display:none}.pickbar .pb-h{display:grid;gap:4px;font:13px var(--sans);color:var(--dim);max-width:34ch}.pickbar .pb-h b{font:600 13px var(--sans);color:var(--ink);overflow-wrap:anywhere}
@@ -261,19 +265,52 @@ body:not([data-vp]) .screens .screen:not(:first-child){display:none}
 .pickbar .pb-act{display:grid;gap:8px}.pickbar button{font:600 12px var(--sans);padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}.pickbar .pb-copy{background:var(--accent);color:#fff;border-color:transparent}
 .p-cell{display:grid;gap:8px;min-width:0;justify-items:center}.p-under{display:flex;gap:12px;align-items:start;justify-content:space-between;width:100%;color:#fff}.p-notes{margin:0;padding-left:18px;font:12px/1.45 var(--sans);opacity:.9;display:grid;gap:2px}.p-notes li::marker{font:700 11px var(--sans);color:var(--finding)}
 .p-pickv{flex:none;font:600 12px var(--sans);padding:8px 14px;border-radius:999px;border:0;background:var(--pass);color:#fff;cursor:pointer}
-.refs{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px 12px}.refs-h{flex-basis:100%}.ref{width:132px}
-.refs-h{font:600 12px var(--sans);color:var(--dim)}
 .ref{margin:0;display:grid;gap:4px}
 .ref a{display:block;border-radius:6px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 16px -10px rgba(0,0,0,.3)}.ref img{display:block;width:100%;height:auto}
 .ref figcaption{font:11px/1.3 var(--sans);color:var(--dim);overflow-wrap:anywhere}
 .pin{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:var(--finding);color:#fff;font:700 11px/20px var(--mono);text-align:center;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.25);pointer-events:auto;font-style:normal}
 .pin.off{border:2px dashed #fff;line-height:16px}
-.notes li::first-letter,.fnote::first-letter{text-transform:uppercase}
-.notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}
-.notes li::marker{font:700 11px var(--mono);color:var(--finding)}
-.more{display:flex;gap:10px;align-items:flex-start;overflow-x:auto;padding-top:6px;border-top:1px dashed var(--line)}
-.mini{margin:0;display:grid;gap:4px;flex:none}
-.mini .screen{height:120px;width:auto}
-.mini img{width:auto;height:100%}
-.mini figcaption{font:11px var(--sans);color:var(--dim);text-align:center}
+
+.tog{cursor:pointer}
+.decision{display:grid;gap:16px;min-width:0}
+.js .decision.off{display:none}
+.d-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.d-n{font:600 13px var(--sans);color:var(--dim);font-variant-numeric:tabular-nums}
+.d-h h3{margin:0;font:650 20px/1.25 var(--sans);letter-spacing:-.01em;text-wrap:balance}
+.d-state{margin-left:auto;font:600 12px/1 var(--sans);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}
+.d-state.picked{background:var(--pass-soft);color:var(--pass)}.d-state.revise{background:var(--finding-soft);color:var(--finding)}
+.d-q{margin:-6px 0 0;font:15px/1.5 var(--sans);color:var(--ink);max-width:70ch}
+.d-rev{margin:0;font:14px/1.5 var(--sans);color:var(--ink);max-width:70ch}.d-rev b{color:var(--finding);font-weight:600}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:28px;align-items:start}
+.opt{margin:0;display:grid;gap:10px;min-width:0}
+.decision.portrait .opts{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),340px));gap:36px}
+.opt .screen{box-shadow:0 0 0 1px var(--line-soft),0 10px 30px -18px rgba(0,0,0,.35)}
+.opt.pick .screen{box-shadow:0 0 0 2px var(--pass),0 10px 30px -18px rgba(0,0,0,.35)}
+.opt.not-taken .screens{opacity:.6}
+.opt figcaption{display:grid;gap:4px}
+.opt-h{display:flex;align-items:center;gap:8px}
+.letter{font:700 12px/1 var(--sans);width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--ink);color:var(--bg);flex:none}
+.opt.pick .letter{background:var(--pass);color:#fff}
+.opt-name{font:600 15px/1.3 var(--sans)}
+.opt-sum{font:14px/1.5 var(--sans);color:var(--dim);max-width:62ch}
+.tag{font:600 11px/1 var(--sans);padding:4px 8px;border-radius:999px}.tag.pick{background:var(--pass-soft);color:var(--pass)}.tag.part{background:var(--well);color:var(--dim)}
+.notes{margin:0;padding:0 0 0 20px;font:13px/1.5 var(--sans);color:var(--ink);display:grid;gap:3px;max-width:62ch}
+.notes li::marker{font:700 11px var(--sans);color:var(--dim)}
+.review{font:13px/1.5 var(--sans);color:var(--ink)}
+.review summary{cursor:pointer;color:var(--dim);font-weight:500}
+.review.refused summary{color:var(--fail)}
+.review ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;max-width:62ch}
+.review .more-n,.review .by{margin:6px 0 0;font:12px var(--sans);color:var(--dim)}
+.d-act{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:4px}
+.d-act button{font:600 14px/1 var(--sans);padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.d-act button:hover{border-color:var(--ink)}
+.d-act .choose.on{background:var(--pass);border-color:var(--pass);color:#fff}
+.d-act .neither.on{background:var(--finding-soft);border-color:var(--finding);color:var(--ink)}
+.d-act .ghost{border-color:transparent;background:transparent;color:var(--accent);margin-left:auto}
+.d-act button:focus-visible,.rail a:focus-visible,.side a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.d-more{display:grid;gap:8px;padding-top:8px;border-top:1px solid var(--line-soft)}
+.d-more summary{cursor:pointer;font:500 13px var(--sans);color:var(--dim)}
+.warn{color:var(--finding)}
+.tech-row{display:grid;gap:2px;padding:8px 0 0;font:12px/1.5 var(--sans);color:var(--dim);overflow-wrap:anywhere}.tech-row b{color:var(--ink);font-weight:600}
+.refs{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px}.ref{width:160px}
 `;

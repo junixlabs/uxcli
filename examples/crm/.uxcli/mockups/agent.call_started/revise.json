@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "note": "One drawing is not a choice. Draw a second one where the call timer and the hang-up button stay visible while the agent scrolls the lead.",
+  "seen": { "a-banner": "77c10db32ab9b00384290b3eb1254f1561cd3777c0da401f8b427cfcbdeab688" },
+  "by": { "type": "role", "ref": "product-owner" },
+  "when": "2026-09-30"
+}

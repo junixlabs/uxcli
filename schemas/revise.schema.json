@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/revise.schema.json",
+  "title": "uxcli revision request",
+  "description": "A person chose none of the drawings of one screen and says what should change — .uxcli/mockups/<state>/revise.json. seen names the drawings as they were; a redraw answers the request.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "note", "seen", "by"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "note": { "type": "string", "minLength": 1, "description": "what should change" },
+    "seen": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+      "description": "variant → sha256 of the drawing as it was when looked at"
+    },
+    "by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "ref"],
+      "properties": {
+        "type": { "enum": ["person", "role", "agent"] },
+        "ref": { "type": "string", "minLength": 1 },
+        "onBehalfOf": { "type": "string", "minLength": 1 }
+      },
+      "description": "who asked for the revision"
+    },
+    "when": { "type": "string", "minLength": 1 }
+  }
+}

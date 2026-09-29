@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
-export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, two compare boxes show two frames, picking from the compare view fills the pick bar and writes nothing, the journey filter hides what the journey does not name, the hooks toggle outlines them, play journey chains the lanes, '
+export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, compare shows the drawings of the screen side by side, choosing from the compare view fills the pick bar and writes nothing, neither fills revise.json with the hash of every drawing and next open screen moves on, a step in the rail shows its screen and hides the others, at 390 the sidebar gives way to a screen selector without sideways scroll, the journey filter hides what the journey does not name, the hooks toggle outlines them, play journey chains the lanes, '
   + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
@@ -36,6 +36,8 @@ export async function pair() {
   const must = (what, cond) => { checks++; if (!cond) problems.push(what); };
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'uxcli-page-'));
   fs.cpSync(FIXTURE, tmp, { recursive: true, filter: src => !/\/\.uxcli\/(index\.json|map|mockups\/\.shots|mockups\/index\.html)$/.test(src) });
+  // one screen left open, so next open screen has somewhere to go
+  fs.rmSync(path.join(tmp, '.uxcli', 'mockups', 'anon.login_page', 'pick.json'));
   const { map } = await import('../src/map.js');
   await map(tmp, { viewport: '390x844' });                      // photographs the mockups too
   const MAP = pathToFileURL(path.join(tmp, '.uxcli', 'map', 'index.html')).href;
@@ -68,21 +70,33 @@ export async function pair() {
     const v1 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, seen: img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200, hooks: el.querySelectorAll('.hk').length }; });
     must(`a variant did not open in the viewer with its hooks (${JSON.stringify(v1)})`, v1.open && v1.n === '1 / 1' && v1.seen && v1.hooks >= 2);
     await page.keyboard.press('Escape'); await page.waitForTimeout(50);
-    await page.check('[data-cmp="view:agent.lead_detail/a-stacked"]'); await page.check('[data-cmp="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(150);
+    await page.click('[data-compare="agent.lead_detail"]'); await page.waitForTimeout(150);
     const c2 = await page.evaluate(() => { const el = document.getElementById('proto'); return { open: !el.hidden, screens: el.querySelectorAll('.p-screen').length, n: el.querySelector('.p-n').textContent }; });
-    must(`two compare boxes did not open two frames (${JSON.stringify(c2)})`, c2.open && c2.screens === 2 && c2.n === 'compare');
+    must(`compare did not open the two drawings (${JSON.stringify(c2)})`, c2.open && c2.screens === 2 && c2.n === 'compare');
     // picking from the compare view fills the pick bar with the file to write, never writes it
-    await page.click('[data-pickv="agent.lead_detail/a-stacked"]'); await page.waitForTimeout(100);
+    await page.click('#proto [data-pickv="agent.lead_detail/a-stacked"]'); await page.waitForTimeout(100);
     const pb = await page.evaluate(() => { const b = document.getElementById('pickbar'); let doc = null; try { doc = JSON.parse(b.querySelector('textarea').value); } catch {} return { shown: !b.hidden, path: b.querySelector('.pb-path').textContent, pick: doc?.pick, sha: doc?.sha256, closed: document.getElementById('proto').hidden }; });
     must(`the pick bar did not carry a-stacked's pick.json (${JSON.stringify(pb)})`, pb.shown && pb.path === '.uxcli/mockups/agent.lead_detail/pick.json' && pb.pick === 'a-stacked' && /^[0-9a-f]{64}$/.test(pb.sha || '') && pb.closed);
     must('the page wrote pick.json itself', !fs.existsSync(path.join(tmp, '.uxcli', 'mockups', 'agent.lead_detail', 'pick.json')) || JSON.parse(fs.readFileSync(path.join(tmp, '.uxcli', 'mockups', 'agent.lead_detail', 'pick.json'), 'utf8')).pick === 'b-call-first');
+    // neither: the revision file carries every drawing's hash and an empty note to fill; next open screen goes to one without an answer
+    await page.click('[data-revise="agent.lead_detail"]'); await page.waitForTimeout(100);
+    const rb = await page.evaluate(() => { const b = document.getElementById('pickbar'); let doc = null; try { doc = JSON.parse(b.querySelector('textarea').value); } catch {} return { path: b.querySelector('.pb-path').textContent, note: doc?.note, seen: Object.keys(doc?.seen || {}).sort().join(' '), hex: Object.values(doc?.seen || {}).every(h => /^[0-9a-f]{64}$/.test(h)) }; });
+    must(`neither did not fill revise.json (${JSON.stringify(rb)})`, rb.path === '.uxcli/mockups/agent.lead_detail/revise.json' && rb.note === '' && rb.seen === 'a-stacked b-call-first' && rb.hex);
+    must('the page wrote revise.json itself', !fs.existsSync(path.join(tmp, '.uxcli', 'mockups', 'agent.lead_detail', 'revise.json')));
+    await page.click('#pickbar .pb-next'); await page.waitForTimeout(150);
+    const nx = await page.evaluate(() => { const on = [...document.querySelectorAll('.decision')].filter(d => getComputedStyle(d).display !== 'none' && d.closest('.journey').id === 'authenticate'); return on.map(d => d.getAttribute('data-screen')); });
+    must(`next open screen did not show the open screen (${nx})`, nx.length === 1 && nx[0] === 'anon.login_page');
+    // a step in the rail shows its screen and hides the others in the journey
+    await page.click('#authenticate .rail [data-go="agent.workspace_ready"]'); await page.waitForTimeout(100);
+    const tb = await page.evaluate(() => [...document.querySelectorAll('#authenticate .decision')].filter(d => getComputedStyle(d).display !== 'none').map(d => d.getAttribute('data-screen')));
+    must(`the rail did not show the one screen it names (${tb})`, tb.length === 1 && tb[0] === 'agent.workspace_ready');
     await page.click('[data-filter="authenticate"]'); await page.waitForTimeout(100);
     const flt = await page.evaluate(() => ({ lead: document.getElementById('handle-inbound-lead').hidden, auth: document.getElementById('authenticate').hidden, login: document.querySelector('[data-journeys="authenticate"]')?.hidden, detail: document.querySelector('[data-journeys="handle-inbound-lead"]')?.hidden }));
     must(`the journey filter did not hide what the journey does not name (${JSON.stringify(flt)})`, flt.lead === true && flt.auth === false && flt.login === false && flt.detail === true);
     await page.click('[data-filter=""]'); await page.waitForTimeout(100);
     must('all did not bring the other journey back', await page.evaluate(() => !document.getElementById('handle-inbound-lead').hidden));
-    await page.click('[data-toggle="hooks"]'); await page.waitForTimeout(100);
-    must('the hooks toggle does not outline the hooks on the frames', await page.evaluate(() => [...document.querySelectorAll('.variant .hk')].some(h => getComputedStyle(h).display !== 'none')));
+    await page.click('.menu summary'); await page.click('[data-toggle="hooks"]'); await page.waitForTimeout(100);
+    must('the hooks toggle does not outline the hooks on the frames', await page.evaluate(() => [...document.querySelectorAll('.opt .hk')].some(h => getComputedStyle(h).display !== 'none')));
     must('a one-lane journey offers play twice', await page.evaluate(() => document.querySelectorAll('[data-play="handle-inbound-lead/open-and-call"]').length === 1));
     must('play journey is offered for a journey with one lane', await page.evaluate(() => !document.querySelector('[data-play="journey:handle-inbound-lead"]')) && await page.evaluate(() => !!document.querySelector('[data-play="journey:authenticate"]')));
     await page.click('[data-play="journey:authenticate"]'); await page.waitForTimeout(100);
@@ -90,6 +104,12 @@ export async function pair() {
     must(`play journey did not chain the lanes (${pj})`, /^1 \/ \d+$/.test(pj) && Number(pj.split('/ ')[1]) > 3);
     await page.keyboard.press('Escape'); await page.waitForTimeout(50);
     must(`the prototype threw: ${perr[0] || ''}`, !perr.length);
+    // a phone: no sidebar, a screen selector, nothing wider than the screen
+    await page.setViewportSize({ width: 390, height: 844 }); await page.goto(MOCK, { waitUntil: 'load' }); await page.waitForTimeout(300);
+    const ph = await page.evaluate(() => ({ side: getComputedStyle(document.querySelector('.side')).display, jump: getComputedStyle(document.querySelector('select.jump')).display, over: document.documentElement.scrollWidth > innerWidth }));
+    must(`the page at 390 keeps its sidebar, has no selector, or scrolls sideways (${JSON.stringify(ph)})`, ph.side === 'none' && ph.jump !== 'none' && !ph.over);
+    await page.selectOption('select.jump', 'agent.workspace_ready'); await page.waitForTimeout(100);
+    must('the selector did not show the screen it names', await page.evaluate(() => getComputedStyle(document.getElementById('screen-agent.workspace_ready')).display !== 'none' && getComputedStyle(document.getElementById('screen-anon.login_page')).display === 'none'));
     // must-fail: the same reading sees a planted overflow
     await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(MAP + '#j/handle-inbound-lead/run/1', { waitUntil: 'load' }); await page.waitForTimeout(300);
     const planted = await page.evaluate(() => { const d = document.createElement('div'); d.style.cssText = 'width:3000px;height:10px'; document.querySelector('.canvas').appendChild(d); const c = document.querySelector('.canvas'); return c.scrollWidth > c.clientWidth + 1; });

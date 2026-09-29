@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/about.schema.json",
+  "title": "uxcli mockup notes",
+  "description": "The agent's words about the drawings of one screen — .uxcli/mockups/<state>/about.json: what the person on the screen is trying to do, and what each variant does differently. Shown beside the drawings; never a pick, never hashed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "question": { "type": "string", "minLength": 1, "description": "what the person on this screen is trying to do, as a sentence" },
+    "variants": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 },
+      "description": "variant → what this drawing does differently from the others"
+    }
+  }
+}

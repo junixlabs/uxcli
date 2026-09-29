@@ -37,6 +37,14 @@ screen's variants, labelled `reference`, and opens it large on click. It is neve
 carries no hooks, it cannot be picked, and its hash is not part of any pick. Draw the variant it
 inspires; the reference stays beside it so the person deciding sees where the drawing came from.
 
+## What you say about the drawings
+
+Write `.uxcli/mockups/<state>/about.json` beside the variants: `question` is what the person on
+this screen is trying to do, in one sentence, and `variants` says in one sentence each what that
+drawing does differently from the others. The page shows both above and under the drawings, so the
+person deciding reads what differs before they compare pixels. Describe the drawing; do not
+recommend one. It is not hashed and never a pick. Shape: `schemas/about.schema.json`.
+
 ## Shared tokens
 
 When the screens share a palette, put it once in `.uxcli/mockups/_shared/tokens.css` as custom
@@ -66,6 +74,11 @@ the hash. `parts` names what was taken from another variant into it. `by` names 
 the choice; without it the pick is refused. Shape: `schemas/pick.schema.json`; example:
 `examples/crm/.uxcli/mockups/`.
 
+A person may choose none. `revise.json` says so: `note` is what should change, `seen` names each
+drawing by its hash as they looked at it, and `by` names who asked. Redraw to the note; once a
+drawing's hash moves or a variant comes or goes, the request counts as answered and the screen is
+open again. You never write it on your own judgement either. Shape: `schemas/revise.schema.json`.
+
 Every variant gets a receipt on the card: the hooks the screen wants (its own signals and what
 leaves it) found or missing, whether the file reaches for anything over the network, whether
 it carries lorem ipsum, and, when the project shares tokens, which colours are off the palette. A
@@ -75,15 +88,15 @@ pick over a variant that fails its receipt is refused; an off-palette colour is 
 
 1. `uxcli context show <journey>`: the states the screen must hold and the hooks each needs.
 2. Draw each state's variants into `.uxcli/mockups/<state>/`.
-3. `uxcli mockups` — the page it prints shows every journey as a flow of the picked variants and
-   every screen's variants side by side: green is picked, amber is part of a pick, grey is not taken.
-   `▶ play` on a lane walks the picked frames as a prototype, hotspot to next frame; `▶ play journey`
-   chains the lanes. A variant opens large with its pins; `hooks` outlines the journey's hooks where
-   the browser found them; two variants ticked `compare` sit side by side; a journey tab filters the
-   page to what that journey names. Open it, or give its path to the person deciding.
-4. A person picks: ticking a variant on the page fills a bar with the `pick.json` to write, hash
+3. `uxcli mockups` — the page it prints is one decision per screen: what the person does there,
+   the variants side by side with what `about.json` says of each, your lens review behind a
+   disclosure, and `Choose A`, `Choose B`, `Neither, ask for a revision`, `Compare side by side`.
+   Each journey has a row of its screens with decided or open on each, and the flow of picked
+   screens behind a disclosure; `▶ Play the flow` walks it as a prototype. Receipts, hashes and rule
+   ids sit under technical details. Open it, or give its path to the person deciding.
+4. A person decides: a button fills a bar with the `pick.json` or `revise.json` to write, hashes
    included; they write it (or say so, and you write it with `note` naming them). Then build the
-   picked variant, and `uxcli run` measures the build.
+   picked variant, or redraw to the revision, and `uxcli run` measures the build.
 
 You draw the variants and you never write `pick.json` on your own judgement: a pick is a person's, or you write it on a person's say-so and `note` names who said so. You never draw a variant that drops a hook the journey names in order to make the screen simpler. You never build a screen that has variants and no pick.
 

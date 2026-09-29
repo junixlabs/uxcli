@@ -10,6 +10,14 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page is one decision per screen: what the person does there, the variants side by
+  side with what the agent says each does differently (`about.json`), the lens review behind a
+  disclosure, and Choose A / Choose B / Neither, ask for a revision / Compare side by side. A person
+  who chooses none writes `revise.json` (a note, the drawings' hashes, who asked); a redraw answers
+  it. Each journey shows its screens as a row of steps, decided or open, with the flow of picked
+  screens behind a disclosure; the sidebar counts what is decided; below 900px the sidebar becomes
+  a screen selector. One type family, receipts and rule ids under technical details. Schemas
+  `about` and `revise`; the page still writes nothing.
 - The mockups page speaks words, not file names: screens, variants, lanes, journeys and references
   are shown by name ("Projects empty", "Blank", "Add a source") with the id kept in the title
   attribute and in the pick bar; labels are sentence case in the text face, not lowercase monospace;
