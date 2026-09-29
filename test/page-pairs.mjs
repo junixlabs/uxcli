@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
-export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, compare shows the drawings of the screen side by side, choosing from the compare view fills the pick bar and writes nothing, neither fills revise.json with the hash of every drawing and next open screen moves on, one screen shows at a time, the sidebar goes to the screen it names, the picked drawing shows first and 1 and 2 flip it with the primary choice following, the flow of a journey is its own view, at 390 the sidebar gives way to a screen selector without sideways scroll, the hooks toggle outlines them, play journey chains the lanes, '
+export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks drawn only when asked, a reload comes back to the screen being looked at, compare shows the drawings of the screen side by side, choosing from the compare view fills the pick bar and writes nothing, neither fills revise.json with the hash of every drawing and next open screen moves on, one screen shows at a time, the sidebar goes to the screen it names, the picked drawing shows first and 1 and 2 flip it with the primary choice following, the flow of a journey is its own view, at 390 the sidebar gives way to a screen selector without sideways scroll, the hooks toggle outlines them, play journey chains the lanes, '
   + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
@@ -81,8 +81,8 @@ export async function pair() {
     must('the B button did not flip back', (await fl()).on === '1');
     // the viewer, compare, choosing, revising
     await page.click('#screen-agent\\.lead_detail .opt [data-view="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(100);
-    const v1 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, seen: img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200, hooks: el.querySelectorAll('.hk').length }; });
-    must(`a variant did not open in the viewer with its hooks (${JSON.stringify(v1)})`, v1.open && v1.n === '1 / 1' && v1.seen && v1.hooks >= 2);
+    const v1 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, seen: img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200, hooks: el.querySelectorAll('.hk').length, drawn: [...el.querySelectorAll('.hk')].filter(h => getComputedStyle(h).display !== 'none').length }; });
+    must(`a variant did not open in the viewer with its hooks (${JSON.stringify(v1)})`, v1.open && v1.n === '1 / 1' && v1.seen && v1.hooks >= 2 && v1.drawn === 0);
     await page.keyboard.press('Escape'); await page.waitForTimeout(50);
     await page.click('[data-compare="agent.lead_detail"]'); await page.waitForTimeout(150);
     const c2 = await page.evaluate(() => { const el = document.getElementById('proto'); return { open: !el.hidden, screens: el.querySelectorAll('.p-screen').length, n: el.querySelector('.p-n').textContent }; });
@@ -105,6 +105,9 @@ export async function pair() {
     const fv = await page.evaluate(() => ({ shown: [...document.querySelectorAll('.view')].filter(d => getComputedStyle(d).display !== 'none').map(d => d.getAttribute('data-screen')).join(' '), lanes: document.querySelectorAll('#screen-flow-authenticate .lane').length }));
     must(`the flow view did not show the journey's lanes alone (${JSON.stringify(fv)})`, fv.shown === 'flow-authenticate' && fv.lanes > 1);
     await page.click('.side [data-go="agent.workspace_ready"]'); await page.waitForTimeout(100);
+    await page.reload({ waitUntil: 'load' }); await page.waitForTimeout(200);
+    const rl = await shown();
+    must(`a reload did not come back to the screen being looked at (${rl})`, rl.length === 1 && rl[0] === 'agent.workspace_ready');
     await page.click('.side [data-toggle="hooks"]'); await page.waitForTimeout(100);
     must('the hooks toggle does not outline the hooks on the frames', await page.evaluate(() => [...document.querySelectorAll('.opt .hk')].some(h => getComputedStyle(h).display !== 'none')));
     must('a one-lane journey offers play twice', await page.evaluate(() => document.querySelectorAll('[data-play="handle-inbound-lead/open-and-call"]').length === 1));

@@ -118,19 +118,18 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
         const s = byId[id]; const acting = steps[k];
         const leave = acting && s ? s.leaves.find(l => l.journey === j.id && l.workflow === w.id && l.step === acting.id) : null; const hook = hookOf(leave?.target);
         const v = s?.pick?.pick || null; const shot = v ? shots[`${id}/${v}`] : null;
-        let hot = null;
-        if (acting) {
-          const r = v && hook ? rects[`${id}/${v}`]?.[hook]?.rect : null;
-          if (r) hot = r.y + r.h > vh ? { off: true, target: hook, scrolls: Math.max(1, rects[`${id}/${v}`][hook].scrollsNeeded || 1) } : { x: r.x, y: r.y, w: r.w, h: r.h };
-          else hot = { edge: true };
-        }
+        const hotOf = x => { if (!acting) return null; const r = x && hook ? rects[`${id}/${x}`]?.[hook]?.rect : null; return !r ? { edge: true } : r.y + r.h > vh ? { off: true, target: hook, scrolls: Math.max(1, rects[`${id}/${x}`][hook].scrollsNeeded || 1) } : { x: r.x, y: r.y, w: r.w, h: r.h }; };
+        const hot = hotOf(v);
+        // the prototype plays a screen nobody picked yet with its first drawing, and says so
+        const pv = v || s?.variants.find(c => shots[`${id}/${c}`]) || null;
         const missing = !s ? 'Not a screen any journey names' : !s.variants.length ? `No mockup yet\n.uxcli/mockups/${id}/<variant>.html` : `Not picked yet · ${s.variants.length} variant${s.variants.length === 1 ? '' : 's'}`;
         const note = acting && hook && v && !rects[`${id}/${v}`]?.[hook] ? `Hook ${hook} is not in ${v}.html` : null;
         const candidates = !v && s ? s.variants.map(c => ({ name: c, shot: shots[`${id}/${c}`] || null, view: shots[`${id}/${c}`] ? `view:${id}/${c}` : null })) : [];
-        return { shot, id, alt: `${human(id)} · ${v ? human(v) : 'not picked'}`, title: `${numbered.get(id)?.n || ''} ${human(id)}`.trim(), pill: v ? { text: human(v), tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [], candidates, view: v ? `view:${id}/${v}` : null };
+        return { shot, id, alt: `${human(id)} · ${v ? human(v) : 'not picked'}`, title: `${numbered.get(id)?.n || ''} ${human(id)}`.trim(), pill: v ? { text: human(v), tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [], candidates, view: v ? `view:${id}/${v}` : null,
+          play: { shot: pv ? shots[`${id}/${pv}`] : null, title: `${numbered.get(id)?.n || ''} ${human(id)}${pv && !v ? ` · ${human(pv)}, not picked yet` : ''}`.trim(), missing, hot: hotOf(pv), pins: pv ? pins[`${id}/${pv}`] || [] : [], hooks: pv ? hooksOf(`${id}/${pv}`) : [] } };
       });
       const links = steps.map(st => ({ label: human(st.id), text: st.action || '', sub: (st.interactions || []).filter(x => x.type === 'navigation' || x.type === 'api').map(x => x.type === 'navigation' ? x.to : x.request).join(' · ') || null }));
-      const play = `${j.id}/${w.id}`; const pf = frames.map(f => ({ shot: f.shot, title: f.title, missing: f.shot ? null : f.missing, hot: f.hot, pins: f.pins, hooks: f.hooks }));
+      const play = `${j.id}/${w.id}`; const pf = frames.map(f => ({ ...f.play, missing: f.play.shot ? null : f.play.missing }));
       proto[play] = { vw, vh, frames: pf, links }; lanes.push({ id: w.id, frames: pf, links, play });
       // one lane: the journey's play button is the lane's, so the lane carries none of its own
       return flowRow({ id: w.id, kind: w.kind, vw, vh, frames, links, play: wf.length > 1 ? play : null });
@@ -209,7 +208,7 @@ ${WIREFLOW_CSS}
 .side a[data-go] .n{color:var(--faint);font-variant-numeric:tabular-nums;width:24px;flex:none;font-size:13px}.side a[data-go] .nm{flex:1;min-width:0}
 .side a[data-go]:hover{background:var(--well)}.side a[data-go].on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:600}
 .side a.fl{color:var(--dim)}
-.dot{width:8px;height:8px;border-radius:50%;flex:none;border:1.5px solid var(--faint)}.dot.picked{background:var(--pass);border-color:var(--pass)}.dot.revise{background:var(--finding);border-color:var(--finding)}.dot.undrawn{border-style:dashed}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;border:1.5px solid var(--faint)}.dot.picked{background:var(--pass);border-color:var(--pass)}.dot.revise{background:var(--finding);border-color:var(--finding)}.dot.undrawn{border-style:dashed}.dot.chosen{border-color:var(--accent);background:var(--accent-soft)}
 .side .tools{margin-top:auto;display:grid;gap:10px;padding:16px 10px 0}
 .vpsw{display:inline-flex;flex-wrap:wrap;border-radius:8px;background:var(--well);padding:2px;justify-self:start}.vpsw button{font:600 12px var(--sans);padding:6px 9px;border:0;border-radius:6px;background:transparent;color:var(--dim);font-variant-numeric:tabular-nums}.vpsw button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 .tog{justify-self:start;font:600 12px/1 var(--sans);padding:8px 10px;border-radius:8px;border:0;background:var(--well);color:var(--ink)}.tog.on{background:var(--accent-soft);color:var(--accent)}
@@ -236,7 +235,7 @@ ${WIREFLOW_CSS}
 .seg .letter{background:var(--dim)}.seg button.on .letter,.opt.pick .letter{background:var(--ink)}
 .opt-name{font:600 15px var(--sans)}.opt-sum{flex-basis:100%;font:14px/1.5 var(--sans);color:var(--dim);max-width:80ch}
 .tag{font:600 11px/1 var(--sans);padding:4px 8px;border-radius:999px;align-self:center}.tag.pick{background:var(--pass-soft);color:var(--pass)}.tag.part{background:var(--well);color:var(--dim)}
-.opt .screens{max-width:1280px}
+.opt .screen{max-width:min(100%,calc(var(--sw) * 1px))}
 .decision.portrait .opt .screens{max-width:420px}
 .opt .screen{border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.12),0 18px 44px -22px rgba(0,0,0,.4)}
 .opt.pick .screen{box-shadow:0 0 0 2px var(--pass),0 18px 44px -22px rgba(0,0,0,.4)}
@@ -257,7 +256,7 @@ ${WIREFLOW_CSS}
 .d-bar button:focus-visible,.side a:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .pin{width:18px;height:18px;margin:-9px 0 0 -9px;font-size:10px;line-height:18px;opacity:.9}
 .flow{display:grid;gap:14px}
-:root{--fw:240px;--cw:110px}.lane.wide{--fw:clamp(220px,17vw,300px);--cw:100px}
+:root{--fw:260px;--cw:120px}.lane.wide{--fw:clamp(280px,24vw,420px);--cw:120px}
 .row{padding:16px 14px 12px}.lane{background:var(--canvas);border:0}.lane-h{background:transparent;border:0}
 .pickbar{left:auto;right:24px;bottom:84px;width:min(560px,calc(100% - 48px));grid-template-columns:minmax(0,1fr);gap:10px;border-radius:14px;border:0;box-shadow:0 20px 60px -16px rgba(0,0,0,.45),0 0 0 1px var(--line-soft)}
 .pickbar .pb-h{max-width:none}.pickbar .pb-act{display:flex;gap:8px;flex-wrap:wrap}.pickbar .pb-next{background:var(--surface)}
