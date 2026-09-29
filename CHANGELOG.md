@@ -10,6 +10,11 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page speaks words, not file names: screens, variants, lanes, journeys and references
+  are shown by name ("Projects empty", "Blank", "Add a source") with the id kept in the title
+  attribute and in the pick bar; labels are sentence case in the text face, not lowercase monospace;
+  a variant's receipt shows only when something is wrong, as a sentence; screen cards sit two to a
+  row with the references in a row under them, so the example page went from 4.6 screens tall to 3.8.
 - `uxcli init` on a project that is already set up now checks the skill too: a file this uxcli ships
   and the project lacks is listed and created by `--apply`, a file that differs is reported stale and
   never overwritten (delete it to take the new one). Before, the existing-project path printed the level

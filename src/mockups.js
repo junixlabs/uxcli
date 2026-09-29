@@ -10,7 +10,7 @@ import { observe } from './adapters/chrome/index.js';
 import { library, readReview } from './lens.js';
 import { reviewSummary, summaryLine } from './core/model/lens.js';
 import { parsePick, statusOf, screensOf, hookOf, receiptOf, receiptLine, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
-import { esc, flowRow, galleryHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
+import { esc, human, flowRow, galleryHtml, protoHtml, PROTO_JS, WIREFLOW_CSS } from './core/wireflow.js';
 
 const listVariants = dir => fs.existsSync(dir) ? fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, '')).sort() : [];
 // <state>/refs/*.png|jpg|webp: pictures someone made of the screen (a style frame, a sketch, a competitor's page). Shown beside the variants, never picked, never hashed.
@@ -118,7 +118,7 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
         const missing = !s ? 'not a screen any journey names' : !s.variants.length ? `no mockup yet\n.uxcli/mockups/${id}/<variant>.html` : `no pick yet · ${s.variants.length} variant${s.variants.length === 1 ? '' : 's'}`;
         const note = acting && hook && v && !rects[`${id}/${v}`]?.[hook] ? `hook ${hook} not in ${v}.html` : null;
         const candidates = !v && s ? s.variants.map(c => ({ name: c, shot: shots[`${id}/${c}`] || null, view: shots[`${id}/${c}`] ? `view:${id}/${c}` : null })) : [];
-        return { shot, alt: `${id} · ${v || 'no pick'}`, title: `${numbered.get(id)?.n || ''} ${id}`.trim(), pill: v ? { text: v, tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [], candidates, view: v ? `view:${id}/${v}` : null };
+        return { shot, id, alt: `${human(id)} · ${v ? human(v) : 'not picked'}`, title: `${numbered.get(id)?.n || ''} ${human(id)}`.trim(), pill: v ? { text: human(v), tone: 'ok' } : null, missing, hot, note, pins: v ? pins[`${id}/${v}`] || [] : [], hooks: v ? hooksOf(`${id}/${v}`) : [], candidates, view: v ? `view:${id}/${v}` : null };
       });
       const links = steps.map(st => ({ label: st.id, text: st.action || '', sub: (st.interactions || []).filter(x => x.type === 'navigation' || x.type === 'api').map(x => x.type === 'navigation' ? x.to : x.request).join(' · ') || null }));
       const play = `${j.id}/${w.id}`; const pf = frames.map(f => ({ shot: f.shot, title: f.title, missing: f.shot ? null : f.missing, hot: f.hot, pins: f.pins, hooks: f.hooks }));
@@ -131,11 +131,20 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
     const pickedN = named.filter(id => byId[id]?.pick).length;
     const cards = mine.map(id => card(byId[id]));
     return `<article class="journey" id="${esc(j.id)}" data-journeys="${esc(j.id)}">
-      <header class="j-h"><span class="j-n">${m.journeys.indexOf(j) + 1}</span><h2>${esc(j.id)}</h2><span class="goal">${esc(j.goal || '')}</span><span class="j-state ${pickedN === named.length && named.length ? 'done' : ''}">${pickedN}/${named.length} picked</span>${lanes.length > 1 ? `<button class="play" type="button" data-play="journey:${esc(j.id)}">▶ play all</button>` : ''}</header>
+      <header class="j-h"><span class="j-n">${m.journeys.indexOf(j) + 1}</span><h2 title="${esc(j.id)}">${esc(human(j.id))}</h2><span class="goal">${esc(j.goal || '')}</span><span class="j-state ${pickedN === named.length && named.length ? 'done' : ''}">${pickedN} of ${named.length} picked</span>${lanes.length > 1 ? `<button class="play" type="button" data-play="journey:${esc(j.id)}">▶ Play all</button>` : ''}</header>
       <div class="flow">${rows.join('')}</div>
       <div class="cards">${cards.join('')}</div>
     </article>`;
   });
+  // The receipt on the page says something only when something is wrong, and says it in words; the
+  // full line (hooks n/n · self-contained · palette) stays on the terminal card.
+  function pageReceipt(r) {
+    const said = [...(r.ok ? [] : r.problems)];
+    const t = r.tokens;
+    if (t && !t.linked.length) said.push(`Does not use the shared palette (${t.files.join(', ')} is not linked)`);
+    else if (t && t.off.length) said.push(`${t.off.length} colour${t.off.length > 1 ? 's' : ''} off the shared palette: ${t.off.slice(0, 4).join(', ')}`);
+    return said.length ? said.map(x => x[0].toUpperCase() + x.slice(1)).join('. ') : null;
+  }
   function card(s) {
     if (!s) return '';
     const meta = numbered.get(s.id) || {};
@@ -145,8 +154,8 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
         name: v, shot: shots[`${s.id}/${v}`], status: s.problems.length ? 'no-pick' : statusOf(v, s.pick), note: s.pick?.parts?.[v] || null,
         pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), view: shots[`${s.id}/${v}`] ? `view:${s.id}/${v}` : null, pickId: shots[`${s.id}/${v}`] ? `${s.id}/${v}` : null,
         screens: [{ vw, vh, shot: shots[`${s.id}/${v}`] }, ...(extra[`${s.id}/${v}`] || [])],
-        receipt: s.receipts?.[v] ? receiptLine(s.receipts[v]) : null,
-        reviews: (s.reviews?.[v] || []).map(r => r.value ? { lens: r.lens, line: summaryLine(reviewSummary(r.value)), breaks: reviewSummary(r.value).breaksList, by: `${r.value.by.type} ${r.value.by.ref}` } : { lens: r.lens, line: `refused: ${r.problems[0]}${r.problems.length > 1 ? ` (+${r.problems.length - 1})` : ''}`, breaks: [], refused: true }),
+        receipt: s.receipts?.[v] ? pageReceipt(s.receipts[v]) : null,
+        reviews: (s.reviews?.[v] || []).map(r => r.value ? { lens: r.lens, line: summaryLine(reviewSummary(r.value)), breaks: reviewSummary(r.value).breaksList, by: `by ${r.value.by.ref}${r.value.by.type === 'agent' ? ' (agent)' : ''}` } : { lens: r.lens, line: `refused: ${r.problems[0]}${r.problems.length > 1 ? ` (+${r.problems.length - 1})` : ''}`, breaks: [], refused: true }),
         sig: s.pick && s.pick.pick === v ? `${s.pick.by.type} ${s.pick.by.ref}${s.pick.when ? ' · ' + s.pick.when : ''} · ${s.pick.sha256.slice(0, 7)}` : null,
       })) : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `.uxcli/mockups/${s.id}/<variant>.html` }],
       refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${s.id} · reference · ${f}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),
@@ -171,16 +180,16 @@ a{color:var(--accent)}
 .side{position:sticky;top:0;height:100vh;background:var(--side);color:var(--side-ink);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
 .side .brand{font:800 20px/1 var(--sans);letter-spacing:-.02em;padding:6px 10px 18px;color:#fff}
 .side .proj{display:block;padding:10px 12px;border-radius:9px;background:var(--side-on);color:#fff;font:600 13px var(--sans);text-decoration:none;margin-bottom:10px;overflow-wrap:anywhere}
-.side .lab{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--side-dim);padding:8px 12px 4px}
+.side .lab{font:600 10px var(--sans);color:var(--side-dim);padding:8px 12px 4px}
 .side a[data-filter]{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--side-dim);text-decoration:none;font:500 13px var(--sans);cursor:pointer}
 .side a[data-filter].on{background:var(--side-on);color:#fff}
-.side a[data-filter] i{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font:700 10px var(--mono);background:rgba(255,255,255,.1);font-style:normal;flex:none}
-.side .foot{margin-top:auto;display:grid;gap:4px;padding:10px 12px;font:12px var(--mono);color:var(--side-dim)}.side .foot b{color:#fff;font-weight:600}
+.side a[data-filter] i{width:18px;height:18px;border-radius:50%;display:inline-grid;place-items:center;font:700 10px var(--sans);background:rgba(255,255,255,.1);font-style:normal;flex:none}
+.side .foot{margin-top:auto;display:grid;gap:4px;padding:10px 12px;font:12px var(--sans);color:var(--side-dim)}.side .foot b{color:#fff;font-weight:600}
 .main{min-width:0}
 .top{position:sticky;top:0;z-index:10;background:var(--bg);padding:14px clamp(16px,2vw,32px) 10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .top h1{margin:0;font:700 26px/1.1 var(--serif);letter-spacing:-.01em;flex:1;min-width:0}
 .top .tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tog{font:600 11px/1 var(--mono);letter-spacing:.04em;padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--dim);cursor:pointer}
+.tog{font:600 11px/1 var(--sans);padding:7px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--dim);cursor:pointer}
 .tog.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .keys{display:flex;gap:12px;font:12px var(--sans);color:var(--dim)}
 .keys i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--line)}
@@ -192,17 +201,17 @@ main{display:grid;gap:0;padding:6px clamp(16px,2vw,32px) 0}
 .j-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:inline-grid;place-items:center;font:700 13px var(--sans)}
 .j-h h2{margin:0;font:700 22px/1.1 var(--serif);letter-spacing:-.01em}
 .j-h .goal{font:13px var(--sans);color:var(--dim);flex:1;min-width:0}
-.j-state{font:600 11px var(--mono);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}.j-state.done{background:var(--pass-soft);color:var(--pass)}
+.j-state{font:600 11px var(--sans);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}.j-state.done{background:var(--pass-soft);color:var(--pass)}
 .flow{display:grid;gap:12px}
-.cards{display:grid;gap:26px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,540px),1fr));gap:40px 36px;align-items:start}
 .gallery{padding:0}
 .gallery.has-pick .g-n{background:var(--pass);color:#fff}
-footer{padding:28px clamp(16px,2vw,32px) 0;font:12px var(--mono);color:var(--dim)}
+footer{padding:28px clamp(16px,2vw,32px) 0;font:12px var(--sans);color:var(--dim)}
 ${WIREFLOW_CSS}
-:root{--fw:220px;--gw:380px;--cw:110px}.lane.wide{--fw:clamp(200px,15vw,280px);--cw:100px}
+:root{--fw:220px;--gw:220px;--cw:110px}.lane.wide{--fw:clamp(200px,15vw,280px);--cw:100px}
 .variants{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr))}
 .row{padding:16px 14px 12px}.lane{background:var(--canvas);border:0}
-.cap{gap:8px}.cap .state{font:600 12px var(--mono)}
+.cap{gap:8px}.cap .state{font:600 12px var(--sans)}
 </style>
 </head>
 <body>
@@ -210,18 +219,18 @@ ${WIREFLOW_CSS}
 <aside class="side">
   <div class="brand">uxcli</div>
   <a class="proj" href="#">${esc(name)}</a>
-  <span class="lab">journeys</span>
-  <a data-filter="" class="on"><i>∗</i>all</a>
-  ${m.journeys.map((j, k) => `<a data-filter="${esc(j.id)}" href="#${esc(j.id)}"><i>${k + 1}</i>${esc(j.id)}</a>`).join('')}
+  <span class="lab">Journeys</span>
+  <a data-filter="" class="on"><i>∗</i>All journeys</a>
+  ${m.journeys.map((j, k) => `<a data-filter="${esc(j.id)}" href="#${esc(j.id)}"><i>${k + 1}</i>${esc(human(j.id))}</a>`).join('')}
   <div class="foot"><span><b>${m.screens.length}</b> screens</span><span><b>${m.screens.filter(s => s.variants.length).length}</b> drawn</span><span><b>${picked}</b> picked</span></div>
 </aside>
 <div class="main">
 <header class="top">
   <h1>${esc(name)}</h1>
   <div class="tools">
-    <button type="button" class="tog" data-toggle="hooks">show hooks</button>
+    <button type="button" class="tog" data-toggle="hooks">Show hooks</button>
     <span class="vpsw">${sizes.map(([w, h], k) => `<button type="button" data-vp="${w}x${h}" class="${k === 0 ? 'on' : ''}">${w}×${h}</button>`).join('')}</span>
-    <span class="keys"><span class="k-pick"><i></i>picked</span><span class="k-part"><i></i>part</span><span><i></i>not taken</span></span>
+    <span class="keys"><span class="k-pick"><i></i>Picked</span><span class="k-part"><i></i>Part of a pick</span><span><i></i>Not taken</span></span>
   </div>
 </header>
 <main>

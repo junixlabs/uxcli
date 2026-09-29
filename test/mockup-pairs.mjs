@@ -11,7 +11,7 @@ import { read, text } from './example-data.mjs';
 
 export const OPERATOR = 'a pick without by{}, without sha256, over a drawing that changed, naming a variant not on disk, a part naming the pick itself, and an unknown key are refused; a drawing missing a wanted hook, reaching for a CDN or carrying lorem fails its receipt; '
   + 'a variant painting a colour no shared token carries is reported, one on the palette is not, and a token change changes the drawing\'s hash; the example picks are accepted; screens come in journey order and the leaving hook is the last ui interaction; '
-  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; a reference picture is shown beside the variants as a reference and never as a pick; a hook is outlined only where the browser found it, and a photographed variant opens in the viewer and can be compared; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none; a lens review is shown on its variant with what breaks, and a refused one says refused';
+  + 'a data-uxcli-note is pinned where its element is and listed under the frame, below the fold it pins to the bottom edge, and a further viewport is pictured beside the first; a lane with a play id carries the play button and the prototype script parses; a reference picture is shown beside the variants as a reference and never as a pick; a hook is outlined only where the browser found it, and a photographed variant opens in the viewer and can be compared; the gallery marks pick, part and not taken; the flow draws the picked variant and says no pick yet when there is none; a lens review is shown on its variant with what breaks, and a refused one says refused; screens, variants and lanes are shown by name, their ids kept in title attributes';
 
 export function pair() {
   const problems = []; let checks = 0;
@@ -67,22 +67,25 @@ export function pair() {
 
   // the page
   const g = galleryHtml({ id: 'x', title: 'agent.workspace_ready', vw: 390, vh: 844, variants: [{ name: 'a-list', shot: 'a.png', status: 'pick' }, { name: 'b-kanban', shot: 'b.png', status: 'part', note: 'the counters' }, { name: 'c', shot: 'c.png', status: 'not-taken' }] });
+  // a person reads words: the screen, the variant and the lane are named, the file ids stay in title attributes
+  const gname = galleryHtml({ id: 'screen-reader.projects_empty', title: 'reader.projects_empty', vw: 390, vh: 844, variants: [{ name: 'a-blank', shot: 'a.png', status: 'no-pick' }] });
+  must('a screen or variant id is printed as its visible name', />Projects empty<\/h3>/.test(gname) && />Blank<\/span>/.test(gname) && !/>reader\.projects_empty</.test(gname) && !/>a-blank</.test(gname) && /title="reader\.projects_empty"/.test(gname));
   // a lens review on a variant is shown as the reviewer's claim, with what breaks; a refused one says refused
   const grv = galleryHtml({ id: 'r', title: 't', vw: 390, vh: 844, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick', reviews: [{ lens: 'data', line: '8 of 40 hold · 19 break', by: 'agent claude', breaks: [{ id: 'craft.fewer-borders', where: 'card > well > shot', note: 'three boxes' }] }, { lens: 'shop', line: 'refused: 3 of 31 viewpoints unanswered', breaks: [], refused: true }] }] });
-  must('a review on a variant is not shown with its lens, its line and its breaks', /<details class="review"><summary><b>data lens<\/b> · 8 of 40 hold · 19 break · agent claude/.test(grv) && grv.includes('craft.fewer-borders') && grv.includes('card &gt; well &gt; shot'));
-  must('a refused review is not marked refused', /class="review refused"><summary><b>shop lens<\/b> · refused:/.test(grv));
+  must('a review on a variant is not shown with its lens, its line and its breaks', /<details class="review"><summary><b>Data lens<\/b> · 8 of 40 hold · 19 break · agent claude/.test(grv) && grv.includes('craft.fewer-borders') && grv.includes('card &gt; well &gt; shot'));
+  must('a refused review is not marked refused', /class="review refused"><summary><b>Shop lens<\/b> · refused:/.test(grv));
   const gp = galleryHtml({ id: 'y', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick', pins: [{ text: 'stays above the fold', x: 100, y: 200, w: 200, h: 50 }, { text: 'below', x: 0, y: 950, w: 10, h: 10 }], more: [{ vw: 390, vh: 844, shot: 'a@390x844.png' }] }] });
   must('a note is not pinned at its element or listed', /class="pin" style="left:13.89%;top:25.00%"/.test(gp) && /<li>stays above the fold<\/li>/.test(gp));
   must('a note below the fold is not pinned to the bottom edge', /class="pin off" style="left:0.35%;top:100.00%"/.test(gp));
   const gv = galleryHtml({ id: 'y2', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'pick', view: 'view:s/a', pickId: 's/a', sig: 'role product-owner · 2026-09-29 · abc1234', receipt: 'hooks 2/2 · self-contained', screens: [{ vw: 1440, vh: 900, shot: 'a.png' }, { vw: 390, vh: 844, shot: 'a@390x844.png' }] }] });
   must('a further viewport is not pictured as a switchable screen', /class="screen" data-vp="390x844" style="aspect-ratio:390\/844"><a href="a@390x844.png"/.test(gv) && /class="screen" data-vp="1440x900"/.test(gv));
   must('a picked variant does not carry its signature, receipt and a checked pick box', /class="sig">✓ role product-owner · 2026-09-29 · abc1234</.test(gv) && /class="receipt">hooks 2\/2 · self-contained</.test(gv) && /data-pick="s\/a" checked/.test(gv));
-  must('the gallery does not mark pick, part and not taken', /class="variant pick"/.test(g) && /class="variant part"/.test(g) && /not taken/.test(g) && /taken: the counters/.test(g));
+  must('the gallery does not mark pick, part and not taken', /class="variant pick"/.test(g) && /class="variant part"/.test(g) && /Not taken/.test(g) && /Taken: the counters/.test(g));
   const f = flowRow({ id: 'w', kind: 'happy', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's1', pill: { text: 'a-list', tone: 'ok' }, hot: { x: 10, y: 20, w: 100, h: 30 } }, { shot: null, title: 's2', missing: 'no pick yet · 2 variants', hot: null }], links: [{ label: 's1', text: 'tap' }] });
   must('the flow does not draw the hotspot from the rect', /class="hot" style="left:2.56%;top:2.37%;width:25.64%;height:3.55%"/.test(f));
   must('the flow does not say no pick yet for an unpicked screen', /no pick yet · 2 variants/.test(f));
   const fc = flowRow({ id: 'w', vw: 1440, vh: 900, frames: [{ shot: null, title: 's', missing: 'no pick yet · 2 variants', candidates: [{ name: 'a', shot: 'a.png', view: 'view:s/a' }, { name: 'b', shot: 'b.png' }] }], links: [] });
-  must('an unpicked screen with drawings is an empty box instead of its candidates', /class="cands n2"><a href="a.png" data-view="view:s\/a"><img src="a.png"/.test(fc) && /2 variants · pick one/.test(fc) && !/noshot/.test(fc) && /class="lane wide"/.test(fc));
+  must('an unpicked screen with drawings is an empty box instead of its candidates', /class="cands n2"><a href="a.png" data-view="view:s\/a"><img src="a.png"/.test(fc) && /2 variants, not picked/.test(fc) && !/noshot/.test(fc) && /class="lane wide"/.test(fc));
   must('a flow frame with a hotspot below the fold is not marked', /offhot/.test(flowRow({ id: 'w', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's', hot: { off: true, target: '[data-uxcli=call-action]', scrolls: 2 } }, { shot: 'b.png', title: 't', hot: null }], links: [{ label: 's1' }] })));
 
   // the prototype: a lane with play gets the button, the overlay and the script exist and parse
@@ -96,7 +99,7 @@ export function pair() {
   must('hooksHtml draws a hook the browser did not find', hooksHtml([{ sel: 'x', x: 0, y: 0, w: 0, h: 0 }], { vw: 10, vh: 10 }) === '');
   // a reference picture sits beside the variants, marked reference, and is never a pick
   const gr = galleryHtml({ id: 'r', title: 't', vw: 1440, vh: 900, variants: [{ name: 'a', shot: 'a.png', status: 'no-pick' }], refs: [{ name: 'chatgpt', src: 's/refs/chatgpt.png', view: 'ref:s/chatgpt.png' }] });
-  must('a reference is not drawn beside the variants as a reference', /class="ref"><a href="s\/refs\/chatgpt.png" data-view="ref:s\/chatgpt.png">/.test(gr) && /class="refs-h">reference</.test(gr) && !/data-cmp="ref:/.test(gr) && !/data-pick="ref/.test(gr));
+  must('a reference is not drawn beside the variants as a reference', /class="ref"><a href="s\/refs\/chatgpt.png" data-view="ref:s\/chatgpt.png">/.test(gr) && /class="refs-h">Reference</.test(gr) && !/data-cmp="ref:/.test(gr) && !/data-pick="ref/.test(gr));
   // the card names the refused pick and the screen with no pick
   const card = mockupsCard({ dir: '.', screens: [{ id: 'a', variants: ['x'], pick: null, problems: ['by{type, ref} missing'] }, { id: 'b', variants: ['y'], pick: null, problems: [] }, { id: 'c', variants: [], pick: null, problems: [] }] });
   must('the card does not say REFUSED for a bad pick', /REFUSED\s+a/.test(card) && /by\{type, ref\} missing/.test(card));
