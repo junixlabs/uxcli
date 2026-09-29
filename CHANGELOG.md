@@ -10,6 +10,11 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page with fewer borders: a journey is a numbered heading and whitespace with one
+  rule between journeys, a screen card is a number and a heading, the lanes sit on the canvas, and
+  only the variant — the thing a person picks — is a box, its photograph a shadow. Boxed nesting on
+  the page (an element's ancestors that draw a border, shadow or outline) fell from five deep to
+  four, measured in a browser rather than by eye.
 - The mockups page redrawn after three frames an image model made from an open brief
   (`docs/design/mockups-page/`): a dark sidebar that lists the journeys and filters by them; each
   journey a numbered section with its lanes and, under them, one numbered card per screen (1.1,

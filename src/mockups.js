@@ -176,22 +176,23 @@ a{color:var(--accent)}
 .keys{display:flex;gap:12px;font:12px var(--sans);color:var(--dim)}
 .keys i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--line)}
 .keys .k-pick i{background:var(--pass)}.keys .k-part i{background:var(--finding)}
-main{display:grid;gap:22px;padding:6px clamp(16px,2vw,32px) 0}
-.journey{display:grid;gap:14px;padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+main{display:grid;gap:0;padding:6px clamp(16px,2vw,32px) 0}
+.journey{display:grid;gap:16px;padding:8px 0 28px}
+.journey+.journey{border-top:1px solid var(--line-soft);padding-top:28px}
 .j-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .j-n{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:inline-grid;place-items:center;font:700 13px var(--sans)}
 .j-h h2{margin:0;font:700 22px/1.1 var(--serif);letter-spacing:-.01em}
 .j-h .goal{font:13px var(--sans);color:var(--dim);flex:1;min-width:0}
 .j-state{font:600 11px var(--mono);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}.j-state.done{background:var(--pass-soft);color:var(--pass)}
 .flow{display:grid;gap:12px}
-.cards{display:grid;gap:14px}
-.gallery{background:var(--canvas);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.gallery.has-pick{border-color:var(--pass)}
+.cards{display:grid;gap:26px}
+.gallery{padding:0}
+.gallery.has-pick .g-n{background:var(--pass);color:#fff}
 footer{padding:28px clamp(16px,2vw,32px) 0;font:12px var(--mono);color:var(--dim)}
 ${WIREFLOW_CSS}
 :root{--fw:220px;--gw:380px;--cw:110px}.lane.wide{--fw:clamp(200px,15vw,280px);--cw:100px}
 .variants{grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr))}
-.row{padding:16px 14px 12px}.lane{background:var(--surface)}
+.row{padding:16px 14px 12px}.lane{background:var(--canvas);border:0}
 .cap{gap:8px}.cap .state{font:600 12px var(--mono)}
 </style>
 </head>
