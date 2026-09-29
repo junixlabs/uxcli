@@ -88,12 +88,12 @@ pick over a variant that fails its receipt is refused; an off-palette colour is 
 
 1. `uxcli context show <journey>`: the states the screen must hold and the hooks each needs.
 2. Draw each state's variants into `.uxcli/mockups/<state>/`.
-3. `uxcli mockups` — the page it prints is one decision per screen: what the person does there,
-   the variants side by side with what `about.json` says of each, your lens review behind a
-   disclosure, and `Choose A`, `Choose B`, `Neither, ask for a revision`, `Compare side by side`.
-   Each journey has a row of its screens with decided or open on each, and the flow of picked
-   screens behind a disclosure; `▶ Play the flow` walks it as a prototype. Receipts, hashes and rule
-   ids sit under technical details. Open it, or give its path to the person deciding.
+3. `uxcli mockups` — the page it prints shows one screen at a time: what the person does there,
+   one drawing as large as the page allows with what `about.json` says of it, A and B flipped in
+   place (keys 1, 2) or side by side, and a bar with your lens review, `Neither, ask for a
+   revision` and a `Choose` per drawing. The sidebar lists every screen, decided or open, and each
+   journey's flow of picked screens, where `▶ Play the flow` walks it as a prototype. Receipts,
+   hashes and rule ids sit under technical details. Open it, or give its path to the person deciding.
 4. A person decides: a button fills a bar with the `pick.json` or `revise.json` to write, hashes
    included; they write it (or say so, and you write it with `note` naming them). Then build the
    picked variant, or redraw to the revision, and `uxcli run` measures the build.

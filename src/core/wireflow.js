@@ -94,17 +94,24 @@ function close(){el.hidden=true;document.body.classList.remove('playing');if(las
 function step(d){if(!cur||mode!=='play')return;var n=k+d;if(n<0||n>=cur.frames.length)return;k=n;show();}
 function compare(state){var ks=Object.keys(P).filter(function(x){return x.indexOf('view:'+state+'/')===0});if(ks.length<2)return;var a=P[ks[0]];
 open('compare',{vw:a.vw,vh:a.vh,frames:ks.map(function(x){return P[x].frames[0]}),links:[]});}
-function go(id,scroll){var b=document.getElementById('screen-'+id);if(!b)return;var j=b.closest('.journey');if(j){[].forEach.call(j.querySelectorAll('.decision'),function(x){x.classList.toggle('off',x!==b)});[].forEach.call(j.querySelectorAll('.rail [data-go]'),function(x){x.classList.toggle('on',x.getAttribute('data-go')===id)})}
-[].forEach.call(document.querySelectorAll('.side [data-go]'),function(x){x.classList.toggle('on',x.getAttribute('data-go')===id)});var sel=document.querySelector('select.jump');if(sel&&scroll)sel.value=id;if(scroll&&j)j.scrollIntoView({block:'start'});}
+function go(id,scroll){var b=document.getElementById('screen-'+id);if(!b)return;[].forEach.call(document.querySelectorAll('.view'),function(x){x.classList.toggle('off',x!==b)});
+[].forEach.call(document.querySelectorAll('[data-go]'),function(x){x.classList.toggle('on',x.getAttribute('data-go')===id)});var sel=document.querySelector('select.jump');if(sel&&scroll)sel.value=id;cur2=b;if(scroll){var st=b.querySelector('.stage');if(st)st.scrollTop=0;window.scrollTo(0,0)}}
+var cur2=null;
+function flip(k){var b=cur2;if(!b)return;var n=b.querySelectorAll('.opt').length;if(k<0||k>=n)return;
+[].forEach.call(b.querySelectorAll('.opt'),function(x){if(+x.getAttribute('data-k')===k)x.removeAttribute('data-off');else x.setAttribute('data-off','')});
+[].forEach.call(b.querySelectorAll('[data-flip]'),function(x){x.classList.toggle('on',+x.getAttribute('data-flip')===k)});
+[].forEach.call(b.querySelectorAll('.d-bar .review'),function(x){x.hidden=+x.getAttribute('data-of')!==k});
+[].forEach.call(b.querySelectorAll('.d-bar .choose'),function(x){x.classList.toggle('primary',+x.getAttribute('data-of')===k)});}
 function nextOpen(){var all=[].slice.call(document.querySelectorAll('.decision[data-state="open"]:not([data-chosen])'));var b=all[0];if(b)go(b.getAttribute('data-screen'),true);return !!b}
-[].forEach.call(document.querySelectorAll('.journey'),function(j){var b=j.querySelector('.decision[data-state="open"]')||j.querySelector('.decision');if(b)go(b.getAttribute('data-screen'),false)});
-var h0=(location.hash||'').replace(/^#screen-/,'');if(h0&&h0!==location.hash)go(h0,true);document.body.classList.add('js');
+var first=document.querySelector('.decision[data-state="open"]')||document.querySelector('.decision');var h0=(location.hash||'').replace(/^#screen-/,'');
+if(h0&&h0!==location.hash&&document.getElementById('screen-'+h0))go(h0,false);else if(first)go(first.getAttribute('data-screen'),false);document.body.classList.add('js');
 function filter(id){document.body.setAttribute('data-journey',id||'');[].forEach.call(document.querySelectorAll('[data-journeys]'),function(x){x.hidden=!!id&&x.getAttribute('data-journeys').split(' ').indexOf(id)<0});
 [].forEach.call(document.querySelectorAll('[data-filter]'),function(x){x.classList.toggle('on',(x.getAttribute('data-filter')||'')===(id||''))});}
 document.addEventListener('click',function(e){var b=e.target.closest('[data-play]');if(b){e.preventDefault();open('play',P[b.getAttribute('data-play')]);return}
 var v=e.target.closest('[data-view]');if(v){e.preventDefault();open('view',P[v.getAttribute('data-view')]);return}
 var f=e.target.closest('[data-filter]');if(f){filter(f.getAttribute('data-filter'));return}
 var g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.getAttribute('data-go'),true);return}
+var fl=e.target.closest('[data-flip]');if(fl){flip(+fl.getAttribute('data-flip'));return}
 var cm=e.target.closest('[data-compare]');if(cm){compare(cm.getAttribute('data-compare'));return}
 var rv=e.target.closest('[data-revise]');if(rv){reviseBar(rv.getAttribute('data-revise'));return}
 var t=e.target.closest('[data-toggle]');if(t){document.body.classList.toggle(t.getAttribute('data-toggle'));t.classList.toggle('on');return}
@@ -123,46 +130,42 @@ bar('.uxcli/mockups/'+state+'/pick.json',{schema_version:1,pick:variant,sha256:H
 function reviseBar(state){var H=window.UXCLI_HASHES||{},seen={};Object.keys(H).forEach(function(k){if(k.indexOf(state+'/')===0)seen[k.slice(state.length+1)]=H[k]});
 mark(state,document.querySelector('[data-revise="'+state+'"]'));
 bar('.uxcli/mockups/'+state+'/revise.json',{schema_version:1,note:'',seen:seen,by:{type:'role',ref:'product-owner'},when:new Date().toISOString().slice(0,10)},'Write in note what should change, save the file, then ask the agent to redraw. The page writes nothing.');}
-document.addEventListener('keydown',function(e){if(el.hidden)return;if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
+document.addEventListener('keydown',function(e){if(el.hidden){if(/^[1-9]$/.test(e.key)&&!/INPUT|TEXTAREA|SELECT/.test((e.target.tagName||'')))flip(+e.key-1);return}if(e.key==='Escape')close();else if(e.key==='ArrowRight'||e.key===' ')step(1);else if(e.key==='ArrowLeft')step(-1);else return;e.preventDefault();});})();`;
 
-// A decision: one screen, what the person does on it, its variants side by side with what each
-// does differently, the evidence behind a disclosure, and the three answers a person can give.
-// d: { id, state, n, title, action, question, status: 'picked'|'revise'|'open'|'undrawn', vw, vh,
-//      variants: [{ name, shot, screens, hooks, pins, view, pickId, status, summary, part, sig,
+// A decision: one screen, what the person does on it, one drawing at a time as large as the page
+// allows (A, B … flip in place), and a bar with the answers a person can give. The drawing being
+// looked at is the one its Choose button offers first.
+// d: { id, state, n, title, crumb, action, question, status: 'picked'|'revise'|'open'|'undrawn', vw, vh,
+//      variants: [{ name, shot, screens, hooks, pins, view, pickId, status, summary, part,
 //                   review: { lens, line, points: [{ id, text }], more, by, refused } }],
 //      refs: [{ name, src, view }], revise: { note, by } | null, tech: [{ label, lines: [text] }], problems: n }
 export const firstSentence = t => { t = String(t ?? '').trim(); const m = t.match(/^.*?[.!?](?=\s|$)/); return m ? m[0] : t; };
-const STATUS = { picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' };
+export const STATUS = { picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' };
 export function decisionHtml(d) {
   const letter = k => String.fromCharCode(65 + k);
   const drawn = d.variants.filter(v => v.shot);
   const picked = d.variants.find(v => v.status === 'pick');
+  const first = Math.max(0, picked ? d.variants.indexOf(picked) : 0);
   const screens = v => (v.screens?.length ? v.screens : [{ vw: d.vw, vh: d.vh, shot: v.shot }]).map((x, k) =>
-    `<div class="screen" data-vp="${x.vw}x${x.vh}" style="aspect-ratio:${x.vw}/${x.vh}">${x.shot ? `<a href="${esc(x.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(x.shot)}" alt="${esc(human(v.name))} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'No picture')}</div>`}${k === 0 ? hooksHtml(v.hooks, x) + pinsHtml(v.pins, x) : ''}</div>`).join('');
-  const review = r => !r ? '' : `<details class="review${r.refused ? ' refused' : ''}"><summary>Agent review, ${esc(human(r.lens))} lens: ${esc(r.line)}</summary>${r.points.length ? `<ul>${r.points.map(x => `<li title="${esc(x.id)}">${esc(x.text)}</li>`).join('')}</ul>` : ''}${r.more ? `<p class="more-n">${r.more} more in technical details</p>` : ''}${r.by ? `<p class="by">${esc(r.by)}</p>` : ''}</details>`;
-  const opts = d.variants.map((v, k) => `<figure class="opt ${v.status}">
+    `<div class="screen" data-vp="${x.vw}x${x.vh}" style="aspect-ratio:${x.vw}/${x.vh};--sw:${x.vw}">${x.shot ? `<a href="${esc(x.shot)}"${v.view ? ` data-view="${esc(v.view)}"` : ''}><img src="${esc(x.shot)}" alt="${esc(human(v.name))} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a>` : `<div class="noshot">${esc(v.missing || 'No picture')}</div>`}${k === 0 ? hooksHtml(v.hooks, x) + pinsHtml(v.pins, x) : ''}</div>`).join('');
+  const review = (r, k) => !r ? '' : `<details class="review${r.refused ? ' refused' : ''}" data-of="${k}"${k === first ? '' : ' hidden'}><summary>Agent review of ${letter(k)}, ${esc(human(r.lens))} lens: ${esc(r.line)}</summary><div class="pop">${r.points.length ? `<ul>${r.points.map(x => `<li title="${esc(x.id)}">${esc(x.text)}</li>`).join('')}</ul>` : ''}${r.more ? `<p class="more-n">${r.more} more in technical details</p>` : ''}${r.by ? `<p class="by">${esc(r.by)}</p>` : ''}</div></details>`;
+  const flips = d.variants.length > 1 ? `<div class="seg" role="group" aria-label="Drawing">${d.variants.map((v, k) => `<button type="button" data-flip="${k}" class="${k === first ? 'on' : ''}" title="Key ${k + 1}"><b class="letter">${letter(k)}</b>${esc(human(v.name))}</button>`).join('')}</div>` : '';
+  const opts = d.variants.map((v, k) => `<figure class="opt ${v.status}" data-k="${k}"${k === first ? '' : ' data-off'}>
+      <figcaption><b class="letter">${letter(k)}</b><span class="opt-name" title="${esc(v.name)}.html">${esc(human(v.name))}</span>${v.status === 'pick' ? '<span class="tag pick">Chosen</span>' : v.status === 'part' ? '<span class="tag part">Part taken</span>' : ''}${v.summary ? `<span class="opt-sum">${esc(sentence(v.summary))}</span>` : ''}${v.status === 'part' && v.part ? `<span class="opt-sum">Taken into the pick: ${esc(v.part)}</span>` : ''}</figcaption>
       <div class="screens">${screens(v)}</div>
-      <figcaption><span class="opt-h"><b class="letter">${letter(k)}</b><span class="opt-name" title="${esc(v.name)}.html">${esc(human(v.name))}</span>${v.status === 'pick' ? '<span class="tag pick">Chosen</span>' : v.status === 'part' ? '<span class="tag part">Part taken</span>' : ''}</span>
-      ${v.summary ? `<span class="opt-sum">${esc(sentence(v.summary))}</span>` : ''}
-      ${v.status === 'part' && v.part ? `<span class="opt-sum">Taken into the pick: ${esc(v.part)}</span>` : ''}</figcaption>
       ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(sentence(n.text))}</li>`).join('')}</ol>` : ''}
-      ${review(v.review)}
     </figure>`).join('');
-  const actions = drawn.length ? `<div class="d-act">
-      ${drawn.map(v => `<button type="button" class="choose${v.status === 'pick' ? ' on' : ''}" data-pickv="${esc(v.pickId)}">Choose ${letter(d.variants.indexOf(v))} · ${esc(human(v.name))}</button>`).join('')}
-      <button type="button" class="neither${d.status === 'revise' ? ' on' : ''}" data-revise="${esc(d.state)}">Neither, ask for a revision</button>
-      ${drawn.length > 1 ? `<button type="button" class="ghost" data-compare="${esc(d.state)}">Compare side by side</button>` : ''}
-    </div>` : '';
+  const chooses = drawn.map(v => { const k = d.variants.indexOf(v); return `<button type="button" class="choose${k === first ? ' primary' : ''}${v.status === 'pick' ? ' on' : ''}" data-pickv="${esc(v.pickId)}" data-of="${k}">Choose ${letter(k)} · ${esc(human(v.name))}</button>`; }).join('');
+  const bar = drawn.length ? `<div class="d-bar">${d.variants.map((v, k) => review(v.review, k)).join('') || '<span class="grow"></span>'}
+      <button type="button" class="neither${d.status === 'revise' ? ' on' : ''}" data-revise="${esc(d.state)}">Neither, ask for a revision</button>${chooses}</div>` : '';
   const tech = d.tech?.length ? `<details class="tech"><summary>Technical details${d.problems ? ` · <span class="warn">${d.problems} problem${d.problems > 1 ? 's' : ''}</span>` : ''}</summary>${d.tech.map(t => `<div class="tech-row"><b>${esc(t.label)}</b>${t.lines.map(l => `<span>${esc(l)}</span>`).join('')}</div>`).join('')}</details>` : '';
   const refs = d.refs?.length ? `<details class="refsbox"><summary>References (${d.refs.length})</summary><div class="refs">${d.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption title="${esc(r.name)}">${esc(human(r.name))}</figcaption></figure>`).join('')}</div></details>` : '';
   const ask = d.question ? sentence(d.question) : d.action ? `The person here: ${d.action}` : null;
-  return `<section class="decision ${d.status}${d.vw < d.vh ? ' portrait' : ''}" id="${esc(d.id)}" data-screen="${esc(d.state)}" data-state="${d.status}"${d.journeys ? ` data-journeys="${esc(d.journeys)}"` : ''}>
-    <header class="d-h">${d.n ? `<span class="d-n">${esc(d.n)}</span>` : ''}<h3 title="${esc(d.state)}">${esc(human(d.title))}</h3><span class="d-state ${d.status}">${esc(picked ? `Decided: ${human(picked.name)}` : STATUS[d.status])}</span></header>
-    ${ask ? `<p class="d-q">${esc(ask)}</p>` : ''}
-    ${d.revise ? `<p class="d-rev"><b>Revision asked${d.revise.by ? ` by ${esc(d.revise.by)}` : ''}:</b> ${esc(d.revise.note)}</p>` : ''}
-    <div class="opts n${Math.min(d.variants.length, 3)}">${opts}</div>
-    ${actions}
-    ${refs || tech ? `<div class="d-more">${refs}${tech}</div>` : ''}
+  return `<section class="view decision ${d.status}${d.vw < d.vh ? ' portrait' : ''}" id="${esc(d.id)}" data-screen="${esc(d.state)}" data-state="${d.status}"${d.journeys ? ` data-journeys="${esc(d.journeys)}"` : ''}>
+    <header class="d-h"><div class="d-t">${d.crumb ? `<span class="crumb">${esc(d.crumb)}</span>` : ''}<h2 title="${esc(d.state)}">${d.n ? `<span class="d-n">${esc(d.n)}</span>` : ''}${esc(human(d.title))}</h2>${ask ? `<p class="d-q">${esc(ask)}</p>` : ''}${d.revise ? `<p class="d-rev"><b>Revision asked${d.revise.by ? ` by ${esc(d.revise.by)}` : ''}:</b> ${esc(d.revise.note)}</p>` : ''}</div>
+      <div class="d-tools"><span class="d-state ${d.status}">${esc(picked ? `Decided: ${human(picked.name)}` : STATUS[d.status])}</span>${flips}${drawn.length > 1 ? `<button type="button" class="ghost" data-compare="${esc(d.state)}">Side by side</button>` : ''}</div></header>
+    <div class="stage">${opts}${refs || tech ? `<div class="d-more">${refs}${tech}</div>` : ''}</div>
+    ${bar}
   </section>`;
 }
 
@@ -272,45 +275,5 @@ body:not([data-vp]) .screens .screen:not(:first-child){display:none}
 .pin.off{border:2px dashed #fff;line-height:16px}
 
 .tog{cursor:pointer}
-.decision{display:grid;gap:16px;min-width:0}
-.js .decision.off{display:none}
-.d-h{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.d-n{font:600 13px var(--sans);color:var(--dim);font-variant-numeric:tabular-nums}
-.d-h h3{margin:0;font:650 20px/1.25 var(--sans);letter-spacing:-.01em;text-wrap:balance}
-.d-state{margin-left:auto;font:600 12px/1 var(--sans);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}
-.d-state.picked{background:var(--pass-soft);color:var(--pass)}.d-state.revise{background:var(--finding-soft);color:var(--finding)}
-.d-q{margin:-6px 0 0;font:15px/1.5 var(--sans);color:var(--ink);max-width:70ch}
-.d-rev{margin:0;font:14px/1.5 var(--sans);color:var(--ink);max-width:70ch}.d-rev b{color:var(--finding);font-weight:600}
-.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:28px;align-items:start}
-.opt{margin:0;display:grid;gap:10px;min-width:0}
-.decision.portrait .opts{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),340px));gap:36px}
-.opt .screen{box-shadow:0 0 0 1px var(--line-soft),0 10px 30px -18px rgba(0,0,0,.35)}
-.opt.pick .screen{box-shadow:0 0 0 2px var(--pass),0 10px 30px -18px rgba(0,0,0,.35)}
-.opt.not-taken .screens{opacity:.6}
-.opt figcaption{display:grid;gap:4px}
-.opt-h{display:flex;align-items:center;gap:8px}
-.letter{font:700 12px/1 var(--sans);width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;background:var(--ink);color:var(--bg);flex:none}
-.opt.pick .letter{background:var(--pass);color:#fff}
-.opt-name{font:600 15px/1.3 var(--sans)}
-.opt-sum{font:14px/1.5 var(--sans);color:var(--dim);max-width:62ch}
-.tag{font:600 11px/1 var(--sans);padding:4px 8px;border-radius:999px}.tag.pick{background:var(--pass-soft);color:var(--pass)}.tag.part{background:var(--well);color:var(--dim)}
-.notes{margin:0;padding:0 0 0 20px;font:13px/1.5 var(--sans);color:var(--ink);display:grid;gap:3px;max-width:62ch}
-.notes li::marker{font:700 11px var(--sans);color:var(--dim)}
-.review{font:13px/1.5 var(--sans);color:var(--ink)}
-.review summary{cursor:pointer;color:var(--dim);font-weight:500}
-.review.refused summary{color:var(--fail)}
-.review ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px;max-width:62ch}
-.review .more-n,.review .by{margin:6px 0 0;font:12px var(--sans);color:var(--dim)}
-.d-act{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-top:4px}
-.d-act button{font:600 14px/1 var(--sans);padding:11px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
-.d-act button:hover{border-color:var(--ink)}
-.d-act .choose.on{background:var(--pass);border-color:var(--pass);color:#fff}
-.d-act .neither.on{background:var(--finding-soft);border-color:var(--finding);color:var(--ink)}
-.d-act .ghost{border-color:transparent;background:transparent;color:var(--accent);margin-left:auto}
-.d-act button:focus-visible,.rail a:focus-visible,.side a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.d-more{display:grid;gap:8px;padding-top:8px;border-top:1px solid var(--line-soft)}
-.d-more summary{cursor:pointer;font:500 13px var(--sans);color:var(--dim)}
-.warn{color:var(--finding)}
-.tech-row{display:grid;gap:2px;padding:8px 0 0;font:12px/1.5 var(--sans);color:var(--dim);overflow-wrap:anywhere}.tech-row b{color:var(--ink);font-weight:600}
 .refs{display:flex;flex-wrap:wrap;gap:12px;padding-top:8px}.ref{width:160px}
 `;

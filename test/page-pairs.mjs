@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url';
 import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
-export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, compare shows the drawings of the screen side by side, choosing from the compare view fills the pick bar and writes nothing, neither fills revise.json with the hash of every drawing and next open screen moves on, a step in the rail shows its screen and hides the others, at 390 the sidebar gives way to a screen selector without sideways scroll, the journey filter hides what the journey does not name, the hooks toggle outlines them, play journey chains the lanes, '
+export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks, compare shows the drawings of the screen side by side, choosing from the compare view fills the pick bar and writes nothing, neither fills revise.json with the hash of every drawing and next open screen moves on, one screen shows at a time, the sidebar goes to the screen it names, the picked drawing shows first and 1 and 2 flip it with the primary choice following, the flow of a journey is its own view, at 390 the sidebar gives way to a screen selector without sideways scroll, the hooks toggle outlines them, play journey chains the lanes, '
   + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
@@ -56,7 +56,8 @@ export async function pair() {
     // the prototype on the mockups page: play opens the first picked frame, the hotspot leads to the next, arrows step, escape closes
     await page.setViewportSize({ width: 1440, height: 900 }); await page.goto(MOCK, { waitUntil: 'load' }); await page.waitForTimeout(300);
     const perr = []; page.on('pageerror', e => perr.push(String(e)));
-    await page.click('[data-play="handle-inbound-lead/open-and-call"]'); await page.waitForTimeout(100);
+    await page.click('.side [data-go="flow-handle-inbound-lead"]'); await page.waitForTimeout(100);
+    await page.click('#screen-flow-handle-inbound-lead [data-play="handle-inbound-lead/open-and-call"]'); await page.waitForTimeout(100);
     const p0 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, src: img.getAttribute('src'), seen: !!img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200 && !el.querySelector('.noshot'), hot: !el.querySelector('.hot').hidden || !el.querySelector('.p-off').hidden }; });
     must(`play did not open on the first picked frame (${JSON.stringify(p0)})`, p0.open && p0.n === '1 / 3' && /agent\.workspace_ready\/a-list\.png$/.test(p0.src || '') && p0.seen && p0.hot);
     await page.click('#proto .hot:not([hidden]), #proto .p-off:not([hidden])'); await page.waitForTimeout(100);
@@ -65,8 +66,21 @@ export async function pair() {
     must('the arrow keys did not step', (await page.textContent('#proto .p-n')) === '2 / 3');
     await page.keyboard.press('Escape'); await page.waitForTimeout(50);
     must('escape did not close the prototype', await page.evaluate(() => document.getElementById('proto').hidden));
-    // the viewer, compare, the filter and the hooks toggle
-    await page.click('[data-view="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(100);
+    // one screen at a time: the sidebar shows the screen it names; the picked drawing is shown first and 1, 2 flip it
+    const shown = () => page.evaluate(() => [...document.querySelectorAll('.view')].filter(d => getComputedStyle(d).display !== 'none').map(d => d.getAttribute('data-screen')));
+    await page.click('.side [data-go="agent.lead_detail"]'); await page.waitForTimeout(100);
+    const s1 = await shown();
+    must(`the sidebar did not show the one screen it names (${s1})`, s1.length === 1 && s1[0] === 'agent.lead_detail');
+    const fl = () => page.evaluate(() => { const b = document.getElementById('screen-agent.lead_detail'); const on = [...b.querySelectorAll('.opt')].filter(o => getComputedStyle(o).display !== 'none').map(o => o.getAttribute('data-k')); return { on: on.join(' '), primary: b.querySelector('.d-bar .choose.primary')?.getAttribute('data-pickv') }; });
+    const f0 = await fl();
+    must(`the picked drawing is not the one shown first (${JSON.stringify(f0)})`, f0.on === '1' && f0.primary === 'agent.lead_detail/b-call-first');
+    await page.keyboard.press('1'); await page.waitForTimeout(50);
+    const f1 = await fl();
+    must(`key 1 did not flip to drawing A and move the primary choice with it (${JSON.stringify(f1)})`, f1.on === '0' && f1.primary === 'agent.lead_detail/a-stacked');
+    await page.click('#screen-agent\\.lead_detail [data-flip="1"]'); await page.waitForTimeout(50);
+    must('the B button did not flip back', (await fl()).on === '1');
+    // the viewer, compare, choosing, revising
+    await page.click('#screen-agent\\.lead_detail .opt [data-view="view:agent.lead_detail/b-call-first"]'); await page.waitForTimeout(100);
     const v1 = await page.evaluate(() => { const el = document.getElementById('proto'); const img = el.querySelector('img'); return { open: !el.hidden, n: el.querySelector('.p-n').textContent, seen: img && img.naturalWidth > 0 && img.getBoundingClientRect().height > 200, hooks: el.querySelectorAll('.hk').length }; });
     must(`a variant did not open in the viewer with its hooks (${JSON.stringify(v1)})`, v1.open && v1.n === '1 / 1' && v1.seen && v1.hooks >= 2);
     await page.keyboard.press('Escape'); await page.waitForTimeout(50);
@@ -84,21 +98,18 @@ export async function pair() {
     must(`neither did not fill revise.json (${JSON.stringify(rb)})`, rb.path === '.uxcli/mockups/agent.lead_detail/revise.json' && rb.note === '' && rb.seen === 'a-stacked b-call-first' && rb.hex);
     must('the page wrote revise.json itself', !fs.existsSync(path.join(tmp, '.uxcli', 'mockups', 'agent.lead_detail', 'revise.json')));
     await page.click('#pickbar .pb-next'); await page.waitForTimeout(150);
-    const nx = await page.evaluate(() => { const on = [...document.querySelectorAll('.decision')].filter(d => getComputedStyle(d).display !== 'none' && d.closest('.journey').id === 'authenticate'); return on.map(d => d.getAttribute('data-screen')); });
+    const nx = await shown();
     must(`next open screen did not show the open screen (${nx})`, nx.length === 1 && nx[0] === 'anon.login_page');
-    // a step in the rail shows its screen and hides the others in the journey
-    await page.click('#authenticate .rail [data-go="agent.workspace_ready"]'); await page.waitForTimeout(100);
-    const tb = await page.evaluate(() => [...document.querySelectorAll('#authenticate .decision')].filter(d => getComputedStyle(d).display !== 'none').map(d => d.getAttribute('data-screen')));
-    must(`the rail did not show the one screen it names (${tb})`, tb.length === 1 && tb[0] === 'agent.workspace_ready');
-    await page.click('[data-filter="authenticate"]'); await page.waitForTimeout(100);
-    const flt = await page.evaluate(() => ({ lead: document.getElementById('handle-inbound-lead').hidden, auth: document.getElementById('authenticate').hidden, login: document.querySelector('[data-journeys="authenticate"]')?.hidden, detail: document.querySelector('[data-journeys="handle-inbound-lead"]')?.hidden }));
-    must(`the journey filter did not hide what the journey does not name (${JSON.stringify(flt)})`, flt.lead === true && flt.auth === false && flt.login === false && flt.detail === true);
-    await page.click('[data-filter=""]'); await page.waitForTimeout(100);
-    must('all did not bring the other journey back', await page.evaluate(() => !document.getElementById('handle-inbound-lead').hidden));
-    await page.click('.menu summary'); await page.click('[data-toggle="hooks"]'); await page.waitForTimeout(100);
+    // a journey's flow is its own view: its lanes, and play for the whole journey when it has more than one
+    await page.click('.side [data-go="flow-authenticate"]'); await page.waitForTimeout(100);
+    const fv = await page.evaluate(() => ({ shown: [...document.querySelectorAll('.view')].filter(d => getComputedStyle(d).display !== 'none').map(d => d.getAttribute('data-screen')).join(' '), lanes: document.querySelectorAll('#screen-flow-authenticate .lane').length }));
+    must(`the flow view did not show the journey's lanes alone (${JSON.stringify(fv)})`, fv.shown === 'flow-authenticate' && fv.lanes > 1);
+    await page.click('.side [data-go="agent.workspace_ready"]'); await page.waitForTimeout(100);
+    await page.click('.side [data-toggle="hooks"]'); await page.waitForTimeout(100);
     must('the hooks toggle does not outline the hooks on the frames', await page.evaluate(() => [...document.querySelectorAll('.opt .hk')].some(h => getComputedStyle(h).display !== 'none')));
     must('a one-lane journey offers play twice', await page.evaluate(() => document.querySelectorAll('[data-play="handle-inbound-lead/open-and-call"]').length === 1));
     must('play journey is offered for a journey with one lane', await page.evaluate(() => !document.querySelector('[data-play="journey:handle-inbound-lead"]')) && await page.evaluate(() => !!document.querySelector('[data-play="journey:authenticate"]')));
+    await page.click('.side [data-go="flow-authenticate"]'); await page.waitForTimeout(100);
     await page.click('[data-play="journey:authenticate"]'); await page.waitForTimeout(100);
     const pj = await page.evaluate(() => document.getElementById('proto').querySelector('.p-n').textContent);
     must(`play journey did not chain the lanes (${pj})`, /^1 \/ \d+$/.test(pj) && Number(pj.split('/ ')[1]) > 3);
