@@ -75,6 +75,8 @@ export function pair() {
   const f = flowRow({ id: 'w', kind: 'happy', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's1', pill: { text: 'a-list', tone: 'ok' }, hot: { x: 10, y: 20, w: 100, h: 30 } }, { shot: null, title: 's2', missing: 'no pick yet · 2 variants', hot: null }], links: [{ label: 's1', text: 'tap' }] });
   must('the flow does not draw the hotspot from the rect', /class="hot" style="left:2.56%;top:2.37%;width:25.64%;height:3.55%"/.test(f));
   must('the flow does not say no pick yet for an unpicked screen', /no pick yet · 2 variants/.test(f));
+  const fc = flowRow({ id: 'w', vw: 1440, vh: 900, frames: [{ shot: null, title: 's', missing: 'no pick yet · 2 variants', candidates: [{ name: 'a', shot: 'a.png', view: 'view:s/a' }, { name: 'b', shot: 'b.png' }] }], links: [] });
+  must('an unpicked screen with drawings is an empty box instead of its candidates', /class="cands n2"><a href="a.png" data-view="view:s\/a"><img src="a.png"/.test(fc) && /2 variants · pick one/.test(fc) && !/noshot/.test(fc) && /class="lane wide"/.test(fc));
   must('a flow frame with a hotspot below the fold is not marked', /offhot/.test(flowRow({ id: 'w', vw: 390, vh: 844, frames: [{ shot: 'a.png', title: 's', hot: { off: true, target: '[data-uxcli=call-action]', scrolls: 2 } }, { shot: 'b.png', title: 't', hot: null }], links: [{ label: 's1' }] })));
 
   // the prototype: a lane with play gets the button, the overlay and the script exist and parse

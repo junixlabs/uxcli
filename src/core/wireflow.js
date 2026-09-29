@@ -18,7 +18,10 @@ export const pct = (n, of) => `${(100 * n / of).toFixed(2)}%`;
 export function frameHtml(f, { vw, vh, hotspot = '', extraClass = '' }) {
   const badges = (f.badges || []).map(b => `<span class="badge">${esc(b)}</span>`).join('');
   const pill = f.pill ? `<span class="pill ${f.pill.tone || ''}">${esc(f.pill.text)}</span>` : '';
-  const pic = f.shot ? `<a href="${esc(f.shot)}"><img src="${esc(f.shot)}" alt="${esc(f.alt || f.title)}" loading="lazy" width="${vw}" height="${vh}"></a>` : `<div class="noshot">${esc(f.missing || 'no picture')}</div>`;
+  const cands = (f.candidates || []).filter(c => c.shot);
+  const pic = f.shot ? `<a href="${esc(f.shot)}"${f.view ? ` data-view="${esc(f.view)}"` : ''}><img src="${esc(f.shot)}" alt="${esc(f.alt || f.title)}" loading="lazy" width="${vw}" height="${vh}"></a>`
+    : cands.length ? `<div class="cands n${Math.min(cands.length, 4)}">${cands.map(c => `<a href="${esc(c.shot)}"${c.view ? ` data-view="${esc(c.view)}"` : ''}><img src="${esc(c.shot)}" alt="${esc(c.name)}" loading="lazy"><b>${esc(c.name)}</b></a>`).join('')}<span class="cands-h">${cands.length} variants · pick one</span></div>`
+    : `<div class="noshot">${esc(f.missing || 'no picture')}</div>`;
   return `<div class="frame ${f.loud ? 'loud' : ''} ${extraClass}">
     ${badges}
     <div class="screen" style="aspect-ratio:${vw}/${vh}">${pic}${hotspot}</div>
@@ -44,7 +47,7 @@ export function flowRow(row) {
   });
   const play = row.play ? `<button class="play" type="button" data-play="${esc(row.play)}">▶ play</button>` : '';
   const head = row.id ? `<div class="lane-h"><span class="lane-id">${esc(row.id)}</span>${row.kind ? `<span class="lane-kind ${esc(row.kind)}">${esc(row.kind)}</span>` : ''}<span class="lane-n">${row.frames.length} screens</span>${play}</div>` : '';
-  return `<section class="lane" style="--vw:${vw};--vh:${vh}">${head}<div class="row"><div class="cells">${cells.join('')}</div></div></section>`;
+  return `<section class="lane${vw > vh ? ' wide' : ''}" style="--vw:${vw};--vh:${vh}">${head}<div class="row"><div class="cells">${cells.join('')}</div></div></section>`;
 }
 
 // The prototype: the frames of one lane walked one at a time, the hotspot leading to the next
@@ -107,7 +110,7 @@ export function galleryHtml(g) {
       ${v.pins?.length ? `<ol class="notes">${v.pins.map(n => `<li>${esc(n.text)}</li>`).join('')}</ol>` : ''}
       ${v.more?.length ? `<div class="more">${v.more.map(x => `<figure class="mini"><div class="screen" style="aspect-ratio:${x.vw}/${x.vh}"><a href="${esc(x.shot)}"><img src="${esc(x.shot)}" alt="${esc(v.name)} at ${x.vw}×${x.vh}" loading="lazy" width="${x.vw}" height="${x.vh}"></a></div><figcaption>${x.vw}×${x.vh}</figcaption></figure>`).join('')}</div>` : ''}
     </div>`).join('')}</div>
-    ${g.refs?.length ? `<div class="refs"><span class="refs-h">references · pictures someone made, not drawings that can be picked</span><div class="refs-row">${g.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption><span class="state">${esc(r.name)}</span><span class="status not-taken">reference</span></figcaption></figure>`).join('')}</div></div>` : ''}
+    ${g.refs?.length ? `<div class="refs"><span class="refs-h">references · not pickable</span><div class="refs-row">${g.refs.map(r => `<figure class="ref"><a href="${esc(r.src)}" data-view="${esc(r.view)}"><img src="${esc(r.src)}" alt="${esc(r.name)}" loading="lazy"></a><figcaption><span class="state">${esc(r.name)}</span><span class="status not-taken">reference</span></figcaption></figure>`).join('')}</div></div>` : ''}
   </section>`;
 }
 
@@ -126,8 +129,9 @@ export const pinsHtml = (pins = [], { vw, vh }) => pins.map((n, i) => {
 
 export const WIREFLOW_CSS = `
 [hidden]{display:none!important}
-:root{--fw:300px;--gw:360px;--cw:150px;--r:10px}
-@media (min-width:1700px){:root{--fw:340px;--gw:420px}}
+:root{--fw:300px;--gw:440px;--cw:150px;--r:10px}
+@media (min-width:1700px){:root{--fw:340px;--gw:520px}}
+.lane.wide{--fw:clamp(320px,24vw,460px);--cw:120px}
 @media (max-width:760px){:root{--fw:220px;--gw:100%;--cw:110px}}
 .flow{display:grid;gap:22px}
 .lane{border:1px solid var(--line);border-radius:var(--r);background:var(--canvas);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:18px 18px;overflow:hidden}
@@ -144,6 +148,13 @@ export const WIREFLOW_CSS = `
 .screen a{display:block;height:100%}
 .screen img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:8px}
 .frame.loud .screen{outline:2px solid var(--fail);box-shadow:0 0 0 6px var(--fail-soft),0 8px 24px -12px rgba(0,0,0,.25)}
+.cands{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border-radius:8px;background:var(--well);overflow:hidden}
+.cands.n1{grid-template-columns:1fr}.cands.n3 a:first-child{grid-column:1/3}
+.cands a{position:relative;display:block;overflow:hidden;border-radius:5px;background:#fff;min-height:0}
+.cands img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.cands b{position:absolute;left:4px;bottom:4px;font:600 10px/1 var(--mono);padding:4px 6px;border-radius:4px;background:rgba(0,0,0,.7);color:#fff}
+.cands-h{position:absolute;right:6px;top:6px;font:700 10px/1 var(--mono);letter-spacing:.04em;padding:5px 8px;border-radius:999px;background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:none;white-space:nowrap}
+.lane.wide .cands{grid-template-columns:1fr;grid-auto-rows:minmax(0,1fr)}.lane.wide .cands.n3 a:first-child{grid-column:auto}.lane.wide .cands.n4{grid-template-columns:1fr 1fr}
 .noshot{display:grid;place-items:center;height:100%;padding:16px;text-align:center;color:var(--dim);font:13px/1.5 var(--mono);overflow-wrap:anywhere;white-space:pre-line;border-radius:8px;border:1.5px dashed var(--line);background:var(--surface)}
 .hot{position:absolute;border:2px solid var(--accent);border-radius:4px;background:color-mix(in srgb,var(--accent) 10%,transparent);box-shadow:0 0 0 3px rgba(255,255,255,.7);pointer-events:none}
 .hot::after{content:"";position:absolute;right:-6px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px #fff}
@@ -173,7 +184,7 @@ export const WIREFLOW_CSS = `
 .g-state{margin-left:auto;font:600 11px/1 var(--mono);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}
 .g-state.pick{background:var(--pass-soft);color:var(--pass)}
 .why{margin:0;padding:8px 14px;border-left:3px solid var(--line);font:13px/1.5 var(--sans);color:var(--dim);max-width:80ch}
-.variants{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--gw),1fr));gap:24px;align-items:start}
+.variants{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:18px;align-items:start}
 .variant{display:grid;gap:8px;min-width:0;padding:12px;border-radius:12px;background:var(--canvas);background-image:radial-gradient(var(--dot) 1px,transparent 1px);background-size:18px 18px;border:1px solid var(--line)}
 .variant.pick{border-color:var(--pass);box-shadow:0 0 0 3px var(--pass-soft)}
 .variant.part{border-color:var(--finding);box-shadow:0 0 0 3px var(--finding-soft)}
@@ -212,7 +223,7 @@ body.hooks .hk{display:block}
 .proto .hk{display:block}
 .refs{display:grid;gap:8px;padding-top:14px;border-top:1px dashed var(--line)}
 .refs-h{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
-.refs-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--gw),1fr));gap:24px;align-items:start}
+.refs-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--gw)),1fr));gap:18px;align-items:start}
 .ref{margin:0;display:grid;gap:8px;padding:12px;border-radius:12px;border:1px dashed var(--line);background:var(--surface)}
 .ref a{display:block;border-radius:8px;overflow:hidden;outline:1px solid var(--line-soft)}.ref img{display:block;width:100%;height:auto}
 .ref figcaption{display:flex;align-items:center;padding:2px 2px 0}
@@ -220,7 +231,9 @@ body.hooks .hk{display:block}
 .pin.off{border:2px dashed #fff;line-height:16px}
 .notes{margin:0;padding:0 2px 0 20px;font:12px/1.5 var(--sans);color:var(--ink);display:grid;gap:2px}
 .notes li::marker{font:700 11px var(--mono);color:var(--finding)}
-.more{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;padding-top:4px;border-top:1px dashed var(--line)}
-.mini{margin:0;display:grid;gap:4px;flex:1 1 0;min-width:60px;max-width:min(46%,180px)}
+.more{display:flex;gap:10px;align-items:flex-start;overflow-x:auto;padding-top:6px;border-top:1px dashed var(--line)}
+.mini{margin:0;display:grid;gap:4px;flex:none}
+.mini .screen{height:120px;width:auto}
+.mini img{width:auto;height:100%}
 .mini figcaption{font:11px var(--mono);color:var(--dim);text-align:center}
 `;

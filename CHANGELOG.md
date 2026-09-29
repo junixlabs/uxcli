@@ -10,6 +10,10 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — one shipped skill, and three ways in
 
+- The mockups page redrawn as a contact sheet: dark canvas, light frames. A screen nobody has
+  picked yet shows its candidates inside its frame in the flow (stacked for a landscape viewport,
+  side by side for a portrait one) instead of an empty box; the galleries fill the width; the
+  further viewports sit in a strip of one height; headings and footer are one word where one does.
 - Reference pictures: `.uxcli/mockups/<state>/refs/*.png` (a style frame, a sketch, a competitor's
   page) are shown under that screen's variants labelled `reference`, open large on click, and are
   never a variant — no hooks, no pick, no hash.
