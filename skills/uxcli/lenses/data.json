@@ -5,8 +5,12 @@
  "when": "Dashboards, analytics, monitoring and reports: numbers and charts read again and again.",
  "picks": [
   {
+   "viewpoint": "usability.visibility-of-system-status",
+   "note": "Same rule, also stated as: modern.feedback-is-local-and-optimistic (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); writing.success-names-what-happened (Shopify Polaris)."
+  },
+  {
    "viewpoint": "usability.feedback-within-a-second",
-   "note": "Same rule, also stated as: modern.interactions-feel-immediate-under-200ms (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn)."
+   "note": "Same rule, also stated as: modern.interactions-feel-immediate-under-200ms (Rauno Freiberg)."
   },
   {
    "viewpoint": "usability.signifiers-make-clickable-look-clickable",
@@ -17,11 +21,16 @@
    "note": "Same rule, also stated as: craft.tap-targets-and-control-height (Erik D. Kennedy); modern.hit-targets-meet-platform-minimums (Apple)."
   },
   {
-   "viewpoint": "usability.visibility-of-system-status",
-   "note": "Same rule, also stated as: modern.feedback-is-local-and-optimistic (Rauno Freiberg)."
+   "viewpoint": "usability.speak-the-users-language",
+   "note": "Same rule, also stated as: writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service))."
   },
   {
-   "viewpoint": "usability.speak-the-users-language"
+   "viewpoint": "usability.omit-needless-words",
+   "note": "Same rule, also stated as: writing.sentence-case-ui-text (IBM Carbon Design System)."
+  },
+  {
+   "viewpoint": "usability.clearly-marked-emergency-exit",
+   "note": "Same rule, also stated as: writing.destructive-actions-name-the-consequence (IBM Carbon Design System)."
   },
   {
    "viewpoint": "usability.no-false-affordances"
@@ -31,13 +40,7 @@
    "note": "Same rule, also stated as: craft.law-of-locality (Erik D. Kennedy)."
   },
   {
-   "viewpoint": "usability.omit-needless-words"
-  },
-  {
    "viewpoint": "usability.aesthetic-usability-effect-bias"
-  },
-  {
-   "viewpoint": "usability.clearly-marked-emergency-exit"
   },
   {
    "viewpoint": "usability.start-with-user-needs-design-with-data"
@@ -47,22 +50,26 @@
    "note": "Same rule, also stated as: canon.gestalt-common-region (Aurora Harley, NN/g); canon.rams-as-little-design-as-possible (Dieter Rams); modern.fewer-borders-more-space (Adam Wathan & Steve Schoger); canon.tufte-smallest-effective-difference (Edward Tufte); canon.tufte-one-plus-one-equals-three (Edward Tufte)."
   },
   {
+   "viewpoint": "craft.dont-overlook-empty-states-teach-by-example",
+   "note": "Same rule, also stated as: modern.every-state-is-designed (Vercel Labs); writing.empty-states-say-what-next (GitHub Primer); data-display.empty-data-explains-and-offers-next-step (IBM Carbon Design System); data-display.loading-skeleton-holds-the-layout (GitHub Primer); data-display.wrap-before-truncating-and-reveal-the-rest (GitHub Primer)."
+  },
+  {
    "viewpoint": "craft.spacing-and-sizing-system",
    "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov)."
+  },
+  {
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); color.chart-marks-readable-without-hue (GitHub Primer)."
   },
   {
    "viewpoint": "craft.separation-order-space-then-lines-then-boxes"
   },
   {
+   "viewpoint": "craft.align-with-readability-in-mind",
+   "note": "Same rule, also stated as: data-display.right-align-numbers-tabular-figures (GitHub Primer); data-display.text-left-headers-follow-their-column (W3C WAI (Eric Eggert, Shadi Abou-Zahra, eds.))."
+  },
+  {
    "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop"
-  },
-  {
-   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
-   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple)."
-  },
-  {
-   "viewpoint": "craft.dont-overlook-empty-states-teach-by-example",
-   "note": "Same rule, also stated as: modern.every-state-is-designed (Vercel Labs)."
   },
   {
    "viewpoint": "craft.hierarchy-is-everything-squint-test"
@@ -74,32 +81,22 @@
    "viewpoint": "craft.type-scale-few-font-sizes"
   },
   {
-   "viewpoint": "craft.align-with-readability-in-mind"
-  },
-  {
    "viewpoint": "canon.bringhurst-leading-is-a-rhythmic-unit",
    "note": "Same rule, also stated as: canon.mb-grid-fields-from-columns-and-lines (Josef Müller-Brockmann)."
-  },
-  {
-   "viewpoint": "canon.tufte-data-ink-ratio",
-   "note": "Same rule, also stated as: canon.tufte-forgo-chartjunk (Edward Tufte)."
   },
   {
    "viewpoint": "canon.tufte-small-multiples"
   },
   {
-   "viewpoint": "canon.tufte-graphical-integrity"
-  },
-  {
    "viewpoint": "modern.no-junk-drawer-menus-or-unlabeled-icons",
-   "note": "Same rule, also stated as: usability.dont-make-me-think (Steve Krug); craft.labels-are-a-last-resort (Steve Schoger (attendee notes by ynotdraw))."
-  },
-  {
-   "viewpoint": "modern.cards-are-a-choice-not-a-default"
+   "note": "Same rule, also stated as: writing.buttons-name-the-action (IBM Carbon Design System); usability.dont-make-me-think (Steve Krug); craft.labels-are-a-last-resort (Steve Schoger (attendee notes by ynotdraw))."
   },
   {
    "viewpoint": "modern.frequent-actions-do-not-animate",
    "note": "Same rule, also stated as: modern.delight-scales-with-rarity (Benji Taylor)."
+  },
+  {
+   "viewpoint": "modern.numbers-and-text-do-not-shift-layout"
   },
   {
    "viewpoint": "modern.motion-values-proportional-to-trigger"
@@ -123,9 +120,6 @@
    "viewpoint": "modern.focus-is-visible-and-unobscured"
   },
   {
-   "viewpoint": "modern.numbers-and-text-do-not-shift-layout"
-  },
-  {
    "viewpoint": "modern.shadows-share-one-light-source"
   },
   {
@@ -136,6 +130,52 @@
   },
   {
    "viewpoint": "modern.defaults-are-decisions-you-inherited"
+  },
+  {
+   "viewpoint": "color.from-tokens-not-hex",
+   "note": "Same rule, also stated as: color.mode-aware-tokens-in-every-theme (GitHub Primer)."
+  },
+  {
+   "viewpoint": "color.controls-and-graphics-3-to-1"
+  },
+  {
+   "viewpoint": "color.status-colours-keep-their-meaning"
+  },
+  {
+   "viewpoint": "color.one-action-colour-apart-from-status"
+  },
+  {
+   "viewpoint": "color.focus-ring-contrasts-with-its-surroundings"
+  },
+  {
+   "viewpoint": "writing.one-label-per-action"
+  },
+  {
+   "viewpoint": "writing.dates-numbers-units-for-the-reader"
+  },
+  {
+   "viewpoint": "data-display.no-tables-for-layout",
+   "note": "Same rule, also stated as: modern.cards-are-a-choice-not-a-default (Stan Kirilov)."
+  },
+  {
+   "viewpoint": "data-display.chart-axes-and-bars-are-labelled",
+   "note": "Same rule, also stated as: canon.tufte-data-ink-ratio (Edward Tufte); canon.tufte-forgo-chartjunk (Edward Tufte)."
+  },
+  {
+   "viewpoint": "data-display.chart-axes-are-honest",
+   "note": "Same rule, also stated as: color.chart-palette-fits-the-data (IBM Carbon Design System); canon.tufte-graphical-integrity (Edward Tufte)."
+  },
+  {
+   "viewpoint": "data-display.one-unit-and-format-per-column"
+  },
+  {
+   "viewpoint": "data-display.header-cells-are-th-with-scope"
+  },
+  {
+   "viewpoint": "data-display.long-tables-sort-and-say-so"
+  },
+  {
+   "viewpoint": "data-display.summary-list-for-key-value-facts"
   }
  ]
 }

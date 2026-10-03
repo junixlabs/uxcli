@@ -1,0 +1,528 @@
+{
+ "schema_version": 1,
+ "school": "forms",
+ "name": "Forms and input",
+ "research": "docs/lenses/forms.md",
+ "viewpoints": [
+  {
+   "id": "forms.error-summary-at-the-top",
+   "claim": "After a failed submit, show an error summary at the top of the page that takes focus and links each error to its field — even when there is only one error.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Error summary component",
+    "url": "https://design-system.service.gov.uk/components/error-summary/",
+    "quote": "Always show an error summary when there is a validation error, even if there’s only one."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A summary above the h1 (below any back link) with a heading such as 'There is a problem'",
+    "Move keyboard focus to the summary when it appears",
+    "One link per error, pointing at the field (or the first field of a date or radio group)",
+    "Word each summary item exactly like the message beside its field",
+    "Prefix the page <title> with 'Error: '"
+   ],
+   "forbids": [
+    "Errors shown only beside fields far down a long form, with focus left on the submit button",
+    "A summary of plain text with no links to the fields",
+    "A toast or banner that disappears before it can be read"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Submit the form empty. Within 1 s: is there an element above the first h1 of main that has focus (document.activeElement inside it), contains one link per invalid field, and does each link's href resolve to the id of an invalid input? Does document.title start with 'Error'?",
+    "mustFail": "A 6-field form submitted empty paints red text under each field and a red border; focus stays on Submit; no summary at top.",
+    "mustPass": "Same form shows 'There is a problem' above the h1 with 6 links to #field ids, focused, and the title reads 'Error: Apply for a licence'."
+   },
+   "exceptions": [
+    "Primer suggests the interactive summary only for 3 or more errors, and otherwise focusing the first invalid field",
+    "A one-field form (search, single email sign-up) can rely on the message beside the field"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Applies wherever a form can fail validation; marketing sign-ups are often one field, and content pages rarely carry forms.",
+   "agrees": [
+    "modern.feedback-is-local-and-optimistic"
+   ]
+  },
+  {
+   "id": "forms.error-message-says-how-to-fix",
+   "claim": "Each error message beside a field says what went wrong and how to fix it, in the words of the field's label — never 'Invalid' or 'This field is required'.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Error message component — Be clear and concise",
+    "url": "https://design-system.service.gov.uk/components/error-message/",
+    "quote": "Describe what has happened and tell them how to fix it. The message must be in plain English, use positive language and get to the point."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Specific messages per failure: empty, too long, wrong format, out of range",
+    "Reuse the label's words: 'Enter how many hours you work a week'",
+    "Instructions for empty fields ('Enter your first name'), descriptions for limits ('Name must be 35 characters or less')",
+    "Message placed after the label and hint, tied to the input with aria-describedby"
+   ],
+   "forbids": [
+    "'Invalid', 'valid', 'An error occurred', 'This field is required', 'Fill in the field'",
+    "Jargon or codes such as 'form post error' or 'error 0x0000000643'",
+    "'please', 'sorry', 'oops', 'you forgot'"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Submit with each field empty and then with a wrong-format value. For each error message: does its text avoid the generic list (invalid, required, error occurred, please, sorry, oops), share at least one content word with its field's label, and is it referenced by the input's aria-describedby?",
+    "mustFail": "Email field left empty shows 'This field is required'; filled with 'bob' shows 'Invalid input'.",
+    "mustPass": "Empty shows 'Enter your email address'; 'bob' shows 'Enter an email address in the correct format, like name@example.com'."
+   },
+   "exceptions": [
+    "Do not repeat an example in the message when the hint already shows one"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Any page that validates input; content pages rarely do.",
+   "agrees": [
+    "usability.speak-the-users-language"
+   ]
+  },
+  {
+   "id": "forms.validate-when-the-user-is-done",
+   "claim": "Do not show an error while the user is still typing; validate when they try to continue, and only add earlier validation where research shows it helps.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Recover from validation errors pattern — When to tell the user about validation errors",
+    "url": "https://design-system.service.gov.uk/patterns/validation/",
+    "quote": "Generally speaking, avoid validating the information in a field before the user has finished entering it. This sort of validation can cause problems - especially for users who type more slowly."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Validate on Continue or Submit",
+    "After a failed submit, update a field's error live once the user fixes it (Primer)",
+    "A character count is the accepted exception: warn as the limit is passed"
+   ],
+   "forbids": [
+    "An error that appears on the first keystroke of an email or phone field",
+    "Red borders on an untouched form at load",
+    "Browser-native HTML5 validation bubbles in place of designed messages"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Focus an email or formatted field and type one character, keeping focus. Wait 1 s. Does any error message, aria-invalid=true or error colour appear before blur or submit? Also load the form fresh: are any fields already marked invalid?",
+    "mustFail": "Typing 'a' into Email immediately shows 'Enter a valid email' in red under the field.",
+    "mustPass": "Typing 'a' shows nothing; pressing Continue with 'a' shows the field error and the summary."
+   },
+   "exceptions": [
+    "GOV.UK goes further and says not to validate on blur either; Baymard (usability.inline-validation-after-leaving-field) recommends blur validation for hard fields — the schools agree only on 'not while typing'",
+    "Primer allows validating as the user types once the field has already been flagged invalid, so the error clears as soon as it is fixed"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Applies to any form with validation; content pages rarely have one.",
+   "agrees": []
+  },
+  {
+   "id": "forms.keep-answers-after-an-error",
+   "claim": "When a submit fails, show the form again with every answer the user gave still in it — the failing ones and the passing ones.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Error message component — How it works",
+    "url": "https://design-system.service.gov.uk/components/error-message/",
+    "quote": "Do not clear any form fields when showing the Error message component. Keep both passing and failing answers."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Re-render server-side errors with submitted values filled in",
+    "Keep the failing value so the user can see and edit what went wrong",
+    "Pre-populate fields when the user goes back to change an answer"
+   ],
+   "forbids": [
+    "A reload that empties the form after a server error",
+    "Clearing the field that failed",
+    "Clearing password-adjacent fields such as name and email along with the password"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Fill every field with valid values except one, submit, and after the error page paints read each input's value: how many fields that had a value now read empty?",
+    "mustFail": "A 7-field registration form with a bad postcode returns with all 7 fields empty.",
+    "mustPass": "The same form returns with all 7 values in place, the postcode field marked in error."
+   },
+   "exceptions": [
+    "Password and card security code fields may be cleared for security, and the message should say so"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Wherever a submit can fail; content pages rarely have forms.",
+   "agrees": []
+  },
+  {
+   "id": "forms.mark-optional-fields-in-words",
+   "claim": "Ask mostly required questions and label the exceptions '(optional)' in words; do not mark required fields with asterisks.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Question pages pattern",
+    "url": "https://design-system.service.gov.uk/patterns/question-pages/",
+    "quote": "in most contexts, add ‘(optional)’ to the labels of optional fields"
+   },
+   "evidence": "author",
+   "prefers": [
+    "'(optional)' in the label, or in the legend for a radio or checkbox group",
+    "Removing optional questions before marking them",
+    "One convention across the whole service"
+   ],
+   "forbids": [
+    "Asterisks on mandatory fields",
+    "Optional fields that look identical to required ones",
+    "Required and optional marked differently on different pages"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Submit the form with every field empty and note which fields raise no error (optional). Count optional fields whose label or legend text lacks 'optional', and labels that contain '*'.",
+    "mustFail": "A 6-field form marks 4 required fields with a red '*' and leaves the 2 optional fields unmarked.",
+    "mustPass": "The same form has no asterisks; the 2 optional fields read 'Phone number (optional)' and 'Company (optional)'."
+   },
+   "exceptions": [
+    "USWDS instead marks required fields with a red asterisk explained by a note at the top, and also labels optional fields '(optional)' — the schools agree that optional fields say so in words",
+    "Primer and USWDS exempt one-field forms and login forms, where every field is plainly required"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Any multi-field form; content pages rarely have one.",
+   "agrees": [
+    "usability.fewer-checkout-fields"
+   ]
+  },
+  {
+   "id": "forms.autocomplete-names-the-purpose",
+   "claim": "Every field that asks about the user — name, email, phone, address, postcode, birthday, card — carries the matching autocomplete token so browsers and assistive tech can fill and label it.",
+   "source": {
+    "author": "W3C Web Accessibility Initiative",
+    "work": "Understanding WCAG 2.2 Success Criterion 1.3.5: Identify Input Purpose",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/identify-input-purpose.html",
+    "quote": "Use code to indicate the purpose of common inputs, where technology allows."
+   },
+   "evidence": "author",
+   "prefers": [
+    "autocomplete='name' or 'given-name' and 'family-name' on name fields",
+    "'email', 'tel', 'postal-code', 'street-address' or 'address-line1', 'bday-day'/'bday-month'/'bday-year'",
+    "'shipping' and 'billing' section tokens on order forms",
+    "autocomplete='off' on the form, if needed, while each field still declares its purpose"
+   ],
+   "forbids": [
+    "autocomplete='off' on personal fields with no purpose token",
+    "Personal-data fields with no autocomplete attribute",
+    "A token that does not match the field (email token on a phone field)"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For every input, select and textarea whose label matches name, email, phone, address, postcode/ZIP, city, country, date of birth, card number or expiry: count those whose autocomplete attribute is missing, 'off', or not a WCAG input-purpose token that matches the label.",
+    "mustFail": "A checkout with Name, Email, Phone, Address line 1, Postcode inputs, none with autocomplete.",
+    "mustPass": "The same inputs carry name, email, tel, address-line1, postal-code."
+   },
+   "exceptions": [
+    "Fields about someone other than the user (a recipient's email) are outside 1.3.5",
+    "A field that accepts either username or email may carry one token or none"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Sign-up, checkout and application forms ask about the user; data and workspace forms mostly ask about records, not the person.",
+   "agrees": []
+  },
+  {
+   "id": "forms.input-type-matches-the-answer",
+   "claim": "Give each field the type and on-screen keyboard its answer needs — email, tel, inputmode numeric or decimal for numbers — and avoid type=number.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Text input component — Numbers",
+    "url": "https://design-system.service.gov.uk/components/text-input/",
+    "quote": "With <input type=\"number\"> there’s a risk of users accidentally incrementing a number when they’re trying to do something else - for example, scroll up or down the page."
+   },
+   "evidence": "author",
+   "prefers": [
+    "type='email' with spellcheck=false for email addresses",
+    "type='tel' for phone numbers",
+    "type='text' with inputmode='numeric' for whole numbers and codes, inputmode='decimal' for amounts",
+    "spellcheck=false on names, references and codes"
+   ],
+   "forbids": [
+    "type='number' for card numbers, postcodes, account numbers or reference codes",
+    "type='text' with no inputmode on a field that only accepts digits",
+    "Blocking paste into any field"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each input, read type and inputmode against its label: count email fields not type=email, phone fields not type=tel, digit-only fields (amount, quantity, code, card, account) with neither inputmode numeric/decimal nor type=tel, and any type=number.",
+    "mustFail": "Phone is type=text, card number is type=number, quantity is type=text with no inputmode.",
+    "mustPass": "Phone is type=tel, card number is type=text inputmode=numeric autocomplete=cc-number, quantity is inputmode=numeric."
+   },
+   "exceptions": [
+    "type=number when research shows a need, such as a stepper on a small bounded quantity",
+    "Negative amounts: GOV.UK advises type=text without inputmode, since some keypads have no minus key"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Wherever users type structured values; content pages rarely ask.",
+   "agrees": [
+    "modern.mobile-inputs-do-not-zoom-or-trap"
+   ]
+  },
+  {
+   "id": "forms.memorable-dates-as-three-fields",
+   "claim": "Ask for a date the user already knows (birth, issue date) as separate day, month and year fields in a fieldset; keep calendar pickers for choosing near dates, and never as the only way in.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Date input component",
+    "url": "https://design-system.service.gov.uk/components/date-input/",
+    "quote": "Use the date input component when you’re asking users for a date they’ll already know, or can look up without using a calendar."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Three labelled inputs — Day, Month, Year — inside a fieldset whose legend is the question",
+    "A hint example with day ≥ 13 and month ≤ 9, e.g. '27 3 2007'",
+    "Accept month names ('jan', 'January')",
+    "bday-day, bday-month, bday-year autocomplete for date of birth"
+   ],
+   "forbids": [
+    "A calendar popup as the only way to enter a date of birth",
+    "Three dropdowns for day, month and year",
+    "Auto-advancing focus from day to month to year",
+    "A single free-text date field with no stated format"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Find each date question. For a past or memorable date: is it three text inputs inside one fieldset with a legend, each with a visible label? Type two digits into Day: does focus stay in Day? Does a text path exist when a calendar control is present?",
+    "mustFail": "Date of birth is a single input that opens a JS calendar starting on today's month; typing is blocked.",
+    "mustPass": "Date of birth is Day/Month/Year inputs in a fieldset legend 'What is your date of birth?', hint 'For example, 27 3 2007', focus does not jump."
+   },
+   "exceptions": [
+    "Dates copied from a document or card match that document's format (MM/YY for card expiry)",
+    "Booking a date in the near future, or where the weekday matters, suits a calendar — with a text input as well",
+    "Approximate dates ('December 2017') may drop the day field",
+    "The ban on three dropdowns comes from craft.anything-but-dropdowns, not from this source."
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Memorable dates are asked in applications and registrations; data filters and bookings are near-date picks that suit a calendar.",
+   "agrees": [
+    "craft.anything-but-dropdowns"
+   ]
+  },
+  {
+   "id": "forms.ask-only-what-you-need",
+   "claim": "Every question on the form has a named use; drop the ones nobody can justify, and never ask for the same thing twice in one journey.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Question pages pattern",
+    "url": "https://design-system.service.gov.uk/patterns/question-pages/",
+    "quote": "You should make sure you know why you’re asking every question and only ask users for information you really need."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A question protocol: for each field, who uses the answer and what for",
+    "Reuse an earlier answer by pre-filling it rather than asking again",
+    "Let 'I do not know' be an answer where it is a valid one",
+    "Say why a sensitive question is asked, in its hint"
+   ],
+   "forbids": [
+    "'Nice to have' fields such as title, gender or 'how did you hear about us' with no stated use",
+    "Asking for an email or address a second time in the same journey",
+    "Confirm-email fields that make the user type the address twice, instead of playing it back for checking"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "List every field on the form. For each, can the team name who reads the answer and what decision it changes? How many fields have no answer, and how many repeat information given earlier in the journey?"
+   },
+   "exceptions": [
+    "Legal or regulatory questions whose use is mandated, which should still say why in a hint"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Sign-up, checkout and application forms all pay for each extra field; content pages rarely ask anything.",
+   "agrees": [
+    "usability.fewer-checkout-fields",
+    "usability.minimalist-no-competing-information"
+   ]
+  },
+  {
+   "id": "forms.group-related-inputs-in-a-fieldset",
+   "claim": "Wrap each set of inputs that answer one question — radios, checkboxes, a date, an address — in a fieldset whose first child is a legend naming the question.",
+   "source": {
+    "author": "U.S. Web Design System (USWDS)",
+    "work": "Form component — Accessibility guidance",
+    "url": "https://designsystem.digital.gov/components/form/",
+    "quote": "Group each set of thematically related controls in a fieldset element. Use the legend element to offer a label within each one."
+   },
+   "evidence": "author",
+   "prefers": [
+    "fieldset + legend for every radio group and checkbox group",
+    "fieldset + legend for date (day/month/year) and multi-line address",
+    "The legend as the page h1 when the page asks only that question",
+    "'(optional)' in the legend when the whole group is optional"
+   ],
+   "forbids": [
+    "A radio group whose question is a <p> or <div> above the radios",
+    "Radio and checkbox groups with no group name for assistive tech",
+    "A fieldset with no legend or an empty one"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count radio groups (same name), checkbox groups, and day/month/year triples. How many are not inside a fieldset whose first element child is a non-empty legend (or a role=group / radiogroup with aria-labelledby pointing at visible text)?",
+    "mustFail": "'How would you like to be contacted?' is a bold <p>; three radios follow with no fieldset.",
+    "mustPass": "The three radios sit in <fieldset><legend>How would you like to be contacted?</legend>…</fieldset>."
+   },
+   "exceptions": [
+    "A single checkbox (I agree) needs no fieldset",
+    "Native fieldset/legend can be replaced by role=group with aria-labelledby where styling requires it"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Any form with choice groups or composite answers; content pages rarely have one.",
+   "agrees": [
+    "canon.gestalt-common-region"
+   ]
+  },
+  {
+   "id": "forms.hint-text-is-short-and-linked",
+   "claim": "Hint text sits between the label and the input, is one short sentence with no links, and is tied to the input with aria-describedby; longer explanation goes in the page body.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Text input component — Hint text",
+    "url": "https://design-system.service.gov.uk/components/text-input/",
+    "quote": "Keep hint text to a single short sentence, without any full stops."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Hint placed after the label and before the input",
+    "The input's aria-describedby lists the hint's id (and the error's, when shown)",
+    "Hints that say where to find the answer or how it will be used",
+    "A statement heading plus body text when a question needs a long explanation"
+   ],
+   "forbids": [
+    "Links inside hint text",
+    "Multi-sentence paragraphs as hints",
+    "Hints placed below the input where they are read after typing",
+    "Hints in a tooltip behind an icon"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For every element used as a hint (referenced by an input's aria-describedby, or styled as hint between label and input): count hints containing an <a>, hints longer than one sentence or about 120 characters, hints rendered below their input, and visible hints not referenced by their input's aria-describedby.",
+    "mustFail": "'National Insurance number' input has, below it, a 3-sentence grey paragraph with a link 'Find your number', not referenced by aria-describedby.",
+    "mustPass": "Between label and input: 'It’s on your National Insurance card, benefit letter, payslip or P60' with id referenced by the input's aria-describedby."
+   },
+   "exceptions": [
+    "A format example ('For example, QQ 12 34 56 C') may follow the sentence",
+    "\"About 120 characters\" in \"look at\" is uxcli's reading of \"a single short sentence\", not a number the source gives."
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Wherever fields need help; content pages rarely have forms.",
+   "agrees": [
+    "usability.help-in-context",
+    "usability.placeholders-are-not-labels"
+   ]
+  },
+  {
+   "id": "forms.do-not-disable-the-submit-button",
+   "claim": "Keep the submit button enabled while the form is incomplete; let a press show what is missing instead of greying the button out.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Forms UI pattern — Validation",
+    "url": "https://primer.style/product/ui-patterns/forms/overview/",
+    "quote": "Disabled buttons are discouraged, as they don't clearly communicate what actions a user should take to complete a form."
+   },
+   "evidence": "author",
+   "prefers": [
+    "An always-enabled submit that runs validation and shows the error summary",
+    "aria-disabled with an explanation where a control truly must be unavailable",
+    "Ignoring a second click while a submit is in flight, with a visible busy state"
+   ],
+   "forbids": [
+    "A grey, unfocusable submit until every field validates",
+    "A disabled button with no text saying why",
+    "Disabled text inputs used as read-only display"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Load the form untouched. Is the primary submit button disabled (disabled attribute, aria-disabled=true, or pointer-events:none)? If enabled, does pressing it produce visible field errors within 1 s?",
+    "mustFail": "'Create account' is disabled and grey until all 5 fields are valid; clicking it does nothing.",
+    "mustPass": "'Create account' is enabled; pressing it on an empty form shows the error summary and 5 field messages."
+   },
+   "exceptions": [
+    "Briefly blocking a second submit while the first is processing (USWDS, GOV.UK prevent-double-click)",
+    "GOV.UK: only when research shows a disabled button makes the interface easier to understand"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Any form with a submit; content pages rarely have one.",
+   "agrees": [
+    "usability.visibility-of-system-status"
+   ]
+  }
+ ]
+}

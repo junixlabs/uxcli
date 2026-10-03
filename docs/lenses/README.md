@@ -167,3 +167,27 @@ than the drawing, and not say `holds` where a probe the viewpoint names counted 
 Deviation from recommendation B: lenses are on by default (the owner's pick) rather than adopted. The
 VISION rule still holds in the part that matters: a lens never produces a verdict; a review is shown
 as the reviewer's claim, and only a probe with its own pair (`page.nesting`) measures anything.
+
+## Topic pools — 2026-10-03
+
+The four schools are designers. The four topic pools are what a team reaches for when the question is
+narrower than a school: which colour, which words, how to lay out a table, how to ask a question. Each
+was researched by one agent with the same rule as the schools — every quote fetched in the session and
+matched verbatim — from the source repositories of public design systems and the W3C, because their
+websites were not reachable from the research sandbox. Each note says which raw file a quote was checked
+against and that the public URL was derived from the repository's routing.
+
+| pool | file | viewpoints | sources |
+|---|---|---|---|
+| colour | [`color.md`](color.md) | 10 | W3C Understanding 1.4.1 and 1.4.11, GOV.UK, USWDS, Carbon, Primer, Polaris |
+| writing and microcopy | [`writing.md`](writing.md) | 10 | GOV.UK, Carbon, Primer, Polaris, Mailchimp |
+| data display | [`data-display.md`](data-display.md) | 12 | Primer, GOV.UK, USWDS, Carbon, Polaris, W3C WAI tables tutorial |
+| forms and input | [`forms.md`](forms.md) | 12 | GOV.UK, USWDS, Primer, W3C Understanding 1.3.5 |
+
+Where sources disagree the pool records both: GOV.UK validates on submit while
+`usability.inline-validation-after-leaving-field` validates on blur, and the forms check tests only what
+all agree on (not while typing); GOV.UK forbids asterisks while USWDS uses them, and the check tests only
+"(optional)" in words; Primer colours its primary button with its success green, recorded as an exception
+to `color.one-action-colour-apart-from-status`. Numbers a source does not give (a reading grade, a
+120-character hint, a six-word empty state) are labelled in the viewpoint's exceptions as uxcli's starting
+point. `build-lenses.mjs` folds the pools into the six lenses the same way as the schools.

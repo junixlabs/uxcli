@@ -2,7 +2,7 @@
 
 Checkout, sign-up, booking, onboarding and multi-step forms: one task, completed once, correctly.
 
-44 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
+61 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
 
 ## 1. `usability.fitts-target-size-and-distance`
 
@@ -16,16 +16,17 @@ Make targets big, space them apart, and put them where the pointer already is; t
 - **Unless:** Infinite targets along screen edges for mouse — size matters less at an edge; Primary CTAs, moving users, children and the elderly need larger than the minimum
 - **Also stated as:** usability.hicks-fewer-choices-when-time-matters (Jon Yablonski (Laws of UX)); usability.peak-end-finish-well (Jon Yablonski (Laws of UX)); usability.von-restorff-one-emphasis (GOV.UK Design System); craft.growth-design-psychology-principles (Growth.Design (Dan Benoni, Louis-Xavier Lavallée)); modern.no-deceptive-patterns (Harry Brignull).
 
-## 2. `usability.no-false-affordances`
+## 2. `usability.speak-the-users-language`
 
-Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
+Write in the words the actor already uses; no internal jargon, error codes or unexplained abbreviations.
 
-- **Source:** Hoa Loranger, NN/g, *Beyond Blue Links: Making Clickable Elements Recognizable (2015)* — https://www.nngroup.com/articles/clickable-elements/
-- **In their words:** "Avoid making non-clickable items (like headings) resemble buttons."
-- **Do:** Reserve link colour and underline for links; Reserve button shape and fill for buttons
-- **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
-- **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
-- **Also stated as:** canon.rams-honest (Dieter Rams).
+- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #2* — https://www.nngroup.com/articles/ten-usability-heuristics/
+- **In their words:** "The design should speak the users' language. Use words, phrases, and concepts familiar to the user, rather than internal jargon."
+- **Do:** Use words the user understands without looking them up; Spell acronyms out in full on each page; Write 'for example', not 'eg' or 'ie'
+- **Don't:** Show bare error codes; Expose internal entity names; Use unexplained abbreviations
+- **Look at:** Flag bare error codes (e.g. ERR-422, Error 0x…), all-caps acronyms not defined on the page, and Latin abbreviations; whether a term is jargon for this actor needs the journey's actor.
+- **Unless:** Expert-only tools where the domain term is the users' language — match the user, do not simplify per se
+- **Also stated as:** writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen).
 
 ## 3. `usability.inline-validation-after-leaving-field`
 
@@ -37,42 +38,43 @@ Validate a hard field after the user leaves it, never on focus or while typing, 
 - **Don't:** Validate before and while typing; Show an error on focus of an empty field; Validate only on submit
 - **Look at:** Drive a field: focus shows no error; typing an invalid value shows none (unless length threshold reached); blur shows an error adjacent via aria-describedby; typing a fix clears it without blur.
 - **Unless:** Simple fields need none; premature validation was worse than none (Wroblewski)
-- **Also stated as:** usability.visibility-of-system-status (Jakob Nielsen); modern.feedback-is-local-and-optimistic (Rauno Freiberg).
+- **Also stated as:** usability.visibility-of-system-status (Jakob Nielsen); modern.feedback-is-local-and-optimistic (Rauno Freiberg); forms.error-summary-at-the-top (GOV.UK Design System).
 
-## 4. `usability.feedback-within-a-second`
+## 4. `usability.postel-tolerant-input`
 
-Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
+Accept every reasonable form of an input — spaces, dashes, case, whitespace — and normalise it, instead of rejecting it.
 
-- **Source:** Jakob Nielsen, *Response Times: The 3 Important Limits (1993)* — https://www.nngroup.com/articles/response-times-3-important-limits/ (study)
-- **In their words:** "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
-- **Do:** Use a progress indicator for any action over about 1 s; Use a looped indicator for 2–9 s waits; Use a percent-done indicator for 10 s or more
-- **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
-- **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
-- **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
-- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg).
+- **Source:** Jon Yablonski (Laws of UX), *Postel's Law — Laws of UX* — https://lawsofux.com/postels-law/
+- **In their words:** "Be liberal in what you accept, and conservative in what you send."
+- **Do:** Accept variable input and translate it to your format; Normalise on blur; Define boundaries and give clear feedback
+- **Don't:** Reject spaces or dashes in card or phone numbers; Reject leading or trailing whitespace in email; Treat email as case-sensitive; Force a date format the field could parse
+- **Look at:** Drive each formatted field with equivalent variants ('4111 1111 1111 1111' vs '4111111111111111', ' a@b.co ', '+44 20…' vs '02…') and compare validation outcomes.
+- **Unless:** Inputs where ambiguity is dangerous, such as dates in medical or legal contexts
+- **Also stated as:** craft.body-16px-line-height-1-5 (Steve Schoger); modern.mobile-inputs-do-not-zoom-or-trap (Rauno Freiberg); forms.input-type-matches-the-answer (GOV.UK Design System).
 
-## 5. `usability.signifiers-make-clickable-look-clickable`
+## 5. `usability.omit-needless-words`
 
-Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.
+Cut word count by half: no happy-talk intros, no instruction paragraphs before forms, no marketese, sentence case everywhere.
 
-- **Source:** Kate Moran, NN/g, *Flat UI Elements Attract Less Attention and Cause Uncertainty (2017)* — https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/ (study)
-- **In their words:** "22% more time"
-- **Do:** Make links stand out from body text; Make buttons resemble physical buttons with rectangular shapes; Apply consistent treatment throughout the site; Provide signifiers rather than rely on affordances
-- **Don't:** Style linked text as static text; Use ghost buttons as the default; Use disabled buttons if avoidable; Rely on a label to say that a control is a control
-- **Look at:** For each a[href], button, [role=button]: computed colour, underline, border and background versus surrounding text; a link matching body colour with no underline and no other differentiator is weak; count disabled buttons.
-- **Unless:** Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger); Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)
-- **Also stated as:** modern.signifiers-survive-flatness (Kate Moran (NN/G)).
+- **Source:** Jakob Nielsen, *How Users Read on the Web (1997)* — https://www.nngroup.com/articles/how-users-read-on-the-web/ (study)
+- **In their words:** "People rarely read Web pages word by word; instead, they scan the page"
+- **Do:** Reduce word count by half compared to traditional writing; Limit paragraphs to one idea each; Use sentence case everywhere except proper nouns
+- **Don't:** Open with welcome or happy talk; Put instruction paragraphs before forms; Use promotional language ('marketese'); Set labels in ALL CAPS or Title Case
+- **Look at:** Word count between a form's heading and its first input; word count of blocks starting 'Welcome' or 'Thank you for'; buttons and labels in all caps or Title Case; sentence count in instructions.
+- **Unless:** Nielsen also asks for outbound links to build trust — brevity is not zero text
+- **Also stated as:** writing.sentence-case-ui-text (IBM Carbon Design System).
 
-## 6. `usability.speak-the-users-language`
+## 6. `usability.fewer-checkout-fields`
 
-Write in the words the actor already uses; no internal jargon, error codes or unexplained abbreviations.
+Count fields, not steps: a guest checkout needs about eight, with optional fields collapsed behind links and billing defaulted to shipping.
 
-- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #2* — https://www.nngroup.com/articles/ten-usability-heuristics/
-- **In their words:** "The design should speak the users' language. Use words, phrases, and concepts familiar to the user, rather than internal jargon."
-- **Do:** Use words the user understands without looking them up; Spell acronyms out in full on each page; Write 'for example', not 'eg' or 'ie'
-- **Don't:** Show bare error codes; Expose internal entity names; Use unexplained abbreviations
-- **Look at:** Flag bare error codes (e.g. ERR-422, Error 0x…), all-caps acronyms not defined on the page, and Latin abbreviations; whether a term is jargon for this actor needs the journey's actor.
-- **Unless:** Expert-only tools where the domain term is the users' language — match the user, do not simplify per se
+- **Source:** Baymard Institute, *Checkout Optimization: minimize form fields (2024)* — https://baymard.com/blog/checkout-flow-average-form-fields (study)
+- **In their words:** "The number of form fields in a checkout impacts overall usability far more than the number of steps."
+- **Do:** Consolidate to a single 'Full Name' field; Hide Address Line 2 and the coupon field behind links; Default billing to shipping; Offer account creation after purchase
+- **Don't:** Count steps as the metric; Show every optional field by default
+- **Look at:** Count visible input, select and textarea across the checkout (excluding hidden and collapsed); optional fields shown expanded; separate first/last name fields; an open coupon field.
+- **Unless:** Regulatory or fraud fields that genuinely cannot be defaulted; The minimum of 8 assumes a standard guest checkout
+- **Also stated as:** forms.mark-optional-fields-in-words (GOV.UK Design System); forms.ask-only-what-you-need (GOV.UK Design System).
 
 ## 7. `usability.minimalist-no-competing-information`
 
@@ -85,73 +87,54 @@ Everything on the screen competes with the primary goal; remove what does not se
 - **Look at:** At 360 px: count distinct interactive elements above the fold; whether the journey's primary action is within the first viewport; count of elements sharing the accent colour.
 - **Unless:** Dense expert dashboards where the irreducible information is large
 
-## 8. `usability.postel-tolerant-input`
+## 8. `usability.no-false-affordances`
 
-Accept every reasonable form of an input — spaces, dashes, case, whitespace — and normalise it, instead of rejecting it.
+Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
 
-- **Source:** Jon Yablonski (Laws of UX), *Postel's Law — Laws of UX* — https://lawsofux.com/postels-law/
-- **In their words:** "Be liberal in what you accept, and conservative in what you send."
-- **Do:** Accept variable input and translate it to your format; Normalise on blur; Define boundaries and give clear feedback
-- **Don't:** Reject spaces or dashes in card or phone numbers; Reject leading or trailing whitespace in email; Treat email as case-sensitive; Force a date format the field could parse
-- **Look at:** Drive each formatted field with equivalent variants ('4111 1111 1111 1111' vs '4111111111111111', ' a@b.co ', '+44 20…' vs '02…') and compare validation outcomes.
-- **Unless:** Inputs where ambiguity is dangerous, such as dates in medical or legal contexts
+- **Source:** Hoa Loranger, NN/g, *Beyond Blue Links: Making Clickable Elements Recognizable (2015)* — https://www.nngroup.com/articles/clickable-elements/
+- **In their words:** "Avoid making non-clickable items (like headings) resemble buttons."
+- **Do:** Reserve link colour and underline for links; Reserve button shape and fill for buttons
+- **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
+- **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
+- **Also stated as:** canon.rams-honest (Dieter Rams).
 
-## 9. `usability.omit-needless-words`
+## 9. `usability.help-in-context`
 
-Cut word count by half: no happy-talk intros, no instruction paragraphs before forms, no marketese, sentence case everywhere.
+The best help is none; when a field needs explaining, put a short hint beside it at the moment it is needed, not on another page.
 
-- **Source:** Jakob Nielsen, *How Users Read on the Web (1997)* — https://www.nngroup.com/articles/how-users-read-on-the-web/ (study)
-- **In their words:** "People rarely read Web pages word by word; instead, they scan the page"
-- **Do:** Reduce word count by half compared to traditional writing; Limit paragraphs to one idea each; Use sentence case everywhere except proper nouns
-- **Don't:** Open with welcome or happy talk; Put instruction paragraphs before forms; Use promotional language ('marketese'); Set labels in ALL CAPS or Title Case
-- **Look at:** Word count between a form's heading and its first input; word count of blocks starting 'Welcome' or 'Thank you for'; buttons and labels in all caps or Title Case; sentence count in instructions.
-- **Unless:** Nielsen also asks for outbound links to build trust — brevity is not zero text
+- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #10* — https://www.nngroup.com/articles/ten-usability-heuristics/
+- **In their words:** "Whenever possible, present the documentation in context right at the moment that the user requires it."
+- **Do:** Use hint text for help relevant to most users; Keep hint text to one short sentence without full stops; Associate the hint with its input via aria-describedby
+- **Don't:** Put help only on a separate page; Put links inside hint text; Write lengthy explanations
+- **Look at:** For inputs with a format expectation (date, postcode, card): a hint associated via aria-describedby and rendered adjacent, same column, within one line-height; hint length in sentences.
+- **Unless:** Nielsen's own first sentence: it is best if the system needs no additional explanation
+- **Also stated as:** usability.placeholders-are-not-labels (Katie Sherwin, NN/g); forms.hint-text-is-short-and-linked (GOV.UK Design System).
 
-## 10. `usability.progress-indication-in-flows`
+## 10. `usability.feedback-within-a-second`
 
-In flows of three or more steps give some sense of position; do not assume a step bar helps — GOV.UK removed one with no effect.
+Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
 
-- **Source:** Jon Yablonski (Laws of UX), *Goal-Gradient Effect — Laws of UX* — https://lawsofux.com/goal-gradient-effect/ (study)
-- **In their words:** "The tendency to approach a goal increases with proximity to the goal."
-- **Do:** Show a step or position label in long flows; Update the position between steps
-- **Don't:** Leave a long wizard with no step label anywhere; Cite the Zeigarnik effect as the reason for a progress bar; Fake progress to manipulate
-- **Look at:** Presence of a step or position element in flows with 3 or more steps, and whether it updates between steps.
-- **Unless:** Short flows — GOV.UK's own guidance omits indicators by default; Artificial 'endowed progress' edges toward manipulation — flag, do not recommend
+- **Source:** Jakob Nielsen, *Response Times: The 3 Important Limits (1993)* — https://www.nngroup.com/articles/response-times-3-important-limits/ (study)
+- **In their words:** "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
+- **Do:** Use a progress indicator for any action over about 1 s; Use a looped indicator for 2–9 s waits; Use a percent-done indicator for 10 s or more
+- **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
+- **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
+- **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
+- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg).
 
-## 11. `usability.single-column-forms`
+## 11. `usability.signifiers-make-clickable-look-clickable`
 
-Forms run in one vertical column; only coherent entities like city/state/ZIP or card/expiry/CVV share a row.
+Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.
 
-- **Source:** Baymard Institute, *Form Field Usability: Avoid Extensive Multicolumn Layouts (2023)* — https://baymard.com/blog/avoid-multi-column-forms (study)
-- **In their words:** "Use a single-column layout to support users' visual understanding of forms"
-- **Do:** Keep one vertical path through the form; Allow a shared row only for a single coherent entity
-- **Don't:** Lay out two independent question columns
-- **Look at:** Cluster inputs by left x-coordinate; more than one column of independent inputs, not in the same fieldset or an allowed coherent row, fails.
-- **Unless:** Coherent-entity rows: city/state/ZIP and card number/expiry/security code
+- **Source:** Kate Moran, NN/g, *Flat UI Elements Attract Less Attention and Cause Uncertainty (2017)* — https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/ (study)
+- **In their words:** "22% more time"
+- **Do:** Make links stand out from body text; Make buttons resemble physical buttons with rectangular shapes; Apply consistent treatment throughout the site; Provide signifiers rather than rely on affordances
+- **Don't:** Style linked text as static text; Use ghost buttons as the default; Use disabled buttons if avoidable; Rely on a label to say that a control is a control
+- **Look at:** For each a[href], button, [role=button]: computed colour, underline, border and background versus surrounding text; a link matching body colour with no underline and no other differentiator is weak; count disabled buttons.
+- **Unless:** Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger); Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)
+- **Also stated as:** modern.signifiers-survive-flatness (Kate Moran (NN/G)).
 
-## 12. `usability.fewer-checkout-fields`
-
-Count fields, not steps: a guest checkout needs about eight, with optional fields collapsed behind links and billing defaulted to shipping.
-
-- **Source:** Baymard Institute, *Checkout Optimization: minimize form fields (2024)* — https://baymard.com/blog/checkout-flow-average-form-fields (study)
-- **In their words:** "The number of form fields in a checkout impacts overall usability far more than the number of steps."
-- **Do:** Consolidate to a single 'Full Name' field; Hide Address Line 2 and the coupon field behind links; Default billing to shipping; Offer account creation after purchase
-- **Don't:** Count steps as the metric; Show every optional field by default
-- **Look at:** Count visible input, select and textarea across the checkout (excluding hidden and collapsed); optional fields shown expanded; separate first/last name fields; an open coupon field.
-- **Unless:** Regulatory or fraud fields that genuinely cannot be defaulted; The minimum of 8 assumes a standard guest checkout
-
-## 13. `usability.aesthetic-usability-effect-bias`
-
-Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.
-
-- **Source:** Kate Moran, NN/g, *The Aesthetic-Usability Effect (2024, rev. 2026)* — https://www.nngroup.com/articles/aesthetic-usability-effect/ (study)
-- **In their words:** "Users' tendency to perceive attractive products as more usable. People tend to believe that things that look better will work better — even if they aren't actually more effective or efficient."
-- **Do:** Rate your own screen after the measurable checks, not before; Treat polish as tolerance for minor problems only
-- **Don't:** Read polish as usability; Let an attractive surface hide a usability problem
-- **Look at:** Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.
-- **Unless:** With severe usability issues, or functionality sacrificed for aesthetics, users lose patience
-
-## 14. `usability.clearly-marked-emergency-exit`
+## 12. `usability.clearly-marked-emergency-exit`
 
 Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.
 
@@ -162,16 +145,38 @@ Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo
 - **Look at:** For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.
 - **Unless:** Legally required interstitials — the exit must still be visible, not necessarily free of consequence
 
-## 15. `usability.help-in-context`
+## 13. `usability.progress-indication-in-flows`
 
-The best help is none; when a field needs explaining, put a short hint beside it at the moment it is needed, not on another page.
+In flows of three or more steps give some sense of position; do not assume a step bar helps — GOV.UK removed one with no effect.
 
-- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #10* — https://www.nngroup.com/articles/ten-usability-heuristics/
-- **In their words:** "Whenever possible, present the documentation in context right at the moment that the user requires it."
-- **Do:** Use hint text for help relevant to most users; Keep hint text to one short sentence without full stops; Associate the hint with its input via aria-describedby
-- **Don't:** Put help only on a separate page; Put links inside hint text; Write lengthy explanations
-- **Look at:** For inputs with a format expectation (date, postcode, card): a hint associated via aria-describedby and rendered adjacent, same column, within one line-height; hint length in sentences.
-- **Unless:** Nielsen's own first sentence: it is best if the system needs no additional explanation
+- **Source:** Jon Yablonski (Laws of UX), *Goal-Gradient Effect — Laws of UX* — https://lawsofux.com/goal-gradient-effect/ (study)
+- **In their words:** "The tendency to approach a goal increases with proximity to the goal."
+- **Do:** Show a step or position label in long flows; Update the position between steps
+- **Don't:** Leave a long wizard with no step label anywhere; Cite the Zeigarnik effect as the reason for a progress bar; Fake progress to manipulate
+- **Look at:** Presence of a step or position element in flows with 3 or more steps, and whether it updates between steps.
+- **Unless:** Short flows — GOV.UK's own guidance omits indicators by default; Artificial 'endowed progress' edges toward manipulation — flag, do not recommend
+
+## 14. `usability.single-column-forms`
+
+Forms run in one vertical column; only coherent entities like city/state/ZIP or card/expiry/CVV share a row.
+
+- **Source:** Baymard Institute, *Form Field Usability: Avoid Extensive Multicolumn Layouts (2023)* — https://baymard.com/blog/avoid-multi-column-forms (study)
+- **In their words:** "Use a single-column layout to support users' visual understanding of forms"
+- **Do:** Keep one vertical path through the form; Allow a shared row only for a single coherent entity
+- **Don't:** Lay out two independent question columns
+- **Look at:** Cluster inputs by left x-coordinate; more than one column of independent inputs, not in the same fieldset or an allowed coherent row, fails.
+- **Unless:** Coherent-entity rows: city/state/ZIP and card number/expiry/security code
+
+## 15. `usability.aesthetic-usability-effect-bias`
+
+Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.
+
+- **Source:** Kate Moran, NN/g, *The Aesthetic-Usability Effect (2024, rev. 2026)* — https://www.nngroup.com/articles/aesthetic-usability-effect/ (study)
+- **In their words:** "Users' tendency to perceive attractive products as more usable. People tend to believe that things that look better will work better — even if they aren't actually more effective or efficient."
+- **Do:** Rate your own screen after the measurable checks, not before; Treat polish as tolerance for minor problems only
+- **Don't:** Read polish as usability; Let an attractive surface hide a usability problem
+- **Look at:** Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.
+- **Unless:** With severe usability issues, or functionality sacrificed for aesthetics, users lose patience
 
 ## 16. `usability.natural-mapping-and-proximity`
 
@@ -184,18 +189,7 @@ Put a control next to the thing it changes and a label next to its field; gaps b
 - **Look at:** Distance from each label to its own input versus the nearest other input; gap within a fieldset versus gap between fieldsets; distance from last input to the submit button.
 - **Unless:** Left-aligned labels are acceptable if space is constrained and labels are of similar length
 
-## 17. `usability.placeholders-are-not-labels`
-
-Every input has a visible label outside the field; placeholder text is never the label, the hint or the only format example.
-
-- **Source:** Katie Sherwin, NN/g, *Placeholders in Form Fields Are Harmful (2014)* — https://www.nngroup.com/articles/form-design-placeholders/
-- **In their words:** "Disappearing placeholder text strains users' short-term memory."
-- **Do:** Give every text input a visible label; Put hints outside empty form fields
-- **Don't:** Use placeholder text in place of a label; Use placeholder text for hints or examples; Hide the label visually and rely on the placeholder
-- **Look at:** Any input or textarea with a placeholder and no visible associated label, or with a visually hidden label; placeholder used as the only format example.
-- **Unless:** A single-field search where the button label carries the meaning is the usual carve-out; the fetched page states none explicitly
-
-## 18. `usability.labels-above-fields`
+## 17. `usability.labels-above-fields`
 
 Stack the label above its field, left edges aligned, a few pixels apart, so label and field are read in one fixation.
 
@@ -206,7 +200,7 @@ Stack the label above its field, left edges aligned, a few pixels apart, so labe
 - **Look at:** For each label/input pair: label box bottom ≤ input box top and label left edge ≈ input left edge within a few px; if side by side, the gap between label right edge and input left edge.
 - **Unless:** Landscape phones: switch to left-aligned to keep the field visible above the keyboard (Baymard); Left-aligned is acceptable when labels are of similar length and as close to the fields as possible (NN/g)
 
-## 19. `usability.field-width-matches-expected-input`
+## 18. `usability.field-width-matches-expected-input`
 
 Size each input to the data it expects: short boxes for year, postcode and CVV; one consistent width for variable data like email.
 
@@ -217,7 +211,7 @@ Size each input to the data it expects: short boxes for year, postcode and CVV; 
 - **Look at:** Rendered input width in ch of its font versus maxlength, inputmode, autocomplete token or pattern length: cc-csc wider than ~8 ch, postal-code at full width, or email narrower than ~20 ch.
 - **Unless:** Full-width inputs on narrow phones are the norm — check at desktop widths or compare relative widths within the form
 
-## 20. `usability.one-thing-per-page`
+## 19. `usability.one-thing-per-page`
 
 Split a public-facing form so each page asks one question, decision or piece of information, with eligibility questions first.
 
@@ -228,7 +222,7 @@ Split a public-facing form so each page asks one question, decision or piece of 
 - **Look at:** Count distinct questions (label groups or fieldsets) per page in a flow; count required inputs per page.
 - **Unless:** Be consistent, not uniform: internal expert tools and repeat users may prefer denser pages
 
-## 21. `usability.dont-make-me-think`
+## 20. `usability.dont-make-me-think`
 
 A page's purpose and controls should be self-evident; nothing on it should raise a question the user must answer before acting.
 
@@ -238,7 +232,7 @@ A page's purpose and controls should be self-evident; nothing on it should raise
 - **Don't:** Raise a question the user must answer before acting
 - **Look at:** Look at the screen cold: is there anything you have to work out before you can act? The law is the sum of the other entries; a machine measures its symptoms, not the law.
 
-## 22. `usability.start-with-user-needs-design-with-data`
+## 21. `usability.start-with-user-needs-design-with-data`
 
 Name the actor and their need before drawing a screen, then let measured behaviour, not hunches or looks, decide what changes.
 
@@ -248,7 +242,7 @@ Name the actor and their need before drawing a screen, then let measured behavio
 - **Don't:** Design to a hunch; Design to an aesthetic
 - **Look at:** Does the journey name its actor and need (uxcli context show), and is the design decision traceable to observed behaviour rather than a hunch or a look?
 
-## 23. `usability.constraints-shift-complexity-to-the-system`
+## 22. `usability.constraints-shift-complexity-to-the-system`
 
 Complexity that cannot be removed goes to the system, not the user: default what can be inferred, hide what is rarely needed.
 
@@ -259,7 +253,7 @@ Complexity that cannot be removed goes to the system, not the user: default what
 - **Look at:** Count visible required inputs the page could default (no 'same as shipping' control, both address blocks open); presence of autocomplete tokens on address and payment inputs.
 - **Unless:** Tognazzini's counter-view: users resist complexity reduction and attempt harder tasks when systems get simpler
 
-## 24. `craft.fewer-borders`
+## 23. `craft.fewer-borders`
 
 Separate elements with space, a background shift, a shadow or striping before reaching for a border; too many borders make a design busy.
 
@@ -271,7 +265,7 @@ Separate elements with space, a background shift, a shadow or striping before re
 - **Unless:** Form inputs and the one object a person acts on keep their border; Keylines that make disconnected content feel connected; Decorative borders as style once the count is low
 - **Also stated as:** canon.gestalt-common-region (Aurora Harley, NN/g); canon.rams-as-little-design-as-possible (Dieter Rams); modern.fewer-borders-more-space (Adam Wathan & Steve Schoger); canon.tufte-smallest-effective-difference (Edward Tufte); canon.tufte-one-plus-one-equals-three (Edward Tufte).
 
-## 25. `craft.spacing-and-sizing-system`
+## 24. `craft.spacing-and-sizing-system`
 
 Draw every margin, padding and gap from one scale, and make space between groups clearly larger than space within them.
 
@@ -281,9 +275,9 @@ Draw every margin, padding and gap from one scale, and make space between groups
 - **Don't:** Use one-off values such as 13px or 27px; Use equal gaps across a group boundary
 - **Look at:** Collect all computed margin, padding and gap values above 0; report distinct values and how many are off a 4px grid; compare label-to-field gap with field-to-next-label gap.
 - **Unless:** Optical adjustments on icons and hanging punctuation sit a pixel or two off-scale
-- **Also stated as:** canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov).
+- **Also stated as:** canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.spacing-comes-from-a-scale (Stan Kirilov).
 
-## 26. `craft.separation-order-space-then-lines-then-boxes`
+## 25. `craft.separation-order-space-then-lines-then-boxes`
 
 Use the lightest separator that works: more space first, then a keyline or background band, and a box only for the object that is acted on.
 
@@ -293,19 +287,43 @@ Use the lightest separator that works: more space first, then a keyline or backg
 - **Look at:** Between sibling groups, record which separator is used: gap at least 2x the inner gap (space), hr or border-bottom (line), bordered or shadowed wrapper (box); report the inner/outer gap ratio.
 - **Unless:** Dense data such as tables where zebra stripes or keylines are used; Interactive cards that are the unit of action
 
-## 27. `craft.body-16px-line-height-1-5`
+## 26. `craft.button-hierarchy-one-primary`
 
-Body copy at 16px or more with 1.5 line height; inputs at 16px or more on mobile.
+One filled brand-colour button per view; secondaries outlined, tertiaries as text, destructive actions quiet with a confirmation step.
 
-- **Source:** Steve Schoger, *Little UI Details (tweet, 1 Jun 2017)* — https://digitalsynopsis.com/design/useful-ui-ux-design-tips/
-- **In their words:** "If in doubt, 16px font with 1.5 line height is pretty good safe for body copy."
-- **Do:** Set body at 16px or more, secondary about 2px smaller; Set inputs at 16px or more on mobile; Set text-heavy desktop pages at 18–24px
-- **Don't:** Set body text under 16px on phones; Set inputs under 16px on iOS
-- **Look at:** At a 375px viewport, computed font-size of paragraph text and of input, textarea and select; line-height divided by font-size for paragraphs.
-- **Unless:** Interaction-heavy desktop pages may go to 14px; Captions sit 2px under body by design
-- **Also stated as:** modern.readable-type-sizes-and-weights (Rauno Freiberg); modern.mobile-inputs-do-not-zoom-or-trap (Rauno Freiberg).
+- **Source:** Steve Schoger, *Little UI Details (tweet, 2 Aug 2017)* — https://digitalsynopsis.com/design/useful-ui-ux-design-tips/
+- **In their words:** "You want your primary button to stand out much more than your secondary / danger actions."
+- **Do:** Fill exactly one button per view or dialog in the brand colour; Outline secondary actions and set tertiary actions as text; Keep destructive actions quiet unless they are the primary job
+- **Don't:** Let a green button compete with the primary; Put a big red Delete beside a small Save; Colour every link brand blue
+- **Look at:** Classify buttons as filled, outlined or text from computed style; fail if a view or dialog has more than one filled button of distinct hues, or a delete-labelled button is filled while the confirming action is not.
+- **Unless:** Segmented or toggle groups; Toolbars of equal-weight actions; A page whose only job is the destructive action, where red is primary
+- **Also stated as:** writing.destructive-actions-name-the-consequence (IBM Carbon Design System).
 
-## 28. `craft.tap-targets-and-control-height`
+## 27. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
+
+Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
+
+- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
+- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
+- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
+- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
+- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
+- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group).
+
+## 28. `craft.anything-but-dropdowns`
+
+Before a dropdown, try a switch, segmented control, radios, cards, typeahead, calendar, text input or stepper.
+
+- **Source:** Erik D. Kennedy, *4 Rules for Intuitive UX* — https://www.learnui.design/blog/4-rules-intuitive-ux.html
+- **In their words:** "Any time you feel tempted to use a dropdown, ask yourself if one of these 12 controls is better instead. … dropdowns are pretty much the worst control."
+- **Do:** Use a switch, checkbox or segmented button for two options; Use radios, segmented buttons or cards for two to five options; Use typeahead for long lists, a calendar or text input for dates, a stepper for counts
+- **Don't:** Use a select for five or fewer options; Use three selects for a date; Ship a 195-country select without search on mobile
+- **Look at:** For each select: fail at 5 or fewer options unless committed as a rarely changed default; fail 2–3 adjacent selects with day, month, year options; flag over 30 options at 375px with no typeahead.
+- **Unless:** Users rarely need to change the default value; There are very few options; The user is not on mobile
+- **Also stated as:** modern.boring-and-familiar-beats-novel (Scott Berkun); forms.memorable-dates-as-three-fields (GOV.UK Design System).
+
+## 29. `craft.tap-targets-and-control-height`
 
 Touch targets are at least 44×44; inputs and the buttons beside them share one height of 40 or 48px.
 
@@ -317,7 +335,7 @@ Touch targets are at least 44×44; inputs and the buttons beside them share one 
 - **Unless:** Inline text links in running prose; Dense desktop-only tools if the project commits to no touch
 - **Also stated as:** modern.hit-targets-meet-platform-minimums (Apple).
 
-## 29. `craft.type-scale-few-font-sizes`
+## 30. `craft.type-scale-few-font-sizes`
 
 Use about four font sizes from a fixed scale; reuse the default size for body, menus, lists and controls.
 
@@ -329,42 +347,7 @@ Use about four font sizes from a fixed scale; reuse the default size for body, m
 - **Unless:** Sizes must stay distinguishable, so large text may step many points apart; Marketing pages may add a display size
 - **Also stated as:** canon.vignelli-two-type-sizes (Massimo Vignelli).
 
-## 30. `craft.button-hierarchy-one-primary`
-
-One filled brand-colour button per view; secondaries outlined, tertiaries as text, destructive actions quiet with a confirmation step.
-
-- **Source:** Steve Schoger, *Little UI Details (tweet, 2 Aug 2017)* — https://digitalsynopsis.com/design/useful-ui-ux-design-tips/
-- **In their words:** "You want your primary button to stand out much more than your secondary / danger actions."
-- **Do:** Fill exactly one button per view or dialog in the brand colour; Outline secondary actions and set tertiary actions as text; Keep destructive actions quiet unless they are the primary job
-- **Don't:** Let a green button compete with the primary; Put a big red Delete beside a small Save; Colour every link brand blue
-- **Look at:** Classify buttons as filled, outlined or text from computed style; fail if a view or dialog has more than one filled button of distinct hues, or a delete-labelled button is filled while the confirming action is not.
-- **Unless:** Segmented or toggle groups; Toolbars of equal-weight actions; A page whose only job is the destructive action, where red is primary
-
-## 31. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
-
-Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
-
-- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
-- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
-- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
-- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
-- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
-- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
-- **Also stated as:** modern.contrast-and-not-colour-alone (Apple).
-
-## 32. `craft.anything-but-dropdowns`
-
-Before a dropdown, try a switch, segmented control, radios, cards, typeahead, calendar, text input or stepper.
-
-- **Source:** Erik D. Kennedy, *4 Rules for Intuitive UX* — https://www.learnui.design/blog/4-rules-intuitive-ux.html
-- **In their words:** "Any time you feel tempted to use a dropdown, ask yourself if one of these 12 controls is better instead. … dropdowns are pretty much the worst control."
-- **Do:** Use a switch, checkbox or segmented button for two options; Use radios, segmented buttons or cards for two to five options; Use typeahead for long lists, a calendar or text input for dates, a stepper for counts
-- **Don't:** Use a select for five or fewer options; Use three selects for a date; Ship a 195-country select without search on mobile
-- **Look at:** For each select: fail at 5 or fewer options unless committed as a rarely changed default; fail 2–3 adjacent selects with day, month, year options; flag over 30 options at 375px with no typeahead.
-- **Unless:** Users rarely need to change the default value; There are very few options; The user is not on mobile
-- **Also stated as:** modern.boring-and-familiar-beats-novel (Scott Berkun).
-
-## 33. `craft.hierarchy-is-everything-squint-test`
+## 31. `craft.hierarchy-is-everything-squint-test`
 
 Squint: the most important thing must catch the eye first and the least important last; one element dominates each screen.
 
@@ -375,7 +358,7 @@ Squint: the most important thing must catch the eye first and the least importan
 - **Look at:** Given a declared primary action, score every interactive element as area x contrast x font-weight factor; the declared primary must rank first, and no set of buttons may sit within 10% of each other.
 - **Unless:** Page titles are the only element styled all-out up-pop; A browsing page such as a gallery may have no single most important thing
 
-## 34. `craft.greys-dont-have-to-be-grey-never-use-black`
+## 32. `craft.greys-dont-have-to-be-grey-never-use-black`
 
 Tint the neutral scale toward the brand hue and never use pure black for text.
 
@@ -386,7 +369,7 @@ Tint the neutral scale toward the brand hue and never use pure black for text.
 - **Look at:** Count text, border and background colours with saturation 0 and lightness under 15%, and the share of neutral swatches with saturation exactly 0.
 - **Unless:** It does not always work; worth a trial; High-contrast or accessibility modes and print
 
-## 35. `craft.grids-are-overrated-content-dictates-width`
+## 33. `craft.grids-are-overrated-content-dictates-width`
 
 Let content dictate its own width and the layout follow; do not stretch components because the screen grew.
 
@@ -397,7 +380,7 @@ Let content dictate its own width and the layout follow; do not stretch componen
 - **Look at:** At 360–414px viewport, every content edge sits at 16px (or one consistent gutter) from the viewport edge and nothing overflows horizontally.
 - **Unless:** Strict grids for posters and websites where the artistry of the composition matters more than the information
 
-## 36. `canon.bringhurst-leading-is-a-rhythmic-unit`
+## 34. `canon.bringhurst-leading-is-a-rhythmic-unit`
 
 The leading is the vertical unit; add and remove vertical space in multiples of it.
 
@@ -408,7 +391,7 @@ The leading is the vertical unit; add and remove vertical space in multiples of 
 - **Look at:** Body line-height L; margins and paddings between text blocks as multiples of L (or L/2 if the lens allows).
 - **Unless:** More leading for longer measures, darker faces, larger x-height and sans serifs: the ratio moves with the face
 
-## 37. `canon.butterick-emphasis-sparingly`
+## 35. `canon.butterick-emphasis-sparingly`
 
 One emphasis device at a time: bold or italic, never both; underline only links; caps only under one line and tracked.
 
@@ -419,7 +402,7 @@ One emphasis device at a time: bold or italic, never both; underline only links;
 - **Look at:** Elements with font-weight ≥600 and italic; underline on non-anchors; uppercase on blocks rendering more than one line; centred multi-line paragraphs; uppercase runs with letter-spacing under 0.05em.
 - **Unless:** Underline for web links; All caps under one line of text
 
-## 38. `modern.defaults-are-decisions-you-inherited`
+## 36. `modern.defaults-are-decisions-you-inherited`
 
 A library or AI default is someone else's decision; commit to one written aesthetic direction instead of inheriting it.
 
@@ -430,6 +413,29 @@ A library or AI default is someone else's decision; commit to one written aesthe
 - **Look at:** Score the constellation: purple-to-blue/cyan gradients warn, Inter or Roboto with no display face notes, 3+ identical icon+h3+p cards note, backdrop-filter plus glow notes, gradient text on numerals warns, overshoot cubic-bezier on hover warns.
 - **Unless:** A purple brand is allowed to be purple; the tell is the constellation and the absence of a decision, not any one colour
 - **Also stated as:** craft.supercharge-the-defaults (Steve Schoger (attendee notes by ynotdraw)).
+
+## 37. `modern.readable-type-sizes-and-weights`
+
+Body text sits at the platform default size, weights stay 400 or heavier, and weight never changes on hover.
+
+- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
+- **In their words:** "Font weights below 400 should not be used"
+- **Do:** 17px body on touch, 13px minimum on desktop UI; Weights between 400 and 700; Headings at weight 500–600; Minimise the number of typefaces
+- **Don't:** Body text under 11pt; font-weight 300 or lower; Weight swaps on hover or selected state
+- **Look at:** Computed font-size and font-weight of every text node at a phone viewport; count distinct font-family stacks and warn above 2.
+- **Unless:** Captions and legal text may sit at the platform minimum; Display headings may use light weights at large sizes
+
+## 38. `modern.numbers-and-text-do-not-shift-layout`
+
+Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.
+
+- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
+- **In their words:** "tabular figures should be applied with `font-variant-numeric: tabular-nums`, particularly in tables or when layout shifts are undesirable, like in timers"
+- **Do:** tabular-nums in tables, timers and prices; width and height on every img
+- **Don't:** Proportional digits in columns; Images without dimensions; Weight changes on hover
+- **Look at:** Numeric td cells whose computed font-variant-numeric lacks tabular-nums; img without width/height or aspect-ratio; sibling rect drift while a counter fixture runs.
+- **Unless:** Prose numbers
+- **Also stated as:** data-display.right-align-numbers-tabular-figures (GitHub Primer).
 
 ## 39. `modern.delight-scales-with-rarity`
 
@@ -484,13 +490,200 @@ Empty, sparse, dense, error and loading states are designed; skeletons match fin
 - **Don't:** Blank screens on empty arrays; Spinners that reflow content; Overflow from long strings
 - **Look at:** Render with [], with 1 item, with 500 items and with a 300-character title; assert no horizontal overflow, no overlap, an actionable control in the empty state, and skeleton-to-loaded CLS under a threshold.
 
-## 44. `modern.numbers-and-text-do-not-shift-layout`
+## 44. `color.status-colours-keep-their-meaning`
 
-Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.
+Each status colour has one meaning across the product (critical for errors and blocked actions, warning for what needs attention, success for what went well, info for tips) and is never borrowed for promotion or decoration.
 
-- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
-- **In their words:** "tabular figures should be applied with `font-variant-numeric: tabular-nums`, particularly in tables or when layout shifts are undesirable, like in timers"
-- **Do:** tabular-nums in tables, timers and prices; width and height on every img
-- **Don't:** Proportional digits in columns; Images without dimensions; Weight changes on hover
-- **Look at:** Numeric td cells whose computed font-variant-numeric lacks tabular-nums; img without width/height or aspect-ratio; sibling rect drift while a counter fixture runs.
-- **Unless:** Prose numbers
+- **Source:** Shopify Polaris, *Colors: Palettes and roles (Critical, Success)* — https://polaris.shopify.com/design/colors/palettes-and-roles
+- **In their words:** "Elements using critical must convey messaging that implies that an action is impossible, blocked, or has resulted in an error."
+- **Do:** Map error, warning, success and info to named roles or tokens and use them only in those roles; Reserve the critical red for errors, blocked actions and destructive buttons; Use the info role, not warning or critical, for tips and announcements
+- **Don't:** A sale or 'new' badge in the error red; Success green used to entice or to advertise an offer; Warning colour for 'coming soon' or 'under construction' messaging; Two different reds meaning error on different screens
+- **Look at:** Find the colour the page uses for error text (an element with role=alert, aria-invalid's described-by message, or a class/token named error/critical/danger) and the success colour likewise. Count painted elements (text, fill or border) whose colour equals that error or success colour, within a ΔE of 3, and that are neither a validation message, an invalid field, a status badge of that meaning, nor a destructive action.
+- **Unless:** Brand colours that happen to be red, as long as a separate, distinct error red is used for errors; Data visualisations where a series colour coincides with a status hue but no status is implied (prefer avoiding it)
+
+## 45. `color.from-tokens-not-hex`
+
+Every colour on the page comes from the design system's named tokens or palette functions, never from hex values copied into components.
+
+- **Source:** GOV.UK Design System (Government Digital Service), *Styles: Colour* — https://design-system.service.gov.uk/styles/colour/
+- **In their words:** "Do not copy the specific hexadecimal (hex) colour values."
+- **Do:** Reference colour by role token (brand, text, error, border) rather than by value; Use palette colours (tints and shades of a few families) for supporting elements; Use a functional token only in the context it is designed for
+- **Don't:** Hex literals in component styles; Near-duplicate colours (#1d70b8 next to #1d70b9) created by eye-dropping; Using the error token as a general red
+- **Look at:** Collect every computed color, background-color, border-*-color, outline-color and fill/stroke of painted elements, and every value of CSS custom properties declared on :root (and on any theme selector). Count distinct painted colours that match no custom-property value (exact RGBA after resolution), and count pairs of painted colours closer than ΔE 2 that are not identical.
+- **Unless:** Images, illustrations and embedded third-party widgets; Browser defaults on unstyled native controls; GOV.UK: palette colours (not functional ones) are allowed for illustrations and custom components
+
+## 46. `color.one-action-colour-apart-from-status`
+
+Links and primary actions share one interactive colour family, used consistently, and that colour is not the colour of errors, warnings or success.
+
+- **Source:** IBM Carbon Design System, *Elements: Color, Overview (Color anatomy)* — https://carbondesignsystem.com/elements/color/overview/
+- **In their words:** "The core blue family serves as the primary action color across all IBM products and experiences. Additional colors are used sparingly and purposefully."
+- **Do:** One link colour, used only for links; Primary buttons in the brand or action colour; Danger colour reserved for destructive buttons, not for the primary action
+- **Don't:** Links in the error red; Primary buttons in several different hues across screens; Static text coloured like links
+- **Look at:** Take the computed text colour of every a[href] in running text and the background of every primary (first, filled, or type=submit) button. Count distinct hues among them (30° bins), and count links or primary buttons whose colour is within ΔE 10 of the page's error, warning or success colour. Also count non-interactive text elements painted in the link colour.
+- **Unless:** Primer (GitHub) deliberately uses the success role for primary buttons; a system that states such a mapping consistently is following its own rule; Destructive primary actions (Delete account) take the danger colour on purpose; Navigation menus, where position signals the link
+
+## 47. `color.controls-and-graphics-3-to-1`
+
+The parts that show a control is there and what state it is in (input borders, checkbox boxes and ticks, toggle tracks, icon-only buttons, meaningful chart marks) contrast at least 3:1 with the colours next to them.
+
+- **Source:** W3C Accessibility Guidelines Working Group, *Understanding Success Criterion 1.4.11: Non-text Contrast (WCAG 2.2)* — https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html
+- **In their words:** "Unless the control is inactive, any visual information provided that is necessary for a user to identify that a control is present and how to operate it must have a minimum 3:1 contrast ratio with the adjacent colors."
+- **Do:** Input borders at 3:1 against the background the input sits on, or a filled input background at 3:1; Checkbox ticks and radio dots at 3:1 against the box; Standalone icons at 3:1 against their background; Avoid very thin lines that anti-alias below the nominal ratio
+- **Don't:** Pale grey input borders (#ddd on white is about 1.4:1); A selected state shown only by a faint tint; Hover effects that lower a control's contrast with its surroundings
+- **Look at:** For each visible input, select, textarea, checkbox, radio, [role=switch] and icon-only button (no visible text): compute the contrast ratio between the colour that identifies it (border colour, or its own background when it has no border, or the icon fill) and the background behind it; count those below 3:1, unrounded. Disabled controls are skipped.
+- **Unless:** Inactive (disabled) controls are exempt; A control identified by its visible text needs no contrasting boundary; Logos and decorative graphics; Appearance determined by the browser and not modified by the author
+
+## 48. `color.focus-ring-contrasts-with-its-surroundings`
+
+The focus indicator contrasts at least 3:1 with whatever it is drawn against: the page background for an outer ring, the component's own colours for an inner one.
+
+- **Source:** W3C Accessibility Guidelines Working Group, *Understanding Success Criterion 1.4.11: Non-text Contrast, Relationship with Focus Visible (WCAG 2.2)* — https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html
+- **In their words:** "In combination with 2.4.7 Focus Visible, the visual focus indicator for a component must have sufficient contrast against the adjacent background when the component is focused, except where the appearance of the component is determined by the user agent and not modified by the author."
+- **Do:** An outer ring that contrasts with the page background; A two-colour ring (dark and light) that holds on any background; A thick indicator rather than a 1px one
+- **Don't:** A yellow outer ring on a white page; A focus border that changes hue inside the component without contrasting with its fill; Focus shown only by a background tint change
+- **Look at:** Tab to each focusable control; diff the focused and unfocused screenshots of the control's box padded by a few pixels; for the changed pixels, take their colour and the colour of the unchanged pixels adjacent to them (page background outside, component fill inside). Count controls where no changed region reaches 3:1 against its adjacent colour. page.focus-visible checks only that some pixel changes; this checks that the change can be seen.
+- **Unless:** Unmodified browser default focus styles; WCAG does not compare focused and unfocused states with each other; a background-only change is out of scope for 1.4.11 but fails Use of Color
+
+## 49. `color.few-families-in-proportion`
+
+Use a few colour families in a deliberate proportion (neutral base dominant, then primary, secondary and a small accent), not an even spread of many hues.
+
+- **Source:** U.S. Web Design System (GSA), *Design tokens: Theme color tokens* — https://designsystem.digital.gov/design-tokens/color/theme-tokens/
+- **In their words:** "about 60% of your site’s color would be the primary color family, about 30% would be the secondary color family, and about 10% would be the accent color families"
+- **Do:** Neutral base for text and most surfaces; One primary family carrying most of the colour, one secondary, a small accent; Additional colours used sparingly and for a purpose (Carbon); Start in black and white, then add colour to support the message (USWDS)
+- **Don't:** Five or more saturated hue families at similar weight on one screen; An accent that covers more area than the primary; A new hue introduced for a single component
+- **Look at:** Screenshot the page and bucket every non-neutral pixel (HSL saturation above about 15%) by hue into 30° bins, ignoring images and status colours. How many hue families take more than 2% of the coloured area, and does the largest one carry most of it while the smallest (accent) stays near a tenth?
+- **Unless:** USWDS: the proportions are for non-base colours; neutral text will usually dominate; Illustration, photography and data visualisation, which need their own palettes; Brands whose identity is multi-hue
+
+## 50. `writing.success-names-what-happened`
+
+A success message names the thing and what happened to it, in a few words ('Product updated'), instead of a generic 'Success!' or a wordy 'Your product has been successfully updated'.
+
+- **Source:** Shopify Polaris, *Toast component, Content guidelines: Message* — https://polaris.shopify.com/components/internal-only/toast
+- **In their words:** "Written in the pattern of: noun + verb"
+- **Do:** Object + past-tense verb: 'Collection added', 'Invoice sent'; Include the identifier when there are several (e.g. 'Issue #21 created' with a link); On the final page of a transaction, add a reference and what happens next
+- **Don't:** A bare 'Success!', 'Done' or 'Saved successfully' with no object; 'Your X has been successfully Y-ed' padding; Title Case or field-colon formats like 'Discount: Saved successfully'
+- **Look at:** Drive each save/create/send/delete action and capture the resulting status text (role=status, aria-live regions, toasts, banners). Count messages that contain no noun from the action's object (the button label's object or the page's entity name), or that are only a generic word {success, done, saved, ok, complete}, or that exceed 8 words for a toast. Count must be 0.
+- **Unless:** When the result is already obvious on screen (the edited item reappears updated, or the user lands on the new item), Primer says no extra success message is needed — screen readers still need it announced; Confirmation pages at the end of a transaction carry more: reference number and what happens next
+
+## 51. `writing.buttons-name-the-action`
+
+A button's label is a verb (plus its object when needed) that says what happens when it is pressed; vague labels like OK, Done, Submit or Yes are replaced whenever a specific action exists.
+
+- **Source:** IBM Carbon Design System, *Dialog pattern, anatomy: Actions* — https://carbondesignsystem.com/patterns/dialog-pattern/
+- **In their words:** "Use descriptive words for the actions like Add, Delete, Save and avoid vague words like Done or OK."
+- **Do:** Start the label with a verb: 'Save and continue', 'Send invoice', 'Add product'; Name the object when the verb alone is ambiguous on that screen; Make the dialog title and its confirming button use the same verb
+- **Don't:** 'OK', 'Done', 'Submit', 'Yes', 'Go', 'Confirm' where a specific action exists; Labels that describe the button rather than the action ('Button', 'Click'); Icon-only buttons without an accessible name
+- **Look at:** List every visible button and input[type=submit] with its accessible name. Count those whose trimmed, lower-cased name is in the generic set {ok, okay, done, submit, yes, go, confirm, click here, click, button} or is empty. Count must be 0 outside of a platform-standard alert with a single acknowledgement.
+- **Unless:** A purely informational alert with one acknowledgement button may say 'OK'; GOV.UK uses 'Continue' for a question page that does not save the user's answers — a convention for multi-page forms, not a generic label
+
+## 52. `writing.one-label-per-action`
+
+One concept, one word: controls that do the same thing carry the same label everywhere, and controls that do different things never share a label.
+
+- **Source:** GitHub Primer, *Accessibility guide: Descriptive buttons, 'How to test names'* — https://primer.style/guides/accessibility/descriptive-buttons
+- **In their words:** "When buttons perform the same action, they have the same name."
+- **Do:** Keep a terminology list of preferred words and words not to use for the product; Pick one verb per action (Delete or Remove, not both for the same thing) and reuse it across pages; Add the object to disambiguate repeated actions ('Remove Apples', 'Remove Pears')
+- **Don't:** Synonyms for one action across screens: 'Save' here, 'Update' there, 'Apply' elsewhere; Identical labels for different actions on the same page; Naming the same object two ways ('workspace' and 'project') in one product
+- **Look at:** Across the journey's pages, collect (accessible name, action) pairs for buttons and links, where action is the form action/href/handler target. Count names that map to two or more different actions on one page, and actions reached by two or more different names across pages; also flag known synonym pairs present together (save/update/apply, delete/remove, sign in/log in, cart/basket). Count must be 0.
+- **Unless:** Delete and Remove may coexist when they mean different things (destroy vs take out of a collection), as Carbon defines them — then each must be used only for its own meaning
+
+## 53. `writing.dates-numbers-units-for-the-reader`
+
+Dates spell out the month, numbers are numerals with thousands separators, and units sit a space after their number — formatted in the reader's locale, never as an ambiguous all-numeric date or a raw machine value.
+
+- **Source:** Shopify Polaris, *Content: Grammar and mechanics, 'Numbers, dates, and currency'* — https://polaris.shopify.com/content/grammar-and-mechanics
+- **In their words:** "Use the month’s full name. If there isn’t enough space, use 3-letter abbreviations. Don’t write dates with numerals only."
+- **Do:** 'December 11, 2024' or 'Dec 11, 2024' (in the reader's locale order); Numerals, not words: 'You have 5 orders to fulfill'; Thousands separators: '12,000'; A space between number and unit: '3.4 lb', '2 kg'; Currency code after the amount when currencies can be confused: '$10,000 USD'; Format with Intl.DateTimeFormat / Intl.NumberFormat for the user's locale
+- **Don't:** All-numeric dates like '12/11/24'; ISO timestamps or epoch values shown raw ('2024-12-11T09:30:00Z'); Ordinals in dates ('January 23rd'); Unit glued to the number ('3.4lb'); Shortened numbers like '12 k' where the exact value matters
+- **Look at:** Scan visible text nodes. Count matches of all-numeric dates (\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b), raw ISO timestamps (\d{4}-\d{2}-\d{2}T\d{2}:), integers of 5+ digits with no separator outside codes/IDs, and numbers glued to a unit (\d(kg|lb|cm|mm|km|mi|ml|oz)\b). Count must be 0.
+- **Unless:** Polaris notes these are American English base rules and dates, numbers and measurements should be localized automatically — the target is the reader's locale, not US format; Identifiers, codes, SKUs and years are not quantities and take no separator; Dense data tables may use compact numeric dates if the format is unambiguous for the locale and stated in the column header
+
+## 54. `data-display.text-left-headers-follow-their-column`
+
+Text cells are left-aligned, nothing in a data table is centred, and each column header takes the same alignment as the data below it.
+
+- **Source:** W3C WAI (Eric Eggert, Shadi Abou-Zahra, eds.), *Tables Tutorial — Tips and Tricks: Alignment* — https://www.w3.org/WAI/tutorials/tables/tips/
+- **In their words:** "Align text to the left and numeric data to the right (in left-to-right languages), so that people using larger text sizes or smaller screens will be able to find it. … It’s helpful to give column headers the same alignment as the data in the cells below."
+- **Do:** Left-align (start-align) textual cells and their headers; Give each th the same horizontal alignment as the cells of its column; Mirror alignment in right-to-left languages
+- **Don't:** Centre-aligned text or number columns; A left-aligned header above a right-aligned numeric column; Centred headers as a table-wide default
+- **Look at:** For each table column: count th whose computed text-align differs from the dominant text-align of the td in the same column, and count td/th whose computed text-align is center (excluding cells that hold only a checkbox, icon or status badge).
+- **Unless:** A column holding only a checkbox, icon or single glyph may be centred; Right-to-left scripts reverse the sides
+
+## 55. `data-display.no-tables-for-layout`
+
+A table is for comparing data in rows and columns, never for arranging content on the page; layout belongs to the grid.
+
+- **Source:** GOV.UK Design System (Government Digital Service), *Table — When not to use this component* — https://design-system.service.gov.uk/components/table/
+- **In their words:** "Never use the table component to layout content on a page."
+- **Do:** CSS grid or flex for page and dashboard layout; A list, cards or a summary list for items that do not share columns; Tables only where every row has the same fields
+- **Don't:** A table that positions a sidebar, form or dashboard tiles; Table cells holding headings, paragraphs or whole forms; role=presentation on a table that actually holds tabular data
+- **Look at:** Count table elements that have no th and either contain headings, more than one paragraph per cell, form fieldsets or nested tables, or have a single row whose cells hold unrelated content blocks.
+- **Unless:** HTML email, where tables are still the only reliable layout tool
+
+## 56. `data-display.summary-list-for-key-value-facts`
+
+A set of facts about one thing — label and value pairs — is shown as a summary list (dl with dt and dd), not as a table with no headers or as loose text.
+
+- **Source:** GOV.UK Design System (Government Digital Service), *Summary list — When to use / When not to use this component* — https://design-system.service.gov.uk/components/summary-list/
+- **In their words:** "Use a summary list to show information as a list of key facts. … only use it to present information that has a key and at least one value."
+- **Do:** dl with dt (the key) and dd (the value) for record details, metadata and check-your-answers pages; A row action ('Change') whose accessible name includes the key ('Change name'); Headings or cards to separate several summary lists on one page
+- **Don't:** A two-column table without th used to show one record's fields; Key–value pairs set as 'Label: value' runs in a paragraph; A summary list for genuinely tabular data or a plain list of items
+- **Look at:** Where the screen shows the fields of a single record (a profile, an order, an item's metadata, a check-answers page), are the label–value pairs marked up as dl/dt/dd with each key visually distinct from its value — and is tabular data comparing several records in a table rather than a summary list?
+- **Unless:** Two or three facts inside a card may be inline text if they are not scanned as a set
+
+## 57. `forms.group-related-inputs-in-a-fieldset`
+
+Wrap each set of inputs that answer one question — radios, checkboxes, a date, an address — in a fieldset whose first child is a legend naming the question.
+
+- **Source:** U.S. Web Design System (USWDS), *Form component — Accessibility guidance* — https://designsystem.digital.gov/components/form/
+- **In their words:** "Group each set of thematically related controls in a fieldset element. Use the legend element to offer a label within each one."
+- **Do:** fieldset + legend for every radio group and checkbox group; fieldset + legend for date (day/month/year) and multi-line address; The legend as the page h1 when the page asks only that question; '(optional)' in the legend when the whole group is optional
+- **Don't:** A radio group whose question is a <p> or <div> above the radios; Radio and checkbox groups with no group name for assistive tech; A fieldset with no legend or an empty one
+- **Look at:** Count radio groups (same name), checkbox groups, and day/month/year triples. How many are not inside a fieldset whose first element child is a non-empty legend (or a role=group / radiogroup with aria-labelledby pointing at visible text)?
+- **Unless:** A single checkbox (I agree) needs no fieldset; Native fieldset/legend can be replaced by role=group with aria-labelledby where styling requires it
+
+## 58. `forms.do-not-disable-the-submit-button`
+
+Keep the submit button enabled while the form is incomplete; let a press show what is missing instead of greying the button out.
+
+- **Source:** GitHub Primer, *Forms UI pattern — Validation* — https://primer.style/product/ui-patterns/forms/overview/
+- **In their words:** "Disabled buttons are discouraged, as they don't clearly communicate what actions a user should take to complete a form."
+- **Do:** An always-enabled submit that runs validation and shows the error summary; aria-disabled with an explanation where a control truly must be unavailable; Ignoring a second click while a submit is in flight, with a visible busy state
+- **Don't:** A grey, unfocusable submit until every field validates; A disabled button with no text saying why; Disabled text inputs used as read-only display
+- **Look at:** Load the form untouched. Is the primary submit button disabled (disabled attribute, aria-disabled=true, or pointer-events:none)? If enabled, does pressing it produce visible field errors within 1 s?
+- **Unless:** Briefly blocking a second submit while the first is processing (USWDS, GOV.UK prevent-double-click); GOV.UK: only when research shows a disabled button makes the interface easier to understand
+
+## 59. `forms.validate-when-the-user-is-done`
+
+Do not show an error while the user is still typing; validate when they try to continue, and only add earlier validation where research shows it helps.
+
+- **Source:** GOV.UK Design System, *Recover from validation errors pattern — When to tell the user about validation errors* — https://design-system.service.gov.uk/patterns/validation/
+- **In their words:** "Generally speaking, avoid validating the information in a field before the user has finished entering it. This sort of validation can cause problems - especially for users who type more slowly."
+- **Do:** Validate on Continue or Submit; After a failed submit, update a field's error live once the user fixes it (Primer); A character count is the accepted exception: warn as the limit is passed
+- **Don't:** An error that appears on the first keystroke of an email or phone field; Red borders on an untouched form at load; Browser-native HTML5 validation bubbles in place of designed messages
+- **Look at:** Focus an email or formatted field and type one character, keeping focus. Wait 1 s. Does any error message, aria-invalid=true or error colour appear before blur or submit? Also load the form fresh: are any fields already marked invalid?
+- **Unless:** GOV.UK goes further and says not to validate on blur either; Baymard (usability.inline-validation-after-leaving-field) recommends blur validation for hard fields — the schools agree only on 'not while typing'; Primer allows validating as the user types once the field has already been flagged invalid, so the error clears as soon as it is fixed
+
+## 60. `forms.keep-answers-after-an-error`
+
+When a submit fails, show the form again with every answer the user gave still in it — the failing ones and the passing ones.
+
+- **Source:** GOV.UK Design System, *Error message component — How it works* — https://design-system.service.gov.uk/components/error-message/
+- **In their words:** "Do not clear any form fields when showing the Error message component. Keep both passing and failing answers."
+- **Do:** Re-render server-side errors with submitted values filled in; Keep the failing value so the user can see and edit what went wrong; Pre-populate fields when the user goes back to change an answer
+- **Don't:** A reload that empties the form after a server error; Clearing the field that failed; Clearing password-adjacent fields such as name and email along with the password
+- **Look at:** Fill every field with valid values except one, submit, and after the error page paints read each input's value: how many fields that had a value now read empty?
+- **Unless:** Password and card security code fields may be cleared for security, and the message should say so
+
+## 61. `forms.autocomplete-names-the-purpose`
+
+Every field that asks about the user — name, email, phone, address, postcode, birthday, card — carries the matching autocomplete token so browsers and assistive tech can fill and label it.
+
+- **Source:** W3C Web Accessibility Initiative, *Understanding WCAG 2.2 Success Criterion 1.3.5: Identify Input Purpose* — https://www.w3.org/WAI/WCAG22/Understanding/identify-input-purpose.html
+- **In their words:** "Use code to indicate the purpose of common inputs, where technology allows."
+- **Do:** autocomplete='name' or 'given-name' and 'family-name' on name fields; 'email', 'tel', 'postal-code', 'street-address' or 'address-line1', 'bday-day'/'bday-month'/'bday-year'; 'shipping' and 'billing' section tokens on order forms; autocomplete='off' on the form, if needed, while each field still declares its purpose
+- **Don't:** autocomplete='off' on personal fields with no purpose token; Personal-data fields with no autocomplete attribute; A token that does not match the field (email token on a phone field)
+- **Look at:** For every input, select and textarea whose label matches name, email, phone, address, postcode/ZIP, city, country, date of birth, card number or expiry: count those whose autocomplete attribute is missing, 'off', or not a WCAG input-purpose token that matches the label.
+- **Unless:** Fields about someone other than the user (a recipient's email) are outside 1.3.5; A field that accepts either username or email may carry one token or none

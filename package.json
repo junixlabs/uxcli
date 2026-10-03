@@ -1,7 +1,7 @@
 {
   "name": "@junixlabs/uxcli",
   "version": "0.8.0",
-  "description": "Give a coding agent the product context it needs before it designs a screen, then measure the screen in real Chrome before it says done. No commitment, no verdict.",
+  "description": "Make a coding agent design like a designer who did the research: a cited library of UI/UX rules and product templates, the context to read before designing, and journeys walked in real Chrome to check the experience before it says done.",
   "license": "MIT",
   "repository": {
     "type": "git",

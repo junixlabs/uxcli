@@ -1,0 +1,525 @@
+{
+ "schema_version": 1,
+ "school": "data-display",
+ "name": "Data display",
+ "research": "docs/lenses/data-display.md",
+ "viewpoints": [
+  {
+   "id": "data-display.right-align-numbers-tabular-figures",
+   "claim": "Numbers that are compared down a column are right-aligned and set in tabular figures, so their place values line up.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Data table — Best practices: Make numbers easier to compare",
+    "url": "https://primer.style/product/components/data-table/",
+    "quote": "Right-align numeric values and use the tabular-num font variant when possible."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Right-align (text-align: right or end) every cell holding an amount, count, percentage or currency",
+    "Set numeric columns in font-variant-numeric: tabular-nums, or a monospace face for dense numbers",
+    "Right-align the header of a numeric column with its numbers"
+   ],
+   "forbids": [
+    "Left- or centre-aligned columns of amounts",
+    "Proportional figures in a column that is meant to be compared digit by digit"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For every td or role=cell whose text parses as a number, amount, percentage or currency, count the cells whose computed text-align is not right/end, and the numeric columns whose computed font-variant-numeric lacks tabular-nums (and whose font is not monospace).",
+    "mustFail": "An orders table with a Total column of '£1,204.50', '£98.00', '£12,300.00' left-aligned in a proportional font, so the decimal points zig-zag.",
+    "mustPass": "The same column with text-align: right and font-variant-numeric: tabular-nums on the cells and their th, decimal points in one vertical line."
+   },
+   "exceptions": [
+    "Numbers that are identifiers rather than quantities — phone numbers, postcodes, dates, order IDs — need not be right-aligned or tabular (USWDS says the same)",
+    "A single number standing alone, not compared down a column"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages only carry numeric columns occasionally, such as a pricing comparison or a table in an article; when they do, the rule applies.",
+   "agrees": [
+    "craft.align-with-readability-in-mind",
+    "modern.numbers-and-text-do-not-shift-layout"
+   ]
+  },
+  {
+   "id": "data-display.text-left-headers-follow-their-column",
+   "claim": "Text cells are left-aligned, nothing in a data table is centred, and each column header takes the same alignment as the data below it.",
+   "source": {
+    "author": "W3C WAI (Eric Eggert, Shadi Abou-Zahra, eds.)",
+    "work": "Tables Tutorial — Tips and Tricks: Alignment",
+    "url": "https://www.w3.org/WAI/tutorials/tables/tips/",
+    "quote": "Align text to the left and numeric data to the right (in left-to-right languages), so that people using larger text sizes or smaller screens will be able to find it. … It’s helpful to give column headers the same alignment as the data in the cells below."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Left-align (start-align) textual cells and their headers",
+    "Give each th the same horizontal alignment as the cells of its column",
+    "Mirror alignment in right-to-left languages"
+   ],
+   "forbids": [
+    "Centre-aligned text or number columns",
+    "A left-aligned header above a right-aligned numeric column",
+    "Centred headers as a table-wide default"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each table column: count th whose computed text-align differs from the dominant text-align of the td in the same column, and count td/th whose computed text-align is center (excluding cells that hold only a checkbox, icon or status badge).",
+    "mustFail": "A customers table with every th and td text-align: center, and a right-aligned Spend column under a left-aligned 'Spend' header.",
+    "mustPass": "Name and Email columns left-aligned with left-aligned headers; Spend right-aligned with a right-aligned header; no centred cells."
+   },
+   "exceptions": [
+    "A column holding only a checkbox, icon or single glyph may be centred",
+    "Right-to-left scripts reverse the sides"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Applies wherever a data table appears; marketing and content pages have fewer of them.",
+   "agrees": [
+    "canon.vignelli-flush-left",
+    "craft.center-text-only-under-three-lines",
+    "craft.align-with-readability-in-mind"
+   ]
+  },
+  {
+   "id": "data-display.one-unit-and-format-per-column",
+   "claim": "Every value in a column uses the same unit, precision and format; the unit is named once in the header, not repeated in each cell.",
+   "source": {
+    "author": "U.S. Web Design System (GSA)",
+    "work": "Table — Usability guidance",
+    "url": "https://designsystem.digital.gov/components/table/",
+    "quote": "Predictably format columns. Take care not to vary units or formatting within the same column. Instead, normalize values so they can be easily compared."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Normalise a column to one unit (all days, not days and weeks)",
+    "Keep the same number of decimal places in every row of a column",
+    "Put the unit or symbol in the column header ('Temperature °C') rather than in every cell",
+    "Use one date format and one thousands separator throughout the table"
+   ],
+   "forbids": [
+    "Mixing '3 days' and '2 weeks' in one column",
+    "'12.5', '12.50' and '12.500' in the same column",
+    "Abbreviating some values ('1.2k') and not others in the same column"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each column of numeric td, count distinct decimal-place counts, distinct unit suffixes or prefixes, and distinct date formats; any column with more than one is a failure.",
+    "mustFail": "A Duration column reading '3 days', '2 weeks', '10 days'; a Price column reading '$4.5', '$12.00', '$7.125'.",
+    "mustPass": "Header 'Duration (days)' over '3', '14', '10'; header 'Price ($)' over '4.50', '12.00', '7.13'."
+   },
+   "exceptions": [
+    "A column deliberately mixing magnitudes where the unit changes are labelled per cell and sorting is by underlying value — rare, and worth questioning"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Any page with a column of values; transaction pages rarely have more than a summary of a few amounts.",
+   "agrees": []
+  },
+  {
+   "id": "data-display.header-cells-are-th-with-scope",
+   "claim": "A data table marks its header cells as th and its data cells as td; when headers run both across and down, scope (or id/headers in complex tables) ties each cell to its headers.",
+   "source": {
+    "author": "W3C WAI (Eric Eggert, Shadi Abou-Zahra, eds.)",
+    "work": "Tables Tutorial",
+    "url": "https://www.w3.org/WAI/tutorials/tables/",
+    "quote": "Header cells must be marked up with <th>, and data cells with <td> to make tables accessible. For more complex tables, explicit associations may be needed using scope, id, and headers attributes."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A thead row of th scope=col in every data table",
+    "th scope=row for the first cell when it names the row's item",
+    "id and headers attributes when a cell sits under more than one level of header",
+    "A caption that names the table"
+   ],
+   "forbids": [
+    "Header rows built from td styled bold",
+    "Div grids that look like tables with no role=table/row/columnheader/cell semantics",
+    "One table holding several topics separated by extra rows of th"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count table (and role=table/grid) elements that have more than one row of data and no th / role=columnheader; count tables with both a header row and a header column whose th lack scope; count tables with no caption, aria-label or aria-labelledby.",
+    "mustFail": "<table><tr><td><b>Name</b></td><td><b>Role</b></td></tr><tr><td>Ada</td><td>Admin</td></tr></table>.",
+    "mustPass": "<table><caption>Team members</caption><thead><tr><th scope=col>Name</th><th scope=col>Role</th></tr></thead><tbody><tr><th scope=row>Ada</th><td>Admin</td></tr></tbody></table>."
+   },
+   "exceptions": [
+    "A simple table with one header row needs only th, not scope; scope matters once there are header rows and header columns",
+    "Layout tables, which should not exist (see data-display.no-tables-for-layout)"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Content pages often carry tables in articles; shop and transaction pages have them mainly in size charts, order summaries and comparisons.",
+   "agrees": []
+  },
+  {
+   "id": "data-display.no-tables-for-layout",
+   "claim": "A table is for comparing data in rows and columns, never for arranging content on the page; layout belongs to the grid.",
+   "source": {
+    "author": "GOV.UK Design System (Government Digital Service)",
+    "work": "Table — When not to use this component",
+    "url": "https://design-system.service.gov.uk/components/table/",
+    "quote": "Never use the table component to layout content on a page."
+   },
+   "evidence": "author",
+   "prefers": [
+    "CSS grid or flex for page and dashboard layout",
+    "A list, cards or a summary list for items that do not share columns",
+    "Tables only where every row has the same fields"
+   ],
+   "forbids": [
+    "A table that positions a sidebar, form or dashboard tiles",
+    "Table cells holding headings, paragraphs or whole forms",
+    "role=presentation on a table that actually holds tabular data"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count table elements that have no th and either contain headings, more than one paragraph per cell, form fieldsets or nested tables, or have a single row whose cells hold unrelated content blocks.",
+    "mustFail": "A dashboard built as <table><tr><td><h2>Revenue</h2><canvas></canvas></td><td><h2>Signups</h2><form>…</form></td></tr></table>.",
+    "mustPass": "The same dashboard as a CSS grid of section elements, with a real table only inside the tile that lists rows of data."
+   },
+   "exceptions": [
+    "HTML email, where tables are still the only reliable layout tool"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Layout tables can turn up on any kind of page.",
+   "agrees": [
+    "modern.cards-are-a-choice-not-a-default"
+   ]
+  },
+  {
+   "id": "data-display.summary-list-for-key-value-facts",
+   "claim": "A set of facts about one thing — label and value pairs — is shown as a summary list (dl with dt and dd), not as a table with no headers or as loose text.",
+   "source": {
+    "author": "GOV.UK Design System (Government Digital Service)",
+    "work": "Summary list — When to use / When not to use this component",
+    "url": "https://design-system.service.gov.uk/components/summary-list/",
+    "quote": "Use a summary list to show information as a list of key facts. … only use it to present information that has a key and at least one value."
+   },
+   "evidence": "author",
+   "prefers": [
+    "dl with dt (the key) and dd (the value) for record details, metadata and check-your-answers pages",
+    "A row action ('Change') whose accessible name includes the key ('Change name')",
+    "Headings or cards to separate several summary lists on one page"
+   ],
+   "forbids": [
+    "A two-column table without th used to show one record's fields",
+    "Key–value pairs set as 'Label: value' runs in a paragraph",
+    "A summary list for genuinely tabular data or a plain list of items"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "Where the screen shows the fields of a single record (a profile, an order, an item's metadata, a check-answers page), are the label–value pairs marked up as dl/dt/dd with each key visually distinct from its value — and is tabular data comparing several records in a table rather than a summary list?"
+   },
+   "exceptions": [
+    "Two or three facts inside a card may be inline text if they are not scanned as a set"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing pages rarely show a record's fields; content pages sometimes have metadata blocks.",
+   "agrees": []
+  },
+  {
+   "id": "data-display.long-tables-sort-and-say-so",
+   "claim": "Long tables let users sort the columns that have a natural order, start with one column sorted, and expose the sort state to assistive technology.",
+   "source": {
+    "author": "U.S. Web Design System (GSA)",
+    "work": "Table — Usability guidance",
+    "url": "https://designsystem.digital.gov/components/table/",
+    "quote": "Enable sort where useful. Add row sorting to individual columns of long tables where the data can be logically ordered either alphabetically or numerically."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Sort controls as buttons inside the th of sortable columns",
+    "One column sorted on load, shown with an arrow and aria-sort on its th (Primer)",
+    "A polite live region that announces the new sort (USWDS)",
+    "A filter or search field above long tables, and pagination for very large sets"
+   ],
+   "forbids": [
+    "Long tables with no sort, filter or pagination",
+    "A sort state shown only by an icon with no aria-sort",
+    "Row sorting on tables with merged (colspan/rowspan) cells"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count tables with more than 20 body rows (or with pagination) that have no sort control in any th and no filter/search input associated with them; among sortable tables, count those where no th carries aria-sort other than none.",
+    "mustFail": "A 150-row invoice table with static th text, no filter field and no pagination.",
+    "mustPass": "The same table with button sort controls in the Date and Amount headers, Date th carrying aria-sort=descending on load, a filter input above, and 20 rows per page."
+   },
+   "exceptions": [
+    "Short tables a user takes in at a glance",
+    "Tables whose row order is itself the meaning (a ranked list, a timetable) may fix the order"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "Long tables belong to data and workspace screens; content and shop pages sometimes carry them (a reference table, an order history); marketing and transaction flows do not.",
+   "agrees": []
+  },
+  {
+   "id": "data-display.empty-data-explains-and-offers-next-step",
+   "claim": "When a table, list, chart or dashboard tile has no data, the empty space says why it is empty and what to do next, in place of the missing data — distinguishing first use, no results and error.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Empty states pattern — Anatomy and Where to use",
+    "url": "https://carbondesignsystem.com/patterns/empty-states-pattern/",
+    "quote": "Body: Explain clearly the next action to populate the space. You may also explain why the space is empty and include the benefit of taking this step."
+   },
+   "evidence": "author",
+   "prefers": [
+    "An empty state rendered where the data would be, not as a toast or on another page",
+    "A title, one sentence of explanation and one action that adds data, clears filters or retries",
+    "Different copy for no data yet, no results for this filter, and could not load",
+    "A tertiary action when several empty states can show at once (Carbon)"
+   ],
+   "forbids": [
+    "A table header over zero rows with nothing else",
+    "A chart drawn with empty axes and no message",
+    "'No data' with no reason and no way forward",
+    "Several primary buttons from several empty tiles on one screen"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Render each data region (table, list, chart, tile) with zero items: count regions that show no text, or show text but no link or button, inside the region's own bounding box; and count no-results states after filtering that offer no way to clear or change the filter.",
+    "mustFail": "An Invoices table rendering only its thead when the account has none; a filtered list showing a blank panel.",
+    "mustPass": "In the table body: 'No invoices yet — invoices you send appear here' and a 'Create invoice' button; after filtering: 'No invoices match “overdue”' with a 'Clear filters' link."
+   },
+   "exceptions": [
+    "A region that is legitimately and permanently empty for this user may collapse instead of explaining itself",
+    "When there is nothing the user can do, the text says how to get help instead of offering an action (Primer)"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Data and workspace screens, carts, order histories and search results empty out; marketing pages have no user data.",
+   "agrees": [
+    "craft.dont-overlook-empty-states-teach-by-example",
+    "modern.every-state-is-designed",
+    "usability.peak-end-finish-well"
+   ]
+  },
+  {
+   "id": "data-display.loading-skeleton-holds-the-layout",
+   "claim": "Data that takes time to load is stood in for by a skeleton shaped like the real rows and columns, so nothing moves when the data arrives.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Data table — Best practices: Use “skeleton” placeholders to indicate loading content",
+    "url": "https://primer.style/product/components/data-table/",
+    "quote": "Use “skeleton” placeholders to indicate loading content … The placeholder should match the real content as closely as possible. … Ideally, the height of the cell will not change once the data is loaded."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Skeleton rows that keep the real column widths and alignment",
+    "Skeletons for tables, lists, cards and tiles rather than a spinner over them (Carbon)",
+    "One loading announcement for a group of skeletons, via aria-busy or a live region"
+   ],
+   "forbids": [
+    "A centred spinner in an empty box that the table then pushes the page down from",
+    "Skeletons on buttons, toasts, menus or modals themselves (Carbon)",
+    "Skeletons whose row count or column widths bear no relation to the data"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Throttle the data request; screenshot the loading state and the loaded state. Count layout shifts (CLS entries) attributable to the data region when data arrives, and count data regions whose loading state is a bare spinner or nothing while the request is pending past 1 s.",
+    "mustFail": "A 40px spinner centred in a 40px-tall div; on load a 600px table appears and pushes the footer down (CLS > 0.1).",
+    "mustPass": "Ten grey skeleton rows at the final row height and column widths with aria-busy=true on the table; on load the text replaces them with no shift."
+   },
+   "exceptions": [
+    "Loads under about a second may show nothing at all rather than flashing a skeleton",
+    "Cells whose wrapped height cannot be known in advance may change height (Primer says so)"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Wherever data arrives after first paint; static marketing pages rarely load data.",
+   "agrees": [
+    "modern.every-state-is-designed",
+    "usability.feedback-within-a-second",
+    "usability.visibility-of-system-status"
+   ]
+  },
+  {
+   "id": "data-display.wrap-before-truncating-and-reveal-the-rest",
+   "claim": "Long cell content wraps rather than truncating; where truncation is unavoidable the full value is still available, by tooltip, title or an expanded view.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Data table — Best practices: Avoid wrapping or truncation of cell content as much as possible",
+    "url": "https://primer.style/product/components/data-table/",
+    "quote": "Cells that are likely to contain long strings may choose to wrap the content. This is the preferred way to accommodate long content because it doesn't hide the content. … Content truncation is available as a last resort when column widths are set. The full content may be exposed in a tooltip."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Wrapping long text cells",
+    "Truncation only with a fixed column width, and then the full text in a tooltip, title, aria-label or row expansion",
+    "Truncating in the middle or end only where the distinguishing part survives"
+   ],
+   "forbids": [
+    "text-overflow: ellipsis with no way to read the hidden text",
+    "Truncating row titles that start with the same words, so every row looks identical (Polaris)",
+    "Truncating numbers"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Count td, th and list-item text elements where scrollWidth > clientWidth (or line-clamp hides lines) and the element and its ancestors up to the cell carry no title, no aria-label/aria-description with the full text, no tooltip trigger and no expand control.",
+    "mustFail": "A Product column at 120px with white-space: nowrap; text-overflow: ellipsis showing 'Organic cotton t-…' on five rows, no title attribute.",
+    "mustPass": "The same column wrapping to two lines, or truncated with title='Organic cotton t-shirt, navy, XL' and a focusable tooltip."
+   },
+   "exceptions": [
+    "Free-text previews (an email snippet) whose full text is one click away on the row's detail page"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Truncation is mostly a problem of dense tables and lists; product names in shop grids truncate often.",
+   "agrees": [
+    "modern.every-state-is-designed"
+   ]
+  },
+  {
+   "id": "data-display.chart-axes-are-honest",
+   "claim": "Bar and area charts start their value axis at zero; line charts may crop the axis to show change; gaps in the data are shown as gaps, never interpolated.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Data visualization — Axes and labels",
+    "url": "https://carbondesignsystem.com/data-visualization/axes-and-labels/",
+    "quote": "Always start numerical axes at zero for part-to-whole and comparisons charts, such as bar and area chart. … Never interpolate between periods when data is unavailable."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A zero baseline on bar, column and area charts",
+    "A cropped y-axis only on line and scatter charts, where the trend is the message",
+    "Labelled start and end points around a gap in a time series",
+    "An explicit axis-break mark when part of an axis is skipped"
+   ],
+   "forbids": [
+    "Bars rising from a non-zero baseline",
+    "A line drawn straight across missing periods",
+    "Changing tick increments to hide missing data"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each bar, column or area chart (SVG or canvas with an accessible data table or chart library config), count those whose value-axis minimum is not 0 for all-positive data; for each time-series line, count runs where a missing period is bridged by a continuous segment.",
+    "mustFail": "A bar chart of monthly revenue whose y-axis runs from 9,000 to 10,000, making a 3% difference look like a 5× one.",
+    "mustPass": "The same bars on a 0–10,000 axis; a line chart of the same data cropped to 9,000–10,000 with a visible gap for the month with no data."
+   },
+   "exceptions": [
+    "Line charts and scatter plots, where Carbon allows a non-zero start because the trend matters more than relative size",
+    "Log-scale charts, which have no zero and must say they are log scale"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "Applies to any page that shows a chart; data dashboards most, marketing and content pages when they show figures, shop and transaction pages almost never.",
+   "agrees": [
+    "canon.tufte-graphical-integrity"
+   ]
+  },
+  {
+   "id": "data-display.chart-axes-and-bars-are-labelled",
+   "claim": "Quantitative charts label both axes outside the data area in short plain words, and label each bar with what it shows and its value; past about six bars, use a table.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Data visualizations — Axis and labelling conventions; Horizontal bar charts",
+    "url": "https://polaris-react.shopify.com/design/data-visualizations",
+    "quote": "All standard charts that show quantitative data have 2 axes that should be labeled for clarity. … Label each bar with what it’s displaying, as well as the value."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Axis titles naming the measure and its unit",
+    "Direct labels on or beside each bar, outside the bar when it is too short",
+    "Tick labels skipped at regular intervals rather than crammed or slanted",
+    "Short standard abbreviations: 'Feb', '10 Apr', '1.2k'",
+    "A legend only when there is more than one series (Primer)"
+   ],
+   "forbids": [
+    "Unlabelled axes or units only in a tooltip",
+    "Slanted tick labels squeezed in to fit",
+    "A bar chart of dozens of categories where a table would compare them better"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each chart, count value or category axes with no visible title or unit text, bars or points with no visible label or value (where there are six or fewer), tick labels rotated away from horizontal, and horizontal bar charts with more than six bars.",
+    "mustFail": "A bar chart of sales by product with no axis titles, values only on hover, and 14 bars with tick labels rotated 45°.",
+    "mustPass": "Six bars each labelled 'T-shirts · $4.2k', an x-axis titled 'Sales (USD)', and the remaining products in a sortable table below."
+   },
+   "exceptions": [
+    "Sparklines and small multiples that share labelled axes with a neighbour",
+    "Interactive charts where exact values sit in a tooltip, provided the axes still carry titles and units"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "Applies wherever a chart is drawn; shop and transaction flows almost never draw one.",
+   "agrees": [
+    "canon.tufte-data-ink-ratio",
+    "canon.tufte-forgo-chartjunk"
+   ]
+  }
+ ]
+}

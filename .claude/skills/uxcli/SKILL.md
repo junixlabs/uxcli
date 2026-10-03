@@ -32,6 +32,8 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    needs, the commitments already signed over it, and what the last run saw. Read it top to bottom.
    If there is no journey or no understanding on disk, the card says so; go to `references/understand.md`
    and `references/journey.md` before writing any UI.
+   If you do not know the product's field from sources, research it first: `npx -y @junixlabs/uxcli
+   template` names a starting point for the kind of product, and `references/research.md` is how.
 3. **Draw before you build.** First pick the lens for what the person does on this screen —
    `marketing`, `content`, `data`, `workspace`, `shop` or `transaction` — and read its checklist,
    `lenses/<kind>.md` in this skill: named designers' rules, each with its source and what to look
@@ -96,6 +98,8 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `references/journey.md` | the card says no journey, or a flow has changed shape: states as signals, hooks, workflows |
 | `references/mockups.md` | a screen the journey names has no mockup or no pick: variants, hooks, `pick.json` |
 | `references/understand.md` | the card says no understanding, or an insight the screen leans on is missing or a hypothesis |
+| `references/research.md` | you do not know the product's field from sources yet: where to look, what to come back with, how to write it down |
+| `templates/<id>.md` | the product is a kind uxcli has a template for — `workspace`, `shop`, `landing`: screens and their lens, journeys to walk, what to research |
 | `lenses/<kind>.md` | before you draw or change a screen: the checklist for its kind of UI — `marketing`, `content`, `data`, `workspace`, `shop`, `transaction` |
 | `references/lenses.md` | how to pick the lens, answer it, write the review, and pass `review check` |
 | `references/principles.md` | a verdict is `not-committed` and the project should decide; proposing a commitment |

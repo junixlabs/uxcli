@@ -9,12 +9,35 @@
    "note": "Same rule, also stated as: usability.hicks-fewer-choices-when-time-matters (Jon Yablonski (Laws of UX)); usability.peak-end-finish-well (Jon Yablonski (Laws of UX)); usability.von-restorff-one-emphasis (GOV.UK Design System); craft.growth-design-psychology-principles (Growth.Design (Dan Benoni, Louis-Xavier Lavallée)); modern.no-deceptive-patterns (Harry Brignull)."
   },
   {
+   "viewpoint": "usability.speak-the-users-language",
+   "note": "Same rule, also stated as: writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen)."
+  },
+  {
+   "viewpoint": "usability.inline-validation-after-leaving-field",
+   "note": "Same rule, also stated as: usability.visibility-of-system-status (Jakob Nielsen); modern.feedback-is-local-and-optimistic (Rauno Freiberg); forms.error-summary-at-the-top (GOV.UK Design System)."
+  },
+  {
+   "viewpoint": "usability.postel-tolerant-input",
+   "note": "Same rule, also stated as: craft.body-16px-line-height-1-5 (Steve Schoger); modern.mobile-inputs-do-not-zoom-or-trap (Rauno Freiberg); forms.input-type-matches-the-answer (GOV.UK Design System)."
+  },
+  {
+   "viewpoint": "usability.omit-needless-words",
+   "note": "Same rule, also stated as: writing.sentence-case-ui-text (IBM Carbon Design System)."
+  },
+  {
+   "viewpoint": "usability.fewer-checkout-fields",
+   "note": "Same rule, also stated as: forms.mark-optional-fields-in-words (GOV.UK Design System); forms.ask-only-what-you-need (GOV.UK Design System)."
+  },
+  {
+   "viewpoint": "usability.minimalist-no-competing-information"
+  },
+  {
    "viewpoint": "usability.no-false-affordances",
    "note": "Same rule, also stated as: canon.rams-honest (Dieter Rams)."
   },
   {
-   "viewpoint": "usability.inline-validation-after-leaving-field",
-   "note": "Same rule, also stated as: usability.visibility-of-system-status (Jakob Nielsen); modern.feedback-is-local-and-optimistic (Rauno Freiberg)."
+   "viewpoint": "usability.help-in-context",
+   "note": "Same rule, also stated as: usability.placeholders-are-not-labels (Katie Sherwin, NN/g); forms.hint-text-is-short-and-linked (GOV.UK Design System)."
   },
   {
    "viewpoint": "usability.feedback-within-a-second",
@@ -25,16 +48,7 @@
    "note": "Same rule, also stated as: modern.signifiers-survive-flatness (Kate Moran (NN/G))."
   },
   {
-   "viewpoint": "usability.speak-the-users-language"
-  },
-  {
-   "viewpoint": "usability.minimalist-no-competing-information"
-  },
-  {
-   "viewpoint": "usability.postel-tolerant-input"
-  },
-  {
-   "viewpoint": "usability.omit-needless-words"
+   "viewpoint": "usability.clearly-marked-emergency-exit"
   },
   {
    "viewpoint": "usability.progress-indication-in-flows"
@@ -43,22 +57,10 @@
    "viewpoint": "usability.single-column-forms"
   },
   {
-   "viewpoint": "usability.fewer-checkout-fields"
-  },
-  {
    "viewpoint": "usability.aesthetic-usability-effect-bias"
   },
   {
-   "viewpoint": "usability.clearly-marked-emergency-exit"
-  },
-  {
-   "viewpoint": "usability.help-in-context"
-  },
-  {
    "viewpoint": "usability.natural-mapping-and-proximity"
-  },
-  {
-   "viewpoint": "usability.placeholders-are-not-labels"
   },
   {
    "viewpoint": "usability.labels-above-fields"
@@ -84,14 +86,22 @@
   },
   {
    "viewpoint": "craft.spacing-and-sizing-system",
-   "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov)."
+   "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.spacing-comes-from-a-scale (Stan Kirilov)."
   },
   {
    "viewpoint": "craft.separation-order-space-then-lines-then-boxes"
   },
   {
-   "viewpoint": "craft.body-16px-line-height-1-5",
-   "note": "Same rule, also stated as: modern.readable-type-sizes-and-weights (Rauno Freiberg); modern.mobile-inputs-do-not-zoom-or-trap (Rauno Freiberg)."
+   "viewpoint": "craft.button-hierarchy-one-primary",
+   "note": "Same rule, also stated as: writing.destructive-actions-name-the-consequence (IBM Carbon Design System)."
+  },
+  {
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group)."
+  },
+  {
+   "viewpoint": "craft.anything-but-dropdowns",
+   "note": "Same rule, also stated as: modern.boring-and-familiar-beats-novel (Scott Berkun); forms.memorable-dates-as-three-fields (GOV.UK Design System)."
   },
   {
    "viewpoint": "craft.tap-targets-and-control-height",
@@ -100,17 +110,6 @@
   {
    "viewpoint": "craft.type-scale-few-font-sizes",
    "note": "Same rule, also stated as: canon.vignelli-two-type-sizes (Massimo Vignelli)."
-  },
-  {
-   "viewpoint": "craft.button-hierarchy-one-primary"
-  },
-  {
-   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
-   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple)."
-  },
-  {
-   "viewpoint": "craft.anything-but-dropdowns",
-   "note": "Same rule, also stated as: modern.boring-and-familiar-beats-novel (Scott Berkun)."
   },
   {
    "viewpoint": "craft.hierarchy-is-everything-squint-test"
@@ -132,6 +131,13 @@
    "note": "Same rule, also stated as: craft.supercharge-the-defaults (Steve Schoger (attendee notes by ynotdraw))."
   },
   {
+   "viewpoint": "modern.readable-type-sizes-and-weights"
+  },
+  {
+   "viewpoint": "modern.numbers-and-text-do-not-shift-layout",
+   "note": "Same rule, also stated as: data-display.right-align-numbers-tabular-figures (GitHub Primer)."
+  },
+  {
    "viewpoint": "modern.delight-scales-with-rarity"
   },
   {
@@ -147,7 +153,58 @@
    "viewpoint": "modern.every-state-is-designed"
   },
   {
-   "viewpoint": "modern.numbers-and-text-do-not-shift-layout"
+   "viewpoint": "color.status-colours-keep-their-meaning"
+  },
+  {
+   "viewpoint": "color.from-tokens-not-hex"
+  },
+  {
+   "viewpoint": "color.one-action-colour-apart-from-status"
+  },
+  {
+   "viewpoint": "color.controls-and-graphics-3-to-1"
+  },
+  {
+   "viewpoint": "color.focus-ring-contrasts-with-its-surroundings"
+  },
+  {
+   "viewpoint": "color.few-families-in-proportion"
+  },
+  {
+   "viewpoint": "writing.success-names-what-happened"
+  },
+  {
+   "viewpoint": "writing.buttons-name-the-action"
+  },
+  {
+   "viewpoint": "writing.one-label-per-action"
+  },
+  {
+   "viewpoint": "writing.dates-numbers-units-for-the-reader"
+  },
+  {
+   "viewpoint": "data-display.text-left-headers-follow-their-column"
+  },
+  {
+   "viewpoint": "data-display.no-tables-for-layout"
+  },
+  {
+   "viewpoint": "data-display.summary-list-for-key-value-facts"
+  },
+  {
+   "viewpoint": "forms.group-related-inputs-in-a-fieldset"
+  },
+  {
+   "viewpoint": "forms.do-not-disable-the-submit-button"
+  },
+  {
+   "viewpoint": "forms.validate-when-the-user-is-done"
+  },
+  {
+   "viewpoint": "forms.keep-answers-after-an-error"
+  },
+  {
+   "viewpoint": "forms.autocomplete-names-the-purpose"
   }
  ]
 }

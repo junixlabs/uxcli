@@ -1,0 +1,443 @@
+{
+ "schema_version": 1,
+ "school": "color",
+ "name": "Colour",
+ "research": "docs/lenses/color.md",
+ "viewpoints": [
+  {
+   "id": "color.never-the-only-signal",
+   "claim": "Whatever a colour means on the page (an error, a required field, a selected state, a series) is also said in text, an icon, a shape or a lightness change of at least 3:1.",
+   "source": {
+    "author": "W3C Accessibility Guidelines Working Group",
+    "work": "Understanding Success Criterion 1.4.1: Use of Color (WCAG 2.2)",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html",
+    "quote": "Use information in addition to color, such as shape or text, to convey meaning."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Pair every status colour with a word or an icon of distinct shape",
+    "Mark an invalid field with an error message, not only a red border",
+    "Show selection with a check, a weight change or a fill that contrasts 3:1 with its neighbours",
+    "Review the screen in greyscale or a colour-blindness simulator"
+   ],
+   "forbids": [
+    "A field outlined red for invalid and green for valid with no message or icon",
+    "Required fields marked only by a red label",
+    "A legend whose only key is coloured swatches when the series are not labelled directly"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Render the page, then render it again with a greyscale filter (filter: grayscale(1) on the root): count elements whose state or meaning (aria-invalid, aria-selected, aria-current, :checked, status badges, chart series) can no longer be told apart, i.e. two states that differ only in hue and whose relative-luminance contrast with each other is below 3:1 and that carry no differing text, icon or shape.",
+    "mustFail": "A form where the invalid email field differs from the valid ones only by border-color #d4351c vs #b1b4b6 (no message, no icon); in greyscale the two borders read the same.",
+    "mustPass": "Same form, the invalid field also shows 'Enter an email address in the correct format' above it and a thicker border."
+   },
+   "exceptions": [
+    "WCAG: a hue difference that is also a lightness difference of 3:1 or more counts as a second cue, unless the user must identify the particular colour (green for valid, red for invalid)",
+    "WCAG: visited-link colour is outside the author's control and does not fail on colour alone",
+    "Primer: colour used only as a visual flourish, carrying no information, needs no second cue"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Any page that uses colour to mean something has this obligation; it is WCAG level A.",
+   "agrees": [
+    "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+    "modern.contrast-and-not-colour-alone"
+   ]
+  },
+  {
+   "id": "color.status-colours-keep-their-meaning",
+   "claim": "Each status colour has one meaning across the product (critical for errors and blocked actions, warning for what needs attention, success for what went well, info for tips) and is never borrowed for promotion or decoration.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Colors: Palettes and roles (Critical, Success)",
+    "url": "https://polaris.shopify.com/design/colors/palettes-and-roles",
+    "quote": "Elements using critical must convey messaging that implies that an action is impossible, blocked, or has resulted in an error."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Map error, warning, success and info to named roles or tokens and use them only in those roles",
+    "Reserve the critical red for errors, blocked actions and destructive buttons",
+    "Use the info role, not warning or critical, for tips and announcements"
+   ],
+   "forbids": [
+    "A sale or 'new' badge in the error red",
+    "Success green used to entice or to advertise an offer",
+    "Warning colour for 'coming soon' or 'under construction' messaging",
+    "Two different reds meaning error on different screens"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Find the colour the page uses for error text (an element with role=alert, aria-invalid's described-by message, or a class/token named error/critical/danger) and the success colour likewise. Count painted elements (text, fill or border) whose colour equals that error or success colour, within a ΔE of 3, and that are neither a validation message, an invalid field, a status badge of that meaning, nor a destructive action.",
+    "mustFail": "A product page whose form error text is #d72c0d and whose '20% off' promo badge is filled #d72c0d.",
+    "mustPass": "Same page, the promo badge filled with the brand or info colour; #d72c0d appears only on the error message and the invalid field's border."
+   },
+   "exceptions": [
+    "Brand colours that happen to be red, as long as a separate, distinct error red is used for errors",
+    "Data visualisations where a series colour coincides with a status hue but no status is implied (prefer avoiding it)"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages show few statuses; anything with forms, orders or states relies on the colours keeping their meaning.",
+   "agrees": []
+  },
+  {
+   "id": "color.from-tokens-not-hex",
+   "claim": "Every colour on the page comes from the design system's named tokens or palette functions, never from hex values copied into components.",
+   "source": {
+    "author": "GOV.UK Design System (Government Digital Service)",
+    "work": "Styles: Colour",
+    "url": "https://design-system.service.gov.uk/styles/colour/",
+    "quote": "Do not copy the specific hexadecimal (hex) colour values."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Reference colour by role token (brand, text, error, border) rather than by value",
+    "Use palette colours (tints and shades of a few families) for supporting elements",
+    "Use a functional token only in the context it is designed for"
+   ],
+   "forbids": [
+    "Hex literals in component styles",
+    "Near-duplicate colours (#1d70b8 next to #1d70b9) created by eye-dropping",
+    "Using the error token as a general red"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Collect every computed color, background-color, border-*-color, outline-color and fill/stroke of painted elements, and every value of CSS custom properties declared on :root (and on any theme selector). Count distinct painted colours that match no custom-property value (exact RGBA after resolution), and count pairs of painted colours closer than ΔE 2 that are not identical.",
+    "mustFail": "A page with 21 distinct painted colours, 8 of them not declared as any --color-* custom property, including #1d70b8 on links and #1d70b9 on a button.",
+    "mustPass": "Same page where every painted colour resolves to a value declared on :root and no two painted colours are within ΔE 2 of each other."
+   },
+   "exceptions": [
+    "Images, illustrations and embedded third-party widgets",
+    "Browser defaults on unstyled native controls",
+    "GOV.UK: palette colours (not functional ones) are allowed for illustrations and custom components"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Whatever the kind of UI, colour drift and broken theming come from values outside the token set.",
+   "agrees": [
+    "color.mode-aware-tokens-in-every-theme"
+   ]
+  },
+  {
+   "id": "color.few-families-in-proportion",
+   "claim": "Use a few colour families in a deliberate proportion (neutral base dominant, then primary, secondary and a small accent), not an even spread of many hues.",
+   "source": {
+    "author": "U.S. Web Design System (GSA)",
+    "work": "Design tokens: Theme color tokens",
+    "url": "https://designsystem.digital.gov/design-tokens/color/theme-tokens/",
+    "quote": "about 60% of your site’s color would be the primary color family, about 30% would be the secondary color family, and about 10% would be the accent color families"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Neutral base for text and most surfaces",
+    "One primary family carrying most of the colour, one secondary, a small accent",
+    "Additional colours used sparingly and for a purpose (Carbon)",
+    "Start in black and white, then add colour to support the message (USWDS)"
+   ],
+   "forbids": [
+    "Five or more saturated hue families at similar weight on one screen",
+    "An accent that covers more area than the primary",
+    "A new hue introduced for a single component"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "Screenshot the page and bucket every non-neutral pixel (HSL saturation above about 15%) by hue into 30° bins, ignoring images and status colours. How many hue families take more than 2% of the coloured area, and does the largest one carry most of it while the smallest (accent) stays near a tenth?"
+   },
+   "exceptions": [
+    "USWDS: the proportions are for non-base colours; neutral text will usually dominate",
+    "Illustration, photography and data visualisation, which need their own palettes",
+    "Brands whose identity is multi-hue"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Data screens need categorical chart palettes that legitimately add hues; the chrome around them still follows the rule.",
+   "agrees": [
+    "craft.black-and-white-first-limit-hues"
+   ]
+  },
+  {
+   "id": "color.one-action-colour-apart-from-status",
+   "claim": "Links and primary actions share one interactive colour family, used consistently, and that colour is not the colour of errors, warnings or success.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Elements: Color, Overview (Color anatomy)",
+    "url": "https://carbondesignsystem.com/elements/color/overview/",
+    "quote": "The core blue family serves as the primary action color across all IBM products and experiences. Additional colors are used sparingly and purposefully."
+   },
+   "evidence": "author",
+   "prefers": [
+    "One link colour, used only for links",
+    "Primary buttons in the brand or action colour",
+    "Danger colour reserved for destructive buttons, not for the primary action"
+   ],
+   "forbids": [
+    "Links in the error red",
+    "Primary buttons in several different hues across screens",
+    "Static text coloured like links"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Take the computed text colour of every a[href] in running text and the background of every primary (first, filled, or type=submit) button. Count distinct hues among them (30° bins), and count links or primary buttons whose colour is within ΔE 10 of the page's error, warning or success colour. Also count non-interactive text elements painted in the link colour.",
+    "mustFail": "Body links are #1d70b8, the 'Continue' button is #d4351c, and the error summary is also #d4351c.",
+    "mustPass": "Body links #1d70b8, 'Continue' button the brand green #00703c, error summary #d4351c, and no static text in #1d70b8."
+   },
+   "exceptions": [
+    "Primer (GitHub) deliberately uses the success role for primary buttons; a system that states such a mapping consistently is following its own rule",
+    "Destructive primary actions (Delete account) take the danger colour on purpose",
+    "Navigation menus, where position signals the link"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Every kind has links and actions that must be recognised as such and not read as status.",
+   "agrees": [
+    "canon.gestalt-similarity"
+   ]
+  },
+  {
+   "id": "color.controls-and-graphics-3-to-1",
+   "claim": "The parts that show a control is there and what state it is in (input borders, checkbox boxes and ticks, toggle tracks, icon-only buttons, meaningful chart marks) contrast at least 3:1 with the colours next to them.",
+   "source": {
+    "author": "W3C Accessibility Guidelines Working Group",
+    "work": "Understanding Success Criterion 1.4.11: Non-text Contrast (WCAG 2.2)",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html",
+    "quote": "Unless the control is inactive, any visual information provided that is necessary for a user to identify that a control is present and how to operate it must have a minimum 3:1 contrast ratio with the adjacent colors."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Input borders at 3:1 against the background the input sits on, or a filled input background at 3:1",
+    "Checkbox ticks and radio dots at 3:1 against the box",
+    "Standalone icons at 3:1 against their background",
+    "Avoid very thin lines that anti-alias below the nominal ratio"
+   ],
+   "forbids": [
+    "Pale grey input borders (#ddd on white is about 1.4:1)",
+    "A selected state shown only by a faint tint",
+    "Hover effects that lower a control's contrast with its surroundings"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each visible input, select, textarea, checkbox, radio, [role=switch] and icon-only button (no visible text): compute the contrast ratio between the colour that identifies it (border colour, or its own background when it has no border, or the icon fill) and the background behind it; count those below 3:1, unrounded. Disabled controls are skipped.",
+    "mustFail": "A text input with a 1px #dddddd border and white fill on a white page (1.36:1).",
+    "mustPass": "Same input with a 2px #767676 border (4.54:1)."
+   },
+   "exceptions": [
+    "Inactive (disabled) controls are exempt",
+    "A control identified by its visible text needs no contrasting boundary",
+    "Logos and decorative graphics",
+    "Appearance determined by the browser and not modified by the author"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages carry few form controls; where they have any, the rule applies in full.",
+   "agrees": []
+  },
+  {
+   "id": "color.focus-ring-contrasts-with-its-surroundings",
+   "claim": "The focus indicator contrasts at least 3:1 with whatever it is drawn against: the page background for an outer ring, the component's own colours for an inner one.",
+   "source": {
+    "author": "W3C Accessibility Guidelines Working Group",
+    "work": "Understanding Success Criterion 1.4.11: Non-text Contrast, Relationship with Focus Visible (WCAG 2.2)",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html",
+    "quote": "In combination with 2.4.7 Focus Visible, the visual focus indicator for a component must have sufficient contrast against the adjacent background when the component is focused, except where the appearance of the component is determined by the user agent and not modified by the author."
+   },
+   "evidence": "author",
+   "prefers": [
+    "An outer ring that contrasts with the page background",
+    "A two-colour ring (dark and light) that holds on any background",
+    "A thick indicator rather than a 1px one"
+   ],
+   "forbids": [
+    "A yellow outer ring on a white page",
+    "A focus border that changes hue inside the component without contrasting with its fill",
+    "Focus shown only by a background tint change"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Tab to each focusable control; diff the focused and unfocused screenshots of the control's box padded by a few pixels; for the changed pixels, take their colour and the colour of the unchanged pixels adjacent to them (page background outside, component fill inside). Count controls where no changed region reaches 3:1 against its adjacent colour. page.focus-visible checks only that some pixel changes; this checks that the change can be seen.",
+    "mustFail": "A button whose only focus style is outline: 2px solid #ffff00 on a white page (1.07:1).",
+    "mustPass": "Same button with outline: 3px solid #0b0c0c plus a #ffdd00 inner fill change (over 19:1 against white)."
+   },
+   "exceptions": [
+    "Unmodified browser default focus styles",
+    "WCAG does not compare focused and unfocused states with each other; a background-only change is out of scope for 1.4.11 but fails Use of Color"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Every page with a link or a control is navigated by keyboard by someone.",
+   "agrees": []
+  },
+  {
+   "id": "color.mode-aware-tokens-in-every-theme",
+   "claim": "When a product offers light and dark modes, every colour comes from tokens that change with the mode, and each default mode passes contrast on its own.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Foundations: Color, UI color system (Design token categories)",
+    "url": "https://primer.style/foundations/color/overview",
+    "quote": "Base color tokens don't respect color modes and should never be used directly in code or design."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Functional, role-named tokens (fgColor-default, bgColor-muted) that resolve per mode",
+    "Text, icon and border pairs checked in both modes",
+    "In dark themes, raised layers one step lighter than what they sit on (Carbon)",
+    "Honour prefers-color-scheme for the default"
+   ],
+   "forbids": [
+    "Hard-coded text colours that stay dark when the background goes dark",
+    "Raw palette steps (gray-9, blue-5) in component styles",
+    "A dark mode made by inverting the page with a filter"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Render the page with prefers-color-scheme: light and again with dark (and via the site's own theme switch if it has one). In each, run the text-contrast check and the 3:1 non-text check; count failures that exist in one mode only. Also count elements whose background colour changed between modes while their text colour did not.",
+    "mustFail": "Dark mode sets body background to #0d1117 but a card heading keeps color: #24292f, giving 1.3:1.",
+    "mustPass": "Same page where the heading uses var(--fgColor-default), resolving to #1f2328 in light and #f0f6fc in dark."
+   },
+   "exceptions": [
+    "Primer: deliberately low-contrast sub-themes (Dark Dimmed) chosen by the user need not meet contrast, provided the default light and dark themes do",
+    "Products with a single mode: the rule reduces to color.from-tokens-not-hex"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Applies only where a dark or alternate theme exists, which is common in workspace and data tools and less so elsewhere.",
+   "agrees": [
+    "color.from-tokens-not-hex"
+   ]
+  },
+  {
+   "id": "color.chart-palette-fits-the-data",
+   "claim": "In a chart, colour encodes a variable: distinct hues only for unordered categories, one hue in lightness steps for ordered values, and a single colour when every mark is the same measure.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Data visualization: Color palettes",
+    "url": "https://carbondesignsystem.com/data-visualization/color-palettes/",
+    "quote": "Categorical (or qualitative) palettes are best when you want to distinguish discrete categories of data that do not have an inherent correlation."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Sequential (monochromatic) palettes for magnitude, darkest for largest in light themes",
+    "Diverging palettes only for data with a meaningful midpoint",
+    "One colour for all bars of a single series (Polaris)",
+    "Status colours only when the data are statuses (Primer)"
+   ],
+   "forbids": [
+    "Rainbow bars for one measure",
+    "A gradient in place of a sequential palette",
+    "Reusing one colour for two variables (USWDS)"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "For each chart (svg or canvas with axes or a legend): count series and distinct mark colours. Does a single-series bar or column chart use more than one fill? Does a chart of ordered values (heat map, choropleth) use hues that are not ordered by lightness? Is any colour reused for two different series?"
+   },
+   "exceptions": [
+    "Highlighting one bar on purpose in a single-series chart",
+    "Charts where categories carry a conventional colour (party, team, status)"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "Only screens that show charts; shop and transaction flows rarely do.",
+   "agrees": [
+    "canon.tufte-graphical-integrity"
+   ]
+  },
+  {
+   "id": "color.chart-marks-readable-without-hue",
+   "claim": "Chart marks contrast 3:1 with the chart background, and series are told apart by direct labels, dividers, patterns or marker shapes as well as by hue.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "UI patterns: Data visualization (Choosing chart colors)",
+    "url": "https://primer.style/ui-patterns/data-visualization",
+    "quote": "Chart / visualization marks need to be at a 3:1 ratio with the background."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Label series directly on or beside the marks",
+    "A high-contrast divider between stacked segments",
+    "Dash patterns or distinct marker shapes for multiple lines",
+    "Palettes checked under colour-blindness simulation"
+   ],
+   "forbids": [
+    "Pastel series on a white plot area",
+    "Five or more lines told apart only by a colour legend",
+    "Adjacent blue and purple series with no divider"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each chart: compute the contrast of every series' mark colour against the plot background and count those below 3:1. For charts with two or more series, count those with no direct series labels, no dividers between adjacent segments, and no differing dash or marker shape.",
+    "mustFail": "A three-line chart in #a6cee3, #b2df8a and #fdbf6f on white (all under 2:1) keyed only by a colour legend.",
+    "mustPass": "Same chart in #0072b2, #d55e00 and #009e73, solid, dashed and dotted, each line labelled at its right end."
+   },
+   "exceptions": [
+    "Decorative sparklines whose value is also given in text",
+    "WCAG: only graphical objects needed to understand the chart must meet 3:1"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "maybe",
+    "shop": "no",
+    "transaction": "no"
+   },
+   "kindsWhy": "Only screens that show charts; shop and transaction flows rarely do.",
+   "agrees": [
+    "color.never-the-only-signal",
+    "color.controls-and-graphics-3-to-1"
+   ]
+  }
+ ]
+}

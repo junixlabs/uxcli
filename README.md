@@ -1,7 +1,7 @@
 <h1 align="center">UXCLI</h1>
 
 <p align="center">
-  <strong>Give a coding agent the product context it needs before it designs a screen.<br>Then measure the screen in real Chrome before it says done.</strong>
+  <strong>Make a coding agent design like a designer who did the research:<br>learn the field, design from cited principles, then walk the journey in real Chrome before it says done.</strong>
 </p>
 
 <p align="center">
@@ -26,22 +26,26 @@ npx -y @junixlabs/uxcli demo ./uxcli-demo
 
 ## What it is
 
-The agent that writes an interface is not the authority that declares it correct, and it is not the
-source of what the product's users need either. uxcli is the place, the rules and the instrument
-between those two facts:
+A coding agent designs from what it assumes. uxcli gives it what a designer who did the research would
+have, and an instrument to prove the result works for the person using it:
 
-- **A place** — `.uxcli/` in your repo, with one file per thing somebody decided: who the actor is and
-  what is still unknown about them, each insight with its evidence and its falsifier, each journey
-  as states the browser can check, each commitment with a named owner and a written source.
-- **Rules** — no commitment, no verdict. The agent proposes; a person signs (or an agent signs on
-  that person's say-so, and the file says so). Nobody edits a journey or a commitment to make a run
-  pass. Confidence on an insight is a ceiling derived from its evidence, never the author's word.
-- **An instrument** — `uxcli context show` prints what the agent must read before it designs;
-  `uxcli run` drives real Chrome against the running product, measures every declared state and
-  signed commitment, and returns the verdict as an exit code with the pixels behind it.
+- **Knowledge** — a library the agent can cite: 167 rules from named designers, design systems and
+  studies, each with its author, page and exact words, packaged by kind of UI (`marketing`, `content`,
+  `data`, `workspace`, `shop`, `transaction`) and by topic (colour, writing, data display, forms); and
+  templates for kinds of product (`workspace`, `shop`, `landing`) that name the screens, the lens for
+  each, the journeys to walk first and the questions research must answer.
+- **Process** — research the field from sources, write insights with evidence and open questions as
+  unknowns, read `uxcli context show` before designing, draw variants to the lens, build the one a
+  person picks.
+- **Evidence and versions** — every walk of a journey leaves `run.json`, screenshots and the trace;
+  picks and revisions are hashed to the drawing they speak of; `uxcli map` lays the journey out step by
+  step.
+- **Experience validation** — `uxcli run` walks the journey in real Chrome and checks what the person
+  goes through, not only how the page is built. Checks proven able to fail may block; designer rules
+  and walkthroughs are reported as findings with their source, never as a pass.
 
-uxcli writes no claim about the product. Every sentence on a card was authored by the project or
-measured by the browser.
+uxcli writes no claim about your users. Every sentence on a card was authored by the project, quoted
+from a cited source, or measured by the browser.
 
 ## Install
 
@@ -64,6 +68,7 @@ Node 20+. `npx -y @junixlabs/uxcli <command>` works without installing.
 
 ```bash
 uxcli init --apply --origin=http://localhost:3000    # a rule file, the skill, .uxcli/ with the floor policy
+uxcli template show workspace                        # the kind of product: screens, lens per screen, what to research
 uxcli context show handle-inbound-lead               # read before you design
 uxcli mockups                                        # the screens drawn as the journey's flow; a person picks
 uxcli lens show workspace                            # named designers' viewpoints for this kind of UI
@@ -92,10 +97,12 @@ outlined where the browser found them (the `hooks` toggle shows them on the thum
 the journey tabs filter the page to what one journey names. A picture someone made of a screen goes in
 `refs/` under that screen and is shown as a reference, never as a variant.
 
-`lens` is a library of viewpoints from named designers, 123 of them in four schools — usability
+`lens` is a library of viewpoints from named designers and design systems, 167 of them: four schools — usability
 (Nielsen, Norman, Krug, Baymard, Wroblewski, GOV.UK), practitioner craft (Wathan & Schoger, Kennedy),
 the classic canon (Rams, Vignelli, Müller-Brockmann, Bringhurst, Butterick, Tufte, Gestalt via NN/g) and
 modern product craft (Rauno Freiberg, Emil Kowalski, Linear, Vercel, Apple, Material, Ström, Brignull) —
+and four topic pools drawn from public design systems and WCAG (colour, writing and microcopy, data
+display, forms: GOV.UK, USWDS, Carbon, Primer, Polaris, Mailchimp, W3C) —
 each with its author, work, page and words, packaged by the kind of UI it is read against: `marketing`,
 `content`, `data`, `workspace`, `shop`, `transaction`. Viewpoints that several schools state as one rule
 are one line of the checklist. The lenses live inside the skill (`skills/uxcli/lenses/<kind>.md`, installed
@@ -185,6 +192,7 @@ uxcli init [dir] [--apply --origin=URL]    # where the project stands and the fi
 uxcli context show [journey]          # what to read before designing
 uxcli mockups [dir] [--viewport=WxH[,WxH…]]  # every screen's variants photographed; the picked ones as each journey's flow
 uxcli lens [show <kind>]              # the shipped lenses: named designers' viewpoints by kind of UI
+uxcli template [show <id> | apply <id>]   # where to start for a kind of product: screens, lenses, journeys, research questions
 uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside a drawing (a URL with --name reviews a screen)
 uxcli review check                    # every review complete, fresh, and not contradicted by a probe
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
