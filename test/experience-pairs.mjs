@@ -42,6 +42,10 @@ export async function pair() {
   // must-fail: each thing a person would feel, planted once
   const slow = clone(CLEAN); slow.steps[3].timing.toStable = 2400;
   must('a 2.4 s wait was not reported', metrics(experience(slow)).includes('response'));
+  const shown = clone(CLEAN); shown.steps[3].timing = { toStable: 2400, progressSeen: true };
+  must('a 2.4 s wait with a progress signal shown was reported', !metrics(experience(shown)).includes('response'));
+  const hidden = clone(CLEAN); hidden.steps[3].timing = { toStable: 2400, progressSeen: false };
+  must('a 2.4 s wait with no progress signal was not reported', experience(hidden).findings.some(f => f.metric === 'response' && /none was seen/.test(f.what)));
   const lost = clone(CLEAN); lost.steps[3].timing.toStable = 12000;
   must('a 12 s wait was not reported as lost attention', experience(lost).findings.some(f => f.metric === 'response' && /10 s/.test(f.what)));
   const far = clone(CLEAN); far.steps[3].interactions[0] = ui('[data-uxcli=place-order]', { inViewportWithoutScroll: false, scrollsNeeded: 2 });

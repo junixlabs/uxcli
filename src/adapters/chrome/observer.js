@@ -23,7 +23,7 @@ function state(page) {
   page.addInitScript(MUT).catch(() => {});
   return s;
 }
-const MUT = `(() => { window.__uxcliMut = performance.now(); new MutationObserver(() => { window.__uxcliMut = performance.now(); })
+const MUT = `(() => { window.__uxcliMut = performance.now(); new MutationObserver(() => { window.__uxcliMut = performance.now(); if (window.__uxcliFirst === null) window.__uxcliFirst = window.__uxcliMut; })
   .observe(document.documentElement, { subtree: true, childList: true, attributes: true, characterData: true }); })()`;
 
 // intercept(page, { request: 'POST /api/login', status: 500, blockAllOfEffect: true })
@@ -62,10 +62,18 @@ async function act(page, action) {
 }
 
 // Stable = nothing in flight and no mutation for 300ms, together; capped. Returns ms since t0.
-async function waitStable(page, s, t0, cap) {
+// While it waits it looks for a progress signal a person would see: a progressbar, a busy region,
+// a visible status text — so a long wait can be told apart from a silent one.
+const PROGRESS = `() => [...document.querySelectorAll('[role=progressbar],progress,[aria-busy=true],[role=status],[aria-live]:not([aria-live=off])')].some(el => el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden' && (el.matches('[role=progressbar],progress,[aria-busy=true]') || (el.innerText || '').trim()))`;
+// A page that has not changed at all yet is not at rest, it has not answered: up to FIRST ms is spent
+// waiting for the first change, so a silent wait is measured as the wait it is.
+const FIRST = 2500;
+async function waitStable(page, s, t0, cap, seen = {}, from = 0) {
   for (;;) {
+    if (!seen.progress && Date.now() - t0 > 150) seen.progress = await page.evaluate(new Function('return ' + PROGRESS)()).catch(() => false);
     const quiet = s.inflight === 0 && await page.evaluate(() => performance.now() - (window.__uxcliMut ?? 0)).catch(() => -1);
-    if (quiet !== false && quiet >= 300) return Math.max(0, Date.now() - t0 - Math.floor(quiet));
+    const changed = s.seq > from || await page.evaluate(() => window.__uxcliFirst !== null).catch(() => true);
+    if (quiet !== false && quiet >= 300 && (changed || Date.now() - t0 >= FIRST)) return Math.max(0, Date.now() - t0 - Math.floor(quiet));
     if (Date.now() - t0 >= cap) return cap;
     await page.waitForTimeout(50);
   }
@@ -129,8 +137,12 @@ export async function observe(page, opts = {}) {
   const s = state(page);
   await page.evaluate(MUT).catch(() => {});
   const from = since ?? s.seq; const t0 = Date.now();
+  const seqAtAct = s.seq;
+  const p0 = action ? await page.evaluate(() => { window.__uxcliFirst = null; return performance.now(); }).catch(() => null) : null;
   await act(page, action);
-  const toStable = await waitStable(page, s, t0, stableCap);
+  const seen = {}; const toStable = await waitStable(page, s, t0, stableCap, seen, seqAtAct);
+  // the first visible change after the action, as the page's own clock saw it: Nielsen's response time
+  const first = await page.evaluate(p0 => (typeof window.__uxcliFirst === 'number' && p0 != null ? Math.max(0, Math.round(window.__uxcliFirst - p0)) : null), p0).catch(() => null);
   await page.evaluate(MUT).catch(() => {});                         // the action may have navigated
   const at = new Date().toISOString();
   const href = page.url();
@@ -162,5 +174,5 @@ export async function observe(page, opts = {}) {
     const file = `${shotName}.png`;
     await page.screenshot({ path: path.join(shotDir, file), timeout: 5000 }).then(() => shots.push(file)).catch(() => {});
   }
-  return { at, url: { href, path: pathOf(href) }, dom, a11y: { alerts }, nav, network, storage, timing: { toStable }, shots };
+  return { at, url: { href, path: pathOf(href) }, dom, a11y: { alerts }, nav, network, storage, timing: { toStable, ...(action && first !== null && { firstChangeMs: first }), ...((toStable > 1000 || (first ?? 0) > 1000) && { progressSeen: !!seen.progress }) }, shots };
 }

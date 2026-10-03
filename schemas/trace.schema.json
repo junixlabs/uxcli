@@ -13,7 +13,7 @@
     "before": { "$ref": "#/$defs/side" },
     "after": { "$ref": "#/$defs/side" },
     "interactions": { "type": "array", "items": { "$ref": "#/$defs/interaction" } },
-    "timing": { "type": "object", "properties": { "toStable": { "type": "number", "minimum": 0 } } },
+    "timing": { "type": "object", "properties": { "toStable": { "type": "number", "minimum": 0 }, "firstChangeMs": { "type": "number", "minimum": 0, "description": "from the action to the first visible change on the page" }, "progressSeen": { "type": "boolean", "description": "for a wait past a second: whether a progressbar, a busy region or a status text appeared while it lasted" } } },
     "shots": { "type": "array", "items": { "type": "string", "pattern": "\\.png$" } },
     "announced": { "type": "array", "items": { "type": "string" }, "description": "the roles of the visible announcements with text after the action: alert, status, live:polite…" },
     "nav": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["items"], "properties": { "label": { "type": ["string", "null"] }, "items": { "type": "array", "items": { "type": "string" } } } } }

@@ -19,6 +19,17 @@ for (const a of arms) {
   const hooks = ['lead-phone', 'call-action', 'call-status'].map(h => R.filter(r => r.score?.hooks?.[h]).length).join(' / ');
   L.push(`| ${a} | ${n} | ${pct(R.filter(r => r.wroteLead).length, n)} | ${pct(R.filter(r => pass(r, '390x844')).length, n)} | ${pct(R.filter(r => pass(r, '1440x900')).length, n)} | ${pct(R.filter(r => c001(r, '390x844')).length, n)} | ${hooks} | ${med ?? '—'} |`);
 }
+// What the person goes through on the page each arm built, from the trace of the scoring walk.
+{
+  const med = xs => { const v = xs.filter(x => typeof x === 'number').sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : null; };
+  L.push('', '## Experience on the walk (uxcli experience)', '', 'Per arm, at each viewport: the median keystroke-level estimate and scrolls of the happy workflow, the median number of findings, and how many pages had a control the step needs below the fold.', '',
+    '| arm | n | 390: estimate s · scrolls · findings · below the fold | 1440: estimate s · scrolls · findings · below the fold |', '|---|---|---|---|');
+  for (const a of arms) {
+    const R = rows.filter(r => r.arm === a);
+    const cell = vp => { const X = R.map(r => r.score?.[vp]?.experience).filter(Boolean); return X.length ? `${med(X.map(x => x.klmSeconds)) ?? '—'} · ${med(X.map(x => x.scrolls)) ?? '—'} · ${med(X.map(x => x.findings))} · ${X.filter(x => x.byMetric?.reach).length}/${X.length}` : '—'; };
+    L.push(`| ${a} | ${R.length} | ${cell('390x844')} | ${cell('1440x900')} |`);
+  }
+}
 if (arms.includes('skill')) {
   const R = rows.filter(r => r.arm === 'skill');
   L.push('', '## The skill arm, re-measured', '', `| ran uxcli at least once | ran \`uxcli run\` | said done while its own last run failed | edited a declaration under .uxcli/ |`, '|---|---|---|---|');

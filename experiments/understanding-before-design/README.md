@@ -63,3 +63,25 @@ package; no load-bearing paragraph is touched.
 rerun rather than scored. Two `ticket` sessions show `blocked` at 1440×900 with no reason recorded;
 the scorer now keeps the run's note. Both had already failed at 390×844, so the headline is unchanged.
 Transcripts are not committed (29 MB); each session's `session.json` and `lead.html` are.
+
+## Run of 2026-10-03 — scored on the walk too
+
+Two arms, three fresh `claude -p` sessions each (Sonnet), the same ticket, scored by `uxcli run` and now
+also by `uxcli experience` on the scoring walk (`score.mjs` records the happy workflow's estimate,
+scrolls and findings by metric). The first attempt ran without `UXCLI_CHROME` set and was discarded:
+neither the scorer nor the skill arm's agent could open Chrome (the skill arm's agents said so and did
+not claim done). The ticket arm was scored before an observer change (the first visible change is now
+measured, and a silent wait is waited for), so every session was then rescored with one instrument
+(`rescore.mjs`, which stages the fixture again with the page each session wrote).
+
+| arm | n | first-run pass 390×844 | first-run pass 1440×900 | hooks on the page | experience findings at 390 (median) | ran `uxcli run` |
+|---|---|---|---|---|---|---|
+| ticket | 3 | 0/3 | 0/3 | 0/3 | 2 — reach, not-reached | — |
+| skill | 3 | 3/3 | 3/3 | 3/3 | 1 — reach | 3/3 |
+
+What the experience column shows and does not: the one finding both arms share is the list row on
+the fixture's own workspace page, a screen no session wrote, so it cannot tell the arms apart. The
+difference is the `not-reached` step on the ticket arm's pages: the call state never arrived. The
+keystroke-level estimate is the same in both arms (6.5 s at 390×844) because the journey's steps are
+the same; it will tell arms apart only on tickets where the agent decides the steps. Three sessions an
+arm on one model and one ticket is a direction, not a result; results/ stays on the machine that ran it.

@@ -82,6 +82,6 @@ walking the flow, and says plainly that it did not watch anyone.
 | Context before design | Same ticket, ten fresh sessions per arm, scored by `uxcli run` on the page each wrote. Ticket alone: 0 of 10. Ticket + the journey file: 5 of 10. Ticket + `uxcli context show`: 10 of 10. The installed skill with nothing inline: 10 of 10. 2026-09-28. | One model, one fixture, one ticket |
 | Saying done | 40 fresh sessions on a seeded fixture, 20 running the tool: 0 said done while a check still failed. Re-measured with the shipped skill: 10 of 10 ran uxcli, 0 of 10 said done holding a fail. | One model, one fixture |
 | Library | Lenses: 123 viewpoints from four schools of designers; six topic pools (colour, writing, data display, forms, navigation, motion and feedback); templates for five kinds of product. Every quote fetched and verbatim. | Built; whether it changes what agents draw is unmeasured |
-| Experience metrics | Not built yet. | The next experiment: agent with uxcli against agent without, scored on the walk |
+| Experience metrics | Built: steps, typing, scrolls, first visible change, a keystroke-level estimate, recovery after an error, consistency; walkthroughs. Scored on the walk, three sessions an arm: ticket alone 0/3 with the call step unreached on every page; with the skill 3/3 and no finding on the page the agent wrote. 2026-10-03. | Three sessions an arm, one ticket: a direction, not a result |
 
 **The part worth building is the part not yet proven.**

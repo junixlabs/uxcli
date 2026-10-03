@@ -102,6 +102,12 @@ Same ticket, fresh sessions, agent with uxcli against agent without, scored on t
 above) and by blind pairwise preference from designers. The repository already has the harness
 (`experiments/understanding-before-design`).
 
+- Done 2026-10-03, small: three sessions an arm, scored by `uxcli run` and `uxcli experience` with one
+  instrument (`rescore.mjs`). Ticket alone 0/3, with the skill 3/3 at both viewports; the ticket arm's
+  pages leave the call step unreached. Recorded in the experiment's README.
+- Next: ten sessions an arm on two tickets where the agent decides the steps, so the estimate and the
+  findings can differ; then blind pairwise preference from designers on the screenshots.
+
 ## Not planned
 
 Scores. Summaries that hide their sources. Conformance claims. A UI generator. A rule nobody can cite.

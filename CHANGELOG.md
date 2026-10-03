@@ -67,6 +67,13 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Changed
 
+- The observer measures the first visible change after an action (`timing.firstChangeMs`) and, when the
+  page has not changed at all, waits up to 2.5 s for it instead of calling a silent page settled; during a
+  wait past a second it records whether a progress signal (a progressbar, a busy region, a status text)
+  was shown. `experience` reads response from the first change, and a wait with a signal shown is not a
+  finding until ten seconds.
+- The experiment scores sessions on the walk as well (`score.mjs`), rescoring every session with one
+  instrument (`rescore.mjs`).
 - VISION, PRODUCT, README and ROADMAP describe uxcli as the owner set it on 2026-10-03: an agent that
   designs like a designer who did the research, in four pillars — knowledge, process, evidence and
   versions, and experience validation at the centre.
