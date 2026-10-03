@@ -41,14 +41,14 @@ export async function pair() {
   const browser = await launch();
   try {
     const home = await (await fetch(s.url)).text();
-    must('the folder switch does not list both folders', (home.match(/<option /g) || []).length === 2);
+    must('the folder switch does not list both folders', ((/data-uxcli="folder-switch"[^>]*>([\s\S]*?)<\/select>/.exec(home) || [])[1] || '').split('<option ').length - 1 === 2);
     const bad = await fetch(s.url + 'api/folders', { method: 'POST', body: 'path=' + encodeURIComponent(os.tmpdir()), headers: { 'content-type': 'application/x-www-form-urlencoded' }, redirect: 'manual' });
     must('a folder with no project was added', /missing=/.test(bad.headers.get('location') || ''));
     must('the server handed out a file outside .uxcli/', (await fetch(s.url + 'f/0/..%2F..%2Fpackage.json')).status === 404 && (await fetch(s.url + 'f/0/policy/policy.json')).status === 404);
-    const other = await (await fetch(s.url + '?p=1&v=design')).text();
-    must('the second folder\'s design view does not say what is not drawn', /not drawn/.test(other));
+    const other = await (await fetch(s.url + '?p=1')).text();
+    must('the second folder\'s screens do not say what is not yet drawn or walked', /not walked or drawn yet|Draw /.test(other));
     for (const v of ['overview', 'runs', 'design', 'understanding']) {
-      const r = await runPage(`${s.url}?p=0&v=${v}`, { browser });
+      const r = await runPage(`${s.url}?p=0#${v === 'overview' ? 'journeys' : v === 'design' ? 'screens' : v === 'understanding' ? 'people' : v}`, { browser });
       const fails = r.probes.filter(p => p.verdict === 'fail' || p.verdict === 'unmeasurable').map(p => `${p.probe} ${p.verdict}: ${p.why}`);
       must(`the ${v} view: ${fails.join('; ')}`, !fails.length);
     }

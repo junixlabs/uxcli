@@ -11,7 +11,7 @@ import { buildStudio } from './studio.js';
 import { discover } from './mockups.js';
 import { experience, journeyName } from './core/experience.js';
 import { dashboardModel } from './core/dashboard.js';
-import { dashboardPage, VIEWS } from './core/dashboard-page.js';
+import { appPage } from './core/app-page.js';
 import { reviewSummary, summaryLine } from './core/model/lens.js';
 import { screenStatus } from './core/mockups.js';
 
@@ -22,10 +22,10 @@ export const dashboardDir = root => path.join(root, UXCLI, 'dashboard');
 const shotOf = (root, dir, name) => { if (!name) return null; for (const f of [path.join(dir, 'artifacts', name), path.join(dir, name)]) if (fs.existsSync(f)) return rel(root, f); return null; };
 
 // Everything the four views show for one folder. Paths are relative to the folder's .uxcli/.
-export async function gather(from) {
+export async function gather(from, { viewport, serve = false, shoot = false } = {}) {
   const root = findRoot(path.resolve(from)); if (!root) return { problems: [`${from}: no .uxcli/policy/policy.json here or above — uxcli init --apply there first`] };
   const P = loadProject(root);
-  const S = await buildStudio(root, { shoot: false });
+  const S = await buildStudio(root, { shoot, serve, ...(viewport && { viewport }) });
   const pd = path.join(root, UXCLI, 'proposals');
   const proposals = fs.existsSync(pd) ? fs.readdirSync(pd).filter(f => f.endsWith('.json')).map(f => readJson(path.join(pd, f))).filter(Boolean) : [];
   const actors = P.actors.map(a => a.value).filter(Boolean); const insights = P.insights.map(i => i.value).filter(Boolean);
@@ -56,16 +56,15 @@ export async function gather(from) {
       reviews: (s.reviews[v] || []).map(r => ({ lens: r.lens, line: r.value ? summaryLine(reviewSummary(r.value)) : `refused: ${r.problems[0] || ''}` })) })),
   }));
 
-  return { root, matrix, runs, design, understanding: { actors, insights, template: readJson(path.join(root, UXCLI, 'template.json'))?.template || null }, problems: P.problems };
+  return { root, model: S.model, matrix, runs, design, understanding: { actors, insights, template: readJson(path.join(root, UXCLI, 'template.json'))?.template || null }, problems: P.problems };
 }
 
-// Written once, for one folder: one HTML file per view under .uxcli/dashboard/, linking each other.
+// Written once, for one folder: the same page the studio writes, at .uxcli/dashboard/index.html.
 export async function writeDashboard(from) {
   const g = await gather(from); if (!g.matrix) return g;
   const out = dashboardDir(g.root); fs.mkdirSync(out, { recursive: true });
-  for (const v of VIEWS) fs.writeFileSync(path.join(out, `${v.id}.html`), dashboardPage({ data: g, folders: [g.matrix.folder], view: v.id, link: (view, q = '') => `${view}.html${q}`, asset: p => `../${p}` }));
-  fs.writeFileSync(path.join(out, 'index.html'), dashboardPage({ data: g, folders: [g.matrix.folder], view: 'overview', link: (view, q = '') => `${view}.html${q}`, asset: p => `../${p}` }));
-  return { ...g, page: path.join(out, 'index.html') };
+  const page = path.join(out, 'index.html'); fs.writeFileSync(page, appPage(g, { asset: '../' }));
+  return { ...g, page };
 }
 
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
@@ -93,11 +92,11 @@ export async function serveDashboard(folders, { port = 4319, host = '127.0.0.1' 
       res.writeHead(200, { 'content-type': MIME[path.extname(file).toLowerCase()], 'cache-control': 'no-store' }); return fs.createReadStream(file).pipe(res);
     }
     if (req.method !== 'GET' || url.pathname !== '/') { res.writeHead(404); return res.end('not found'); }
-    const i = Math.min(roots.length - 1, Math.max(0, Number(url.searchParams.get('p')) || 0)); const view = VIEWS.some(v => v.id === url.searchParams.get('v')) ? url.searchParams.get('v') : 'overview';
+    const i = Math.min(roots.length - 1, Math.max(0, Number(url.searchParams.get('p')) || 0));
     let g; try { g = await gather(roots[i]); } catch (e) { g = { problems: [e.message] }; }
     const missing = url.searchParams.get('missing');
-    const page = dashboardPage({ data: g, folders: roots.map(label), current: i, view, run: url.searchParams.get('run'), serve: true,
-      link: (v, q = '') => `/?p=${i}&v=${v}${q ? '&' + q.replace(/^\?/, '') : ''}`, asset: p => `/f/${i}/${p}`, notice: missing != null ? `${missing || 'that path'} holds no uxcli project (no .uxcli/policy/policy.json there or above)` : null });
+    const page = g.model ? appPage(g, { asset: `/f/${i}/`, folders: roots.map(label), current: i, notice: missing != null ? `${missing || 'that path'} holds no uxcli project (no .uxcli/policy/policy.json there or above)` : null })
+      : `<!doctype html><title>uxcli</title><p>${(g.problems || []).join('<br>')}</p>`;
     res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }); res.end(page);
   });
   await new Promise((ok, no) => { server.once('error', no); server.listen(port, host, ok); });

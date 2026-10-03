@@ -71,7 +71,7 @@ export async function pair() {
     const errors = []; page.on('pageerror', e => errors.push(e.message));
     await page.goto(base); await page.waitForTimeout(600);
     must(`the page threw: ${errors.join('; ')}`, !errors.length);
-    must('the canvas carries no frame', await page.locator('.frame').count() >= m.counts.steps * 2);
+    must('the canvas does not carry a frame for every screen of every workflow', await page.locator('.frame').count() >= m.counts.steps + m.journeys.reduce((n, j) => n + j.workflows.filter(w => w.steps.length).length, 0));
     const t = () => page.evaluate(() => document.getElementById('world').style.transform);
     const t0 = await t();
     const st = await page.locator('#stage').boundingBox();
@@ -79,8 +79,17 @@ export async function pair() {
     const t1 = await t();
     must('dragging the canvas did not move it', t1 !== t0);
     await page.click('#zin'); must('zooming in did not scale the canvas', (await t()) !== t1);
-    await page.click('.outline button[data-go^="built|handle-inbound-lead"]'); await page.waitForTimeout(200);
+    await page.click('.frame[data-id^="built|handle-inbound-lead"]'); await page.waitForTimeout(200);
     must('a frame did not fill the inspector', /Built · the last walk/.test(await page.textContent('#insp')));
+    // the to-do bar: on a walked project the fix the walk asks for comes first; a click shows its screen
+    { const { todos } = await import('../src/core/app-page.js'); const { gather } = await import('../src/dashboard.js'); const g = await gather(path.join(ROOT, 'examples', 'crm'));
+      const t = todos(g.model, g.design); must(`on the example the first thing to do is not the failing lead screen: ${t[0]?.text}`, t[0]?.kind === 'fail' && /^Lead detail/.test(t[0].text) && !t.slice(1).some(x => x.go === t[0].go && x.kind === 'find')); }
+    const todo = page.locator('#sheet .todo').first();
+    must('the page has no to-do bar', (await todo.count()) === 1);
+    const go = await todo.getAttribute('data-go'); await todo.click(); await page.waitForTimeout(200);
+    must(`a to-do item did not show its screen on the canvas (${go})`, go.includes('|') ? (await page.locator('.frame.sel').count()) === 1 : (await page.locator(`.frame[data-state="${go}"]`).count()) > 0 || (await page.locator('.frame.sel').count()) === 1);
+    for (const v of ['screens', 'runs', 'people', 'library']) { await page.click(`.tabs a[href="#${v}"]`); must(`the ${v} view did not open`, await page.isVisible(`#${v}`) && !(await page.isVisible('#stage'))); }
+    await page.click('.tabs a[href="#journeys"]');
     await page.click('#zfit');
     // the instrument's own page probes, on the board
     const { runPage } = await import('../src/page.js');

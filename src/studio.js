@@ -9,7 +9,7 @@ import { allRuns, UXCLI } from './adapters/store/runs.js';
 import { discover, mockups as photograph } from './mockups.js';
 import { mapModel } from './core/map.js';
 import { studioModel, studioCard } from './core/studio.js';
-import { studioPage } from './core/studio-page.js';
+import { appPage } from './core/app-page.js';
 import { experience, journeyName } from './core/experience.js';
 import { versions as listVersions } from './version.js';
 import { library } from './lens.js';
@@ -61,11 +61,17 @@ export async function buildStudio(from, { viewport = '390x844', shoot = true, se
   return { root, out, model: m, problems: P.problems };
 }
 
+// The page: everything the board shows plus the screens, runs and people, in the one surface every uxcli
+// page now is (src/core/app-page.js). Served, it carries the decisions and refreshes when a file changes.
+export async function studioData(from, opts = {}) {
+  const { gather } = await import('./dashboard.js');
+  return gather(from, opts);
+}
 export async function writeStudio(from, opts = {}) {
-  const r = await buildStudio(from, opts); if (r.problems && !r.model) return r;
-  fs.mkdirSync(r.out, { recursive: true });
-  const page = path.join(r.out, 'index.html'); fs.writeFileSync(page, studioPage(r.model));
-  return { ...r, page };
+  const g = await studioData(from, { shoot: true, ...opts }); if (!g.model) return g;
+  const out = studioDir(g.root); fs.mkdirSync(out, { recursive: true });
+  const page = path.join(out, 'index.html'); fs.writeFileSync(page, appPage(g, { asset: '../', serve: !!opts.serve, live: !!opts.serve }));
+  return { root: g.root, out, model: g.model, problems: g.problems, page };
 }
 
 export { studioCard };
@@ -133,7 +139,7 @@ export async function serveStudio(from, { port = 4317, viewport = '390x844', hos
     const url = new URL(req.url, 'http://x');
     if (req.method === 'GET' && url.pathname === '/') { res.writeHead(302, { location: '/.uxcli/studio/index.html' }); return res.end(); }
     if (req.method === 'GET' && url.pathname === '/events') { res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store', connection: 'keep-alive' }); res.write('retry: 2000\n\n'); clients.add(res); req.on('close', () => clients.delete(res)); return; }
-    if (req.method === 'GET' && url.pathname === '/.uxcli/studio/data.json') { const r = await buildStudio(root, { viewport, serve: true, shoot: false }); res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify(r.model)); }
+    if (req.method === 'GET' && url.pathname === '/.uxcli/studio/data.json') { const g = await studioData(root, { viewport, serve: true, shoot: false }); const { ICONS } = await import('./core/ui.js'); res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify({ model: g.model, design: g.design, asset: '../', serve: true, live: true, icons: ICONS })); }
     if (req.method === 'POST' && ['/api/pick', '/api/revise', '/api/note'].includes(url.pathname)) {
       let body = ''; for await (const c of req) { body += c; if (body.length > 100000) break; }
       let r; try { r = decide(root, url.pathname.slice(5), JSON.parse(body)); } catch (e) { r = { ok: false, problems: [e.message] }; }

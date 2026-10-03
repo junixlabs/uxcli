@@ -8,6 +8,7 @@
 // an insight with its source, or what the browser measured. "Drift" means exactly one of two things:
 // a state the run said did not hold, or a verdict of fail cited at that step.
 import { esc } from './wireflow.js';
+import { LEGACY_ALIASES } from './ui.js';
 
 export const DRIFT_WORD = { fail: 'FAIL', finding: 'finding', pass: 'pass', 'not-committed': 'not committed', unmeasurable: 'unmeasurable', 'not-applicable': 'n/a' };
 
@@ -188,7 +189,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .fx b{display:block;font:600 13px var(--sans);overflow-wrap:anywhere}.fx small{font:11px var(--mono);color:var(--dim)}
 .fx .thumb{width:110px;--ta:16/10}
 .empty{color:var(--dim)}
-</style>
+${LEGACY_ALIASES}</style>
 </head>
 <body>
 <div class="app">

@@ -5,6 +5,7 @@
 import fs from 'node:fs'; import path from 'node:path';
 import { experience, compareExperience, journeyName, KLM, LIMITS } from './core/experience.js';
 import { allRuns, artifactsDir, UXCLI } from './adapters/store/runs.js';
+import { LEGACY_ALIASES } from './core/ui.js';
 
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -103,7 +104,7 @@ dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:4px
 .finds{margin:0;padding-left:20px;display:grid;gap:8px}.finds li{background:var(--find-soft);border-radius:6px;padding:6px 8px}.finds small{display:block;color:var(--dim);font-size:12px;margin-top:2px}
 .metric{font:600 12px ui-monospace,Menlo,monospace;color:var(--find)}.clean{margin:0;color:var(--ok)}
 footer{color:var(--dim);font-size:13px}
-</style></head><body><main><header><h1>Experience</h1><p class="lede">What the person goes through on each journey, from the trace of its last walk in Chrome. Every finding is method-unproven: reported with its source, never a fail and never a pass.</p></header>${sections || '<p>No journey run with steps on disk.</p>'}<footer>Estimate: keystroke-level model (Card, Moran &amp; Newell) — K ${KLM.K} s, P ${KLM.P} s, BB ${2 * KLM.B} s, H ${KLM.H} s, M ${KLM.M} s, each scroll one P, plus the measured settle time. Response bands after Nielsen (1993): ${LIMITS.instant} ms, ${LIMITS.flow} ms, ${LIMITS.attention} ms.</footer></main>
+${LEGACY_ALIASES}</style></head><body><main><header><h1>Experience</h1><p class="lede">What the person goes through on each journey, from the trace of its last walk in Chrome. Every finding is method-unproven: reported with its source, never a fail and never a pass.</p></header>${sections || '<p>No journey run with steps on disk.</p>'}<footer>Estimate: keystroke-level model (Card, Moran &amp; Newell) — K ${KLM.K} s, P ${KLM.P} s, BB ${2 * KLM.B} s, H ${KLM.H} s, M ${KLM.M} s, each scroll one P, plus the measured settle time. Response bands after Nielsen (1993): ${LIMITS.instant} ms, ${LIMITS.flow} ms, ${LIMITS.attention} ms.</footer></main>
 <script>
 function place(){document.querySelectorAll('.shot').forEach(function(s){var img=s.querySelector('img');if(!img||!img.naturalWidth)return;s.querySelectorAll('.box').forEach(function(b){var vw=+b.dataset.vw||img.naturalWidth;var k=img.clientWidth/vw;var y=+b.dataset.y*k,h=+b.dataset.h*k,H=img.clientHeight;b.style.left=(+b.dataset.x*k)+'px';b.style.width=(+b.dataset.w*k)+'px';if(y+Math.min(h,12)>H){b.classList.add('below');b.style.top=(H-30)+'px';b.style.height='26px';}else{b.classList.remove('below');b.style.top=y+'px';b.style.height=Math.min(h,H-y)+'px';}});});}
 window.addEventListener('load',place);window.addEventListener('resize',place);document.querySelectorAll('.shot img').forEach(function(i){i.addEventListener('load',place);});
