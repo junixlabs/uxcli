@@ -13,7 +13,7 @@ import fs from 'node:fs'; import path from 'node:path';
 import { findCommitments, FILE as COMMITMENTS } from './sheet.js';
 import { UXCLI, currentRuns } from './adapters/store/runs.js';
 import { screensOf, parsePick } from './core/mockups.js';
-import crypto from 'node:crypto';
+import { mockupHash } from './lens.js';
 import { execSync } from 'node:child_process'; import os from 'node:os';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -127,7 +127,7 @@ export function mockupState(project) {
     const dir = path.join(U, 'mockups', s.id); if (!fs.existsSync(dir)) continue;
     const variants = fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'index.html').map(f => f.replace(/\.html$/, ''));
     if (variants.length) drawn++;
-    const hashes = Object.fromEntries(variants.map(v => [v, crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, `${v}.html`))).digest('hex')]));
+    const hashes = Object.fromEntries(variants.map(v => [v, mockupHash(project, s.id, v)]));
     const pf = path.join(dir, 'pick.json'); if (fs.existsSync(pf)) { try { if (parsePick(JSON.parse(fs.readFileSync(pf, 'utf8')), variants, hashes).value) picked++; } catch {} }
   }
   return { screens: screens.length, drawn, picked };

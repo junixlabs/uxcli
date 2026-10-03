@@ -62,7 +62,8 @@ export const reviewPath = (root, target, lens) => target.kind === 'mockup'
   ? path.join(root, '.uxcli', 'mockups', target.state, `${target.variant}.${lens}.review.json`)
   : path.join(root, '.uxcli', 'reviews', `${target.name}.${lens}.review.json`);
 
-const hashOf = (root, state, variant) => {
+// A drawing's hash covers the variant and every _shared file it links: a token change is a drawing change.
+export const mockupHash = (root, state, variant) => {
   const dir = path.join(root, '.uxcli', 'mockups'); const f = path.join(dir, state, `${variant}.html`);
   if (!fs.existsSync(f)) return null;
   const html = fs.readFileSync(f); const shared = path.join(dir, '_shared');
@@ -82,7 +83,7 @@ export function readReview(root, file, lib) {
   const lens = lib.lenses.find(l => l.id === doc?.lens) || null;
   if (!lens) return { file, value: null, problems: [`lens "${doc?.lens}" is not a shipped lens (${lib.lenses.map(l => l.id).join(', ')})`] };
   const t = doc.target || {};
-  const hash = t.kind === 'mockup' ? hashOf(root, t.state, t.variant) : null;
+  const hash = t.kind === 'mockup' ? mockupHash(root, t.state, t.variant) : null;
   const problems = [];
   if (t.kind === 'mockup' && !hash) problems.push(`target ${t.state}/${t.variant}.html is not on disk`);
   const r = parseReview(doc, lens, { hash });
@@ -143,7 +144,6 @@ export function reviewCheckCard(r) {
 }
 
 export { reviewTemplate, KINDS };
-export const mockupHash = hashOf;
 
 // The checklist as the agent reads it: skills/uxcli/lenses/<kind>.md, written from the lens and its
 // pools and installed with the skill. The gate holds it equal to this rendering, so the file an agent

@@ -7,9 +7,9 @@ import fs from 'node:fs'; import path from 'node:path'; import { pathToFileURL }
 import { findRoot, loadProject } from './journey.js';
 import { launch } from './browser.js';
 import { observe } from './adapters/chrome/index.js';
-import { library, readReview } from './lens.js';
+import { library, readReview, mockupHash } from './lens.js';
 import { reviewSummary, summaryLine } from './core/model/lens.js';
-import { parsePick, parseAbout, parseRevise, statusOf, screensOf, hookOf, receiptOf, receiptLine, sharedRefs, drawingHash, mockupsCard } from './core/mockups.js';
+import { parsePick, parseAbout, parseRevise, statusOf, screenStatus, isDecided, screensOf, hookOf, receiptOf, receiptLine, mockupsCard } from './core/mockups.js';
 import { human, sentence, firstSentence } from './core/wireflow.js';
 import { mockupsPage } from './core/mockups-page.js';
 
@@ -25,19 +25,18 @@ export function discover(root) {
   const lib = library();
   const screens = screensOf(journeys).map(s => {
     const dir = path.join(base, s.id); const variants = listVariants(dir); let pick = null; const problems = [];
-    // the hash covers the drawing and what it takes from _shared: a token change is a drawing change
-    const hashes = Object.fromEntries(variants.map(v => { const html = fs.readFileSync(path.join(dir, `${v}.html`)); return [v, drawingHash([html, ...sharedRefs(html.toString()).filter(f => shared[f] !== undefined).map(f => shared[f])])]; }));
-    const pf = path.join(dir, 'pick.json');
-    if (fs.existsSync(pf)) { let doc; try { doc = JSON.parse(fs.readFileSync(pf, 'utf8')); } catch (e) { problems.push(`not JSON: ${e.message}`); } if (doc) { const r = parsePick(doc, variants, hashes); pick = r.value; problems.push(...r.problems); } }
+    const hashes = Object.fromEntries(variants.map(v => [v, mockupHash(root, s.id, v)]));
+    // pick.json, about.json (the agent's words on each drawing) and revise.json (a person chose none)
+    const readDoc = (f, parse) => { const fp = path.join(dir, f); if (!fs.existsSync(fp)) return { value: null, problems: [] }; try { return parse(JSON.parse(fs.readFileSync(fp, 'utf8'))); } catch (e) { return { value: null, problems: [`not JSON: ${e.message}`] }; } };
+    { const r = readDoc('pick.json', d => parsePick(d, variants, hashes)); pick = r.value; problems.push(...r.problems); }
     // <variant>.<lens>.review.json: a lens read against the drawing, shown as the reviewer's claim
     const reviews = {};
     for (const v of variants) for (const f of (fs.existsSync(dir) ? fs.readdirSync(dir) : []).filter(f => f.startsWith(`${v}.`) && f.endsWith('.review.json'))) {
       const r = readReview(root, path.join(dir, f), lib); (reviews[v] ||= []).push({ lens: f.slice(v.length + 1, -'.review.json'.length), value: r.value, problems: r.problems });
     }
-    // about.json (the agent's words on what each drawing does) and revise.json (a person chose none)
-    const fileProblems = []; const readDoc = (f, parse) => { const fp = path.join(dir, f); if (!fs.existsSync(fp)) return null; let doc; try { doc = JSON.parse(fs.readFileSync(fp, 'utf8')); } catch (e) { fileProblems.push(`${f}: not JSON: ${e.message}`); return null; } const r = parse(doc); fileProblems.push(...r.problems.map(x => `${f}: ${x}`)); return r.value; };
-    const about = readDoc('about.json', d => parseAbout(d, variants));
-    const revise = readDoc('revise.json', d => parseRevise(d, variants, hashes));
+    const fileProblems = []; const other = (f, parse) => { const r = readDoc(f, parse); fileProblems.push(...r.problems.map(x => `${f}: ${x}`)); return r.value; };
+    const about = other('about.json', d => parseAbout(d, variants));
+    const revise = other('revise.json', d => parseRevise(d, variants, hashes));
     return { ...s, dir, variants, refs: listRefs(dir), hashes, pick, reviews, about, revise, problems, fileProblems };
   });
   return { root, base, project: P, journeys, screens, shared };
@@ -94,22 +93,20 @@ export async function mockups(from, { viewport = '390x844' } = {}) {
 
 export { mockupsCard };
 
-function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extra = {} }) {
+function pageHtml(m, { vw, vh, sizes, shots, rects, pins, extra }) {
   const byId = Object.fromEntries(m.screens.map(s => [s.id, s])); const proto = {}; const hashes = {};
   const hooksOf = key => Object.entries(rects[key] || {}).filter(([, d]) => d?.rect).map(([sel, d]) => ({ sel, x: d.rect.x, y: d.rect.y, w: d.rect.w, h: d.rect.h }));
   for (const s of m.screens) for (const v of s.variants) {
     hashes[`${s.id}/${v}`] = s.hashes?.[v];
-    proto[`view:${s.id}/${v}`] = { vw, vh, frames: [{ shot: shots[`${s.id}/${v}`] || null, title: `${human(s.id)} · ${String.fromCharCode(65 + s.variants.indexOf(v))} · ${human(v)}`, missing: shots[`${s.id}/${v}`] ? null : 'no picture', pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), pick: `${s.id}/${v}` }], links: [] };
+    proto[`view:${s.id}/${v}`] = { vw, vh, frames: [{ shot: shots[`${s.id}/${v}`] || null, title: `${human(s.id)} · ${String.fromCharCode(65 + s.variants.indexOf(v))} · ${human(v)}`, label: `${String.fromCharCode(65 + s.variants.indexOf(v))} · ${human(v)}`, missing: shots[`${s.id}/${v}`] ? null : 'no picture', pins: pins[`${s.id}/${v}`] || [], hooks: hooksOf(`${s.id}/${v}`), pick: `${s.id}/${v}` }], links: [] };
   }
   // the screens in the order a reader meets them, numbered by the journey that first names them
   const numbered = new Map(); const order = [];
   m.journeys.forEach((j, ji) => { let k = 0; for (const w of j.workflows || []) for (const st of w.steps || []) { if (st.kind === 'fixture' || !st.before) continue; for (const id of [st.before, st.after]) if (id && !numbered.has(id)) { numbered.set(id, { n: `${ji + 1}.${++k}`, journey: j.id, action: null }); order.push(id); } if (numbered.get(st.before) && !numbered.get(st.before).action) numbered.get(st.before).action = st.action || null; } });
   for (const s of m.screens) if (!numbered.has(s.id)) { numbered.set(s.id, { n: '', journey: s.journeys[0] || '', action: null }); order.push(s.id); }
   // a screen is decided when it is picked or a revision was asked of drawings still as they were
-  const statusOfScreen = s => !s.variants.length ? 'undrawn' : s.pick && !s.problems.length ? 'picked' : s.revise && !s.revise.answered ? 'revise' : 'open';
-  const decided = s => ['picked', 'revise'].includes(statusOfScreen(s));
   const mineOf = j => order.filter(id => numbered.get(id).journey === j.id && byId[id]);
-  const flows = m.journeys.map((j, ji) => {
+  const flows = m.journeys.map(j => {
     const lanes = [];
     const wf = (j.workflows || []).filter(w => (w.steps || []).some(s => s.before));
     const rows = wf.map(w => {
@@ -138,7 +135,7 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
     if (lanes.length > 1) proto[`journey:${j.id}`] = { vw, vh, frames: lanes.flatMap((l, i) => l.frames.map((f, k) => k === l.frames.length - 1 && lanes[i + 1] ? { ...f, hot: { edge: true, lane: lanes[i + 1].id } } : f)), links: lanes.flatMap((l, i) => [...l.links, ...(lanes[i + 1] ? [{ label: human(lanes[i + 1].id), text: 'next lane' }] : [])]) };
     const mine = mineOf(j);
     const play = lanes.length > 1 ? `journey:${j.id}` : lanes[0]?.play;
-    return { j, ji, mine, play, rows };
+    return { j, mine, play, rows };
   });
   // The receipt says something only when something is wrong, and says it in words; the full line
   // (hooks n/n · self-contained · palette) stays on the terminal card and in technical details.
@@ -150,7 +147,7 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
     return said.map(sentence);
   }
   function card(s) {
-    const meta = numbered.get(s.id) || {}; const status = statusOfScreen(s);
+    const meta = numbered.get(s.id) || {}; const status = screenStatus(s);
     const tech = []; let problems = 0;
     if (s.problems.length) { tech.push({ label: 'pick.json refused', lines: s.problems.map(sentence) }); problems += s.problems.length; }
     if (s.fileProblems.length) { tech.push({ label: 'Files refused', lines: s.fileProblems }); problems += s.fileProblems.length; }
@@ -170,15 +167,15 @@ function pageHtml(m, { vw, vh, sizes = [[vw, vh]], shots, rects, pins = {}, extr
         screens: [{ vw, vh, shot: shots[key] }, ...(extra[key] || [])], review };
     }) : [{ name: 'no mockup yet', shot: null, status: 'no-pick', missing: `No mockup yet\n.uxcli/mockups/${s.id}/<variant>.html` }];
     return ({
-      state: s.id, n: meta.n, crumb: human(meta.journey || ''), title: s.id, action: meta.action, question: s.about?.question, journeys: s.journeys.join(' '), status, vw, vh, variants,
+      state: s.id, n: meta.n, crumb: human(meta.journey || ''), title: s.id, action: meta.action, question: s.about?.question, status, vw, vh, variants,
       revise: s.revise && !s.revise.answered && !s.pick ? { note: s.revise.note, by: s.revise.by.ref } : null, tech, problems,
       refs: (s.refs || []).map(f => { const src = `${s.id}/refs/${f}`; const view = `ref:${s.id}/${f}`; proto[view] = { vw, vh, frames: [{ shot: src, title: `${human(s.id)} · reference · ${human(f.replace(/\.(png|jpe?g|webp)$/i, ''))}`, pins: [], hooks: [] }], links: [] }; return { name: f.replace(/\.(png|jpe?g|webp)$/i, ''), src, view }; }),
     });
   }
-  const firstOpen = order.find(id => byId[id] && statusOfScreen(byId[id]) === 'open') || order.find(id => byId[id]);
+  const firstOpen = order.find(id => byId[id] && screenStatus(byId[id]) === 'open') || order.find(id => byId[id]);
   return mockupsPage({
     name: m.project.project?.name || path.basename(m.root), sizes, proto, hashes,
-    decided: m.screens.filter(decided).length, total: m.screens.length,
+    decided: m.screens.filter(isDecided).length, total: m.screens.length,
     journeys: flows.map(f => ({ id: f.j.id, goal: f.j.goal, screens: f.mine.map(id => ({ ...card(byId[id]), first: id === firstOpen })), flow: f.rows.length ? { lanes: f.rows, play: f.play } : null })),
   });
 }

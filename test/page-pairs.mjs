@@ -39,8 +39,8 @@ export async function pair() {
   // one screen left open, so next open screen has somewhere to go
   fs.rmSync(path.join(tmp, '.uxcli', 'mockups', 'anon.login_page', 'pick.json'));
   const { map } = await import('../src/map.js');
-  await map(tmp, { viewport: '390x844' });                      // photographs the mockups too
-  { const { mockups } = await import('../src/mockups.js'); await mockups(tmp, { viewport: '390x844,1440x900' }); }   // and a second viewport, to switch to
+  { const { mockups } = await import('../src/mockups.js'); await mockups(tmp, { viewport: '390x844,1440x900' }); }   // two viewports, to switch between
+  await map(tmp, { viewport: '390x844' });                      // finds the pictures fresh and does not take them again
   const MAP = pathToFileURL(path.join(tmp, '.uxcli', 'map', 'index.html')).href;
   const MOCK = pathToFileURL(path.join(tmp, '.uxcli', 'mockups', 'index.html')).href;
   const browser = await launch();

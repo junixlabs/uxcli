@@ -68,6 +68,10 @@ export function parseRevise(doc, variants = [], hashes = {}) {
   return { value: { note: doc.note, by: doc.by, when: doc.when || null, answered }, problems };
 }
 
+// A screen's status: not drawn, picked, a revision asked of drawings still as they were, or open.
+export const screenStatus = s => !s.variants.length ? 'undrawn' : s.pick && !s.problems?.length ? 'picked' : s.revise && !s.revise.answered ? 'revise' : 'open';
+export const isDecided = s => ['picked', 'revise'].includes(screenStatus(s));
+
 export const statusOf = (variant, pick) => !pick ? 'no-pick' : pick.pick === variant ? 'pick' : pick.parts[variant] ? 'part' : 'not-taken';
 
 // The screens a project's journeys name, in the order a reader meets them: workflow by workflow,
@@ -138,11 +142,11 @@ export function mockupsCard(m) {
   if (!m.screens.length) { L.push('  no journey names a screen yet; a mockup answers to a state in .uxcli/journeys/'); return L.join('\n'); }
   for (const s of m.screens) {
     const n = s.variants.length;
-    const status = s.problems.length ? 'REFUSED' : !n ? 'no mockup' : s.pick ? `pick ${s.pick.pick}` : s.revise && !s.revise.answered ? 'revise asked' : 'no pick yet';
+    const status = s.problems.length ? 'REFUSED' : { undrawn: 'no mockup', picked: `pick ${s.pick?.pick}`, revise: 'revise asked', open: 'no pick yet' }[screenStatus(s)];
     L.push(`  ${status.padEnd(14)} ${s.id.padEnd(32)} ${n ? `${n} variant${n === 1 ? '' : 's'}: ${s.variants.join(', ')}` : `.uxcli/mockups/${s.id}/<variant>.html`}`);
     for (const p of s.problems) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} pick.json: ${p}`);
     for (const p of s.fileProblems || []) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} ${p}`);
-    if (s.revise && !s.revise.answered && !s.pick) L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} revise.json: ${s.revise.note}`);
+    if (screenStatus(s) === 'revise') L.push(`  ${''.padEnd(14)} ${''.padEnd(32)} revise.json: ${s.revise.note}`);
     for (const v of s.variants) {
       const r = s.receipts?.[v]; if (!r) continue;
       const line = receiptLine(r);
@@ -151,7 +155,7 @@ export function mockupsCard(m) {
     }
   }
   const drawn = m.screens.filter(s => s.variants.length).length; const picked = m.screens.filter(s => s.pick).length;
-  const revised = m.screens.filter(s => !s.pick && s.revise && !s.revise.answered).length;
+  const revised = m.screens.filter(s => screenStatus(s) === 'revise').length;
   L.push('', `  ${m.screens.length} screens · ${drawn} drawn · ${picked} picked${revised ? ` · ${revised} revision${revised > 1 ? 's' : ''} asked` : ''}`);
   if (m.page) L.push(`  page   ${m.page}`);
   L.push('', picked < m.screens.length

@@ -12,7 +12,6 @@ import { esc, human, sentence, flowRow, hooksHtml, pinsHtml, WIREFLOW_CSS } from
 
 export const STATUS = { picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' };
 const letter = k => String.fromCharCode(65 + k);
-const MAX_VARIANTS = 6;
 
 // —— the sidebar: the one list of screens ——
 export const ScreenLink = s => `<a href="#screen-${esc(s.state)}" data-go="${esc(s.state)}"><span class="n">${esc(s.n)}</span><span class="nm">${esc(human(s.state))}</span><i class="dot ${s.status}" title="${esc(STATUS[s.status])}"></i></a>`;
@@ -63,7 +62,7 @@ export function Screen(d) {
   const picked = d.variants.find(v => v.status === 'pick');
   const first = Math.max(0, picked ? d.variants.indexOf(picked) : 0);
   const ask = d.question ? sentence(d.question) : d.action ? `The person here: ${d.action}` : null;
-  return `<section class="view decision ${d.status}${d.vw < d.vh ? ' portrait' : ''}" id="screen-${esc(d.state)}" data-screen="${esc(d.state)}" data-state="${d.status}"${d.first ? ' data-first' : ''}${d.journeys ? ` data-journeys="${esc(d.journeys)}"` : ''}>
+  return `<section class="view decision ${d.status}${d.vw < d.vh ? ' portrait' : ''}" id="screen-${esc(d.state)}" data-screen="${esc(d.state)}" data-state="${d.status}"${d.first ? ' data-first' : ''}>
     <header class="d-h"><div class="d-t">${d.crumb ? `<span class="crumb">${esc(d.crumb)}</span>` : ''}<h2 title="${esc(d.state)}">${d.n ? `<span class="d-n">${esc(d.n)}</span>` : ''}${esc(human(d.title || d.state))}</h2>${ask ? `<p class="d-q">${esc(ask)}</p>` : ''}${d.revise ? `<p class="d-rev"><b>Revision asked${d.revise.by ? ` by ${esc(d.revise.by)}` : ''}:</b> ${esc(d.revise.note)}</p>` : ''}</div>
       <div class="d-tools"><span class="d-state ${d.status}">${esc(picked ? `Decided: ${human(picked.name)}` : STATUS[d.status])}</span>${Flip(d, first)}${d.variants.filter(v => v.shot).length > 1 ? `<button type="button" class="ghost" data-compare="${esc(d.state)}">Side by side</button>` : ''}</div></header>
     <div class="stage">${d.variants.map((v, k) => Drawing(v, k, d)).join('')}${Details(d)}</div>
@@ -72,7 +71,7 @@ export function Screen(d) {
 }
 
 // —— a journey's flow of picked screens, as its own view ——
-export const FlowView = j => !j.flow ? '' : `<section class="view flowview" id="screen-flow-${esc(j.id)}" data-screen="flow-${esc(j.id)}" data-journeys="${esc(j.id)}"><header class="d-h"><div class="d-t"><span class="crumb">${esc(human(j.id))}</span><h2>The flow of picked screens</h2>${j.goal ? `<p class="d-q">${esc(sentence(j.goal))}</p>` : ''}</div>${j.flow.play ? `<div class="d-tools"><button class="play" type="button" data-play="${esc(j.flow.play)}">▶ Play the flow</button></div>` : ''}</header><div class="stage"><div class="flow">${j.flow.lanes.map(flowRow).join('')}</div></div></section>`;
+export const FlowView = j => !j.flow ? '' : `<section class="view flowview" id="screen-flow-${esc(j.id)}" data-screen="flow-${esc(j.id)}"><header class="d-h"><div class="d-t"><span class="crumb">${esc(human(j.id))}</span><h2>The flow of picked screens</h2>${j.goal ? `<p class="d-q">${esc(sentence(j.goal))}</p>` : ''}</div>${j.flow.play ? `<div class="d-tools"><button class="play" type="button" data-play="${esc(j.flow.play)}">▶ Play the flow</button></div>` : ''}</header><div class="stage"><div class="flow">${j.flow.lanes.map(flowRow).join('')}</div></div></section>`;
 
 // —— dialogs ——
 // The viewer walks frames (play), shows one drawing (view) or several side by side (compare).
@@ -90,10 +89,10 @@ export const TOKENS = `
 :root[data-theme="dark"]{color-scheme:dark;--bg:#111317;--canvas:#16191e;--stage:#0c0e11;--dot:#262a31;--surface:#1a1d23;--well:#23272f;--ink:#eceef1;--dim:#a0a7b2;--faint:#737b87;--line:#323944;--line-soft:#262b33;--accent:#7f9bff;--accent-ink:#0d1220;--accent-soft:#1f2848;--fail:#ff7a5e;--fail-soft:#46231b;--finding:#e0b25a;--finding-soft:#3d3118;--pass:#5cc98b;--pass-soft:#173a26}
 `;
 // which drawing, which viewport: rules the browser applies from the radios, generated for the counts the page has
-const flipRules = () => Array.from({ length: MAX_VARIANTS }, (_, k) =>
+const flipRules = n => Array.from({ length: n }, (_, k) =>
   `.view:has(.flip input[value="${k}"]:checked) .opt:not([data-k="${k}"]),.view:has(.flip input[value="${k}"]:checked) .d-rv .review:not([data-of="${k}"]){display:none}.view:has(.flip input[value="${k}"]:checked) .choose[data-of="${k}"]{order:2;background:var(--accent);color:var(--accent-ink)}.view:has(.flip input[value="${k}"]:checked) .flip label[data-flip="${k}"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}`).join('\n');
 const vpRules = sizes => sizes.length < 2 ? '' : sizes.map(([w, h]) => `body:has(input[name="vp"][value="${w}x${h}"]:checked) .screens .screen:not([data-vp="${w}x${h}"]){display:none}`).join('\n');
-export const PAGE_CSS = sizes => `
+export const PAGE_CSS = (sizes, variants = 2) => `
 *,*::before,*::after{box-sizing:border-box}
 ${TOKENS}
 html{background:var(--bg)}
@@ -170,7 +169,7 @@ dialog{color:var(--ink)}
 .pickbar .pb-h{display:grid;gap:2px;font:13px var(--sans);color:var(--dim)}.pickbar .pb-h b{font:600 13px var(--sans);color:var(--ink);overflow-wrap:anywhere}
 .pickbar textarea{width:100%;height:110px;font:12px/1.4 var(--mono);color:var(--ink);background:var(--well);border:0;border-radius:8px;padding:8px;resize:vertical}
 .pickbar .pb-act{display:flex;gap:8px;flex-wrap:wrap}.pickbar form{margin:0}.pickbar button{font:600 13px var(--sans);padding:9px 14px;border-radius:var(--r);border:0;background:var(--well);color:var(--ink)}.pickbar .pb-copy{background:var(--accent);color:var(--accent-ink)}
-${flipRules()}
+${flipRules(variants)}
 ${vpRules(sizes)}
 @media (max-width:900px){
   :root{--pad:16px}
@@ -206,7 +205,7 @@ s+=f.shot?'<img src="'+esc(f.shot)+'" alt="">':'<div class="noshot">'+esc(f.miss
 (f.pins||[]).forEach(function(n,i){var off=n.y>=cur.vh,cx=n.x+Math.min(12,n.w/2),cy=off?cur.vh:Math.min(cur.vh,n.y+Math.min(12,n.h/2));s+='<i class="pin'+(off?' off':'')+'" style="left:'+pc(cx,cur.vw)+';top:'+pc(cy,cur.vh)+'" title="'+esc(n.text)+'">'+(i+1)+'</i>'});
 if(live&&h&&h.x!=null)s+='<div class="hot" style="left:'+pc(h.x,cur.vw)+';top:'+pc(h.y,cur.vh)+';width:'+pc(h.w,cur.vw)+';height:'+pc(h.h,cur.vh)+'"></div>';
 s+='</div>';
-if(mode!=='play')s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Choose '+esc(f.title.split(' \\u00b7 ').slice(-2).join(' \\u00b7 '))+'</button>':'')+'</div>';
+if(mode!=='play')s+='<div class="p-under">'+((f.pins||[]).length?'<ol class="p-notes">'+f.pins.map(function(n){return '<li>'+esc(n.text)+'</li>'}).join('')+'</ol>':'<span></span>')+(f.pick?'<button type="button" class="p-pickv" data-pickv="'+esc(f.pick)+'">Choose '+esc(f.label||f.title)+'</button>':'')+'</div>';
 s+='</div>';
 if(live&&h&&(h.off||h.edge))s+='<div class="p-off">'+(h.off?'\\u2193 '+esc(h.target||'')+' \\u00b7 '+h.scrolls+' scroll'+(h.scrolls>1?'s':'')+' below the fold \\u2014 continue':h.lane?'\\u2192 next lane: '+esc(h.lane):'\\u2192 continue (hook not in the drawing)')+'</div>';
 return s}
@@ -255,7 +254,7 @@ export function mockupsPage(m) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(m.name)} mockups</title>
-<style>${PAGE_CSS(m.sizes)}</style>
+<style>${PAGE_CSS(m.sizes, Math.max(2, ...m.journeys.flatMap(j => j.screens.map(s => s.variants.length))))}</style>
 </head>
 <body>
 <div class="app">

@@ -1,10 +1,9 @@
 // A wireflow, as HTML: frames that are pictures of screens, a connection leaving the element that was
-// acted on and landing on the frame that resulted, a badge on the frame a verdict cites. The Verdict
-// Lab draws a run's screenshots with it and `uxcli mockups` draws the picked mockups with it; the
-// model is the same because the question is the same — which screen, which element, which next.
+// acted on and landing on the frame that resulted. `uxcli mockups` draws each journey's picked
+// drawings with it.
 //
 // row:   { id, kind, vw, vh, frames: [frame], links: [link] }   links[k] joins frame k to frame k+1
-// frame: { shot, alt, start?, badges?: [text], loud?, hot?, title, pill?: {text, tone}, extra?, note? }
+// frame: { shot, alt, hot?, title, pill?: {text, tone}, note?, candidates?, view? }
 // hot:   { x, y, w, h } in CSS px of the vw×vh viewport the shot shows · { off: true, target, scrolls }
 //        when the element sat below the fold · { edge: true } when nothing is known · null for the last frame
 // link:  { label, sub? }
@@ -22,18 +21,16 @@ export const KIND = { happy: 'Happy path', recovery: 'Recovery', edge: 'Edge cas
 
 export const pct = (n, of) => `${(100 * n / of).toFixed(2)}%`;
 
-export function frameHtml(f, { vw, vh, hotspot = '', extraClass = '' }) {
-  const badges = (f.badges || []).map(b => `<span class="badge">${esc(b)}</span>`).join('');
+function frameHtml(f, { vw, vh, hotspot = '' }) {
   const pill = f.pill ? `<span class="pill ${f.pill.tone || ''}">${esc(f.pill.text)}</span>` : '';
   const cands = (f.candidates || []).filter(c => c.shot);
   const pic = f.shot ? `<a href="${esc(f.shot)}"${f.view ? ` data-view="${esc(f.view)}"` : ''}><img src="${esc(f.shot)}" alt="${esc(f.alt || f.title)}" loading="lazy" width="${vw}" height="${vh}"></a>`
     : cands.length ? `<div class="cands n${Math.min(cands.length, 4)}">${cands.map(c => `<a href="${esc(c.shot)}"${c.view ? ` data-view="${esc(c.view)}"` : ''}><img src="${esc(c.shot)}" alt="${esc(c.name)}" loading="lazy"><b>${esc(human(c.name))}</b></a>`).join('')}<span class="cands-h">${cands.length} variants, not picked</span></div>`
     : `<div class="noshot">${esc(f.missing || 'No picture')}</div>`;
-  return `<div class="frame ${f.loud ? 'loud' : ''} ${extraClass}">
-    ${badges}
+  return `<div class="frame">
     <div class="screen" style="aspect-ratio:${vw}/${vh}">${pic}${hotspot}</div>
     ${f.hot?.off ? `<div class="offhot"><span class="hot off"></span>${esc(f.hot.target)} · ${f.hot.scrolls} scroll${f.hot.scrolls > 1 ? 's' : ''} below the fold</div>` : ''}
-    <div class="cap"><span class="state"${f.id ? ` title="${esc(f.id)}"` : ''}>${esc(f.title)}</span>${pill}${f.extra ? `<span class="ms">${esc(f.extra)}</span>` : ''}</div>
+    <div class="cap"><span class="state"${f.id ? ` title="${esc(f.id)}"` : ''}>${esc(f.title)}</span>${pill}</div>
     ${f.note ? `<p class="fnote">${esc(f.note)}</p>` : ''}
   </div>`;
 }
@@ -93,7 +90,6 @@ export const WIREFLOW_CSS = `
 .screen{position:relative;width:100%;border-radius:8px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08),0 8px 24px -12px rgba(0,0,0,.25);overflow:visible}
 .screen a{display:block;height:100%}
 .screen img{display:block;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:8px}
-.frame.loud .screen{outline:2px solid var(--fail);box-shadow:0 0 0 6px var(--fail-soft),0 8px 24px -12px rgba(0,0,0,.25)}
 .cands{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;border-radius:8px;background:var(--well);overflow:hidden}
 .cands.n1{grid-template-columns:1fr}.cands.n3 a:first-child{grid-column:1/3}
 .cands a{position:relative;display:block;overflow:hidden;border-radius:5px;background:#fff;min-height:0}
@@ -105,16 +101,13 @@ export const WIREFLOW_CSS = `
 .hot{position:absolute;border:2px solid var(--accent);border-radius:4px;background:color-mix(in srgb,var(--accent) 10%,transparent);box-shadow:0 0 0 3px rgba(255,255,255,.7);pointer-events:none}
 .hot::after{content:"";position:absolute;right:-6px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px #fff}
 .hot.off{position:static;border-style:dashed;border-color:var(--fail);background:var(--fail-soft);box-shadow:none}
-.frame.loud .hot{border-color:var(--fail);background:color-mix(in srgb,var(--fail) 10%,transparent)}.frame.loud .hot::after{background:var(--fail)}.hot.off::after{display:none}
 .hot.edge{right:-7px;top:calc(50% - 7px);width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff}.hot.edge::after{display:none}
 .offhot{display:flex;align-items:center;gap:8px;font:12px/1.3 var(--mono);color:var(--fail);min-height:24px}
 .offhot .hot{flex:none;width:24px;height:12px}
-.badge{position:absolute;top:-12px;right:10px;z-index:2;white-space:nowrap;font:700 11px/1 var(--sans);color:#fff;background:var(--fail);padding:6px 9px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .cap{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .cap .state{font:600 13px var(--sans);color:var(--ink);overflow-wrap:anywhere}
 .pill{font:600 11px/1 var(--sans);padding:4px 8px;border-radius:999px;background:var(--well);color:var(--dim)}
-.pill.ok{background:var(--pass-soft);color:var(--pass)}.pill.bad{background:var(--fail-soft);color:var(--fail)}
-.ms{font:12px var(--sans);color:var(--dim)}
+.pill.ok{background:var(--pass-soft);color:var(--pass)}
 .fnote{margin:0;font:12px/1.4 var(--sans);color:var(--dim)}
 .conn{position:relative;width:var(--cw);flex:none;height:calc(var(--fw) * var(--vh) / var(--vw))}
 .conn svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
@@ -123,8 +116,6 @@ export const WIREFLOW_CSS = `
 .conn .label{position:absolute;left:8px;right:8px;top:12px;font:12px/1.35 var(--sans);color:var(--ink);text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .conn .label b{display:block;font:700 11px var(--sans);color:var(--accent);margin-bottom:2px}
 .conn .label span{display:block;font:11px/1.35 var(--mono);color:var(--dim);margin-top:4px;padding-top:4px;border-top:1px dashed var(--line);overflow-wrap:anywhere}
-.g-state{margin-left:auto;font:600 11px/1 var(--sans);padding:6px 10px;border-radius:999px;background:var(--well);color:var(--dim)}
-.g-state.pick{background:var(--pass-soft);color:var(--pass)}
 .p-stage{display:grid;place-items:center;min-height:0;gap:10px;grid-auto-rows:min-content;align-content:center}
 .p-screen{position:relative;max-width:100%;max-height:calc(100vh - 140px);height:calc(100vh - 140px);background:#fff;border-radius:8px;box-shadow:0 20px 60px -20px rgba(0,0,0,.6);overflow:hidden}
 .p-screen img{display:block;width:100%;height:100%;object-fit:contain}
