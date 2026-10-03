@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/walkthrough.schema.json",
+  "title": "uxcli walkthrough",
+  "description": "A cognitive walkthrough of one walk — .uxcli/walkthroughs/<journey>/<run>[.<actor>].json: at each step of the walk the four questions of the method (Wharton, Rieman, Lewis & Polson, 1994), answered looking at the step's screenshot, optionally as one of the project's actors. The reviewer's claim, never a verdict.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "journey", "run", "by", "steps"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "journey": { "type": "string", "minLength": 1 },
+    "run": { "type": "string", "pattern": "^runs/R-[^/]+$" },
+    "as": { "type": "string", "minLength": 1, "description": "an actor under understanding/actors/" },
+    "by": { "type": "object", "required": ["type", "ref"], "properties": { "type": { "type": "string" }, "ref": { "type": "string" }, "onBehalfOf": { "type": "string" } } },
+    "at": { "type": "string" },
+    "method": { "type": "string" },
+    "steps": { "type": "object", "description": "keyed <workflow>/<step>" }
+  },
+  "$defs": {
+    "answer": { "type": "object", "additionalProperties": false, "required": ["answer", "why"], "properties": { "answer": { "enum": ["yes", "no", "unsure", null] }, "why": { "type": "string" }, "where": { "type": "string" } } }
+  }
+}

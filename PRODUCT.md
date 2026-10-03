@@ -21,7 +21,7 @@ interpretation: `what · where · rule · check`, an exit code, a path to the ev
 uxcli gives a coding agent the habits of a designer who did the research, in four pillars:
 
 - **Knowledge** — a library of cited rules (lenses by kind of UI, topic pools for colour, writing,
-  data display and forms) and templates for kinds of product. Every rule names its author, its page,
+  data display, forms, navigation, motion and feedback) and templates for kinds of product. Every rule names its author, its page,
   its exact words, and how it is checked.
 - **Process** — research the field (`references/research.md`), write what was learned as insights and
   what was not as questions, read `context show`, draw variants to the lens, build the one a person

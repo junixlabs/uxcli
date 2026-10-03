@@ -39,7 +39,7 @@ export async function pair() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'uxcli-template-'));
   const t = lib.list[0];
   const r1 = applyTemplate(tmp, t, { at: '2026-10-03T00:00:00Z' });
-  must('apply did not create one actor file per actor', r1.items.length === t.actors.length && r1.items.every(i => i.status === 'created'));
+  must('apply did not create one actor file per actor and the template record', r1.items.length === t.actors.length + 1 && r1.items.every(i => i.status === 'created') && JSON.parse(fs.readFileSync(path.join(tmp, '.uxcli', 'template.json'), 'utf8')).template === t.id);
   for (const a of t.actors) {
     const f = path.join(tmp, '.uxcli', 'understanding', 'actors', `${a.actor}.json`);
     const doc = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : null;

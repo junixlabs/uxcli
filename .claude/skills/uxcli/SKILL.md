@@ -107,6 +107,7 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `references/journey.md` | the card says no journey, or a flow has changed shape: states as signals, hooks, workflows |
 | `references/mockups.md` | a screen the journey names has no mockup or no pick: variants, hooks, `pick.json` |
 | `references/understand.md` | the card says no understanding, or an insight the screen leans on is missing or a hypothesis |
+| `references/walkthrough.md` | a journey was walked and you need to know whether a person could follow it: the four questions at every step, as one of the project's actors |
 | `references/versions.md` | a walk showed something worth changing: naming versions, a redesign proposal with evidence, comparing two versions |
 | `references/research.md` | you do not know the product's field from sources yet: where to look, what to come back with, how to write it down |
 | `templates/<id>.md` | the product is a kind uxcli has a template for — `workspace`, `shop`, `landing`: screens and their lens, journeys to walk, what to research |

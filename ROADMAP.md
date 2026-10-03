@@ -30,9 +30,11 @@ and the owner's call of 2026-10-03: build the library first, then the experience
   `template apply` writes the questions as an actor's unknowns, creating only.
 - Done 2026-10-03: `references/research.md`, the order in which the field is researched and how
   findings are written down.
-- Next: templates for `content` (docs, help centres) and `mobile-app`; a topic pool for navigation and
-  information architecture; a topic pool for motion and feedback.
-- Next: `context show` names the template and the lens for each screen of the journey.
+- Done 2026-10-03: templates for `content` (docs, help centres) and `mobile-app`; `template apply`
+  records the template and `context show` names it, the lens for each kind of screen, and the lens each
+  screen of the journey was reviewed against.
+- Done 2026-10-03: topic pools for navigation and information architecture (10) and motion and
+  feedback (10), quotes checked verbatim against the source repositories; the lenses carry 187.
 - Exit: an agent given only a ticket and the skill picks the right template and lens, and its drawing's
   review cites topic-pool rules, in 8 of 10 fresh sessions.
 
@@ -68,21 +70,29 @@ the CRM example a planted extra step, a missing progress signal and a lost value
 - Done 2026-10-03: `uxcli version save <journey> <name>` names a walk (one file per version, never
   rewritten; its run kept against pruning); `experience --journey --from --to [--page]` compares two
   versions step by step with both pictures side by side; proposals take `kind: redesign`, with
-  `evidence[]` citing the walk; `references/versions.md` is the loop. The trace and evidence shapes are
-  the run packet and the experience report; a schema of their own is next.
+  `evidence[]` citing the walk; `references/versions.md` is the loop.
+- Done 2026-10-03: `trace.schema.json` (a step of a walk; a typed value stored instead of its hash does
+  not fit) and `experience.schema.json` (the report), held by the experience pairs.
 - Exit: on the CRM example, v1 and v2 side by side, with the metrics that moved.
 
 ## The studio
 
 - Done 2026-10-03: `uxcli studio` — one local board for the project, read like a design file and built
   only from `.uxcli/`; served, the place a person picks or asks for a redraw while the agent works
-  through the CLI. Next: version-to-version view toggled on the board; comments a person leaves on a
-  frame, written as a redraw request scoped to it; export of a frame as PNG for an issue.
+  through the CLI.
+- Done 2026-10-03: compare two versions on the board (each frame of the later one says what moved);
+  a note on a built frame written as a `redesign` proposal citing the walk; each frame's picture opens
+  on its own to attach to an issue.
 
 ## 4. Walkthrough and personas
 
 - Cognitive walkthrough at each step: the four questions answered with the screenshot, as findings.
 - Personas from the project's own understanding walk the journey and record where they hesitate.
+- Done 2026-10-03: `uxcli walkthrough <journey> [--as=<actor>] --write` and `walkthrough check` — the
+  four questions of Wharton, Rieman, Lewis & Polson (1994) at every step of a walk, answered from its
+  screenshot, as an actor the project wrote; refused when incomplete, unsigned, or contradicted by the
+  walk (a "yes" to noticing a control measured below the fold, to progress where the step did not
+  arrive); "no" and "unsure" are findings, shown in the studio. Schema `walkthrough.schema.json`.
 - Exit: agreement with a human designer measured on a sample and published with its limits. Until
   then, findings only.
 

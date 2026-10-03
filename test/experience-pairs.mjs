@@ -5,6 +5,7 @@
 import fs from 'node:fs'; import path from 'node:path'; import os from 'node:os'; import { fileURLToPath, pathToFileURL } from 'node:url';
 import { experience, compareExperience, KLM } from '../src/core/experience.js';
 import { experiences, experiencePage } from '../src/experience.js';
+import { validate } from './lib/json-schema.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -94,6 +95,17 @@ export async function pair() {
   const lead = ex.find(x => x.report.journey === 'handle-inbound-lead');
   must('the example\'s handle-inbound-lead walk was not found', !!lead);
   must('the example\'s call button was not reported two scrolls away at 390x844', !!lead && lead.report.findings.some(f => f.metric === 'reach' && /call-action/.test(f.what) && /2 scrolls/.test(f.what) && /390x844/.test(f.what)));
+
+  // the shapes: every recorded step fits the trace schema, every report the experience schema
+  const S = name => JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', `${name}.schema.json`), 'utf8'));
+  const runsDirs = ['examples/crm/.uxcli/runs', 'test/fixtures/runs'].map(d => path.join(ROOT, d)).filter(d => fs.existsSync(d));
+  for (const d of runsDirs) for (const r of fs.readdirSync(d)) { const f = path.join(d, r, 'run.json'); if (!fs.existsSync(f)) continue;
+    for (const st of JSON.parse(fs.readFileSync(f, 'utf8')).steps || []) { const bad = validate(S('trace'), st); must(`${path.relative(ROOT, f)} step ${st.id} fails trace.schema.json: ${bad.slice(0, 2).join('; ')}`, !bad.length); } }
+  for (const r of [clean, farR, experience(cleared), experience(withNav(['Home', 'Cart', 'Shop', 'Account']))]) { const bad = validate(S('experience'), r); must(`a report fails experience.schema.json: ${bad.slice(0, 2).join('; ')}`, !bad.length); }
+  { const raw = clone(CLEAN.steps[1]); raw.interactions[0].typed = { chars: 17, value: 'agent@example.com' };
+    must('a step carrying a typed value instead of its hash fits the trace schema', validate(S('trace'), raw).length > 0); }
+  { const bad = clone(clean); bad.findings = [{ metric: 'taste', step: 's1', what: 'ugly', source: 'me' }];
+    must('a finding with a metric uxcli does not have fits the experience schema', validate(S('experience'), bad).length > 0); }
 
   // the page: written where asked, one card per step, the pinned finding drawn as a box
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'uxcli-exp-'));

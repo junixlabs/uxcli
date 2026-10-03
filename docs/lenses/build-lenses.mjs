@@ -2,7 +2,7 @@
 // viewpoints that state the same rule (agrees links) folded into one pick whose note names the others.
 import fs from 'node:fs'; import path from 'node:path';
 const LIB = new URL('../../skills/uxcli/lenses', import.meta.url).pathname;
-const SCHOOLS = ['usability', 'craft', 'canon', 'modern', 'color', 'writing', 'data-display', 'forms'];
+const SCHOOLS = ['usability', 'craft', 'canon', 'modern', 'color', 'writing', 'data-display', 'forms', 'navigation', 'feedback'];
 const PROBES = { 'page.nesting': ['craft.fewer-borders', 'canon.tufte-one-plus-one-equals-three', 'canon.gestalt-common-region', 'modern.fewer-borders-more-space'] };
 const pools = SCHOOLS.map(s => JSON.parse(fs.readFileSync(path.join(LIB, 'viewpoints', `${s}.json`), 'utf8')));
 // the probe a viewpoint is counted by, written into the pool itself

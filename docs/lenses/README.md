@@ -183,6 +183,8 @@ against and that the public URL was derived from the repository's routing.
 | writing and microcopy | [`writing.md`](writing.md) | 10 | GOV.UK, Carbon, Primer, Polaris, Mailchimp |
 | data display | [`data-display.md`](data-display.md) | 12 | Primer, GOV.UK, USWDS, Carbon, Polaris, W3C WAI tables tutorial |
 | forms and input | [`forms.md`](forms.md) | 12 | GOV.UK, USWDS, Primer, W3C Understanding 1.3.5 |
+| navigation and IA | [`navigation.md`](navigation.md) | 10 | USWDS, GOV.UK, Primer, Carbon, W3C Understanding 2.4.1, 2.4.5, 2.4.8, 3.2.3 |
+| motion and feedback | [`feedback.md`](feedback.md) | 10 | W3C Understanding 4.1.3, 2.2.1, 2.2.2, GOV.UK, Polaris, Primer, Carbon, USWDS |
 
 Where sources disagree the pool records both: GOV.UK validates on submit while
 `usability.inline-validation-after-leaving-field` validates on blur, and the forms check tests only what

@@ -38,5 +38,6 @@ export const SUITES = [
   { tag: 'tmpl', title: 'a template asks, and apply only creates', file: 'template-pairs.mjs', miss: 'refused' },
   { tag: 'exp', title: 'what the person goes through, from the trace', file: 'experience-pairs.mjs', miss: 'seen' },
   { tag: 'ver', title: 'a version is kept, and two compare', file: 'version-pairs.mjs', miss: 'refused' },
+  { tag: 'walk', title: 'four questions at every step, held to the walk', file: 'walkthrough-pairs.mjs', miss: 'refused' },
   { tag: 'board', title: 'the studio shows every step, and decides through the files', file: 'studio-pairs.mjs', miss: 'refused' },
 ];

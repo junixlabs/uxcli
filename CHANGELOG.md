@@ -16,7 +16,8 @@ Entries are written per release. The log is the source material, not the text.
   version left it; pan, zoom, fit, an outline, an inspector, and Context and Library tabs. One HTML file
   under `.uxcli/studio/`. `--serve` runs it on localhost, refreshes it as files under `.uxcli/` change,
   serves nothing outside `.uxcli/`, and takes a person's pick or redraw request through the parser the
-  file is read with, creating only. `--shot` photographs the board for an agent. Gate: `studio-pairs`,
+  file is read with, creating only; a note on a built frame becomes a `redesign` proposal citing the walk.
+  Two named versions compare on the board. `--shot` photographs the board for an agent. Gate: `studio-pairs`,
   which also runs the four page probes on the board.
 
 - `uxcli experience [dir|run] [--page] [--json]`: what the person goes through on each journey's last
@@ -34,6 +35,18 @@ Entries are written per release. The log is the source material, not the text.
   step, whether each typed field still held the value afterwards, which announcement roles were
   visible, and each navigation landmark's items; the observer reads the input type and the landmarks. The runner now records
   a typed value as its length and its hash, never the value. Gate: `experience-pairs`.
+- `uxcli walkthrough <journey> [--as=<actor>] [--for=<person>] | check`: a cognitive walkthrough
+  (Wharton, Rieman, Lewis & Polson, 1994) of a walk — four questions at every step, answered from its
+  screenshot, optionally as one of the project's actors. `check` refuses a step left out, an answer
+  without why, a no without where, a persona nobody wrote, an agent answering for nobody, and a "yes"
+  the walk contradicts. "No" and "unsure" are findings, on the studio's inspector. Gate:
+  `walkthrough-pairs`.
+- `schemas/trace.schema.json` and `schemas/experience.schema.json`: the step a walk records and the
+  report `experience` makes, each with a shape of its own; a typed value stored instead of its hash
+  does not fit.
+- Templates `content` (docs and help centres) and `mobile-app`; `template apply` records the template in
+  `.uxcli/template.json`, and `context show` names it with the lens for each kind of screen and the
+  lens each of the journey's screens was reviewed against.
 - `uxcli version [save <journey> <name>]` and `uxcli experience --journey=<id> --from=<a> --to=<b>`:
   a name for one walk of a journey, kept against pruning and comparable with another, step by step,
   with both pictures side by side on the page. `.uxcli/versions/<journey>/<name>.json`, one file per
@@ -49,7 +62,8 @@ Entries are written per release. The log is the source material, not the text.
   the evidence can carry, and writing the findings down as insights.
 - Four topic pools beside the four schools, from the source repositories of GOV.UK, USWDS, Carbon,
   Primer, Polaris, Mailchimp and the W3C, every quote checked verbatim: colour (10), writing and
-  microcopy (10), data display (12), forms (12). The lenses now carry 167 viewpoints.
+  microcopy (10), data display (12), forms (12), navigation and information architecture (10), motion and
+  feedback (10). The lenses now carry 187 viewpoints.
 
 ### Changed
 

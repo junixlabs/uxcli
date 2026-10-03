@@ -1,0 +1,458 @@
+{
+ "schema_version": 1,
+ "school": "navigation",
+ "name": "Navigation and information architecture",
+ "research": "docs/lenses/navigation.md",
+ "viewpoints": [
+  {
+   "id": "navigation.you-are-here",
+   "claim": "The person can tell where they are: the navigation item for the current page is marked in code and by more than colour, and the page's h1 and title use the words of the link that led there.",
+   "source": {
+    "author": "U.S. Web Design System (USWDS)",
+    "work": "Side navigation component",
+    "url": "https://designsystem.digital.gov/components/side-navigation/",
+    "quote": "Show the current page. Indicate where a user is within the navigational hierarchy. Use the “active” state to show users which page they have navigated to."
+   },
+   "evidence": "author",
+   "prefers": [
+    "aria-current=\"page\" on the link to the current page, in the top nav, side nav and breadcrumb alike",
+    "A current-item style that changes weight, underline, border or background, not only hue",
+    "The current section marked in the top nav when the page itself sits deeper than the top nav reaches",
+    "Link text, h1 and the first part of <title> in the same words ('Pricing' → h1 'Pricing' → 'Pricing – Acme')"
+   ],
+   "forbids": [
+    "A navigation in which the current page looks and is marked exactly like every other link",
+    "A nav item 'Resources' that opens a page headed 'Knowledge hub'",
+    "One <title> for every page or view of a single-page app"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "On each page reachable from a nav landmark: does exactly one link per nav landmark whose href matches the current URL (or its section) carry aria-current, and does its computed style differ from its siblings in font-weight, text-decoration, border or background (not colour alone)? Following each nav link, after normalising case and whitespace, does the destination h1 equal, contain or sit inside the link text, and does document.title contain the h1?",
+    "mustFail": "A 5-item top nav where the link to the current page has the same style and no aria-current; 'Resources' opens a page whose h1 is 'Knowledge hub' and whose title is just 'Acme'.",
+    "mustPass": "The same nav with the current item bold, a 3px bottom border and aria-current=\"page\"; 'Resources' opens h1 'Resources' with title 'Resources – Acme'."
+   },
+   "exceptions": [
+    "USWDS allows nav labels to be 'shorter derivatives of page titles': 'Pricing' leading to 'Pricing and plans' passes by containment",
+    "The home link usually carries the brand name, not the home page's h1",
+    "The 'more than colour' test is uxcli's, carried over from color.never-the-only-signal; USWDS asks only for an active state"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Any UI with persistent navigation; a linear transaction often has no navigation to mark, but its h1 and title still name the step.",
+   "agrees": [
+    "color.never-the-only-signal",
+    "writing.links-describe-their-destination",
+    "usability.mindless-clicks-not-fewer-clicks"
+   ]
+  },
+  {
+   "id": "navigation.breadcrumbs-only-for-real-hierarchy",
+   "claim": "Breadcrumbs belong on pages more than two levels deep in a hierarchy; never on a flat site, never to show steps in a linear flow, and never in place of the primary navigation.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Breadcrumbs component",
+    "url": "https://design-system.service.gov.uk/components/breadcrumbs/",
+    "quote": "Do not use the breadcrumbs component on websites with a flat structure, or to show progress through a linear journey or transaction."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A trail that starts with the word 'Home' and follows the site's hierarchy, not the user's click history",
+    "Breadcrumbs placed at the top of the page, before <main>, so the skip link skips them",
+    "Every ancestor a link; the current page last and marked aria-current, or left off",
+    "Breadcrumb wording identical to the page titles it points at"
+   ],
+   "forbids": [
+    "Breadcrumbs that list the steps of a sign-up or checkout",
+    "'Home > About' on a site whose every page is linked from the top nav",
+    "Breadcrumbs as the only way to move between sections",
+    "Breadcrumbs and a Back link on the same page"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "If the page has a breadcrumb (a nav whose accessible name contains 'breadcrumb', or an ordered list of links styled as one, before main): does it hold at least two ancestor links (Home > Section > page), does it sit before main, is every item except the current page a link, is there also a primary nav on the page, and is there no Back link and no step indicator on the same page?",
+    "mustFail": "A 4-step sign-up shows 'Details > Address > Payment > Confirm' as breadcrumbs above a Continue button.",
+    "mustPass": "A guidance page shows 'Home > Driving > Licences' before main, under the site's top nav; the sign-up flow shows a Back link and no breadcrumb."
+   },
+   "exceptions": [
+    "'At least two ancestor links' is uxcli's reading of Carbon's 'more than two levels'; no source gives a link count",
+    "GOV.UK ends the trail with the parent section; Primer and USWDS end it with the current page marked aria-current; either passes",
+    "USWDS: omit breadcrumbs on the home page and optionally on section landing pages, and where a side navigation already shows the hierarchy",
+    "Carbon recognises path-based breadcrumbs (the steps the user took) as a type; GOV.UK and USWDS do not, and this viewpoint follows them"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Deep content, catalogues and admin trees need breadcrumbs; in transactions the rule applies as a prohibition, and flat marketing sites rarely need them.",
+   "agrees": [
+    "navigation.back-link-goes-one-step-back"
+   ]
+  },
+  {
+   "id": "navigation.back-link-goes-one-step-back",
+   "claim": "In a multi-page transaction every page after the first has a Back link at the top, before main, that returns to the previous step with the answers as the user left them; the flow carries no site navigation links or breadcrumbs.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Back link component",
+    "url": "https://design-system.service.gov.uk/components/back-link/",
+    "quote": "Make sure the link takes users to the previous page they were on, in the state they last saw it."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A link reading 'Back' (or 'Go back to [page]' in complex journeys) above the h1, before <main>",
+    "Previous answers still filled in when the user goes back",
+    "A Continue button to move forward and a Back link to move back, instead of pagination or tabs",
+    "A task list instead of navigation links when the service has one clear end-to-end journey"
+   ],
+   "forbids": [
+    "Relying on the browser Back button, which may lose the user's progress",
+    "A Back link that jumps to the start page or the home page",
+    "Breadcrumbs, pagination or a site menu used to move between the steps of a form"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "On step n (n ≥ 2) of a flow: is there a link whose text starts with 'Back' or 'Go back' before main? Fill step n−1, continue, then activate that link: is the URL step n−1's, and does every field hold the value entered? Is there no breadcrumb and no pagination on the step?",
+    "mustFail": "Step 3 of 4 has no back link; or its Back link goes to the start page and the form there is empty.",
+    "mustPass": "Step 3 has 'Back' above the h1; it returns to step 2 with the typed postcode still in the field."
+   },
+   "exceptions": [
+    "The first question page may link back to the service's start page",
+    "GOV.UK: where the Back link needs JavaScript and JavaScript is not available, hide it rather than show a broken link",
+    "GOV.UK: navigation links suit services used repeatedly, with many tasks and no fixed order; those are not linear flows"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A rule for multi-page forms: checkout, sign-up, applications and admin wizards; pages without steps have nothing to go back to.",
+   "agrees": [
+    "usability.clearly-marked-emergency-exit",
+    "forms.keep-answers-after-an-error",
+    "navigation.breadcrumbs-only-for-real-hierarchy"
+   ]
+  },
+  {
+   "id": "navigation.skip-link-is-the-first-tab-stop",
+   "claim": "The first Tab press on every page lands on a visible 'Skip to main content' link that moves focus past the header and navigation into main.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Skip link component",
+    "url": "https://design-system.service.gov.uk/components/skip-link/",
+    "quote": "Including the skip link component gives users the option to bypass the top-level navigation links and jump to the main content on a page."
+   },
+   "evidence": "author",
+   "prefers": [
+    "The skip link immediately after <body> (or after a cookie banner)",
+    "Visually hidden until it receives keyboard focus, then clearly shown",
+    "A target id on <main> (or its first heading) that can take focus",
+    "Breadcrumbs and back links placed before <main>, so the skip link skips them too"
+   ],
+   "forbids": [
+    "A page whose first Tab stop is the logo or the first of a dozen nav links",
+    "A skip link that stays invisible when focused",
+    "A skip link whose href points at an id that does not exist",
+    "A skip link wrapped in <nav> or moved inside the header"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Load the page and press Tab once: is document.activeElement an <a> whose href is '#id' of an element that is main or inside main, with a non-zero box inside the viewport and opacity above 0? Press Enter, then Tab: is focus on an element inside main?",
+    "mustFail": "A header with 9 nav links and no skip link: the first Tab focuses the logo, and reaching the first link in main takes 11 presses.",
+    "mustPass": "The first Tab reveals 'Skip to main content' at top left; Enter then Tab focuses the first link in main."
+   },
+   "exceptions": [
+    "WCAG 2.4.1 is met by other means too (landmarks, headings); the first-Tab test follows GOV.UK and Carbon practice and is stricter than the criterion",
+    "WCAG: when the repeated navigation is at the bottom of the page, a skip link may be unnecessary",
+    "A page with no repeated block before main (a bare single-purpose page) has nothing to skip"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Every page with a repeated header or navigation in front of its content.",
+   "agrees": []
+  },
+  {
+   "id": "navigation.more-than-one-way-to-a-page",
+   "claim": "Each page in a set can be reached more than one way — navigation plus search, a site map, an index or links between related pages — except pages that are a step in, or the result of, a process.",
+   "source": {
+    "author": "W3C WAI",
+    "work": "Understanding SC 2.4.5 Multiple Ways",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/multiple-ways.html",
+    "quote": "Provide at least two options for reaching the same content."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A site search in the header that searches this site and says so ('Search [service]')",
+    "A site map, A–Z index or table of contents linked from the footer of every page",
+    "Related-page links inside content, in addition to the menu"
+   ],
+   "forbids": [
+    "A large site whose only route to a page is a deep menu",
+    "A search box that searches something other than the site it sits on, without saying so"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "On every page of a set larger than a handful: besides the nav landmark, is there a search form (role=search, or input[type=search]) or a link to a site map or index in the header or footer? Searching the h1 of a sampled deep page: does the search return that page?",
+    "mustFail": "A 40-page docs site with only a top nav: no search, no site map, no index.",
+    "mustPass": "The same site with a header search that returns the sampled page and a footer 'Site map' link."
+   },
+   "exceptions": [
+    "WCAG: for a three- or four-page site with every page linked from the home page, links to and from the home page can suffice",
+    "WCAG exempts pages that are the result of, or a step in, a process (a payment step, a search results page)",
+    "'Larger than a handful' is uxcli's threshold; WCAG applies the criterion to any set of pages and names no size"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "no"
+   },
+   "kindsWhy": "Sites and apps with many pages to find; small marketing sites can rely on the home page, and transaction steps are exempt.",
+   "agrees": []
+  },
+  {
+   "id": "navigation.same-navigation-on-every-page",
+   "claim": "Navigation that repeats across pages keeps the same items, in the same order and place, with the same names and icons on every page; sub-navigation may expand within it.",
+   "source": {
+    "author": "W3C WAI",
+    "work": "Understanding SC 3.2.3 Consistent Navigation",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/consistent-navigation.html",
+    "quote": "Consistently order navigation that repeats across multiple pages."
+   },
+   "evidence": "author",
+   "prefers": [
+    "One header and footer component rendered on every page, not a hand-built copy per page",
+    "The same accessible name for the same nav item, search control and account control everywhere (WCAG 3.2.4)",
+    "Header icons in fixed positions, so they do not shift between screens"
+   ],
+   "forbids": [
+    "Nav items that reorder, appear or disappear depending on the page (apart from the current section expanding)",
+    "'Sign in' on one page and 'Log in' on the next for the same control",
+    "The search field in the header on some pages and the footer on others"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Visit three or more pages that share a header. On each, read the ordered accessible names of the links and buttons in the header nav, the footer nav and the header tools. Are the lists identical, apart from expanded sub-items of the current section? At one viewport, is each landmark's bounding box at the same x and y?",
+    "mustFail": "On /pricing the top nav reads Product, Pricing, Docs; on /docs it reads Docs, Product, Pricing, Blog; 'Sign in' becomes 'Log in'.",
+    "mustPass": "Every page reads Product, Pricing, Docs, Blog and 'Sign in', in the same place, with only the current item marked."
+   },
+   "exceptions": [
+    "WCAG 3.2.4 lets a label vary with context when the function is recognisably the same ('Page 4' read as 'Previous page' from page 5)",
+    "A change of order the user asked for (a preference, an adaptive user agent) is allowed",
+    "Comparing bounding boxes at one viewport is uxcli's test; WCAG asks for the same relative order"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Any set of pages with repeated navigation; a linear transaction may deliberately strip its navigation to the service name.",
+   "agrees": [
+    "writing.one-label-per-action",
+    "canon.vignelli-syntactic-consistency"
+   ]
+  },
+  {
+   "id": "navigation.top-level-is-sections-not-a-site-map",
+   "claim": "Primary navigation links only to the few top-level sections most useful to the user; it is not a site map, deeper pages are reached from those sections, and links that leave the site are grouped after the rest.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Help users navigate a service (pattern)",
+    "url": "https://design-system.service.gov.uk/patterns/navigate-a-service/",
+    "quote": "Navigation is not a site map and does not need to list every part of your service."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Top-level items that name sections in the actor's words",
+    "Less-used destinations grouped under a section, a footer or a side nav for that section",
+    "External links grouped after internal ones, or moved into the page body"
+   ],
+   "forbids": [
+    "A top nav that lists individual deep pages next to whole sections",
+    "Internal team or product-code names as top-level labels",
+    "External links interleaved with the site's own sections"
+   ],
+   "measure": {
+    "kind": "question",
+    "what": "List the primary navigation's top-level items. Is each one a section the actor would name as a reason to come (checked against the project's actor and journeys), rather than a single deep page, a duplicate route to the same place, or an internal name? Do any external links sit among the internal ones?"
+   },
+   "exceptions": [
+    "No source gives a maximum number of items; see usability.hicks-fewer-choices-when-time-matters on why seven is not a cap",
+    "A mega menu (the USWDS mega header) exposes many links deliberately, grouped under sections",
+    "GOV.UK: a service with one clear end-to-end journey should avoid navigation links altogether"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "no"
+   },
+   "kindsWhy": "Any UI with a primary navigation; GOV.UK advises linear transactions to have none.",
+   "agrees": [
+    "usability.hicks-fewer-choices-when-time-matters",
+    "usability.speak-the-users-language",
+    "modern.no-junk-drawer-menus-or-unlabeled-icons"
+   ]
+  },
+  {
+   "id": "navigation.tabs-switch-views-in-one-context",
+   "claim": "Tabs switch between related views of one context: they sit directly above the content they change, exactly one is selected, and a tab set never mixes tabs that load a URL with tabs that toggle a panel; they are not site navigation and not steps.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Navigation (UI pattern)",
+    "url": "https://primer.style/product/ui-patterns/navigation/",
+    "quote": "Activating a tab may or may not change the URL, but you can't mix tabs that change the URL with tabs just switch the visible tab panel."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Either all items are links to distinct URLs (an underline nav with aria-current) or all are role=tab controlling a role=tabpanel",
+    "One tab selected by default when the page loads",
+    "The tab row directly above the panel it changes",
+    "Views that can be visited in any order, each complete enough that the user need not switch back and forth"
+   ],
+   "forbids": [
+    "A tab row in which some items toggle a panel and one jumps to another page",
+    "Tabs used as the site's primary navigation",
+    "Tabs for the steps of a process, or for content the user must compare side by side",
+    "More than two levels of tabs"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each tablist or tab-styled row of links: does exactly one item carry aria-selected=\"true\" or aria-current? Are the items either all <a href> to distinct URLs or all role=tab with aria-controls pointing at an existing role=tabpanel? Is the controlled panel (or main content) the next block below the row, with no other interactive element between them? Is the row nested inside at most one other tab row?",
+    "mustFail": "A tab-styled row where 'Overview' and 'Activity' toggle a panel but 'Settings' navigates to /settings, and no item is marked selected.",
+    "mustPass": "Overview, Activity and Settings are all role=tab with aria-controls; Overview is aria-selected=\"true\"; the panel sits directly beneath."
+   },
+   "exceptions": [
+    "Sources disagree on filtered views of one list: Polaris puts them in tabs ('a list-view with different filters applied'); Carbon sends filtering to a content switcher; Primer's underline nav wants discrete content, not formats of the same content",
+    "GOV.UK: without JavaScript and on small screens its tabs render as one page with a contents list; that passes",
+    "GOV.UK warns that tabs hide content and not everyone notices them; consider headings on one page first"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "no"
+   },
+   "kindsWhy": "Tabs belong in repeat-use tools (dashboards, admin, settings); on content and marketing pages they often hide what should be read in order, and transactions use steps instead.",
+   "agrees": [
+    "navigation.you-are-here"
+   ]
+  },
+  {
+   "id": "navigation.pagination-says-where-and-how-many",
+   "claim": "Pagination marks the current page, shows the first and last page (or says the set has no end), marks skipped pages with an ellipsis, drops Previous on the first page and Next on the last, and puts the page number in the title.",
+   "source": {
+    "author": "U.S. Web Design System (USWDS)",
+    "work": "Pagination component",
+    "url": "https://designsystem.digital.gov/components/pagination/",
+    "quote": "Show the size of the paginated set. Users want to know the length of a paginated section."
+   },
+   "evidence": "author",
+   "prefers": [
+    "aria-current=\"page\" and a visible highlight on the current page number",
+    "The last page number as a link, or a trailing ellipsis when the set is unbounded",
+    "A non-selectable ellipsis wherever page numbers are skipped",
+    "A title such as 'Search results (page 3 of 12)'",
+    "Pagination directly below the list it pages, on one line"
+   ],
+   "forbids": [
+    "Only 'Previous' and 'Next' with no indication of position or length",
+    "A Previous link on page 1 or a Next link on the last page",
+    "Pagination shown for a single page of results",
+    "Infinite scroll for content keyboard users must get past"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "On page k of n: does the pagination nav contain page 1 and page n (or a trailing ellipsis when unbounded), mark k with aria-current and a style differing from its siblings, show an ellipsis wherever consecutive numbers skip, lack a Previous link when k = 1 and a Next link when k = n, and wrap onto no more than one line? Does document.title contain k? With one page of results, is the pagination absent?",
+    "mustFail": "Search results page 3 of 12 show only '‹ Previous  Next ›'; the title reads 'Search'.",
+    "mustPass": "'1 … 2 [3] 4 … 12' with 3 marked aria-current; the title reads 'Search results (page 3 of 12)'."
+   },
+   "exceptions": [
+    "'Load more' and infinite scroll are different patterns; GOV.UK advises against infinite scroll because it causes problems for keyboard users",
+    "Content split across pages (a guide in chapters) uses GOV.UK's block style: previous and next links labelled with the neighbouring pages' titles, no page numbers"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "no"
+   },
+   "kindsWhy": "Wherever long lists are split into pages: search results, catalogues, records, case lists.",
+   "agrees": [
+    "data-display.long-tables-sort-and-say-so"
+   ]
+  },
+  {
+   "id": "navigation.primary-nav-visible-on-wide-screens",
+   "claim": "On a wide screen the primary navigation is shown, not hidden behind a menu button; it collapses into a menu only when the screen is too narrow to hold it.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Navigation (UI pattern), responsive sidebar navigation",
+    "url": "https://primer.style/product/ui-patterns/navigation/",
+    "quote": "On wide viewports, the sidebar is always visible."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Header links or a side nav visible at desktop widths with no click",
+    "A menu button with aria-expanded that reveals the same links only at narrow widths",
+    "A hamburger only where there is a collapsible left navigation"
+   ],
+   "forbids": [
+    "A desktop layout whose only navigation is a hamburger button opening a drawer",
+    "Primary sections reachable only through an icon-only menu"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "At 1280×800: are the primary navigation's top-level links (header or side nav) visible — inside the viewport, non-zero size, not inside a closed disclosure, dialog or element with hidden or display:none — without any click? At 375 wide, if they are hidden, does a button with aria-expanded reveal the same set?",
+    "mustFail": "A dashboard at 1440 wide whose only navigation is a hamburger button opening a drawer.",
+    "mustPass": "The same dashboard with a persistent left nav at 1280 that collapses into a menu button at 375."
+   },
+   "exceptions": [
+    "1280 and 375 px are uxcli's test widths; neither Primer nor Carbon gives a breakpoint",
+    "A focused tool (editor, canvas) may let the user collapse the sidebar; that is the user's choice, not the default",
+    "A linear transaction may have no navigation to show"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Any UI with primary navigation viewed on a wide screen; transactions often strip navigation on purpose.",
+   "agrees": [
+    "modern.no-junk-drawer-menus-or-unlabeled-icons"
+   ]
+  }
+ ]
+}

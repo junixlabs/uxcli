@@ -29,9 +29,9 @@ npx -y @junixlabs/uxcli demo ./uxcli-demo
 A coding agent designs from what it assumes. uxcli gives it what a designer who did the research would
 have, and an instrument to prove the result works for the person using it:
 
-- **Knowledge** — a library the agent can cite: 167 rules from named designers, design systems and
+- **Knowledge** — a library the agent can cite: 187 rules from named designers, design systems and
   studies, each with its author, page and exact words, packaged by kind of UI (`marketing`, `content`,
-  `data`, `workspace`, `shop`, `transaction`) and by topic (colour, writing, data display, forms); and
+  `data`, `workspace`, `shop`, `transaction`) and by topic (colour, writing, data display, forms, navigation, motion and feedback); and
   templates for kinds of product (`workspace`, `shop`, `landing`) that name the screens, the lens for
   each, the journeys to walk first and the questions research must answer.
 - **Process** — research the field from sources, write insights with evidence and open questions as
@@ -59,7 +59,9 @@ the pick), as built (the last walk's screenshot with its findings pinned where t
 element) and as each named version left it. Drag to pan, scroll or pinch to zoom, click a frame for what
 the files and the walk say about it. Context (actors, unknowns, insights) and the library (lenses,
 templates) are a tab away. Served, it is also where a person decides — choose a drawing, or ask for a
-redraw — written as `pick.json` or `revise.json` through the same parser, creating only. The agent
+redraw — written as `pick.json` or `revise.json` through the same parser, creating only — and leaves a
+note on a built frame, written as a `redesign` proposal citing the walk. Two versions can be compared on
+the board, each frame of the later one saying what moved. The agent
 works through the CLI and the skill; `uxcli studio --shot=FILE` gives it the same board as a picture.
 Free, local, no account: the page is one HTML file.
 
@@ -114,12 +116,12 @@ outlined where the browser found them (the `hooks` toggle shows them on the thum
 the journey tabs filter the page to what one journey names. A picture someone made of a screen goes in
 `refs/` under that screen and is shown as a reference, never as a variant.
 
-`lens` is a library of viewpoints from named designers and design systems, 167 of them: four schools — usability
+`lens` is a library of viewpoints from named designers and design systems, 187 of them: four schools — usability
 (Nielsen, Norman, Krug, Baymard, Wroblewski, GOV.UK), practitioner craft (Wathan & Schoger, Kennedy),
 the classic canon (Rams, Vignelli, Müller-Brockmann, Bringhurst, Butterick, Tufte, Gestalt via NN/g) and
 modern product craft (Rauno Freiberg, Emil Kowalski, Linear, Vercel, Apple, Material, Ström, Brignull) —
-and four topic pools drawn from public design systems and WCAG (colour, writing and microcopy, data
-display, forms: GOV.UK, USWDS, Carbon, Primer, Polaris, Mailchimp, W3C) —
+and six topic pools drawn from public design systems and WCAG (colour, writing and microcopy, data
+display, forms, navigation, motion and feedback: GOV.UK, USWDS, Carbon, Primer, Polaris, Mailchimp, W3C) —
 each with its author, work, page and words, packaged by the kind of UI it is read against: `marketing`,
 `content`, `data`, `workspace`, `shop`, `transaction`. Viewpoints that several schools state as one rule
 are one line of the checklist. The lenses live inside the skill (`skills/uxcli/lenses/<kind>.md`, installed
@@ -212,6 +214,7 @@ uxcli lens [show <kind>]              # the shipped lenses: named designers' vie
 uxcli template [show <id> | apply <id>]   # where to start for a kind of product: screens, lenses, journeys, research questions
 uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside a drawing (a URL with --name reviews a screen)
 uxcli review check                    # every review complete, fresh, and not contradicted by a probe
+uxcli walkthrough <journey> [--as=<actor>] | check   # the four cognitive-walkthrough questions at every step, answered from the screenshots; held to the walk
 uxcli version [save <journey> <name>] # name a walk so it is kept; experience --journey=<id> --from=<a> --to=<b> compares two
 uxcli experience [dir] [--page]       # what the person goes through: steps, typing, scrolls, waits, an estimate in seconds; findings pinned on screenshots
 uxcli studio [dir] [--serve] [--shot=FILE]   # the board: every journey's screens drawn, built and per version, pan and zoom like a design file; served, a person picks there

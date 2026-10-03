@@ -2,21 +2,9 @@
 
 Dashboards, analytics, monitoring and reports: numbers and charts read again and again.
 
-51 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
+54 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
 
-## 1. `usability.visibility-of-system-status`
-
-Every action with consequences shows the user something changed, as quickly as possible, so they always know what the system is doing.
-
-- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #1* — https://www.nngroup.com/articles/ten-usability-heuristics/
-- **In their words:** "The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time."
-- **Do:** Show a visible trace of every state change; Give feedback immediately, or as quickly as possible; Disable and label a control while its action runs
-- **Don't:** Submit silently; Change state with no visible trace; Show an action's result only somewhere else
-- **Look at:** Drive an action, then diff DOM or pixels over the next frames: did anything visibly change within 1 s; is there a live region, status text, spinner or busy state?
-- **Unless:** Below 0.1 s no special feedback is needed beyond showing the result
-- **Also stated as:** modern.feedback-is-local-and-optimistic (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); writing.success-names-what-happened (Shopify Polaris).
-
-## 2. `usability.feedback-within-a-second`
+## 1. `usability.feedback-within-a-second`
 
 Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
 
@@ -26,33 +14,21 @@ Paint something within 0.1 s; keep the user's flow with a response under 1 s; sh
 - **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
 - **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
 - **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
-- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg).
+- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); feedback.status-messages-announced-without-focus (W3C Accessibility Guidelines Working Group).
 
-## 3. `usability.signifiers-make-clickable-look-clickable`
+## 2. `usability.visibility-of-system-status`
 
-Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.
+Every action with consequences shows the user something changed, as quickly as possible, so they always know what the system is doing.
 
-- **Source:** Kate Moran, NN/g, *Flat UI Elements Attract Less Attention and Cause Uncertainty (2017)* — https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/ (study)
-- **In their words:** "22% more time"
-- **Do:** Make links stand out from body text; Make buttons resemble physical buttons with rectangular shapes; Apply consistent treatment throughout the site; Provide signifiers rather than rely on affordances
-- **Don't:** Style linked text as static text; Use ghost buttons as the default; Use disabled buttons if avoidable; Rely on a label to say that a control is a control
-- **Look at:** For each a[href], button, [role=button]: computed colour, underline, border and background versus surrounding text; a link matching body colour with no underline and no other differentiator is weak; count disabled buttons.
-- **Unless:** Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger); Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)
-- **Also stated as:** modern.signifiers-survive-flatness (Kate Moran (NN/G)); modern.no-dead-zones-and-honest-clickability (Rauno Freiberg).
+- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #1* — https://www.nngroup.com/articles/ten-usability-heuristics/
+- **In their words:** "The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time."
+- **Do:** Show a visible trace of every state change; Give feedback immediately, or as quickly as possible; Disable and label a control while its action runs
+- **Don't:** Submit silently; Change state with no visible trace; Show an action's result only somewhere else
+- **Look at:** Drive an action, then diff DOM or pixels over the next frames: did anything visibly change within 1 s; is there a live region, status text, spinner or busy state?
+- **Unless:** Below 0.1 s no special feedback is needed beyond showing the result
+- **Also stated as:** modern.feedback-is-local-and-optimistic (Rauno Freiberg); writing.success-names-what-happened (Shopify Polaris).
 
-## 4. `usability.fitts-target-size-and-distance`
-
-Make targets big, space them apart, and put them where the pointer already is; touch targets at least 1 cm square.
-
-- **Source:** Aurora Harley, NN/g, *Touch Targets on Touchscreens (2019)* — https://www.nngroup.com/articles/touch-target-size/ (study)
-- **In their words:** "at least 1cm × 1cm (0.4in x 0.4in)"
-- **Do:** Make targets big; Give icons labels so the label extends the target; Keep ample spacing between targets; Put the call to action near the final form fields
-- **Don't:** Pack icon-only 24 px controls edge to edge on touch layouts; Crowd targets
-- **Look at:** Bounding box of each interactive element at the mobile viewport (1 cm ≈ 38 CSS px; 24/44 px are the usual proxies); centre-to-centre spacing; distance from last input to submit; label inside the clickable box.
-- **Unless:** Infinite targets along screen edges for mouse — size matters less at an edge; Primary CTAs, moving users, children and the elderly need larger than the minimum
-- **Also stated as:** craft.tap-targets-and-control-height (Erik D. Kennedy); modern.hit-targets-meet-platform-minimums (Apple).
-
-## 5. `usability.speak-the-users-language`
+## 3. `usability.speak-the-users-language`
 
 Write in the words the actor already uses; no internal jargon, error codes or unexplained abbreviations.
 
@@ -64,7 +40,43 @@ Write in the words the actor already uses; no internal jargon, error codes or un
 - **Unless:** Expert-only tools where the domain term is the users' language — match the user, do not simplify per se
 - **Also stated as:** writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)).
 
-## 6. `usability.omit-needless-words`
+## 4. `usability.clearly-marked-emergency-exit`
+
+Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.
+
+- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #3* — https://www.nngroup.com/articles/ten-usability-heuristics/
+- **In their words:** "Users often perform actions by mistake. They need a clearly marked 'emergency exit' to leave the unwanted action without having to go through an extended process."
+- **Do:** Support Undo and Redo; Show a clear Cancel or close control; Label the exit clearly and make it discoverable
+- **Don't:** Open a modal with no close; Build a wizard step with no back; Ship a destructive action with no undo
+- **Look at:** For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.
+- **Unless:** Legally required interstitials — the exit must still be visible, not necessarily free of consequence
+- **Also stated as:** writing.destructive-actions-name-the-consequence (IBM Carbon Design System); feedback.toast-actions-wait-for-the-user (Shopify Polaris); feedback.destructive-actions-confirmed-or-undoable (U.S. Web Design System).
+
+## 5. `usability.signifiers-make-clickable-look-clickable`
+
+Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.
+
+- **Source:** Kate Moran, NN/g, *Flat UI Elements Attract Less Attention and Cause Uncertainty (2017)* — https://www.nngroup.com/articles/flat-ui-less-attention-cause-uncertainty/ (study)
+- **In their words:** "22% more time"
+- **Do:** Make links stand out from body text; Make buttons resemble physical buttons with rectangular shapes; Apply consistent treatment throughout the site; Provide signifiers rather than rely on affordances
+- **Don't:** Style linked text as static text; Use ghost buttons as the default; Use disabled buttons if avoidable; Rely on a label to say that a control is a control
+- **Look at:** For each a[href], button, [role=button]: computed colour, underline, border and background versus surrounding text; a link matching body colour with no underline and no other differentiator is weak; count disabled buttons.
+- **Unless:** Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger); Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)
+- **Also stated as:** modern.signifiers-survive-flatness (Kate Moran (NN/G)); modern.no-dead-zones-and-honest-clickability (Rauno Freiberg).
+
+## 6. `usability.fitts-target-size-and-distance`
+
+Make targets big, space them apart, and put them where the pointer already is; touch targets at least 1 cm square.
+
+- **Source:** Aurora Harley, NN/g, *Touch Targets on Touchscreens (2019)* — https://www.nngroup.com/articles/touch-target-size/ (study)
+- **In their words:** "at least 1cm × 1cm (0.4in x 0.4in)"
+- **Do:** Make targets big; Give icons labels so the label extends the target; Keep ample spacing between targets; Put the call to action near the final form fields
+- **Don't:** Pack icon-only 24 px controls edge to edge on touch layouts; Crowd targets
+- **Look at:** Bounding box of each interactive element at the mobile viewport (1 cm ≈ 38 CSS px; 24/44 px are the usual proxies); centre-to-centre spacing; distance from last input to submit; label inside the clickable box.
+- **Unless:** Infinite targets along screen edges for mouse — size matters less at an edge; Primary CTAs, moving users, children and the elderly need larger than the minimum
+- **Also stated as:** craft.tap-targets-and-control-height (Erik D. Kennedy); modern.hit-targets-meet-platform-minimums (Apple).
+
+## 7. `usability.omit-needless-words`
 
 Cut word count by half: no happy-talk intros, no instruction paragraphs before forms, no marketese, sentence case everywhere.
 
@@ -75,18 +87,6 @@ Cut word count by half: no happy-talk intros, no instruction paragraphs before f
 - **Look at:** Word count between a form's heading and its first input; word count of blocks starting 'Welcome' or 'Thank you for'; buttons and labels in all caps or Title Case; sentence count in instructions.
 - **Unless:** Nielsen also asks for outbound links to build trust — brevity is not zero text
 - **Also stated as:** writing.sentence-case-ui-text (IBM Carbon Design System).
-
-## 7. `usability.clearly-marked-emergency-exit`
-
-Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.
-
-- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #3* — https://www.nngroup.com/articles/ten-usability-heuristics/
-- **In their words:** "Users often perform actions by mistake. They need a clearly marked 'emergency exit' to leave the unwanted action without having to go through an extended process."
-- **Do:** Support Undo and Redo; Show a clear Cancel or close control; Label the exit clearly and make it discoverable
-- **Don't:** Open a modal with no close; Build a wizard step with no back; Ship a destructive action with no undo
-- **Look at:** For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.
-- **Unless:** Legally required interstitials — the exit must still be visible, not necessarily free of consequence
-- **Also stated as:** writing.destructive-actions-name-the-consequence (IBM Carbon Design System).
 
 ## 8. `usability.no-false-affordances`
 
@@ -131,7 +131,19 @@ Name the actor and their need before drawing a screen, then let measured behavio
 - **Don't:** Design to a hunch; Design to an aesthetic
 - **Look at:** Does the journey name its actor and need (uxcli context show), and is the design decision traceable to observed behaviour rather than a hunch or a look?
 
-## 12. `craft.fewer-borders`
+## 12. `craft.dont-overlook-empty-states-teach-by-example`
+
+Design the first-load and empty states with sample data or an example, a message and a call to action; never a blank page.
+
+- **Source:** Erik D. Kennedy, *4 Rules for Intuitive UX* — https://www.learnui.design/blog/4-rules-intuitive-ux.html
+- **In their words:** "Use the 'first load' experience to provide sample data, showing by example what the properly-working app will look like"
+- **Do:** Show a designed empty state with message, example and call to action; Seed sample data on first load; Show examples rather than descriptions
+- **Don't:** Show a totally blank page on first load; Show a table header with no rows and no message
+- **Look at:** In the journey's declared empty state, find list or table containers with 0 data children; require a visible sentence inside or adjacent and at least one actionable element.
+- **Unless:** Zero-hit search results need a message but no sample data; Transient loading states
+- **Also stated as:** modern.every-state-is-designed (Vercel Labs); writing.empty-states-say-what-next (GitHub Primer); data-display.empty-data-explains-and-offers-next-step (IBM Carbon Design System); data-display.loading-skeleton-holds-the-layout (GitHub Primer); data-display.wrap-before-truncating-and-reveal-the-rest (GitHub Primer); feedback.match-the-indicator-to-the-wait (GitHub Primer).
+
+## 13. `craft.fewer-borders`
 
 Separate elements with space, a background shift, a shadow or striping before reaching for a border; too many borders make a design busy.
 
@@ -143,19 +155,19 @@ Separate elements with space, a background shift, a shadow or striping before re
 - **Unless:** Form inputs and the one object a person acts on keep their border; Keylines that make disconnected content feel connected; Decorative borders as style once the count is low
 - **Also stated as:** canon.gestalt-common-region (Aurora Harley, NN/g); canon.rams-as-little-design-as-possible (Dieter Rams); modern.fewer-borders-more-space (Adam Wathan & Steve Schoger); canon.tufte-smallest-effective-difference (Edward Tufte); canon.tufte-one-plus-one-equals-three (Edward Tufte).
 
-## 13. `craft.dont-overlook-empty-states-teach-by-example`
+## 14. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
 
-Design the first-load and empty states with sample data or an example, a message and a call to action; never a blank page.
+Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
 
-- **Source:** Erik D. Kennedy, *4 Rules for Intuitive UX* — https://www.learnui.design/blog/4-rules-intuitive-ux.html
-- **In their words:** "Use the 'first load' experience to provide sample data, showing by example what the properly-working app will look like"
-- **Do:** Show a designed empty state with message, example and call to action; Seed sample data on first load; Show examples rather than descriptions
-- **Don't:** Show a totally blank page on first load; Show a table header with no rows and no message
-- **Look at:** In the journey's declared empty state, find list or table containers with 0 data children; require a visible sentence inside or adjacent and at least one actionable element.
-- **Unless:** Zero-hit search results need a message but no sample data; Transient loading states
-- **Also stated as:** modern.every-state-is-designed (Vercel Labs); writing.empty-states-say-what-next (GitHub Primer); data-display.empty-data-explains-and-offers-next-step (IBM Carbon Design System); data-display.loading-skeleton-holds-the-layout (GitHub Primer); data-display.wrap-before-truncating-and-reveal-the-rest (GitHub Primer).
+- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
+- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
+- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
+- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
+- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
+- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); color.chart-marks-readable-without-hue (GitHub Primer); navigation.you-are-here (U.S. Web Design System (USWDS)); feedback.message-type-said-in-words (U.S. Web Design System).
 
-## 14. `craft.spacing-and-sizing-system`
+## 15. `craft.spacing-and-sizing-system`
 
 Draw every margin, padding and gap from one scale, and make space between groups clearly larger than space within them.
 
@@ -166,18 +178,6 @@ Draw every margin, padding and gap from one scale, and make space between groups
 - **Look at:** Collect all computed margin, padding and gap values above 0; report distinct values and how many are off a 4px grid; compare label-to-field gap with field-to-next-label gap.
 - **Unless:** Optical adjustments on icons and hanging punctuation sit a pixel or two off-scale
 - **Also stated as:** canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov).
-
-## 15. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
-
-Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
-
-- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
-- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
-- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
-- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
-- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
-- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
-- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); color.chart-marks-readable-without-hue (GitHub Primer).
 
 ## 16. `craft.separation-order-space-then-lines-then-boxes`
 
@@ -278,7 +278,7 @@ Icons carry labels, menus are named for what they hold, and no primary feature h
 - **Don't:** More, ellipsis or Tools catch-alls holding primary features; Icon-only toolbars without labels; Tooltips on disabled buttons
 - **Look at:** Icon-only buttons with no text and no aria-label fail; menus triggered by More, …, Tools or Options holding over 5 items or a primary-action label warn; disabled buttons with title or aria-describedby fail.
 - **Unless:** Universally recognised icons in tight toolbars, though even the hamburger is weaker than designers think
-- **Also stated as:** writing.buttons-name-the-action (IBM Carbon Design System); usability.dont-make-me-think (Steve Krug); craft.labels-are-a-last-resort (Steve Schoger (attendee notes by ynotdraw)).
+- **Also stated as:** writing.buttons-name-the-action (IBM Carbon Design System); navigation.primary-nav-visible-on-wide-screens (GitHub Primer); usability.dont-make-me-think (Steve Krug); navigation.top-level-is-sections-not-a-site-map (GOV.UK Design System); craft.labels-are-a-last-resort (Steve Schoger (attendee notes by ynotdraw)).
 
 ## 25. `modern.frequent-actions-do-not-animate`
 
@@ -290,7 +290,7 @@ Actions used many times a day, and anything keyboard-triggered, appear instantly
 - **Don't:** Opacity and scale fades on controls used hundreds of times a day; Animating keyboard-initiated actions
 - **Look at:** Enter animations on [role=menu], [cmdk-root] and newly inserted list items (animation-name not none), and animation state diffed within 16ms of a dispatched key; which actions count as frequent comes from the journey.
 - **Unless:** macOS context menus fade out and blink the chosen item; Rare features may be theatrical (delight-impact curve)
-- **Also stated as:** modern.delight-scales-with-rarity (Benji Taylor).
+- **Also stated as:** modern.motion-values-proportional-to-trigger (Rauno Freiberg); feedback.motion-duration-scales-with-size (IBM Carbon Design System).
 
 ## 26. `modern.numbers-and-text-do-not-shift-layout`
 
@@ -303,16 +303,16 @@ Numbers in columns and timers use tabular figures, images carry dimensions, and 
 - **Look at:** Numeric td cells whose computed font-variant-numeric lacks tabular-nums; img without width/height or aspect-ratio; sibling rect drift while a counter fixture runs.
 - **Unless:** Prose numbers
 
-## 27. `modern.motion-values-proportional-to-trigger`
+## 27. `modern.delight-scales-with-rarity`
 
-Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.
+Spend delight on rare moments, keep daily actions plain, and never let an element visibly duplicate itself during a transition.
 
-- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
-- **In their words:** "Don't animate dialog scale in from 0 → 1, fade opacity and scale from ~0.8. Don't scale buttons on press from 1 → 0.8, but ~0.96, ~0.9, or so."
-- **Do:** Enter dialogs and popovers from scale 0.8–0.97 with opacity; Press buttons to about scale 0.96–0.97
-- **Don't:** Scale-from-zero pops on dialogs; Press states that squash a button to 0.8 or below
-- **Look at:** Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.
-- **Unless:** Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small
+- **Source:** Benji Taylor, *Family Values* — https://benji.org/family-values
+- **In their words:** "the potential for delight increases as the frequency of feature usage decreases"
+- **Do:** Directional motion between tabs; Morphing labels such as Continue to Confirm; One action per tray
+- **Don't:** Static jumps on core flows; Theatrical motion on daily actions; An element visibly duplicated mid-transition
+- **Look at:** After a transition, count DOM nodes with the same key or text present twice on screen at once; frequency-weighted motion needs the journey to say what is frequent.
+- **Unless:** Utility, performance and security come first; delight is selective emphasis
 
 ## 28. `modern.animate-only-transform-and-opacity`
 
@@ -423,7 +423,18 @@ A library or AI default is someone else's decision; commit to one written aesthe
 - **Look at:** Score the constellation: purple-to-blue/cyan gradients warn, Inter or Roboto with no display face notes, 3+ identical icon+h3+p cards note, backdrop-filter plus glow notes, gradient text on numerals warns, overshoot cubic-bezier on hover warns.
 - **Unless:** A purple brand is allowed to be purple; the tell is the constellation and the absence of a decision, not any one colour
 
-## 38. `color.from-tokens-not-hex`
+## 38. `color.status-colours-keep-their-meaning`
+
+Each status colour has one meaning across the product (critical for errors and blocked actions, warning for what needs attention, success for what went well, info for tips) and is never borrowed for promotion or decoration.
+
+- **Source:** Shopify Polaris, *Colors: Palettes and roles (Critical, Success)* — https://polaris.shopify.com/design/colors/palettes-and-roles
+- **In their words:** "Elements using critical must convey messaging that implies that an action is impossible, blocked, or has resulted in an error."
+- **Do:** Map error, warning, success and info to named roles or tokens and use them only in those roles; Reserve the critical red for errors, blocked actions and destructive buttons; Use the info role, not warning or critical, for tips and announcements
+- **Don't:** A sale or 'new' badge in the error red; Success green used to entice or to advertise an offer; Warning colour for 'coming soon' or 'under construction' messaging; Two different reds meaning error on different screens
+- **Look at:** Find the colour the page uses for error text (an element with role=alert, aria-invalid's described-by message, or a class/token named error/critical/danger) and the success colour likewise. Count painted elements (text, fill or border) whose colour equals that error or success colour, within a ΔE of 3, and that are neither a validation message, an invalid field, a status badge of that meaning, nor a destructive action.
+- **Unless:** Brand colours that happen to be red, as long as a separate, distinct error red is used for errors; Data visualisations where a series colour coincides with a status hue but no status is implied (prefer avoiding it)
+
+## 39. `color.from-tokens-not-hex`
 
 Every colour on the page comes from the design system's named tokens or palette functions, never from hex values copied into components.
 
@@ -435,7 +446,7 @@ Every colour on the page comes from the design system's named tokens or palette 
 - **Unless:** Images, illustrations and embedded third-party widgets; Browser defaults on unstyled native controls; GOV.UK: palette colours (not functional ones) are allowed for illustrations and custom components
 - **Also stated as:** color.mode-aware-tokens-in-every-theme (GitHub Primer).
 
-## 39. `color.controls-and-graphics-3-to-1`
+## 40. `color.controls-and-graphics-3-to-1`
 
 The parts that show a control is there and what state it is in (input borders, checkbox boxes and ticks, toggle tracks, icon-only buttons, meaningful chart marks) contrast at least 3:1 with the colours next to them.
 
@@ -445,17 +456,6 @@ The parts that show a control is there and what state it is in (input borders, c
 - **Don't:** Pale grey input borders (#ddd on white is about 1.4:1); A selected state shown only by a faint tint; Hover effects that lower a control's contrast with its surroundings
 - **Look at:** For each visible input, select, textarea, checkbox, radio, [role=switch] and icon-only button (no visible text): compute the contrast ratio between the colour that identifies it (border colour, or its own background when it has no border, or the icon fill) and the background behind it; count those below 3:1, unrounded. Disabled controls are skipped.
 - **Unless:** Inactive (disabled) controls are exempt; A control identified by its visible text needs no contrasting boundary; Logos and decorative graphics; Appearance determined by the browser and not modified by the author
-
-## 40. `color.status-colours-keep-their-meaning`
-
-Each status colour has one meaning across the product (critical for errors and blocked actions, warning for what needs attention, success for what went well, info for tips) and is never borrowed for promotion or decoration.
-
-- **Source:** Shopify Polaris, *Colors: Palettes and roles (Critical, Success)* — https://polaris.shopify.com/design/colors/palettes-and-roles
-- **In their words:** "Elements using critical must convey messaging that implies that an action is impossible, blocked, or has resulted in an error."
-- **Do:** Map error, warning, success and info to named roles or tokens and use them only in those roles; Reserve the critical red for errors, blocked actions and destructive buttons; Use the info role, not warning or critical, for tips and announcements
-- **Don't:** A sale or 'new' badge in the error red; Success green used to entice or to advertise an offer; Warning colour for 'coming soon' or 'under construction' messaging; Two different reds meaning error on different screens
-- **Look at:** Find the colour the page uses for error text (an element with role=alert, aria-invalid's described-by message, or a class/token named error/critical/danger) and the success colour likewise. Count painted elements (text, fill or border) whose colour equals that error or success colour, within a ΔE of 3, and that are neither a validation message, an invalid field, a status badge of that meaning, nor a destructive action.
-- **Unless:** Brand colours that happen to be red, as long as a separate, distinct error red is used for errors; Data visualisations where a series colour coincides with a status hue but no status is implied (prefer avoiding it)
 
 ## 41. `color.one-action-colour-apart-from-status`
 
@@ -489,6 +489,7 @@ One concept, one word: controls that do the same thing carry the same label ever
 - **Don't:** Synonyms for one action across screens: 'Save' here, 'Update' there, 'Apply' elsewhere; Identical labels for different actions on the same page; Naming the same object two ways ('workspace' and 'project') in one product
 - **Look at:** Across the journey's pages, collect (accessible name, action) pairs for buttons and links, where action is the form action/href/handler target. Count names that map to two or more different actions on one page, and actions reached by two or more different names across pages; also flag known synonym pairs present together (save/update/apply, delete/remove, sign in/log in, cart/basket). Count must be 0.
 - **Unless:** Delete and Remove may coexist when they mean different things (destroy vs take out of a collection), as Carbon defines them — then each must be used only for its own meaning
+- **Also stated as:** navigation.same-navigation-on-every-page (W3C WAI).
 
 ## 44. `writing.dates-numbers-units-for-the-reader`
 
@@ -537,7 +538,19 @@ Bar and area charts start their value axis at zero; line charts may crop the axi
 - **Unless:** Line charts and scatter plots, where Carbon allows a non-zero start because the trend matters more than relative size; Log-scale charts, which have no zero and must say they are log scale
 - **Also stated as:** color.chart-palette-fits-the-data (IBM Carbon Design System); canon.tufte-graphical-integrity (Edward Tufte).
 
-## 48. `data-display.one-unit-and-format-per-column`
+## 48. `data-display.long-tables-sort-and-say-so`
+
+Long tables let users sort the columns that have a natural order, start with one column sorted, and expose the sort state to assistive technology.
+
+- **Source:** U.S. Web Design System (GSA), *Table — Usability guidance* — https://designsystem.digital.gov/components/table/
+- **In their words:** "Enable sort where useful. Add row sorting to individual columns of long tables where the data can be logically ordered either alphabetically or numerically."
+- **Do:** Sort controls as buttons inside the th of sortable columns; One column sorted on load, shown with an arrow and aria-sort on its th (Primer); A polite live region that announces the new sort (USWDS); A filter or search field above long tables, and pagination for very large sets
+- **Don't:** Long tables with no sort, filter or pagination; A sort state shown only by an icon with no aria-sort; Row sorting on tables with merged (colspan/rowspan) cells
+- **Look at:** Count tables with more than 20 body rows (or with pagination) that have no sort control in any th and no filter/search input associated with them; among sortable tables, count those where no th carries aria-sort other than none.
+- **Unless:** Short tables a user takes in at a glance; Tables whose row order is itself the meaning (a ranked list, a timetable) may fix the order
+- **Also stated as:** navigation.pagination-says-where-and-how-many (U.S. Web Design System (USWDS)).
+
+## 49. `data-display.one-unit-and-format-per-column`
 
 Every value in a column uses the same unit, precision and format; the unit is named once in the header, not repeated in each cell.
 
@@ -548,7 +561,7 @@ Every value in a column uses the same unit, precision and format; the unit is na
 - **Look at:** For each column of numeric td, count distinct decimal-place counts, distinct unit suffixes or prefixes, and distinct date formats; any column with more than one is a failure.
 - **Unless:** A column deliberately mixing magnitudes where the unit changes are labelled per cell and sorting is by underlying value — rare, and worth questioning
 
-## 49. `data-display.header-cells-are-th-with-scope`
+## 50. `data-display.header-cells-are-th-with-scope`
 
 A data table marks its header cells as th and its data cells as td; when headers run both across and down, scope (or id/headers in complex tables) ties each cell to its headers.
 
@@ -558,17 +571,6 @@ A data table marks its header cells as th and its data cells as td; when headers
 - **Don't:** Header rows built from td styled bold; Div grids that look like tables with no role=table/row/columnheader/cell semantics; One table holding several topics separated by extra rows of th
 - **Look at:** Count table (and role=table/grid) elements that have more than one row of data and no th / role=columnheader; count tables with both a header row and a header column whose th lack scope; count tables with no caption, aria-label or aria-labelledby.
 - **Unless:** A simple table with one header row needs only th, not scope; scope matters once there are header rows and header columns; Layout tables, which should not exist (see data-display.no-tables-for-layout)
-
-## 50. `data-display.long-tables-sort-and-say-so`
-
-Long tables let users sort the columns that have a natural order, start with one column sorted, and expose the sort state to assistive technology.
-
-- **Source:** U.S. Web Design System (GSA), *Table — Usability guidance* — https://designsystem.digital.gov/components/table/
-- **In their words:** "Enable sort where useful. Add row sorting to individual columns of long tables where the data can be logically ordered either alphabetically or numerically."
-- **Do:** Sort controls as buttons inside the th of sortable columns; One column sorted on load, shown with an arrow and aria-sort on its th (Primer); A polite live region that announces the new sort (USWDS); A filter or search field above long tables, and pagination for very large sets
-- **Don't:** Long tables with no sort, filter or pagination; A sort state shown only by an icon with no aria-sort; Row sorting on tables with merged (colspan/rowspan) cells
-- **Look at:** Count tables with more than 20 body rows (or with pagination) that have no sort control in any th and no filter/search input associated with them; among sortable tables, count those where no th carries aria-sort other than none.
-- **Unless:** Short tables a user takes in at a glance; Tables whose row order is itself the meaning (a ranked list, a timetable) may fix the order
 
 ## 51. `data-display.summary-list-for-key-value-facts`
 
@@ -580,3 +582,36 @@ A set of facts about one thing — label and value pairs — is shown as a summa
 - **Don't:** A two-column table without th used to show one record's fields; Key–value pairs set as 'Label: value' runs in a paragraph; A summary list for genuinely tabular data or a plain list of items
 - **Look at:** Where the screen shows the fields of a single record (a profile, an order, an item's metadata, a check-answers page), are the label–value pairs marked up as dl/dt/dd with each key visually distinct from its value — and is tabular data comparing several records in a table rather than a summary list?
 - **Unless:** Two or three facts inside a card may be inline text if they are not scanned as a set
+
+## 52. `navigation.tabs-switch-views-in-one-context`
+
+Tabs switch between related views of one context: they sit directly above the content they change, exactly one is selected, and a tab set never mixes tabs that load a URL with tabs that toggle a panel; they are not site navigation and not steps.
+
+- **Source:** GitHub Primer, *Navigation (UI pattern)* — https://primer.style/product/ui-patterns/navigation/
+- **In their words:** "Activating a tab may or may not change the URL, but you can't mix tabs that change the URL with tabs just switch the visible tab panel."
+- **Do:** Either all items are links to distinct URLs (an underline nav with aria-current) or all are role=tab controlling a role=tabpanel; One tab selected by default when the page loads; The tab row directly above the panel it changes; Views that can be visited in any order, each complete enough that the user need not switch back and forth
+- **Don't:** A tab row in which some items toggle a panel and one jumps to another page; Tabs used as the site's primary navigation; Tabs for the steps of a process, or for content the user must compare side by side; More than two levels of tabs
+- **Look at:** For each tablist or tab-styled row of links: does exactly one item carry aria-selected="true" or aria-current? Are the items either all <a href> to distinct URLs or all role=tab with aria-controls pointing at an existing role=tabpanel? Is the controlled panel (or main content) the next block below the row, with no other interactive element between them? Is the row nested inside at most one other tab row?
+- **Unless:** Sources disagree on filtered views of one list: Polaris puts them in tabs ('a list-view with different filters applied'); Carbon sends filtering to a content switcher; Primer's underline nav wants discrete content, not formats of the same content; GOV.UK: without JavaScript and on small screens its tabs render as one page with a contents list; that passes; GOV.UK warns that tabs hide content and not everyone notices them; consider headings on one page first
+
+## 53. `navigation.skip-link-is-the-first-tab-stop`
+
+The first Tab press on every page lands on a visible 'Skip to main content' link that moves focus past the header and navigation into main.
+
+- **Source:** GOV.UK Design System, *Skip link component* — https://design-system.service.gov.uk/components/skip-link/
+- **In their words:** "Including the skip link component gives users the option to bypass the top-level navigation links and jump to the main content on a page."
+- **Do:** The skip link immediately after <body> (or after a cookie banner); Visually hidden until it receives keyboard focus, then clearly shown; A target id on <main> (or its first heading) that can take focus; Breadcrumbs and back links placed before <main>, so the skip link skips them too
+- **Don't:** A page whose first Tab stop is the logo or the first of a dozen nav links; A skip link that stays invisible when focused; A skip link whose href points at an id that does not exist; A skip link wrapped in <nav> or moved inside the header
+- **Look at:** Load the page and press Tab once: is document.activeElement an <a> whose href is '#id' of an element that is main or inside main, with a non-zero box inside the viewport and opacity above 0? Press Enter, then Tab: is focus on an element inside main?
+- **Unless:** WCAG 2.4.1 is met by other means too (landmarks, headings); the first-Tab test follows GOV.UK and Carbon practice and is stricter than the criterion; WCAG: when the repeated navigation is at the bottom of the page, a skip link may be unnecessary; A page with no repeated block before main (a bare single-purpose page) has nothing to skip
+
+## 54. `feedback.toasts-carry-nothing-critical`
+
+A toast is only for a short, low-priority confirmation of something the user just did; an error that needs action, a warning, or anything the user cannot find again elsewhere goes in an inline message or banner that stays.
+
+- **Source:** Shopify Polaris, *Toast component — Accessibility* — https://polaris.shopify.com/components/deprecated/toast
+- **In their words:** "Avoid using toast for critical information that merchants need to act on immediately."
+- **Do:** Short noun + verb confirmations: 'Product updated', 'Collection added'; Errors the user must fix shown next to the cause or in a banner that persists until resolved; Whatever the toast says also visible somewhere on the page after it goes (the saved value, the item in the list, a notifications area)
+- **Don't:** A validation or payment error delivered only as a toast that auto-dismisses; A toast that holds the only copy of a generated password, link or code; Several sentences of explanation in a toast
+- **Look at:** Record a walk through every action, including forced failures (offline, 4xx, 5xx). Treat as a toast any fixed- or absolute-positioned element with role=status|alert or aria-live that is removed or hidden within 15 s without user input. Count toasts whose text matches error/failed/could not/denied/invalid, toasts with more than 15 words, and toasts whose distinctive text (any token of 6+ characters other than common words) appears nowhere in the DOM 2 s after they leave. Count must be 0.
+- **Unless:** Polaris allows an error toast for system errors not caused by the user, such as 'Internet disconnected', in 3 words; Polaris's own Toast component is deprecated in favour of the App Bridge Toast API; the guidance quoted is still on its page; The 15 s, 15-word and 6-character thresholds are uxcli's

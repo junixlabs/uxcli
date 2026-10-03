@@ -11,7 +11,7 @@
 
 const vp = s => { const m = /^(\d+)x(\d+)$/.exec(String(s || '')); return m ? { w: +m[1], h: +m[2] } : { w: 390, h: 844 }; };
 
-export function studioModel({ map, screens = [], experiences = {}, versions = {}, actors = [], insights = [], lenses = [], templates = [], viewport = null, serve = false }) {
+export function studioModel({ map, screens = [], experiences = {}, versions = {}, walkthroughs = {}, actors = [], insights = [], lenses = [], templates = [], viewport = null, serve = false }) {
   const v = vp(viewport || map?.journeys?.find(j => j.run?.viewport)?.run?.viewport);
   const screenBy = Object.fromEntries(screens.map(s => [s.id, s]));
   const journeys = (map?.journeys || []).map(j => {
@@ -29,6 +29,7 @@ export function studioModel({ map, screens = [], experiences = {}, versions = {}
           n: s.n, id: s.id, action: s.action, url: s.url,
           before: { state: s.before.state, held: s.before.held }, after: { state: s.after.state, held: s.after.held },
           design: sc ? { state: sc.id, status: sc.status, pick: sc.pick, revise: sc.revise, question: sc.question || null, variants: sc.variants } : { state: s.after.state, status: 'undrawn', pick: null, revise: null, question: null, variants: [] },
+          walkthrough: (walkthroughs[j.id] || []).filter(f => f.step === s.id && (f.workflow === w.id || !f.workflow)).map(f => ({ question: f.question, answer: f.answer, what: f.what, as: f.as || null })),
           built: { shot: s.before.shot || s.after.shot || null, after: s.after.shot || null, measured: s.measured, drift: s.drift, metrics: metrics && { klmSeconds: metrics.klmSeconds, settleMs: metrics.settleMs, response: metrics.response, clicks: metrics.clicks, chars: metrics.chars, scrolls: metrics.scrolls }, findings, verdicts },
           versions: vs.map(x => { const m = x.report?.steps?.find(y => y.id === s.id && (y.workflow === w.id || y.workflow == null)); return { name: x.name, shot: x.shots?.[`${w.id}/${s.id}`] || x.shots?.[`/${s.id}`] || null, klmSeconds: m?.klmSeconds ?? null, findings: (x.report?.findings || []).filter(f => f.step === s.id && (f.workflow === w.id || f.workflow == null)).length, present: !!m }; }),
         };

@@ -23,7 +23,7 @@ uxcli gives an agent those three habits, as files it reads and an instrument it 
 **1. Knowledge — a library the agent can cite.** Rules from named designers, design systems and
 studies, each with its author, its page and its exact words, packaged by the kind of UI it applies to
 (marketing, content, data, workspace, shop, transaction) and by topic (colour, writing, data display,
-forms). Templates for kinds of product — a B2B workspace, a shop, a product site — that say which
+forms, navigation, motion and feedback). Templates for kinds of product — a B2B workspace, a shop, a product site, docs, a mobile app — that say which
 screens such products have, which lens each is read against, which journeys to walk first, and what
 research has to answer. A rule without a source does not ship; every rule says how it is checked.
 
@@ -81,7 +81,7 @@ walking the flow, and says plainly that it did not watch anyone.
 | Flow checks | Three flow probes written from the WCAG text before any fixture existed. Seeded fixture: 3/3 caught, silent on the clean twin. 10 flows on 4 real apps never seen: 0 false fails; one real 3.3.7 defect found by hand that the probe did not see. | Measured on fixtures; unproven at scale |
 | Context before design | Same ticket, ten fresh sessions per arm, scored by `uxcli run` on the page each wrote. Ticket alone: 0 of 10. Ticket + the journey file: 5 of 10. Ticket + `uxcli context show`: 10 of 10. The installed skill with nothing inline: 10 of 10. 2026-09-28. | One model, one fixture, one ticket |
 | Saying done | 40 fresh sessions on a seeded fixture, 20 running the tool: 0 said done while a check still failed. Re-measured with the shipped skill: 10 of 10 ran uxcli, 0 of 10 said done holding a fail. | One model, one fixture |
-| Library | Lenses: 123 viewpoints from four schools of designers; topic pools for colour, writing, data display and forms; templates for three kinds of product. Every quote fetched and verbatim. | Built; whether it changes what agents draw is unmeasured |
+| Library | Lenses: 123 viewpoints from four schools of designers; six topic pools (colour, writing, data display, forms, navigation, motion and feedback); templates for five kinds of product. Every quote fetched and verbatim. | Built; whether it changes what agents draw is unmeasured |
 | Experience metrics | Not built yet. | The next experiment: agent with uxcli against agent without, scored on the walk |
 
 **The part worth building is the part not yet proven.**

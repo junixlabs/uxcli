@@ -44,6 +44,12 @@ export async function pair() {
     const again = decide(tmp, 'pick', { state: open.state, variant: open.variants[0].name }, who);
     must('a second pick overwrote the first', !again.ok && again.problems.some(p => p.includes('already picked')));
   }
+  const before = fs.existsSync(path.join(tmp, '.uxcli', 'proposals')) ? fs.readdirSync(path.join(tmp, '.uxcli', 'proposals')).length : 0;
+  const note = decide(tmp, 'note', { journey: 'handle-inbound-lead', workflow: 'open-and-call', step: 's2', note: 'The call button belongs above the needs block.' }, { type: 'person', ref: 'test' });
+  const pdoc = note.ok ? JSON.parse(fs.readFileSync(path.join(tmp, note.file), 'utf8')) : null;
+  must(`a note on a frame was not written as a redesign proposal citing the walk: ${(note.problems || []).join('; ')}`, pdoc?.kind === 'redesign' && pdoc.status === 'proposed' && pdoc.target === 'journeys/handle-inbound-lead.json#s2' && fs.readdirSync(path.join(tmp, '.uxcli', 'proposals')).length === before + 1);
+  { const { validate } = await import('./lib/json-schema.mjs'); const bad = pdoc ? validate(JSON.parse(fs.readFileSync(path.join(ROOT, 'schemas', 'proposal.schema.json'), 'utf8')), pdoc) : ['missing']; must(`the proposal a note wrote fails proposal.schema.json: ${bad.join('; ')}`, !bad.length); }
+  must('an empty note was written', !decide(tmp, 'note', { journey: 'handle-inbound-lead', step: 's2', note: ' ' }).ok);
   const silent = decide(tmp, 'revise', { state: 'agent.workspace_ready', note: '  ' }, { type: 'person', ref: 'test' });
   must('a redraw with no note was written', !silent.ok);
 

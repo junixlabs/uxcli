@@ -19,7 +19,7 @@ button,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
 .tabs,.zoom,.layers{display:flex;gap:4px;align-items:center}
 .tabs button,.zoom button,.layers label{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:4px 10px}
 .tabs button[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
-.layers label{display:flex;gap:6px;align-items:center;cursor:pointer}.zoom output{min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
+.layers label{display:flex;gap:6px;align-items:center;cursor:pointer}.layers select{border:1px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--surface)}#cmp[hidden]{display:none}.zoom output{min-width:48px;text-align:center;font-variant-numeric:tabular-nums}
 .counts{color:var(--dim);margin-left:auto}.live{color:var(--ok);font-weight:600}
 .main{display:grid;grid-template-columns:240px 1fr 340px;min-height:0}
 .outline,.insp{background:var(--surface);overflow:auto;min-height:0}.outline{border-right:1px solid var(--line);padding:10px 0}.insp{border-left:1px solid var(--line);padding:14px 16px;display:grid;gap:12px;align-content:start}
@@ -59,7 +59,7 @@ const JS = `(function(){
 var M=JSON.parse(document.getElementById('studio-data').textContent);
 var FW=M.frame.w,FH=M.frame.h,HEAD=30,COL=FW+90,ROWH=FH+HEAD+46,GUT=150;
 var stage=document.getElementById('stage'),world=document.getElementById('world'),insp=document.getElementById('insp');
-var view={x:40,y:40,k:0.8},sel=null,show={design:true,built:true,versions:true,findings:true},vtab={};
+var view={x:40,y:40,k:0.8},sel=null,show={design:true,built:true,versions:true,findings:true},vtab={},cmp={from:'',to:''};
 var KEY='uxcli-studio:'+(M.project.id||M.project.name);
 try{var s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.view)view=s.view;if(s&&s.show)show=s.show;}catch(e){}
 function save(){try{localStorage.setItem(KEY,JSON.stringify({view:view,show:show}));}catch(e){}}
@@ -78,7 +78,7 @@ function render(){world.innerHTML='';var wires=document.createElementNS('http://
  M.journeys.forEach(function(j){var b=el('div','band',esc(j.id)+'<small>'+esc(j.goal||'')+(j.actor?' · '+esc(j.actor):'')+(j.run?' · last walk: '+esc(j.run.verdict):' · not walked yet')+'</small>');b.style.left='0px';b.style.top=y+'px';world.appendChild(b);y+=74;
   // one set of rows per journey; its workflows sit side by side, as alternatives do
   var rows=[];if(show.design)rows.push('design');if(show.built)rows.push('built');
-  if(show.versions)j.versions.forEach(function(v){if(j.workflows.some(function(w){return w.steps.some(function(s){return s.versions.some(function(q){return q.name===v.name&&q.present;});});}))rows.push('v:'+v.name);});
+  if(show.versions)j.versions.forEach(function(v){if(cmp.from&&cmp.to&&v.name!==cmp.from&&v.name!==cmp.to)return;if(j.workflows.some(function(w){return w.steps.some(function(s){return s.versions.some(function(q){return q.name===v.name&&q.present;});});}))rows.push('v:'+v.name);});
   rows.forEach(function(row,ri){var lab=el('div','rowlabel',row==='design'?'Design':row==='built'?'Built':esc(row.slice(2)));lab.style.left='0px';lab.style.top=(y+26+ri*ROWH+HEAD+FH/2-8)+'px';world.appendChild(lab);});
   var x0=GUT;
   j.workflows.forEach(function(w){var l=el('div','lane',esc(w.id||'workflow')+(w.totals?'  ·  '+w.totals.steps+' step'+(w.totals.steps===1?'':'s')+' · about '+w.totals.klmSeconds+' s':''));l.style.left=x0+'px';l.style.top=y+'px';world.appendChild(l);
@@ -95,7 +95,8 @@ function render(){world.innerHTML='';var wires=document.createElementNS('http://
       f.appendChild(el('div','fh','<span class="n">'+s.n+'</span><span class="t" title="'+esc(s.action)+'">'+esc(s.action||s.id)+'</span>'+(bl.metrics?'<span class="chip">'+bl.metrics.klmSeconds+' s</span>':'')+tag));
       f.appendChild(frameImg(bl.shot,bl.findings));}
      else{var vn=row.slice(2),v=s.versions.filter(function(q){return q.name===vn;})[0]||{};if(!v.present)return;f=frame(x,ry,'version',s,j,w,vn);if(!v.shot)f.classList.add('ghost');
-      f.appendChild(el('div','fh','<span class="n">'+s.n+'</span><span class="t">'+esc(vn)+'</span>'+(v.klmSeconds!=null?'<span class="chip">'+v.klmSeconds+' s</span>':'')+(v.findings?'<span class="chip find">'+v.findings+'</span>':'')));
+      var delta='';if(cmp.from&&cmp.to&&vn===cmp.to){var a0=s.versions.filter(function(q){return q.name===cmp.from;})[0];if(a0&&a0.present&&v.klmSeconds!=null){var dk=Math.round((v.klmSeconds-a0.klmSeconds)*10)/10,df=v.findings-a0.findings;delta='<span class="chip '+(dk<=0&&df<=0?'ok':'find')+'" title="against '+esc(cmp.from)+'">'+(dk>0?'+':'')+dk+' s · '+(df>0?'+':'')+df+'</span>';}else if(!a0||!a0.present)delta='<span class="chip acc">new step</span>';}
+      f.appendChild(el('div','fh','<span class="n">'+s.n+'</span><span class="t">'+esc(vn)+'</span>'+(v.klmSeconds!=null?'<span class="chip">'+v.klmSeconds+' s</span>':'')+(v.findings?'<span class="chip find">'+v.findings+'</span>':'')+delta));
       f.appendChild(frameImg(v.shot,null));}
      world.appendChild(f);
      if(i<w.steps.length-1&&(row==='design'||row==='built')){var cy=ry+HEAD+FH/2,x1=x+FW+4,x2=x+COL-4;d+='M'+x1+' '+cy+' C'+(x1+30)+' '+cy+' '+(x2-30)+' '+cy+' '+x2+' '+cy+' M'+(x2-7)+' '+(cy-5)+' L'+x2+' '+cy+' L'+(x2-7)+' '+(cy+5);}
@@ -117,10 +118,14 @@ function inspect(){var x=sel&&find(sel);if(!x){insp.innerHTML='<h3>'+esc(M.proje
   else if(!M.serve&&dz.variants.length&&!dz.pick)h+='<section><p class="muted">To choose here, open the board with <code>uxcli studio --serve</code>.</p></section>';}
  else if(x.kind==='built'){var b=s.built;h+='<section><h4>Built · the last walk</h4>'+(b.metrics?'<dl><dt>Estimate</dt><dd>'+b.metrics.klmSeconds+' s</dd><dt>Settled</dt><dd>'+(b.metrics.settleMs==null?'–':b.metrics.settleMs+' ms · '+esc(b.metrics.response))+'</dd><dt>Clicks</dt><dd>'+b.metrics.clicks+'</dd><dt>Typed</dt><dd>'+b.metrics.chars+' characters</dd><dt>Scrolls</dt><dd>'+b.metrics.scrolls+'</dd></dl>':'<p class="muted">'+(b.measured?'walked, no metrics':'not walked yet')+'</p>')+'</section>';
   h+='<section><h4>Findings</h4>'+list(b.findings,function(f,i){return '<li>'+(f.rect?'<b>'+(i+1)+'.</b> ':'')+'<span class="chip find">'+esc(f.metric)+'</span> '+esc(f.what)+'<small>'+esc(f.source)+'</small></li>';})+'</section>';
+  if(b.shot)h+='<section><a href="'+esc(b.shot)+'" target="_blank" rel="noopener">Open the picture</a></section>';
+  if(M.serve)h+='<section class="act"><h4>Propose a change</h4><textarea id="nnote" aria-label="What should change on this step" placeholder="What should change for the person here"></textarea><button class="sec" id="nbtn">Write a redesign proposal</button><p class="msg" id="amsg" role="status"></p></section>';
+  if(s.walkthrough&&s.walkthrough.length)h+='<section><h4>Walkthrough</h4>'+list(s.walkthrough,function(f){return '<li><span class="chip '+(f.answer==='no'?'find':'')+'">'+esc(f.question)+': '+esc(f.answer)+'</span> '+esc(f.what.split(' — ').slice(1).join(' — '))+(f.as?'<small>as '+esc(f.as)+'</small>':'')+'</li>';})+'</section>';
   if(b.verdicts.length)h+='<section><h4>Verdicts</h4>'+list(b.verdicts,function(v){return '<li><span class="chip '+(v.value==='fail'?'fail':'find')+'">'+esc(v.value)+'</span> '+esc(v.what)+(v.commitment?'<small>'+esc(v.commitment)+(v.statement?' — '+esc(v.statement):'')+'</small>':'')+'</li>';})+'</section>';}
  else{var v=s.versions.filter(function(q){return q.name===x.extra;})[0]||{};var meta=x.j.versions.filter(function(q){return q.name===x.extra;})[0]||{};h+='<section><h4>Version '+esc(x.extra)+'</h4><p>'+esc(meta.note||'')+'</p><dl><dt>Named</dt><dd>'+esc((meta.at||'').slice(0,16))+' · '+esc(meta.by&&meta.by.ref)+'</dd><dt>This step</dt><dd>'+(v.present?v.klmSeconds+' s · '+v.findings+' finding'+(v.findings===1?'':'s'):'not in this version')+'</dd><dt>Whole walk</dt><dd>'+(meta.klmSeconds!=null?meta.klmSeconds+' s · ':'')+(meta.findings||0)+' findings</dd></dl></section>';}
  insp.innerHTML=h;
  [].forEach.call(insp.querySelectorAll('[data-pick]'),function(b){b.addEventListener('click',function(){post('/api/pick',{state:s.design.state,variant:b.dataset.pick});});});
+ var nb=document.getElementById('nbtn');if(nb)nb.addEventListener('click',function(){post('/api/note',{journey:x.j.id,workflow:x.w.id,step:s.id,note:document.getElementById('nnote').value});});
  var rb=document.getElementById('rbtn');if(rb)rb.addEventListener('click',function(){post('/api/revise',{state:s.design.state,note:document.getElementById('rnote').value});});}
 function post(url,body){var m=document.getElementById('amsg');fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(r){if(m){m.className='msg '+(r.ok?'ok':'err');m.textContent=r.ok?'Saved '+r.file+'. The agent reads it from there.':(r.problems||['could not save']).join('; ');}}).catch(function(e){if(m){m.className='msg err';m.textContent=String(e);}});}
 function fit(){var r=stage.getBoundingClientRect(),W=parseFloat(world.style.width)||1,H=parseFloat(world.style.height)||1;view.k=Math.max(0.1,Math.min(1.5,Math.min((r.width-60)/W,(r.height-60)/H)));view.x=30;view.y=30;apply();}
@@ -134,7 +139,11 @@ stage.addEventListener('wheel',function(e){e.preventDefault();var r=stage.getBou
 document.addEventListener('keydown',function(e){if(e.target.closest&&e.target.closest('textarea,input,select'))return;if(e.key==='+'||e.key==='=')zoom(1.2);else if(e.key==='-')zoom(1/1.2);else if(e.key==='0'||e.key==='f'||e.key==='F')fit();else if(e.key==='ArrowLeft'){view.x+=60;apply();}else if(e.key==='ArrowRight'){view.x-=60;apply();}else if(e.key==='ArrowUp'){view.y+=60;apply();}else if(e.key==='ArrowDown'){view.y-=60;apply();}});
 document.getElementById('zin').onclick=function(){zoom(1.2);};document.getElementById('zout').onclick=function(){zoom(1/1.2);};document.getElementById('zfit').onclick=fit;
 ['design','built','versions','findings'].forEach(function(k){var c=document.getElementById('show-'+k);c.checked=show[k];c.onchange=function(){show[k]=c.checked;save();render();};});
-[].forEach.call(document.querySelectorAll('.tabs button'),function(b){b.onclick=function(){[].forEach.call(document.querySelectorAll('.tabs button'),function(x){x.setAttribute('aria-pressed',x===b);});var t=b.dataset.tab;document.getElementById('board').style.display=t==='canvas'?'':'none';[].forEach.call(document.querySelectorAll('.page'),function(p){p.classList.toggle('on',p.id==='page-'+t);});};});
+(function(){var names=[];M.journeys.forEach(function(j){j.versions.forEach(function(v){if(names.indexOf(v.name)<0)names.push(v.name);});});var a=document.getElementById('cmp-from'),b=document.getElementById('cmp-to');if(!a)return;
+ [a,b].forEach(function(sl){names.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sl.appendChild(o);});sl.onchange=function(){cmp={from:a.value,to:b.value};render();};});document.getElementById('cmp').hidden=names.length<2;})();
+[].forEach.call(document.querySelectorAll('.tabs button'),function(b){b.onclick=function(){(function(){var names=[];M.journeys.forEach(function(j){j.versions.forEach(function(v){if(names.indexOf(v.name)<0)names.push(v.name);});});var a=document.getElementById('cmp-from'),b=document.getElementById('cmp-to');if(!a)return;
+ [a,b].forEach(function(sl){names.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sl.appendChild(o);});sl.onchange=function(){cmp={from:a.value,to:b.value};render();};});document.getElementById('cmp').hidden=names.length<2;})();
+[].forEach.call(document.querySelectorAll('.tabs button'),function(x){x.setAttribute('aria-pressed',x===b);});var t=b.dataset.tab;document.getElementById('board').style.display=t==='canvas'?'':'none';[].forEach.call(document.querySelectorAll('.page'),function(p){p.classList.toggle('on',p.id==='page-'+t);});};});
 [].forEach.call(document.querySelectorAll('[data-go]'),function(b){b.onclick=function(){goTo(b.dataset.go);};});
 render();inspect();var first=!(function(){try{return localStorage.getItem(KEY);}catch(e){return null;}})();if(first)fit();
 if(M.serve&&window.EventSource){var es=new EventSource('/events');var live=document.getElementById('live');es.onopen=function(){live.textContent='live';};es.onmessage=function(){fetch('data.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){M=d;render();inspect();live.textContent='live · updated '+new Date().toLocaleTimeString();});};es.onerror=function(){live.textContent='disconnected';};}
@@ -167,6 +176,7 @@ export function studioPage(m) {
 <header class="top"><span class="brand">uxcli studio<small>${esc(m.project.name)}</small></span>
 <nav class="tabs" aria-label="Views"><button data-tab="canvas" aria-pressed="true">Canvas</button><button data-tab="context" aria-pressed="false">Context</button><button data-tab="library" aria-pressed="false">Library</button></nav>
 <div class="layers" role="group" aria-label="Layers"><label><input type="checkbox" id="show-design">Design</label><label><input type="checkbox" id="show-built">Built</label><label><input type="checkbox" id="show-versions">Versions</label><label><input type="checkbox" id="show-findings">Findings</label></div>
+<div class="layers" id="cmp" role="group" aria-label="Compare versions"><label for="cmp-from">Compare</label><select id="cmp-from" aria-label="From version"><option value="">—</option></select><span aria-hidden="true">→</span><select id="cmp-to" aria-label="To version"><option value="">—</option></select></div>
 <div class="zoom" role="group" aria-label="Zoom"><button id="zout" aria-label="Zoom out">−</button><output id="zv">100%</output><button id="zin" aria-label="Zoom in">+</button><button id="zfit">Fit</button></div>
 <span class="counts">${m.counts.steps} steps · ${m.counts.picked}/${m.counts.drawn} picked · ${m.counts.findings} findings${m.serve ? ' · <span class="live" id="live">connecting</span>' : ''}</span></header>
 <div class="main" id="board"><nav class="outline" aria-label="Journeys">${outline(m)}</nav><section class="stage" id="stage" aria-label="Canvas"><div class="world" id="world"></div></section><aside class="insp" id="insp" aria-live="polite"></aside></div>

@@ -53,8 +53,11 @@ export async function buildStudio(from, { viewport = '390x844', shoot = true, se
     for (const s of run.steps || []) { const a = shotIn(dir, (s.shots || []).find(x => x.includes('-after')) || s.shots?.[s.shots.length - 1]); if (a) shots[`${s.workflow || ''}/${s.id}`] = rel(out, a); }
     (versions[v.value.journey] ||= []).push({ ...v.value, report: experience(run), shots });
   }
+  // walkthroughs that stand, of each journey's newest walk
+  const walkthroughs = {};
+  try { const { checkWalkthroughs } = await import('./walkthrough.js'); for (const x of checkWalkthroughs(root).items) { if (x.problems.length) continue; const doc = readJson(x.file); const nw = newest[doc.journey]; if (!nw || `runs/${path.basename(nw.at)}` !== doc.run) continue; (walkthroughs[doc.journey] ||= []).push(...x.findings.map(f => ({ ...f, as: doc.as || null }))); } } catch {}
   const lib = library(); const tpl = templates();
-  const m = studioModel({ map, screens, experiences, versions, actors: (P.actors || []).map(a => a.value).filter(Boolean), insights: (P.insights || []).map(i => i.value).filter(Boolean), lenses: lib.lenses, templates: tpl.list, viewport: Object.values(runs)[0]?.run?.viewport || viewport, serve });
+  const m = studioModel({ map, screens, experiences, versions, walkthroughs, actors: (P.actors || []).map(a => a.value).filter(Boolean), insights: (P.insights || []).map(i => i.value).filter(Boolean), lenses: lib.lenses, templates: tpl.list, viewport: Object.values(runs)[0]?.run?.viewport || viewport, serve });
   return { root, out, model: m, problems: P.problems };
 }
 
@@ -85,6 +88,21 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.json': 'application/json',
 // The two writes a person makes from the board. Each goes through the parser the file is read with,
 // and neither overwrites: a screen already picked is changed by deleting its pick.json, on purpose.
 export function decide(root, kind, body, who = by(root)) {
+  if (kind === 'note') {
+    // A note on a built frame: a redesign proposal, citing the walk the frame came from.
+    const note = String(body?.note || '').trim(); if (!note) return { ok: false, problems: ['note is empty: say what should change for the person'] };
+    if (!body.journey || !body.step) return { ok: false, problems: ['a note names the journey and the step it is about'] };
+    const walk = allRuns(root).find(x => journeyName(x.run) === body.journey && (x.run.steps || []).some(st => st.id === body.step));
+    const dir = path.join(root, UXCLI, 'proposals'); fs.mkdirSync(dir, { recursive: true });
+    const n = Math.max(0, ...fs.readdirSync(dir).map(f => /^P-(\d+)\.json$/.exec(f)).filter(Boolean).map(m => +m[1])) + 1;
+    const id = `P-${String(n).padStart(4, '0')}`;
+    const report = walk ? experience(walk.run) : null;
+    const here = (report?.findings || []).filter(f => f.step === body.step && (!body.workflow || f.workflow === body.workflow || f.workflow == null));
+    const doc = { id, kind: 'redesign', proposedBy: { ...who, at: new Date().toISOString() }, target: `journeys/${body.journey}.json#${body.step}`, statement: note,
+      evidence: walk ? [{ run: `runs/${path.basename(walk.at)}`, what: `the walk at ${body.workflow ? body.workflow + '/' : ''}${body.step}${here.length ? ': ' + here.map(f => f.what).join('; ') : ''}` }] : [{ what: 'noted on the studio board before the step was walked' }],
+      status: 'proposed', note: 'Written from the studio board. The agent answers it with a redraw and a new version.' };
+    const f = path.join(dir, `${id}.json`); fs.writeFileSync(f, JSON.stringify(doc, null, 1) + '\n'); return { ok: true, file: rel(root, f) };
+  }
   const D = discover(root); const s = D.screens.find(x => x.id === body?.state);
   if (!s) return { ok: false, problems: [`no screen ${body?.state} under .uxcli/mockups/`] };
   const when = new Date().toISOString().slice(0, 10);
@@ -116,7 +134,7 @@ export async function serveStudio(from, { port = 4317, viewport = '390x844', hos
     if (req.method === 'GET' && url.pathname === '/') { res.writeHead(302, { location: '/.uxcli/studio/index.html' }); return res.end(); }
     if (req.method === 'GET' && url.pathname === '/events') { res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store', connection: 'keep-alive' }); res.write('retry: 2000\n\n'); clients.add(res); req.on('close', () => clients.delete(res)); return; }
     if (req.method === 'GET' && url.pathname === '/.uxcli/studio/data.json') { const r = await buildStudio(root, { viewport, serve: true, shoot: false }); res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify(r.model)); }
-    if (req.method === 'POST' && (url.pathname === '/api/pick' || url.pathname === '/api/revise')) {
+    if (req.method === 'POST' && ['/api/pick', '/api/revise', '/api/note'].includes(url.pathname)) {
       let body = ''; for await (const c of req) { body += c; if (body.length > 100000) break; }
       let r; try { r = decide(root, url.pathname.slice(5), JSON.parse(body)); } catch (e) { r = { ok: false, problems: [e.message] }; }
       res.writeHead(r.ok ? 200 : 400, { 'content-type': 'application/json' }); res.end(JSON.stringify(r)); if (r.ok) notify(); return;

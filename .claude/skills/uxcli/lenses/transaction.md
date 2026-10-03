@@ -2,9 +2,21 @@
 
 Checkout, sign-up, booking, onboarding and multi-step forms: one task, completed once, correctly.
 
-61 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
+63 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
 
-## 1. `usability.fitts-target-size-and-distance`
+## 1. `usability.visibility-of-system-status`
+
+Every action with consequences shows the user something changed, as quickly as possible, so they always know what the system is doing.
+
+- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #1* — https://www.nngroup.com/articles/ten-usability-heuristics/
+- **In their words:** "The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time."
+- **Do:** Show a visible trace of every state change; Give feedback immediately, or as quickly as possible; Disable and label a control while its action runs
+- **Don't:** Submit silently; Change state with no visible trace; Show an action's result only somewhere else
+- **Look at:** Drive an action, then diff DOM or pixels over the next frames: did anything visibly change within 1 s; is there a live region, status text, spinner or busy state?
+- **Unless:** Below 0.1 s no special feedback is needed beyond showing the result
+- **Also stated as:** modern.feedback-is-local-and-optimistic (Rauno Freiberg); writing.success-names-what-happened (Shopify Polaris); forms.do-not-disable-the-submit-button (GitHub Primer); feedback.status-messages-announced-without-focus (W3C Accessibility Guidelines Working Group); feedback.confirmation-page-says-what-happens-next (GOV.UK Design System).
+
+## 2. `usability.fitts-target-size-and-distance`
 
 Make targets big, space them apart, and put them where the pointer already is; touch targets at least 1 cm square.
 
@@ -16,7 +28,7 @@ Make targets big, space them apart, and put them where the pointer already is; t
 - **Unless:** Infinite targets along screen edges for mouse — size matters less at an edge; Primary CTAs, moving users, children and the elderly need larger than the minimum
 - **Also stated as:** usability.hicks-fewer-choices-when-time-matters (Jon Yablonski (Laws of UX)); usability.peak-end-finish-well (Jon Yablonski (Laws of UX)); usability.von-restorff-one-emphasis (GOV.UK Design System); craft.growth-design-psychology-principles (Growth.Design (Dan Benoni, Louis-Xavier Lavallée)); modern.no-deceptive-patterns (Harry Brignull).
 
-## 2. `usability.speak-the-users-language`
+## 3. `usability.speak-the-users-language`
 
 Write in the words the actor already uses; no internal jargon, error codes or unexplained abbreviations.
 
@@ -28,19 +40,19 @@ Write in the words the actor already uses; no internal jargon, error codes or un
 - **Unless:** Expert-only tools where the domain term is the users' language — match the user, do not simplify per se
 - **Also stated as:** writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen).
 
-## 3. `usability.inline-validation-after-leaving-field`
+## 4. `usability.feedback-within-a-second`
 
-Validate a hard field after the user leaves it, never on focus or while typing, and clear the error live once it is fixed.
+Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
 
-- **Source:** Luke Wroblewski with Etre, *Inline Validation in Web Forms (A List Apart #291, 2009)* — https://alistapart.com/article/inline-validation-in-web-forms/ (study)
-- **In their words:** "22% increase in success rates … 42% decrease in completion times … 47% decrease in eye fixations"
-- **Do:** Validate on blur or when the input reaches its expected length; Re-check on each keystroke once an error shows and clear it when fixed; Keep success and error messages visible rather than fading; Reserve inline validation for hard fields like username and password
-- **Don't:** Validate before and while typing; Show an error on focus of an empty field; Validate only on submit
-- **Look at:** Drive a field: focus shows no error; typing an invalid value shows none (unless length threshold reached); blur shows an error adjacent via aria-describedby; typing a fix clears it without blur.
-- **Unless:** Simple fields need none; premature validation was worse than none (Wroblewski)
-- **Also stated as:** usability.visibility-of-system-status (Jakob Nielsen); modern.feedback-is-local-and-optimistic (Rauno Freiberg); forms.error-summary-at-the-top (GOV.UK Design System).
+- **Source:** Jakob Nielsen, *Response Times: The 3 Important Limits (1993)* — https://www.nngroup.com/articles/response-times-3-important-limits/ (study)
+- **In their words:** "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
+- **Do:** Use a progress indicator for any action over about 1 s; Use a looped indicator for 2–9 s waits; Use a percent-done indicator for 10 s or more
+- **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
+- **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
+- **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
+- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg); feedback.match-the-indicator-to-the-wait (GitHub Primer).
 
-## 4. `usability.postel-tolerant-input`
+## 5. `usability.postel-tolerant-input`
 
 Accept every reasonable form of an input — spaces, dashes, case, whitespace — and normalise it, instead of rejecting it.
 
@@ -52,7 +64,19 @@ Accept every reasonable form of an input — spaces, dashes, case, whitespace �
 - **Unless:** Inputs where ambiguity is dangerous, such as dates in medical or legal contexts
 - **Also stated as:** craft.body-16px-line-height-1-5 (Steve Schoger); modern.mobile-inputs-do-not-zoom-or-trap (Rauno Freiberg); forms.input-type-matches-the-answer (GOV.UK Design System).
 
-## 5. `usability.omit-needless-words`
+## 6. `usability.clearly-marked-emergency-exit`
+
+Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.
+
+- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #3* — https://www.nngroup.com/articles/ten-usability-heuristics/
+- **In their words:** "Users often perform actions by mistake. They need a clearly marked 'emergency exit' to leave the unwanted action without having to go through an extended process."
+- **Do:** Support Undo and Redo; Show a clear Cancel or close control; Label the exit clearly and make it discoverable
+- **Don't:** Open a modal with no close; Build a wizard step with no back; Ship a destructive action with no undo
+- **Look at:** For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.
+- **Unless:** Legally required interstitials — the exit must still be visible, not necessarily free of consequence
+- **Also stated as:** forms.keep-answers-after-an-error (GOV.UK Design System); navigation.back-link-goes-one-step-back (GOV.UK Design System); navigation.breadcrumbs-only-for-real-hierarchy (GOV.UK Design System).
+
+## 7. `usability.omit-needless-words`
 
 Cut word count by half: no happy-talk intros, no instruction paragraphs before forms, no marketese, sentence case everywhere.
 
@@ -64,7 +88,7 @@ Cut word count by half: no happy-talk intros, no instruction paragraphs before f
 - **Unless:** Nielsen also asks for outbound links to build trust — brevity is not zero text
 - **Also stated as:** writing.sentence-case-ui-text (IBM Carbon Design System).
 
-## 6. `usability.fewer-checkout-fields`
+## 8. `usability.fewer-checkout-fields`
 
 Count fields, not steps: a guest checkout needs about eight, with optional fields collapsed behind links and billing defaulted to shipping.
 
@@ -76,7 +100,7 @@ Count fields, not steps: a guest checkout needs about eight, with optional field
 - **Unless:** Regulatory or fraud fields that genuinely cannot be defaulted; The minimum of 8 assumes a standard guest checkout
 - **Also stated as:** forms.mark-optional-fields-in-words (GOV.UK Design System); forms.ask-only-what-you-need (GOV.UK Design System).
 
-## 7. `usability.minimalist-no-competing-information`
+## 9. `usability.minimalist-no-competing-information`
 
 Everything on the screen competes with the primary goal; remove what does not serve it so the main action stays visible.
 
@@ -87,7 +111,7 @@ Everything on the screen competes with the primary goal; remove what does not se
 - **Look at:** At 360 px: count distinct interactive elements above the fold; whether the journey's primary action is within the first viewport; count of elements sharing the accent colour.
 - **Unless:** Dense expert dashboards where the irreducible information is large
 
-## 8. `usability.no-false-affordances`
+## 10. `usability.no-false-affordances`
 
 Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
 
@@ -98,7 +122,7 @@ Nothing that is not interactive may look interactive: no underlined or blue stat
 - **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
 - **Also stated as:** canon.rams-honest (Dieter Rams).
 
-## 9. `usability.help-in-context`
+## 11. `usability.help-in-context`
 
 The best help is none; when a field needs explaining, put a short hint beside it at the moment it is needed, not on another page.
 
@@ -110,19 +134,7 @@ The best help is none; when a field needs explaining, put a short hint beside it
 - **Unless:** Nielsen's own first sentence: it is best if the system needs no additional explanation
 - **Also stated as:** usability.placeholders-are-not-labels (Katie Sherwin, NN/g); forms.hint-text-is-short-and-linked (GOV.UK Design System).
 
-## 10. `usability.feedback-within-a-second`
-
-Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
-
-- **Source:** Jakob Nielsen, *Response Times: The 3 Important Limits (1993)* — https://www.nngroup.com/articles/response-times-3-important-limits/ (study)
-- **In their words:** "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
-- **Do:** Use a progress indicator for any action over about 1 s; Use a looped indicator for 2–9 s waits; Use a percent-done indicator for 10 s or more
-- **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
-- **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
-- **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
-- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg).
-
-## 11. `usability.signifiers-make-clickable-look-clickable`
+## 12. `usability.signifiers-make-clickable-look-clickable`
 
 Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.
 
@@ -134,18 +146,18 @@ Links and buttons must look clickable — colour, underline, border or fill — 
 - **Unless:** Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger); Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)
 - **Also stated as:** modern.signifiers-survive-flatness (Kate Moran (NN/G)).
 
-## 12. `usability.clearly-marked-emergency-exit`
+## 13. `usability.inline-validation-after-leaving-field`
 
-Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.
+Validate a hard field after the user leaves it, never on focus or while typing, and clear the error live once it is fixed.
 
-- **Source:** Jakob Nielsen, *10 Usability Heuristics for User Interface Design, heuristic #3* — https://www.nngroup.com/articles/ten-usability-heuristics/
-- **In their words:** "Users often perform actions by mistake. They need a clearly marked 'emergency exit' to leave the unwanted action without having to go through an extended process."
-- **Do:** Support Undo and Redo; Show a clear Cancel or close control; Label the exit clearly and make it discoverable
-- **Don't:** Open a modal with no close; Build a wizard step with no back; Ship a destructive action with no undo
-- **Look at:** For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.
-- **Unless:** Legally required interstitials — the exit must still be visible, not necessarily free of consequence
+- **Source:** Luke Wroblewski with Etre, *Inline Validation in Web Forms (A List Apart #291, 2009)* — https://alistapart.com/article/inline-validation-in-web-forms/ (study)
+- **In their words:** "22% increase in success rates … 42% decrease in completion times … 47% decrease in eye fixations"
+- **Do:** Validate on blur or when the input reaches its expected length; Re-check on each keystroke once an error shows and clear it when fixed; Keep success and error messages visible rather than fading; Reserve inline validation for hard fields like username and password
+- **Don't:** Validate before and while typing; Show an error on focus of an empty field; Validate only on submit
+- **Look at:** Drive a field: focus shows no error; typing an invalid value shows none (unless length threshold reached); blur shows an error adjacent via aria-describedby; typing a fix clears it without blur.
+- **Unless:** Simple fields need none; premature validation was worse than none (Wroblewski)
 
-## 13. `usability.progress-indication-in-flows`
+## 14. `usability.progress-indication-in-flows`
 
 In flows of three or more steps give some sense of position; do not assume a step bar helps — GOV.UK removed one with no effect.
 
@@ -156,7 +168,7 @@ In flows of three or more steps give some sense of position; do not assume a ste
 - **Look at:** Presence of a step or position element in flows with 3 or more steps, and whether it updates between steps.
 - **Unless:** Short flows — GOV.UK's own guidance omits indicators by default; Artificial 'endowed progress' edges toward manipulation — flag, do not recommend
 
-## 14. `usability.single-column-forms`
+## 15. `usability.single-column-forms`
 
 Forms run in one vertical column; only coherent entities like city/state/ZIP or card/expiry/CVV share a row.
 
@@ -167,7 +179,7 @@ Forms run in one vertical column; only coherent entities like city/state/ZIP or 
 - **Look at:** Cluster inputs by left x-coordinate; more than one column of independent inputs, not in the same fieldset or an allowed coherent row, fails.
 - **Unless:** Coherent-entity rows: city/state/ZIP and card number/expiry/security code
 
-## 15. `usability.aesthetic-usability-effect-bias`
+## 16. `usability.aesthetic-usability-effect-bias`
 
 Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.
 
@@ -178,7 +190,7 @@ Polish makes a screen look more usable than it is; discount your aesthetic impre
 - **Look at:** Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.
 - **Unless:** With severe usability issues, or functionality sacrificed for aesthetics, users lose patience
 
-## 16. `usability.natural-mapping-and-proximity`
+## 17. `usability.natural-mapping-and-proximity`
 
 Put a control next to the thing it changes and a label next to its field; gaps between groups must exceed gaps within them.
 
@@ -189,7 +201,7 @@ Put a control next to the thing it changes and a label next to its field; gaps b
 - **Look at:** Distance from each label to its own input versus the nearest other input; gap within a fieldset versus gap between fieldsets; distance from last input to the submit button.
 - **Unless:** Left-aligned labels are acceptable if space is constrained and labels are of similar length
 
-## 17. `usability.labels-above-fields`
+## 18. `usability.labels-above-fields`
 
 Stack the label above its field, left edges aligned, a few pixels apart, so label and field are read in one fixation.
 
@@ -200,7 +212,7 @@ Stack the label above its field, left edges aligned, a few pixels apart, so labe
 - **Look at:** For each label/input pair: label box bottom ≤ input box top and label left edge ≈ input left edge within a few px; if side by side, the gap between label right edge and input left edge.
 - **Unless:** Landscape phones: switch to left-aligned to keep the field visible above the keyboard (Baymard); Left-aligned is acceptable when labels are of similar length and as close to the fields as possible (NN/g)
 
-## 18. `usability.field-width-matches-expected-input`
+## 19. `usability.field-width-matches-expected-input`
 
 Size each input to the data it expects: short boxes for year, postcode and CVV; one consistent width for variable data like email.
 
@@ -211,7 +223,7 @@ Size each input to the data it expects: short boxes for year, postcode and CVV; 
 - **Look at:** Rendered input width in ch of its font versus maxlength, inputmode, autocomplete token or pattern length: cc-csc wider than ~8 ch, postal-code at full width, or email narrower than ~20 ch.
 - **Unless:** Full-width inputs on narrow phones are the norm — check at desktop widths or compare relative widths within the form
 
-## 19. `usability.one-thing-per-page`
+## 20. `usability.one-thing-per-page`
 
 Split a public-facing form so each page asks one question, decision or piece of information, with eligibility questions first.
 
@@ -222,7 +234,7 @@ Split a public-facing form so each page asks one question, decision or piece of 
 - **Look at:** Count distinct questions (label groups or fieldsets) per page in a flow; count required inputs per page.
 - **Unless:** Be consistent, not uniform: internal expert tools and repeat users may prefer denser pages
 
-## 20. `usability.dont-make-me-think`
+## 21. `usability.dont-make-me-think`
 
 A page's purpose and controls should be self-evident; nothing on it should raise a question the user must answer before acting.
 
@@ -232,7 +244,7 @@ A page's purpose and controls should be self-evident; nothing on it should raise
 - **Don't:** Raise a question the user must answer before acting
 - **Look at:** Look at the screen cold: is there anything you have to work out before you can act? The law is the sum of the other entries; a machine measures its symptoms, not the law.
 
-## 21. `usability.start-with-user-needs-design-with-data`
+## 22. `usability.start-with-user-needs-design-with-data`
 
 Name the actor and their need before drawing a screen, then let measured behaviour, not hunches or looks, decide what changes.
 
@@ -242,7 +254,7 @@ Name the actor and their need before drawing a screen, then let measured behavio
 - **Don't:** Design to a hunch; Design to an aesthetic
 - **Look at:** Does the journey name its actor and need (uxcli context show), and is the design decision traceable to observed behaviour rather than a hunch or a look?
 
-## 22. `usability.constraints-shift-complexity-to-the-system`
+## 23. `usability.constraints-shift-complexity-to-the-system`
 
 Complexity that cannot be removed goes to the system, not the user: default what can be inferred, hide what is rarely needed.
 
@@ -253,7 +265,7 @@ Complexity that cannot be removed goes to the system, not the user: default what
 - **Look at:** Count visible required inputs the page could default (no 'same as shipping' control, both address blocks open); presence of autocomplete tokens on address and payment inputs.
 - **Unless:** Tognazzini's counter-view: users resist complexity reduction and attempt harder tasks when systems get simpler
 
-## 23. `craft.fewer-borders`
+## 24. `craft.fewer-borders`
 
 Separate elements with space, a background shift, a shadow or striping before reaching for a border; too many borders make a design busy.
 
@@ -265,7 +277,7 @@ Separate elements with space, a background shift, a shadow or striping before re
 - **Unless:** Form inputs and the one object a person acts on keep their border; Keylines that make disconnected content feel connected; Decorative borders as style once the count is low
 - **Also stated as:** canon.gestalt-common-region (Aurora Harley, NN/g); canon.rams-as-little-design-as-possible (Dieter Rams); modern.fewer-borders-more-space (Adam Wathan & Steve Schoger); canon.tufte-smallest-effective-difference (Edward Tufte); canon.tufte-one-plus-one-equals-three (Edward Tufte).
 
-## 24. `craft.spacing-and-sizing-system`
+## 25. `craft.spacing-and-sizing-system`
 
 Draw every margin, padding and gap from one scale, and make space between groups clearly larger than space within them.
 
@@ -277,7 +289,19 @@ Draw every margin, padding and gap from one scale, and make space between groups
 - **Unless:** Optical adjustments on icons and hanging punctuation sit a pixel or two off-scale
 - **Also stated as:** canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.spacing-comes-from-a-scale (Stan Kirilov).
 
-## 25. `craft.separation-order-space-then-lines-then-boxes`
+## 26. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
+
+Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
+
+- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
+- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
+- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
+- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
+- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
+- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); feedback.message-type-said-in-words (U.S. Web Design System).
+
+## 27. `craft.separation-order-space-then-lines-then-boxes`
 
 Use the lightest separator that works: more space first, then a keyline or background band, and a box only for the object that is acted on.
 
@@ -287,7 +311,7 @@ Use the lightest separator that works: more space first, then a keyline or backg
 - **Look at:** Between sibling groups, record which separator is used: gap at least 2x the inner gap (space), hr or border-bottom (line), bordered or shadowed wrapper (box); report the inner/outer gap ratio.
 - **Unless:** Dense data such as tables where zebra stripes or keylines are used; Interactive cards that are the unit of action
 
-## 26. `craft.button-hierarchy-one-primary`
+## 28. `craft.button-hierarchy-one-primary`
 
 One filled brand-colour button per view; secondaries outlined, tertiaries as text, destructive actions quiet with a confirmation step.
 
@@ -299,19 +323,7 @@ One filled brand-colour button per view; secondaries outlined, tertiaries as tex
 - **Unless:** Segmented or toggle groups; Toolbars of equal-weight actions; A page whose only job is the destructive action, where red is primary
 - **Also stated as:** writing.destructive-actions-name-the-consequence (IBM Carbon Design System).
 
-## 27. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
-
-Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
-
-- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
-- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
-- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
-- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
-- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
-- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
-- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group).
-
-## 28. `craft.anything-but-dropdowns`
+## 29. `craft.anything-but-dropdowns`
 
 Before a dropdown, try a switch, segmented control, radios, cards, typeahead, calendar, text input or stepper.
 
@@ -323,7 +335,7 @@ Before a dropdown, try a switch, segmented control, radios, cards, typeahead, ca
 - **Unless:** Users rarely need to change the default value; There are very few options; The user is not on mobile
 - **Also stated as:** modern.boring-and-familiar-beats-novel (Scott Berkun); forms.memorable-dates-as-three-fields (GOV.UK Design System).
 
-## 29. `craft.tap-targets-and-control-height`
+## 30. `craft.tap-targets-and-control-height`
 
 Touch targets are at least 44×44; inputs and the buttons beside them share one height of 40 or 48px.
 
@@ -335,7 +347,7 @@ Touch targets are at least 44×44; inputs and the buttons beside them share one 
 - **Unless:** Inline text links in running prose; Dense desktop-only tools if the project commits to no touch
 - **Also stated as:** modern.hit-targets-meet-platform-minimums (Apple).
 
-## 30. `craft.type-scale-few-font-sizes`
+## 31. `craft.type-scale-few-font-sizes`
 
 Use about four font sizes from a fixed scale; reuse the default size for body, menus, lists and controls.
 
@@ -347,7 +359,7 @@ Use about four font sizes from a fixed scale; reuse the default size for body, m
 - **Unless:** Sizes must stay distinguishable, so large text may step many points apart; Marketing pages may add a display size
 - **Also stated as:** canon.vignelli-two-type-sizes (Massimo Vignelli).
 
-## 31. `craft.hierarchy-is-everything-squint-test`
+## 32. `craft.hierarchy-is-everything-squint-test`
 
 Squint: the most important thing must catch the eye first and the least important last; one element dominates each screen.
 
@@ -358,7 +370,7 @@ Squint: the most important thing must catch the eye first and the least importan
 - **Look at:** Given a declared primary action, score every interactive element as area x contrast x font-weight factor; the declared primary must rank first, and no set of buttons may sit within 10% of each other.
 - **Unless:** Page titles are the only element styled all-out up-pop; A browsing page such as a gallery may have no single most important thing
 
-## 32. `craft.greys-dont-have-to-be-grey-never-use-black`
+## 33. `craft.greys-dont-have-to-be-grey-never-use-black`
 
 Tint the neutral scale toward the brand hue and never use pure black for text.
 
@@ -369,7 +381,7 @@ Tint the neutral scale toward the brand hue and never use pure black for text.
 - **Look at:** Count text, border and background colours with saturation 0 and lightness under 15%, and the share of neutral swatches with saturation exactly 0.
 - **Unless:** It does not always work; worth a trial; High-contrast or accessibility modes and print
 
-## 33. `craft.grids-are-overrated-content-dictates-width`
+## 34. `craft.grids-are-overrated-content-dictates-width`
 
 Let content dictate its own width and the layout follow; do not stretch components because the screen grew.
 
@@ -380,7 +392,7 @@ Let content dictate its own width and the layout follow; do not stretch componen
 - **Look at:** At 360–414px viewport, every content edge sits at 16px (or one consistent gutter) from the viewport edge and nothing overflows horizontally.
 - **Unless:** Strict grids for posters and websites where the artistry of the composition matters more than the information
 
-## 34. `canon.bringhurst-leading-is-a-rhythmic-unit`
+## 35. `canon.bringhurst-leading-is-a-rhythmic-unit`
 
 The leading is the vertical unit; add and remove vertical space in multiples of it.
 
@@ -391,7 +403,7 @@ The leading is the vertical unit; add and remove vertical space in multiples of 
 - **Look at:** Body line-height L; margins and paddings between text blocks as multiples of L (or L/2 if the lens allows).
 - **Unless:** More leading for longer measures, darker faces, larger x-height and sans serifs: the ratio moves with the face
 
-## 35. `canon.butterick-emphasis-sparingly`
+## 36. `canon.butterick-emphasis-sparingly`
 
 One emphasis device at a time: bold or italic, never both; underline only links; caps only under one line and tracked.
 
@@ -402,7 +414,19 @@ One emphasis device at a time: bold or italic, never both; underline only links;
 - **Look at:** Elements with font-weight ≥600 and italic; underline on non-anchors; uppercase on blocks rendering more than one line; centred multi-line paragraphs; uppercase runs with letter-spacing under 0.05em.
 - **Unless:** Underline for web links; All caps under one line of text
 
-## 36. `modern.defaults-are-decisions-you-inherited`
+## 37. `modern.motion-values-proportional-to-trigger`
+
+Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.
+
+- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
+- **In their words:** "Don't animate dialog scale in from 0 → 1, fade opacity and scale from ~0.8. Don't scale buttons on press from 1 → 0.8, but ~0.96, ~0.9, or so."
+- **Do:** Enter dialogs and popovers from scale 0.8–0.97 with opacity; Press buttons to about scale 0.96–0.97
+- **Don't:** Scale-from-zero pops on dialogs; Press states that squash a button to 0.8 or below
+- **Look at:** Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.
+- **Unless:** Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small
+- **Also stated as:** feedback.motion-duration-scales-with-size (IBM Carbon Design System).
+
+## 38. `modern.defaults-are-decisions-you-inherited`
 
 A library or AI default is someone else's decision; commit to one written aesthetic direction instead of inheriting it.
 
@@ -414,7 +438,7 @@ A library or AI default is someone else's decision; commit to one written aesthe
 - **Unless:** A purple brand is allowed to be purple; the tell is the constellation and the absence of a decision, not any one colour
 - **Also stated as:** craft.supercharge-the-defaults (Steve Schoger (attendee notes by ynotdraw)).
 
-## 37. `modern.readable-type-sizes-and-weights`
+## 39. `modern.readable-type-sizes-and-weights`
 
 Body text sits at the platform default size, weights stay 400 or heavier, and weight never changes on hover.
 
@@ -425,7 +449,17 @@ Body text sits at the platform default size, weights stay 400 or heavier, and we
 - **Look at:** Computed font-size and font-weight of every text node at a phone viewport; count distinct font-family stacks and warn above 2.
 - **Unless:** Captions and legal text may sit at the platform minimum; Display headings may use light weights at large sizes
 
-## 38. `modern.numbers-and-text-do-not-shift-layout`
+## 40. `modern.every-state-is-designed`
+
+Empty, sparse, dense, error and loading states are designed; skeletons match final layout and long content never overflows.
+
+- **Source:** Vercel Labs, *Web Interface Guidelines — AGENTS.md* — https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/AGENTS.md
+- **In their words:** "MUST: Design empty/sparse/dense/error states"
+- **Do:** An empty state with a primary create action; Skeletons sized like real rows; min-w-0 and truncation on flex children
+- **Don't:** Blank screens on empty arrays; Spinners that reflow content; Overflow from long strings
+- **Look at:** Render with [], with 1 item, with 500 items and with a 300-character title; assert no horizontal overflow, no overlap, an actionable control in the empty state, and skeleton-to-loaded CLS under a threshold.
+
+## 41. `modern.numbers-and-text-do-not-shift-layout`
 
 Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.
 
@@ -437,7 +471,7 @@ Numbers in columns and timers use tabular figures, images carry dimensions, and 
 - **Unless:** Prose numbers
 - **Also stated as:** data-display.right-align-numbers-tabular-figures (GitHub Primer).
 
-## 39. `modern.delight-scales-with-rarity`
+## 42. `modern.delight-scales-with-rarity`
 
 Spend delight on rare moments, keep daily actions plain, and never let an element visibly duplicate itself during a transition.
 
@@ -448,18 +482,7 @@ Spend delight on rare moments, keep daily actions plain, and never let an elemen
 - **Look at:** After a transition, count DOM nodes with the same key or text present twice on screen at once; frequency-weighted motion needs the journey to say what is frequent.
 - **Unless:** Utility, performance and security come first; delight is selective emphasis
 
-## 40. `modern.motion-values-proportional-to-trigger`
-
-Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.
-
-- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
-- **In their words:** "Don't animate dialog scale in from 0 → 1, fade opacity and scale from ~0.8. Don't scale buttons on press from 1 → 0.8, but ~0.96, ~0.9, or so."
-- **Do:** Enter dialogs and popovers from scale 0.8–0.97 with opacity; Press buttons to about scale 0.96–0.97
-- **Don't:** Scale-from-zero pops on dialogs; Press states that squash a button to 0.8 or below
-- **Look at:** Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.
-- **Unless:** Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small
-
-## 41. `modern.animate-only-transform-and-opacity`
+## 43. `modern.animate-only-transform-and-opacity`
 
 Animate only transform and opacity, listing properties explicitly; never transition all or animate layout properties.
 
@@ -470,7 +493,7 @@ Animate only transform and opacity, listing properties explicitly; never transit
 - **Look at:** Scan stylesheets and computed transition-property for all and for layout properties; scan @keyframes for width, height, top and left.
 - **Unless:** Accordion height animation via grid-template-rows or interpolate-size is layout by nature and accepted when it is the only honest way
 
-## 42. `modern.focus-is-visible-and-unobscured`
+## 44. `modern.focus-is-visible-and-unobscured`
 
 Every focusable element shows a visible focus ring on :focus-visible, and no sticky or fixed element ever covers it.
 
@@ -480,17 +503,7 @@ Every focusable element shows a visible focus ring on :focus-visible, and no sti
 - **Don't:** outline: none or 0 with no replacement; Focus rings hidden under sticky headers
 - **Look at:** Tab through every focusable element; diff the focused and unfocused rect or read computed outline and box-shadow under :focus-visible; check the focused rect is not intersected by position fixed or sticky elements above it.
 
-## 43. `modern.every-state-is-designed`
-
-Empty, sparse, dense, error and loading states are designed; skeletons match final layout and long content never overflows.
-
-- **Source:** Vercel Labs, *Web Interface Guidelines — AGENTS.md* — https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/AGENTS.md
-- **In their words:** "MUST: Design empty/sparse/dense/error states"
-- **Do:** An empty state with a primary create action; Skeletons sized like real rows; min-w-0 and truncation on flex children
-- **Don't:** Blank screens on empty arrays; Spinners that reflow content; Overflow from long strings
-- **Look at:** Render with [], with 1 item, with 500 items and with a 300-character title; assert no horizontal overflow, no overlap, an actionable control in the empty state, and skeleton-to-loaded CLS under a threshold.
-
-## 44. `color.status-colours-keep-their-meaning`
+## 45. `color.status-colours-keep-their-meaning`
 
 Each status colour has one meaning across the product (critical for errors and blocked actions, warning for what needs attention, success for what went well, info for tips) and is never borrowed for promotion or decoration.
 
@@ -501,7 +514,7 @@ Each status colour has one meaning across the product (critical for errors and b
 - **Look at:** Find the colour the page uses for error text (an element with role=alert, aria-invalid's described-by message, or a class/token named error/critical/danger) and the success colour likewise. Count painted elements (text, fill or border) whose colour equals that error or success colour, within a ΔE of 3, and that are neither a validation message, an invalid field, a status badge of that meaning, nor a destructive action.
 - **Unless:** Brand colours that happen to be red, as long as a separate, distinct error red is used for errors; Data visualisations where a series colour coincides with a status hue but no status is implied (prefer avoiding it)
 
-## 45. `color.from-tokens-not-hex`
+## 46. `color.from-tokens-not-hex`
 
 Every colour on the page comes from the design system's named tokens or palette functions, never from hex values copied into components.
 
@@ -512,7 +525,7 @@ Every colour on the page comes from the design system's named tokens or palette 
 - **Look at:** Collect every computed color, background-color, border-*-color, outline-color and fill/stroke of painted elements, and every value of CSS custom properties declared on :root (and on any theme selector). Count distinct painted colours that match no custom-property value (exact RGBA after resolution), and count pairs of painted colours closer than ΔE 2 that are not identical.
 - **Unless:** Images, illustrations and embedded third-party widgets; Browser defaults on unstyled native controls; GOV.UK: palette colours (not functional ones) are allowed for illustrations and custom components
 
-## 46. `color.one-action-colour-apart-from-status`
+## 47. `color.one-action-colour-apart-from-status`
 
 Links and primary actions share one interactive colour family, used consistently, and that colour is not the colour of errors, warnings or success.
 
@@ -523,7 +536,7 @@ Links and primary actions share one interactive colour family, used consistently
 - **Look at:** Take the computed text colour of every a[href] in running text and the background of every primary (first, filled, or type=submit) button. Count distinct hues among them (30° bins), and count links or primary buttons whose colour is within ΔE 10 of the page's error, warning or success colour. Also count non-interactive text elements painted in the link colour.
 - **Unless:** Primer (GitHub) deliberately uses the success role for primary buttons; a system that states such a mapping consistently is following its own rule; Destructive primary actions (Delete account) take the danger colour on purpose; Navigation menus, where position signals the link
 
-## 47. `color.controls-and-graphics-3-to-1`
+## 48. `color.controls-and-graphics-3-to-1`
 
 The parts that show a control is there and what state it is in (input borders, checkbox boxes and ticks, toggle tracks, icon-only buttons, meaningful chart marks) contrast at least 3:1 with the colours next to them.
 
@@ -534,7 +547,7 @@ The parts that show a control is there and what state it is in (input borders, c
 - **Look at:** For each visible input, select, textarea, checkbox, radio, [role=switch] and icon-only button (no visible text): compute the contrast ratio between the colour that identifies it (border colour, or its own background when it has no border, or the icon fill) and the background behind it; count those below 3:1, unrounded. Disabled controls are skipped.
 - **Unless:** Inactive (disabled) controls are exempt; A control identified by its visible text needs no contrasting boundary; Logos and decorative graphics; Appearance determined by the browser and not modified by the author
 
-## 48. `color.focus-ring-contrasts-with-its-surroundings`
+## 49. `color.focus-ring-contrasts-with-its-surroundings`
 
 The focus indicator contrasts at least 3:1 with whatever it is drawn against: the page background for an outer ring, the component's own colours for an inner one.
 
@@ -545,7 +558,7 @@ The focus indicator contrasts at least 3:1 with whatever it is drawn against: th
 - **Look at:** Tab to each focusable control; diff the focused and unfocused screenshots of the control's box padded by a few pixels; for the changed pixels, take their colour and the colour of the unchanged pixels adjacent to them (page background outside, component fill inside). Count controls where no changed region reaches 3:1 against its adjacent colour. page.focus-visible checks only that some pixel changes; this checks that the change can be seen.
 - **Unless:** Unmodified browser default focus styles; WCAG does not compare focused and unfocused states with each other; a background-only change is out of scope for 1.4.11 but fails Use of Color
 
-## 49. `color.few-families-in-proportion`
+## 50. `color.few-families-in-proportion`
 
 Use a few colour families in a deliberate proportion (neutral base dominant, then primary, secondary and a small accent), not an even spread of many hues.
 
@@ -555,17 +568,6 @@ Use a few colour families in a deliberate proportion (neutral base dominant, the
 - **Don't:** Five or more saturated hue families at similar weight on one screen; An accent that covers more area than the primary; A new hue introduced for a single component
 - **Look at:** Screenshot the page and bucket every non-neutral pixel (HSL saturation above about 15%) by hue into 30° bins, ignoring images and status colours. How many hue families take more than 2% of the coloured area, and does the largest one carry most of it while the smallest (accent) stays near a tenth?
 - **Unless:** USWDS: the proportions are for non-base colours; neutral text will usually dominate; Illustration, photography and data visualisation, which need their own palettes; Brands whose identity is multi-hue
-
-## 50. `writing.success-names-what-happened`
-
-A success message names the thing and what happened to it, in a few words ('Product updated'), instead of a generic 'Success!' or a wordy 'Your product has been successfully updated'.
-
-- **Source:** Shopify Polaris, *Toast component, Content guidelines: Message* — https://polaris.shopify.com/components/internal-only/toast
-- **In their words:** "Written in the pattern of: noun + verb"
-- **Do:** Object + past-tense verb: 'Collection added', 'Invoice sent'; Include the identifier when there are several (e.g. 'Issue #21 created' with a link); On the final page of a transaction, add a reference and what happens next
-- **Don't:** A bare 'Success!', 'Done' or 'Saved successfully' with no object; 'Your X has been successfully Y-ed' padding; Title Case or field-colon formats like 'Discount: Saved successfully'
-- **Look at:** Drive each save/create/send/delete action and capture the resulting status text (role=status, aria-live regions, toasts, banners). Count messages that contain no noun from the action's object (the button label's object or the page's entity name), or that are only a generic word {success, done, saved, ok, complete}, or that exceed 8 words for a toast. Count must be 0.
-- **Unless:** When the result is already obvious on screen (the edited item reappears updated, or the user lands on the new item), Primer says no extra success message is needed — screen readers still need it announced; Confirmation pages at the end of a transaction carry more: reference number and what happens next
 
 ## 51. `writing.buttons-name-the-action`
 
@@ -633,7 +635,18 @@ A set of facts about one thing — label and value pairs — is shown as a summa
 - **Look at:** Where the screen shows the fields of a single record (a profile, an order, an item's metadata, a check-answers page), are the label–value pairs marked up as dl/dt/dd with each key visually distinct from its value — and is tabular data comparing several records in a table rather than a summary list?
 - **Unless:** Two or three facts inside a card may be inline text if they are not scanned as a set
 
-## 57. `forms.group-related-inputs-in-a-fieldset`
+## 57. `forms.error-summary-at-the-top`
+
+After a failed submit, show an error summary at the top of the page that takes focus and links each error to its field — even when there is only one error.
+
+- **Source:** GOV.UK Design System, *Error summary component* — https://design-system.service.gov.uk/components/error-summary/
+- **In their words:** "Always show an error summary when there is a validation error, even if there’s only one."
+- **Do:** A summary above the h1 (below any back link) with a heading such as 'There is a problem'; Move keyboard focus to the summary when it appears; One link per error, pointing at the field (or the first field of a date or radio group); Word each summary item exactly like the message beside its field; Prefix the page <title> with 'Error: '
+- **Don't:** Errors shown only beside fields far down a long form, with focus left on the submit button; A summary of plain text with no links to the fields; A toast or banner that disappears before it can be read
+- **Look at:** Submit the form empty. Within 1 s: is there an element above the first h1 of main that has focus (document.activeElement inside it), contains one link per invalid field, and does each link's href resolve to the id of an invalid input? Does document.title start with 'Error'?
+- **Unless:** Primer suggests the interactive summary only for 3 or more errors, and otherwise focusing the first invalid field; A one-field form (search, single email sign-up) can rely on the message beside the field
+
+## 58. `forms.group-related-inputs-in-a-fieldset`
 
 Wrap each set of inputs that answer one question — radios, checkboxes, a date, an address — in a fieldset whose first child is a legend naming the question.
 
@@ -643,17 +656,6 @@ Wrap each set of inputs that answer one question — radios, checkboxes, a date,
 - **Don't:** A radio group whose question is a <p> or <div> above the radios; Radio and checkbox groups with no group name for assistive tech; A fieldset with no legend or an empty one
 - **Look at:** Count radio groups (same name), checkbox groups, and day/month/year triples. How many are not inside a fieldset whose first element child is a non-empty legend (or a role=group / radiogroup with aria-labelledby pointing at visible text)?
 - **Unless:** A single checkbox (I agree) needs no fieldset; Native fieldset/legend can be replaced by role=group with aria-labelledby where styling requires it
-
-## 58. `forms.do-not-disable-the-submit-button`
-
-Keep the submit button enabled while the form is incomplete; let a press show what is missing instead of greying the button out.
-
-- **Source:** GitHub Primer, *Forms UI pattern — Validation* — https://primer.style/product/ui-patterns/forms/overview/
-- **In their words:** "Disabled buttons are discouraged, as they don't clearly communicate what actions a user should take to complete a form."
-- **Do:** An always-enabled submit that runs validation and shows the error summary; aria-disabled with an explanation where a control truly must be unavailable; Ignoring a second click while a submit is in flight, with a visible busy state
-- **Don't:** A grey, unfocusable submit until every field validates; A disabled button with no text saying why; Disabled text inputs used as read-only display
-- **Look at:** Load the form untouched. Is the primary submit button disabled (disabled attribute, aria-disabled=true, or pointer-events:none)? If enabled, does pressing it produce visible field errors within 1 s?
-- **Unless:** Briefly blocking a second submit while the first is processing (USWDS, GOV.UK prevent-double-click); GOV.UK: only when research shows a disabled button makes the interface easier to understand
 
 ## 59. `forms.validate-when-the-user-is-done`
 
@@ -666,18 +668,7 @@ Do not show an error while the user is still typing; validate when they try to c
 - **Look at:** Focus an email or formatted field and type one character, keeping focus. Wait 1 s. Does any error message, aria-invalid=true or error colour appear before blur or submit? Also load the form fresh: are any fields already marked invalid?
 - **Unless:** GOV.UK goes further and says not to validate on blur either; Baymard (usability.inline-validation-after-leaving-field) recommends blur validation for hard fields — the schools agree only on 'not while typing'; Primer allows validating as the user types once the field has already been flagged invalid, so the error clears as soon as it is fixed
 
-## 60. `forms.keep-answers-after-an-error`
-
-When a submit fails, show the form again with every answer the user gave still in it — the failing ones and the passing ones.
-
-- **Source:** GOV.UK Design System, *Error message component — How it works* — https://design-system.service.gov.uk/components/error-message/
-- **In their words:** "Do not clear any form fields when showing the Error message component. Keep both passing and failing answers."
-- **Do:** Re-render server-side errors with submitted values filled in; Keep the failing value so the user can see and edit what went wrong; Pre-populate fields when the user goes back to change an answer
-- **Don't:** A reload that empties the form after a server error; Clearing the field that failed; Clearing password-adjacent fields such as name and email along with the password
-- **Look at:** Fill every field with valid values except one, submit, and after the error page paints read each input's value: how many fields that had a value now read empty?
-- **Unless:** Password and card security code fields may be cleared for security, and the message should say so
-
-## 61. `forms.autocomplete-names-the-purpose`
+## 60. `forms.autocomplete-names-the-purpose`
 
 Every field that asks about the user — name, email, phone, address, postcode, birthday, card — carries the matching autocomplete token so browsers and assistive tech can fill and label it.
 
@@ -687,3 +678,36 @@ Every field that asks about the user — name, email, phone, address, postcode, 
 - **Don't:** autocomplete='off' on personal fields with no purpose token; Personal-data fields with no autocomplete attribute; A token that does not match the field (email token on a phone field)
 - **Look at:** For every input, select and textarea whose label matches name, email, phone, address, postcode/ZIP, city, country, date of birth, card number or expiry: count those whose autocomplete attribute is missing, 'off', or not a WCAG input-purpose token that matches the label.
 - **Unless:** Fields about someone other than the user (a recipient's email) are outside 1.3.5; A field that accepts either username or email may carry one token or none
+
+## 61. `navigation.skip-link-is-the-first-tab-stop`
+
+The first Tab press on every page lands on a visible 'Skip to main content' link that moves focus past the header and navigation into main.
+
+- **Source:** GOV.UK Design System, *Skip link component* — https://design-system.service.gov.uk/components/skip-link/
+- **In their words:** "Including the skip link component gives users the option to bypass the top-level navigation links and jump to the main content on a page."
+- **Do:** The skip link immediately after <body> (or after a cookie banner); Visually hidden until it receives keyboard focus, then clearly shown; A target id on <main> (or its first heading) that can take focus; Breadcrumbs and back links placed before <main>, so the skip link skips them too
+- **Don't:** A page whose first Tab stop is the logo or the first of a dozen nav links; A skip link that stays invisible when focused; A skip link whose href points at an id that does not exist; A skip link wrapped in <nav> or moved inside the header
+- **Look at:** Load the page and press Tab once: is document.activeElement an <a> whose href is '#id' of an element that is main or inside main, with a non-zero box inside the viewport and opacity above 0? Press Enter, then Tab: is focus on an element inside main?
+- **Unless:** WCAG 2.4.1 is met by other means too (landmarks, headings); the first-Tab test follows GOV.UK and Carbon practice and is stricter than the criterion; WCAG: when the repeated navigation is at the bottom of the page, a skip link may be unnecessary; A page with no repeated block before main (a bare single-purpose page) has nothing to skip
+
+## 62. `feedback.time-limits-warn-and-extend`
+
+When a session or form times out, the user is warned before it happens and can extend it with a simple action, given at least 20 seconds to respond, or the limit can be turned off or lengthened.
+
+- **Source:** W3C Accessibility Guidelines Working Group, *Understanding Success Criterion 2.2.1: Timing Adjustable (WCAG 2.2)* — https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html
+- **In their words:** "Providing options to disable time limits, customize the length of time limits, or request more time before a time limit occurs helps those users who require more time than expected to successfully complete tasks."
+- **Do:** No time limit where none is needed; A warning dialog before expiry, announced and focused, with 'Stay signed in' as the primary action; At least 20 seconds to respond to the warning; extending possible at least ten times; After a time-out, the user's answers kept so they can continue once signed in again
+- **Don't:** Silent session expiry that discards a half-filled form; A timed redirect ('You will be taken to the home page in 5 seconds') with no way to stop it; A warning that appears only as a toast or banner outside the user's focus
+- **Look at:** With the clock accelerated (or the session TTL shortened) on each authenticated or multi-step page, leave the page idle until the time limit. Count limits that expire with no prior warning; warnings that give less than 20 s between appearing and expiry; warnings with no keyboard-reachable control that extends the session; meta refresh or JavaScript redirects that fire on a timer with no control to stop them; and expiries after which previously entered field values are lost. Count must be 0.
+- **Unless:** Real-time events such as auctions, and limits that are essential or longer than 20 hours, are exempt; Security limits such as one-time codes can be essential, but other criteria (redundant entry, accessible authentication) still apply; Answers being kept after a time-out comes from WCAG 2.2.5 Re-authenticating (AAA), referenced from this page, not from 2.2.1 itself
+
+## 63. `feedback.toasts-carry-nothing-critical`
+
+A toast is only for a short, low-priority confirmation of something the user just did; an error that needs action, a warning, or anything the user cannot find again elsewhere goes in an inline message or banner that stays.
+
+- **Source:** Shopify Polaris, *Toast component — Accessibility* — https://polaris.shopify.com/components/deprecated/toast
+- **In their words:** "Avoid using toast for critical information that merchants need to act on immediately."
+- **Do:** Short noun + verb confirmations: 'Product updated', 'Collection added'; Errors the user must fix shown next to the cause or in a banner that persists until resolved; Whatever the toast says also visible somewhere on the page after it goes (the saved value, the item in the list, a notifications area)
+- **Don't:** A validation or payment error delivered only as a toast that auto-dismisses; A toast that holds the only copy of a generated password, link or code; Several sentences of explanation in a toast
+- **Look at:** Record a walk through every action, including forced failures (offline, 4xx, 5xx). Treat as a toast any fixed- or absolute-positioned element with role=status|alert or aria-live that is removed or hidden within 15 s without user input. Count toasts whose text matches error/failed/could not/denied/invalid, toasts with more than 15 words, and toasts whose distinctive text (any token of 6+ characters other than common words) appears nowhere in the DOM 2 s after they leave. Count must be 0.
+- **Unless:** Polaris allows an error toast for system errors not caused by the user, such as 'Internet disconnected', in 3 words; Polaris's own Toast component is deprecated in favour of the App Bridge Toast API; the guidance quoted is still on its page; The 15 s, 15-word and 6-character thresholds are uxcli's

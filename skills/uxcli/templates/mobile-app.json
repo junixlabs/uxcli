@@ -1,0 +1,85 @@
+{
+ "schema_version": 1,
+ "id": "mobile-app",
+ "name": "Mobile app",
+ "when": "Phone-first apps and mobile web apps: short sessions, one hand, interruptions, unreliable connections.",
+ "actors": [
+  {
+   "actor": "on_the_go_user",
+   "who": "Someone using the app in short bursts between other things, often one-handed.",
+   "questions": [
+    "Which task do they open the app for most, and how long is a typical session?",
+    "Where are they when they use it: walking, commuting, at a counter, at home?",
+    "How reliable is their connection, and what should happen when it drops mid-task?",
+    "Which phone sizes and operating system versions do they use?",
+    "What interrupts them, and what do they expect to find when they come back?"
+   ]
+  },
+  {
+   "actor": "new_installer",
+   "who": "Someone who just installed the app and is deciding in the first minute whether to keep it.",
+   "questions": [
+    "What did they install it for, in their own words?",
+    "What are they willing to give before seeing value: an account, permissions, notifications?",
+    "What makes them uninstall in the first session?"
+   ]
+  }
+ ],
+ "screens": [
+  { "id": "onboarding", "name": "Onboarding", "lens": "transaction", "does": "Gets to the first useful screen with as little setup as possible." },
+  { "id": "permission", "name": "Permission request", "lens": "transaction", "does": "Understands why a permission is asked before deciding." },
+  { "id": "home", "name": "Home", "lens": "workspace", "does": "Starts the task they opened the app for, within thumb reach." },
+  { "id": "list", "name": "List", "lens": "workspace", "does": "Scans and opens an item; pulls to refresh." },
+  { "id": "detail", "name": "Detail", "lens": "workspace", "does": "Reads one item and takes its main action." },
+  { "id": "form", "name": "Form", "lens": "transaction", "does": "Enters data with the right keyboard and without losing it to an interruption." },
+  { "id": "offline", "name": "Offline or error state", "lens": "workspace", "does": "Knows what happened and what still works without a connection." }
+ ],
+ "journeys": [
+  {
+   "id": "first-minute",
+   "goal": "Reach the first useful screen after installing",
+   "actor": "new_installer",
+   "through": ["onboarding", "permission", "home"],
+   "watch": [
+    "Count the steps and fields before the first useful screen; each must earn its place.",
+    "A permission is asked when its feature is first used, with the reason on screen.",
+    "Skipping a permission still leads somewhere useful."
+   ]
+  },
+  {
+   "id": "main-task",
+   "goal": "Do the task the app is opened for",
+   "actor": "on_the_go_user",
+   "through": ["home", "list", "detail"],
+   "watch": [
+    "The primary action on each screen is within thumb reach without scrolling at 390x844.",
+    "Every tap answers within a second; anything longer shows progress.",
+    "Going back returns to the same place in the list."
+   ]
+  },
+  {
+   "id": "interrupted-entry",
+   "goal": "Finish a form after an interruption or a lost connection",
+   "actor": "on_the_go_user",
+   "through": ["form", "offline", "form"],
+   "watch": [
+    "What was typed is still there after the error or the interruption.",
+    "The offline state says what failed and offers to retry.",
+    "Each field brings up the keyboard its answer needs."
+   ]
+  }
+ ],
+ "research": [
+  "Which task opens the app most often, and how long does it take today?",
+  "What share of sessions start from a notification, a link or the home screen?",
+  "Which platform conventions do users expect here (back gestures, tab bars, share sheets)?",
+  "Which store reviews of this app and its competitors complain about what?",
+  "What data must stay on the device or work offline, and what do privacy rules require for it?"
+ ],
+ "sources": [
+  { "name": "Apple Human Interface Guidelines", "url": "https://developer.apple.com/design/human-interface-guidelines/", "why": "Platform conventions iOS users expect: navigation, controls, permissions, layout." },
+  { "name": "Material Design 3", "url": "https://m3.material.io/", "why": "Platform conventions Android users expect, with component usage guidance." },
+  { "name": "Nielsen Norman Group — 10 usability heuristics", "url": "https://www.nngroup.com/articles/ten-usability-heuristics/", "why": "The baseline vocabulary for reviewing any screen." },
+  { "name": "WCAG 2.2 — target size", "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html", "why": "The minimum touch target size and spacing a phone screen must meet." }
+ ]
+}

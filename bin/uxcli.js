@@ -44,6 +44,7 @@ const usage = `usage:
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli lens [show <kind>]            the shipped lenses — named designers' viewpoints by kind of UI (marketing, content, data, workspace, shop, transaction)
   uxcli experience [dir|run] [--page] [--json]   what the person goes through on each journey's last walk: steps, clicks, typing, scrolls, waits, a keystroke-level estimate, and what changed since the walk before; findings only, never a fail
+  uxcli walkthrough <journey> [--as=<actor>] [--for=<person>] [--run=R-…] | check   a cognitive walkthrough of the last walk: four questions at every step, answered looking at its screenshot, optionally as one of the project's actors; check refuses an incomplete one and one the walk contradicts; "no" and "unsure" are findings
   uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]   the board: every journey as a canvas — each step drawn (variants, the pick), built (the last walk, findings pinned) and in each named version; pan, zoom, inspect; --serve on localhost refreshes as files change and lets a person pick or ask for a redraw
   uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
   uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
@@ -149,6 +150,16 @@ try {
     else console.log(E.experienceCard(list));
     if (flags.has('--page')) { const f = E.experiencePage(list, opt('out') || E.pageFile(args[0] && fs.existsSync(path.join(args[0], '.uxcli')) ? args[0] : '.')); console.log(`  page   ${path.relative(process.cwd(), f)}`); }
     process.exit(0);
+  } else if (cmd === 'walkthrough') {
+    // The cognitive walkthrough: four questions at every step of a walk, answered looking at its screenshots.
+    const W = await import('../src/walkthrough.js'); const J = await import('../src/journey.js');
+    const root = J.findRoot(path.resolve(opt('src') || '.')); if (!root) { console.error('no .uxcli/policy/policy.json here or above'); process.exit(1); }
+    if (args[0] === 'check' || !args[0]) { const r = W.checkWalkthroughs(root); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : W.walkthroughCard(r, root)); process.exit(r.ok ? 0 : 1); }
+    const by = { type: 'agent', ref: 'agent', onBehalfOf: opt('for') || '<the person running you>' };
+    const r = W.writeWalkthrough(root, args[0], { as: opt('as'), run: opt('run'), by });
+    if (r.problems) { console.error('uxcli: ' + r.problems.join('\n  ')); process.exit(1); }
+    console.log(W.writtenCard(r, root));
+    process.exit(0);
   } else if (cmd === 'studio') {
     // The board: every journey as a canvas of steps — drawn, built, each named version — with findings pinned.
     const S = await import('../src/studio.js'); const vpt = opt('viewport') || '390x844';
@@ -234,7 +245,17 @@ try {
     const b = brief({ actors: P.actors, insights: P.insights, journeys: P.journeys.map(j => j.value).filter(Boolean), commitments: P.commitments.map(c => c.value).filter(Boolean), index: idx, journeyId: want });
     b.problems.push(...P.problems);
     const LN = await import('../src/lens.js'); const lp = LN.projectLenses(root); b.lenses = { on: LN.KINDS.filter(k => !lp.off.includes(k)), off: lp.off };
-    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b) + `\n\n  lenses   on: ${b.lenses.on.join(', ')}${b.lenses.off.length ? ` · off: ${b.lenses.off.join(', ')}` : ''}\n           pick the one for what the person does on this screen; uxcli lens show <kind> before you draw, uxcli review check before you say done`);
+    // the template the project started from, and the lens each of this journey's screens was reviewed against
+    const T = await import('../src/template.js'); const tp = T.projectTemplate(root);
+    b.template = tp ? (tp.missing ? { id: tp.id, missing: true } : { id: tp.id, name: tp.name, screens: tp.screens.map(x => ({ name: x.name, lens: x.lens, does: x.does })) }) : null;
+    const mdir = path.join(root, '.uxcli', 'mockups');
+    const states = [...new Set((b.states || []).map(x => x.name).filter(Boolean))];
+    b.reviewedLens = Object.fromEntries(states.map(st => [st, fs.existsSync(path.join(mdir, st)) ? [...new Set(fs.readdirSync(path.join(mdir, st)).filter(f => f.endsWith('.review.json')).map(f => f.replace(/\.review\.json$/, '').split('.').pop()))] : []]).filter(([, l]) => l.length));
+    const tline = !b.template ? '\n  template none recorded — uxcli template show <id> names the screens of a kind of product and the lens for each; template apply records it'
+      : b.template.missing ? `\n  template ${b.template.id} (no longer shipped)`
+      : `\n  template ${b.template.id} · ${b.template.name}\n${b.template.screens.map(x => `           ${x.name.padEnd(26)} lens ${x.lens}`).join('\n')}`;
+    const rline = Object.keys(b.reviewedLens).length ? `\n  reviewed ${Object.entries(b.reviewedLens).map(([st, l]) => `${st}: ${l.join(', ')}`).join(' · ')}` : '';
+    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b) + `\n\n  lenses   on: ${b.lenses.on.join(', ')}${b.lenses.off.length ? ` · off: ${b.lenses.off.join(', ')}` : ''}\n           pick the one for what the person does on this screen; uxcli lens show <kind> before you draw, uxcli review check before you say done` + tline + rline);
     process.exit(want && !b.journey ? 1 : 0);
   } else if (cmd === 'diff' && args[0] && args[1]) {
     const { diff, diffCard, gateExit } = await import('../src/diff.js'); const d = diff(path.resolve(args[0]), path.resolve(args[1]));

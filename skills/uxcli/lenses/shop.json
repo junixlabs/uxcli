@@ -6,19 +6,19 @@
  "picks": [
   {
    "viewpoint": "usability.visibility-of-system-status",
-   "note": "Same rule, also stated as: modern.feedback-is-local-and-optimistic (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); writing.success-names-what-happened (Shopify Polaris); data-display.loading-skeleton-holds-the-layout (GitHub Primer); forms.do-not-disable-the-submit-button (GitHub Primer)."
+   "note": "Same rule, also stated as: modern.feedback-is-local-and-optimistic (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); writing.success-names-what-happened (Shopify Polaris); data-display.loading-skeleton-holds-the-layout (GitHub Primer); forms.do-not-disable-the-submit-button (GitHub Primer); feedback.status-messages-announced-without-focus (W3C Accessibility Guidelines Working Group); feedback.confirmation-page-says-what-happens-next (GOV.UK Design System)."
+  },
+  {
+   "viewpoint": "usability.feedback-within-a-second",
+   "note": "Same rule, also stated as: modern.interactions-feel-immediate-under-200ms (Rauno Freiberg); feedback.match-the-indicator-to-the-wait (GitHub Primer)."
   },
   {
    "viewpoint": "usability.speak-the-users-language",
-   "note": "Same rule, also stated as: writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen)."
+   "note": "Same rule, also stated as: writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); navigation.top-level-is-sections-not-a-site-map (GOV.UK Design System)."
   },
   {
    "viewpoint": "usability.signifiers-make-clickable-look-clickable",
    "note": "Same rule, also stated as: usability.banner-blindness-dont-style-content-like-ads (Kara Pernice, NN/g); craft.button-hierarchy-one-primary (Steve Schoger); canon.gestalt-similarity (Aurora Harley, NN/g); color.one-action-colour-apart-from-status (IBM Carbon Design System)."
-  },
-  {
-   "viewpoint": "usability.feedback-within-a-second",
-   "note": "Same rule, also stated as: modern.interactions-feel-immediate-under-200ms (Rauno Freiberg)."
   },
   {
    "viewpoint": "usability.fitts-target-size-and-distance",
@@ -27,6 +27,13 @@
   {
    "viewpoint": "usability.von-restorff-one-emphasis",
    "note": "Same rule, also stated as: canon.vignelli-weight-for-function-not-volume (Massimo Vignelli)."
+  },
+  {
+   "viewpoint": "usability.hicks-fewer-choices-when-time-matters"
+  },
+  {
+   "viewpoint": "usability.mindless-clicks-not-fewer-clicks",
+   "note": "Same rule, also stated as: writing.links-describe-their-destination (Mailchimp)."
   },
   {
    "viewpoint": "usability.no-false-affordances",
@@ -41,17 +48,11 @@
    "note": "Same rule, also stated as: craft.hierarchy-is-everything-squint-test (Erik D. Kennedy)."
   },
   {
-   "viewpoint": "usability.hicks-fewer-choices-when-time-matters"
-  },
-  {
-   "viewpoint": "usability.mindless-clicks-not-fewer-clicks",
-   "note": "Same rule, also stated as: writing.links-describe-their-destination (Mailchimp)."
+   "viewpoint": "usability.clearly-marked-emergency-exit",
+   "note": "Same rule, also stated as: feedback.toast-actions-wait-for-the-user (Shopify Polaris)."
   },
   {
    "viewpoint": "usability.aesthetic-usability-effect-bias"
-  },
-  {
-   "viewpoint": "usability.clearly-marked-emergency-exit"
   },
   {
    "viewpoint": "usability.natural-mapping-and-proximity"
@@ -68,12 +69,12 @@
    "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.spacing-comes-from-a-scale (Stan Kirilov)."
   },
   {
-   "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop",
-   "note": "Same rule, also stated as: canon.tufte-smallest-effective-difference (Edward Tufte)."
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); navigation.you-are-here (U.S. Web Design System (USWDS)); feedback.message-type-said-in-words (U.S. Web Design System)."
   },
   {
-   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
-   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group)."
+   "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop",
+   "note": "Same rule, also stated as: canon.tufte-smallest-effective-difference (Edward Tufte)."
   },
   {
    "viewpoint": "craft.black-and-white-first-limit-hues",
@@ -106,14 +107,18 @@
   },
   {
    "viewpoint": "modern.no-junk-drawer-menus-or-unlabeled-icons",
-   "note": "Same rule, also stated as: writing.buttons-name-the-action (IBM Carbon Design System); usability.dont-make-me-think (Steve Krug)."
-  },
-  {
-   "viewpoint": "modern.signifiers-survive-flatness"
+   "note": "Same rule, also stated as: writing.buttons-name-the-action (IBM Carbon Design System); navigation.primary-nav-visible-on-wide-screens (GitHub Primer); usability.dont-make-me-think (Steve Krug)."
   },
   {
    "viewpoint": "modern.frequent-actions-do-not-animate",
-   "note": "Same rule, also stated as: modern.delight-scales-with-rarity (Benji Taylor)."
+   "note": "Same rule, also stated as: modern.motion-values-proportional-to-trigger (Rauno Freiberg); feedback.motion-duration-scales-with-size (IBM Carbon Design System)."
+  },
+  {
+   "viewpoint": "modern.honour-prefers-reduced-motion",
+   "note": "Same rule, also stated as: feedback.moving-content-can-be-paused (W3C Accessibility Guidelines Working Group)."
+  },
+  {
+   "viewpoint": "modern.signifiers-survive-flatness"
   },
   {
    "viewpoint": "modern.mobile-inputs-do-not-zoom-or-trap",
@@ -124,16 +129,13 @@
    "note": "Same rule, also stated as: data-display.right-align-numbers-tabular-figures (GitHub Primer)."
   },
   {
-   "viewpoint": "modern.motion-values-proportional-to-trigger"
+   "viewpoint": "modern.delight-scales-with-rarity"
   },
   {
    "viewpoint": "modern.animate-only-transform-and-opacity"
   },
   {
    "viewpoint": "modern.motion-has-an-origin"
-  },
-  {
-   "viewpoint": "modern.honour-prefers-reduced-motion"
   },
   {
    "viewpoint": "modern.animations-are-interruptible"
@@ -163,7 +165,8 @@
    "viewpoint": "color.focus-ring-contrasts-with-its-surroundings"
   },
   {
-   "viewpoint": "writing.one-label-per-action"
+   "viewpoint": "writing.one-label-per-action",
+   "note": "Same rule, also stated as: navigation.same-navigation-on-every-page (W3C WAI)."
   },
   {
    "viewpoint": "writing.sentence-case-ui-text"
@@ -203,6 +206,21 @@
   },
   {
    "viewpoint": "forms.ask-only-what-you-need"
+  },
+  {
+   "viewpoint": "navigation.breadcrumbs-only-for-real-hierarchy"
+  },
+  {
+   "viewpoint": "navigation.skip-link-is-the-first-tab-stop"
+  },
+  {
+   "viewpoint": "navigation.more-than-one-way-to-a-page"
+  },
+  {
+   "viewpoint": "navigation.pagination-says-where-and-how-many"
+  },
+  {
+   "viewpoint": "feedback.toasts-carry-nothing-critical"
   }
  ]
 }
