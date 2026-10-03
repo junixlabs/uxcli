@@ -8,6 +8,22 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Added — the dashboard
+
+- `uxcli dashboard [dir …] [--serve [--port=N]] [--json]`: the management view of one or more projects,
+  read-only, in the look the owner picked from three ("control room"). Overview is a coverage matrix —
+  every screen the journeys pass through against understood, drawn, picked, reviewed, walked, verdict,
+  estimate and walkthrough; a gap is never a pass and names the command that fills it; a journey whose
+  packet keeps no steps reads as ran-with-its-verdict, the start of an unwalked journey as nothing to
+  measure. Runs, Design and Understanding views. Served, it switches folders, takes another one from the
+  page, and serves pictures only from under a folder's `.uxcli/`. Gate: `dashboard-pairs`, which also
+  runs the page probes on every view.
+
+### Fixed
+
+- `uxcli template apply <id> --src=DIR` wrote into the current directory; it now writes into DIR's
+  project root.
+
 ### Added — the designer's habits: a library to cite, templates to start from, the walk measured
 
 - Policy `project.design: off | drawn | picked`: a project can hold the work to a design step. A journey

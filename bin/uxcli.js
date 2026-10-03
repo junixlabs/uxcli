@@ -47,6 +47,7 @@ const usage = `usage:
   uxcli prefer make <study> --a=<folder> --b=<folder> [--question=…] | serve <study> --judge=<person> [--port=N] | tally <study> [--json]
       blind pairwise preference: two folders of pictures of the same screens, paired by file name and renamed so nothing names a group; each judge answers on a local page in their own order with sides swapped; tally counts wins and a sign test. A judge is a person, never an agent
   uxcli walkthrough <journey> [--as=<actor>] [--for=<person>] [--run=R-…] | check   a cognitive walkthrough of the last walk: four questions at every step, answered looking at its screenshot, optionally as one of the project's actors; check refuses an incomplete one and one the walk contradicts; "no" and "unsure" are findings
+  uxcli dashboard [dir …] [--serve [--port=N]] [--json]   the management view, read-only: every screen against every kind of evidence (a gap is never a pass), the runs with their steps and pictures, the design, the understanding; --serve on localhost switches between folders and takes another folder from the page
   uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]   the board: every journey as a canvas — each step drawn (variants, the pick), built (the last walk, findings pinned) and in each named version; pan, zoom, inspect; --serve on localhost refreshes as files change and lets a person pick or ask for a redraw
   uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
   uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
@@ -185,6 +186,18 @@ try {
     if (r.problems) { console.error('uxcli: ' + r.problems.join('\n  ')); process.exit(1); }
     console.log(W.writtenCard(r, root));
     process.exit(0);
+  } else if (cmd === 'dashboard') {
+    // The management view of one or more projects. Read-only: decisions stay in the studio and the files.
+    const DB = await import('../src/dashboard.js'); const dirs = args.length ? args : ['.'];
+    if (flags.has('--serve')) {
+      const r = await DB.serveDashboard(dirs, { port: Number(opt('port') || 4319) });
+      if (!r.server) { console.error('uxcli: ' + r.problems.join('\n  ')); process.exit(1); }
+      console.log(`uxcli dashboard · ${r.roots.length} folder${r.roots.length === 1 ? '' : 's'}${r.problems.length ? ' · skipped: ' + r.problems.join('; ') : ''}\n  open ${r.url}  (ctrl-c to stop)`); await new Promise(() => {});
+    }
+    const { dashboardCard } = await import('../src/core/dashboard.js');
+    const r = await DB.writeDashboard(dirs[0]); if (!r.matrix) { console.error('uxcli: ' + (r.problems || []).join('\n  ')); process.exit(1); }
+    console.log(flags.has('--json') ? JSON.stringify({ matrix: r.matrix, runs: r.runs, design: r.design, understanding: r.understanding }, null, 1) : dashboardCard(r.matrix, path.relative(process.cwd(), r.page)));
+    process.exit(0);
   } else if (cmd === 'studio') {
     // The board: every journey as a canvas of steps — drawn, built, each named version — with findings pinned.
     const S = await import('../src/studio.js'); const vpt = opt('viewport') || '390x844';
@@ -219,7 +232,7 @@ try {
     const T = await import('../src/template.js'); const lib = T.templates();
     const pick = id => { const t = lib.list.find(x => x.id === id); if (!t) { console.error(`no template ${id}; have: ${lib.list.map(x => x.id).join(', ')}`); process.exit(1); } return t; };
     if (args[0] === 'show' && args[1]) { const t = pick(args[1]); console.log(flags.has('--json') ? JSON.stringify(t, null, 1) : T.templateShowCard(t)); }
-    else if (args[0] === 'apply' && args[1]) { const t = pick(args[1]); const r = T.applyTemplate(args[2] || '.', t); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : T.applyCard(r, t)); }
+    else if (args[0] === 'apply' && args[1]) { const t = pick(args[1]); const at = path.resolve(args[2] || opt('src') || '.'); const r = T.applyTemplate((await import('../src/journey.js')).findRoot(at) || at, t); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : T.applyCard(r, t)); }
     else console.log(flags.has('--json') ? JSON.stringify({ templates: lib.list.map(t => ({ id: t.id, name: t.name, when: t.when })), problems: lib.problems }, null, 1) : T.templateListCard(lib));
     process.exit(lib.problems.length ? 1 : 0);
   } else if (cmd === 'review' && args[0] === 'check') {

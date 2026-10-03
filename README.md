@@ -65,6 +65,20 @@ the board, each frame of the later one saying what moved. The agent
 works through the CLI and the skill; `uxcli studio --shot=FILE` gives it the same board as a picture.
 Free, local, no account: the page is one HTML file.
 
+## The dashboard
+
+```bash
+uxcli dashboard . ../other-app --serve   # http://127.0.0.1:4319 — every folder's .uxcli/, switched from the sidebar
+```
+
+The management view, read-only. **Overview** is a coverage matrix: each row a screen the journeys pass
+through, each column a kind of evidence uxcli keeps — understood, drawn, picked, reviewed, walked,
+verdict, estimate, walkthrough. A dashed cell is a gap, never a pass, and names the command that fills
+it. **Runs** lists every packet, each opening to its steps, pictures and findings; **Design** shows each
+screen's drawings, reviews and pick; **Understanding** the actors, their open questions and the insights
+with their confidence and last check. Another folder is added from the page. Decisions stay in the
+studio and in the files. Without `--serve`, the pages are written to `.uxcli/dashboard/`.
+
 ## Install
 
 | Agent | Skill | Instrument |
@@ -217,6 +231,7 @@ uxcli review check                    # every review complete, fresh, and not co
 uxcli walkthrough <journey> [--as=<actor>] | check   # the four cognitive-walkthrough questions at every step, answered from the screenshots; held to the walk
 uxcli version [save <journey> <name>] # name a walk so it is kept; experience --journey=<id> --from=<a> --to=<b> compares two
 uxcli experience [dir] [--page]       # what the person goes through: steps, typing, scrolls, waits, an estimate in seconds; findings pinned on screenshots
+uxcli dashboard [dir …] [--serve]            # the management view: coverage matrix, runs, design, understanding; served, several folders
 uxcli studio [dir] [--serve] [--shot=FILE]   # the board: every journey's screens drawn, built and per version, pan and zoom like a design file; served, a person picks there
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
