@@ -62,6 +62,9 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    Read each card. A `fail` names the element, the place, the rule and how to check it yourself; fix
    that element and run again. Never edit a journey, a commitment or a probe to make a run pass.
    Then review the built screen through its lens, the same way, and `uxcli review check`.
+   Then read what the person goes through: `npx -y @junixlabs/uxcli experience --page` — steps, clicks,
+   typing, scrolls, waits and a keystroke-level estimate per journey, each finding pinned on the step's
+   screenshot, and what moved since the walk before. Report each finding in its words; they never block.
 6. **Say done only at exit 0**, and say what was measured. Anything else, say what stands in the way.
    `references/before-done.md` is the full sequence and the list of what exit 0 does not cover.
 

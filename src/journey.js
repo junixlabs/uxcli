@@ -6,7 +6,7 @@
 //      .uxcli/index.json recomputed from disk
 import fs from 'node:fs'; import path from 'node:path'; import crypto from 'node:crypto';
 import { launch } from './browser.js';
-import { observe, intercept, requestMatches, getPath } from './adapters/chrome/index.js';
+import { observe, intercept, requestMatches, getPath, sha1_8 } from './adapters/chrome/index.js';
 import { provision, verifyIdentity, allowedPermissions, cleanup } from './adapters/provision/index.js';
 import { parseJourney, prerequisitesOf } from './core/model/journey.js';
 import { parseCommitment } from './core/model/commitment.js';
@@ -208,7 +208,9 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
     }
     if (!record) return true;
     const interactions = (step.interactions || []).map(x => {
-      if (x.type === 'ui') { const d = obsB.dom?.[fill(x.target, params)]; return { type: 'ui', target: x.target, ...(d && { inViewportWithoutScroll: d.inViewportWithoutScroll, scrollsNeeded: d.scrollsNeeded, viewport, ...(d.rect && { rect: d.rect }) }), ...(x.consumes && { consumed: x.consumes }) }; }
+      // A typed value is kept as its length and its hash, never as itself: enough to estimate the typing
+      // time and to see the same answer asked for twice, and nothing a reader of the packet could use.
+      if (x.type === 'ui') { const d = obsB.dom?.[fill(x.target, params)]; const v = x.fill !== undefined ? String(fill(x.fill, params)) : null; return { type: 'ui', target: x.target, ...(d && { inViewportWithoutScroll: d.inViewportWithoutScroll, scrollsNeeded: d.scrollsNeeded, viewport, ...(d.rect && { rect: d.rect }) }), ...(v !== null && { typed: { chars: v.length, value: sha1_8(v) } }), ...(x.consumes && { consumed: x.consumes }) }; }
       if (x.type === 'api') { const n = (obsA?.network || []).find(e => requestMatches(fill(x.request, params), e.method, e.path)); return { type: 'api', request: x.request, ...(n && { status: n.status, ms: n.ms, ...(n.effectClass && { effect: n.effectClass }), ...(n.requestHeaders?.['x-tenant-id'] && { tenantHeader: n.requestHeaders['x-tenant-id'] }), ...(n.blocked && { blocked: true, intercepted: n.intercepted }) }), ...(byInteraction.has(x) && { produced: byInteraction.get(x) }), ...(x.consumes && { consumed: x.consumes }) }; }
       return { type: x.type, ...(x.to && { to: x.to }), ...(x.expr && { expr: x.expr }), ...(byInteraction.has(x) && { produced: byInteraction.get(x) }), ...(x.consumes && { consumed: x.consumes }) };
     });

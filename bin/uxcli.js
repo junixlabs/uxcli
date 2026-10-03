@@ -43,6 +43,7 @@ const usage = `usage:
       --apply creates the shipped skill in dir/.claude/skills/uxcli/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli lens [show <kind>]            the shipped lenses — named designers' viewpoints by kind of UI (marketing, content, data, workspace, shop, transaction)
+  uxcli experience [dir|run] [--page] [--json]   what the person goes through on each journey's last walk: steps, clicks, typing, scrolls, waits, a keystroke-level estimate, and what changed since the walk before; findings only, never a fail
   uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
   uxcli review <state>/<variant> --lens=<kind> --write   an empty review beside the drawing; a URL with --name=<n> reviews a screen
   uxcli review check                  every review complete, fresh against its drawing, and not contradicted by a probe
@@ -137,6 +138,13 @@ try {
       console.log(flags.has('--json') ? JSON.stringify(l, null, 1) : L.lensShowCard(l, proj));
     } else console.log(flags.has('--json') ? JSON.stringify({ lenses: lib.lenses.map(l => ({ id: l.id, name: l.name, when: l.when, viewpoints: l.viewpoints.length, on: !proj.off.includes(l.id) })), off: proj.off, problems: [...lib.problems, ...proj.problems] }, null, 1) : L.lensListCard(lib, proj));
     process.exit(lib.problems.length || proj.problems.length ? 1 : 0);
+  } else if (cmd === 'experience') {
+    // What the person goes through on each journey's last walk: steps, typing, scrolls, waits, an estimate in seconds.
+    const E = await import('../src/experience.js'); const list = E.experiences(args[0] || '.');
+    if (flags.has('--json')) console.log(JSON.stringify(list.map(x => ({ dir: x.dir, ...x.report, ...(x.change && { change: x.change }) })), null, 1));
+    else console.log(E.experienceCard(list));
+    if (flags.has('--page')) { const f = E.experiencePage(list, opt('out') || E.pageFile(args[0] && fs.existsSync(path.join(args[0], '.uxcli')) ? args[0] : '.')); console.log(`  page   ${path.relative(process.cwd(), f)}`); }
+    process.exit(0);
   } else if (cmd === 'template') {
     // Where to start for a kind of product: screens and their lens, journeys to walk, what to research.
     const T = await import('../src/template.js'); const lib = T.templates();

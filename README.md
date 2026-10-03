@@ -75,6 +75,7 @@ uxcli lens show workspace                            # named designers' viewpoin
 uxcli review check                                   # every lens review complete, fresh, not contradicted by a probe
 uxcli run .uxcli/journeys/handle-inbound-lead.json   # measure after
 uxcli run http://localhost:3000/leads/1 --prove      # one screen: five probes, each pass made to earn it
+uxcli experience --page                              # what the person goes through on each journey, pinned on the screenshots
 uxcli map                                            # the journey as screens: declared, observed, the difference, the verdicts
 ```
 
@@ -195,6 +196,7 @@ uxcli lens [show <kind>]              # the shipped lenses: named designers' vie
 uxcli template [show <id> | apply <id>]   # where to start for a kind of product: screens, lenses, journeys, research questions
 uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside a drawing (a URL with --name reviews a screen)
 uxcli review check                    # every review complete, fresh, and not contradicted by a probe
+uxcli experience [dir] [--page]       # what the person goes through: steps, typing, scrolls, waits, an estimate in seconds; findings pinned on screenshots
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
 uxcli run <url>                       # measure one screen       --prove --state=FILE --src=DIR

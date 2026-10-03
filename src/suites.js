@@ -36,4 +36,5 @@ export const SUITES = [
   { tag: 'page', title: 'the instrument measures its own pages', file: 'page-pairs.mjs', miss: 'seen' },
   { tag: 'lens', title: 'a viewpoint has a name, a review answers all', file: 'lens-pairs.mjs', miss: 'refused' },
   { tag: 'tmpl', title: 'a template asks, and apply only creates', file: 'template-pairs.mjs', miss: 'refused' },
+  { tag: 'exp', title: 'what the person goes through, from the trace', file: 'experience-pairs.mjs', miss: 'seen' },
 ];

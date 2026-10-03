@@ -8,6 +8,42 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Added — the designer's habits: a library to cite, templates to start from, the walk measured
+
+- `uxcli experience [dir|run] [--page] [--json]`: what the person goes through on each journey's last
+  walk, read from the trace — steps, clicks, fields and characters typed, scrolls, the settle time of
+  each step in Nielsen's bands (100 ms, 1 s, 10 s), and a keystroke-level estimate of the time a
+  practised user needs (Card, Moran & Newell). Each workflow of a journey is totalled on its own. It
+  reports a wait past one second, a control the step needs that is below the fold, an answer typed
+  twice in one workflow, and a step that did not reach its state — every one a finding with the source
+  of its threshold, never a fail. With an older walk on disk it says what moved since. `--page` writes
+  `.uxcli/experience/index.html`: each step's screenshot with its findings pinned where the browser
+  found the element (a dashed bar at the bottom edge when it was below the fold). The runner now records
+  a typed value as its length and its hash, never the value. Gate: `experience-pairs`.
+- `uxcli template [show <id> | apply <id> [dir]]`: templates for three kinds of product — `workspace`,
+  `shop`, `landing` — with the screens such products have and the lens each is read against, the
+  journeys to walk first and what to watch on them, the research questions and where research starts.
+  A template states no fact about anyone's users: every actor and research line is a question, and
+  `apply` writes the questions as an actor's `unknowns[]`, creating only. Gate: `template-pairs`.
+- `references/research.md` in the skill: researching the product's field from sources, in the order
+  the evidence can carry, and writing the findings down as insights.
+- Four topic pools beside the four schools, from the source repositories of GOV.UK, USWDS, Carbon,
+  Primer, Polaris, Mailchimp and the W3C, every quote checked verbatim: colour (10), writing and
+  microcopy (10), data display (12), forms (12). The lenses now carry 167 viewpoints.
+
+### Changed
+
+- VISION, PRODUCT, README and ROADMAP describe uxcli as the owner set it on 2026-10-03: an agent that
+  designs like a designer who did the research, in four pillars — knowledge, process, evidence and
+  versions, and experience validation at the centre.
+- Every sentence the instrument prints is English; the example data says what the code says.
+
+### Fixed
+
+- The map's muted text read at 4.22:1 on its grey surface and failed the gate's own-pages check; it
+  now reads at 4.8:1 or better on every light surface.
+
+
 ### Added — one shipped skill, and three ways in
 
 - The mockups page is built from named components (`src/core/mockups-page.js`: Sidebar, Screen,
