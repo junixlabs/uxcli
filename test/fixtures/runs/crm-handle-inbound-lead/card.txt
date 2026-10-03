@@ -1,0 +1,44 @@
+uxcli run · j-handle-inbound-lead · local · 2026-09-28T05:58:33.713Z
+  journey  journeys/handle-inbound-lead.json · sha256:380cbb002582… · status completed · exit 2
+  scenario identity agent-basic (provision, tenant t_uxcli_1edc0a, cleanup retained) · fixture
+           lead-new-unassigned (retained: run có fail — fixture là bằng chứng)
+
+  DEFINED  (step · action · state)          OBSERVED  (held · strength · ms · shot)
+  f0                  fixture lead-new-unassigned · produced lead.id, lead.phone · 26ms
+  s1                  bấm vào dòng lead mới
+      before  agent.workspace_ready         held · strong
+      after   agent.lead_detail             held · strong · 46ms · open-and-call-s1-before.png,
+                                            open-and-call-s1-after.png
+              [data-uxcli=lead-row][data-id={leadId}] needs 1 scroll(s) at 390x844
+  s2                  bấm Gọi khách
+      before  agent.lead_detail             held · strong
+      after   agent.call_started            held · medium · 53ms · open-and-call-s2-before.png,
+                                            open-and-call-s2-after.png
+              [data-uxcli=call-action] needs 2 scroll(s) at 390x844
+
+  verdicts
+    C-001[0] FAIL where s2
+      what   [data-uxcli=call-action] inViewportWithoutScroll: false — cần 2 lần cuộn ở 390x844 tại
+             agent.lead_detail
+      shot   open-and-call-s2-before.png
+      says   Trên màn chi tiết lead, hành động Gọi khách nằm trong viewport mà không cần cuộn, ở mọi
+             viewport từ 390px
+    C-002[0] n/a where s1
+      cause  toStable 46ms ≤ 1000ms — điều kiện không xảy ra
+      shot   open-and-call-s1-after.png
+    C-002[1] n/a where s1
+      cause  toStable 46ms ≤ 10000ms — điều kiện không xảy ra
+      shot   open-and-call-s1-after.png
+
+  lineage
+    f0.lead.id                  → s1.ui, s1.navigation, s1.api
+    s1.response.phone           → s2.system
+
+  reach         requested mutate · effective mutate (project inject · environment inject · workflow
+                mutate)
+  effects       declared database_write · observed database_write · undeclared —
+  evidence      4 shot(s) · redacted Authorization, Cookie, password, email, phone, ids → sha1_8
+
+  exit 2 — at least one fail; fix and run again before saying done
+
+  next   fix the element the card cites at s2 ([data-uxcli=call-action] inViewportWithoutScroll: false — cần 2 lần cuộn ở 390x844 tại agent.lead_detail), then run again; never edit C-001 to make it pass

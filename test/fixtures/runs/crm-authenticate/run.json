@@ -1,0 +1,413 @@
+{
+ "id": "j-authenticate",
+ "ranAt": "2026-09-28T05:58:36.513Z",
+ "environment": "local",
+ "viewport": "390x844",
+ "journey": {
+  "ref": "journeys/authenticate.json",
+  "definitionHash": "sha256:cc969de6d6f00891d07b49885ad6af05916f9e79a1b019d8182a9ff2014dd79d"
+ },
+ "scenario": {
+  "identity": {
+   "mode": "provision",
+   "profile": "agent-basic",
+   "profileHash": "sha256:27fc6ba5e80c84102868ddd65743f23f1a76c231ba4ebaa5d9b83fb6da903db2",
+   "idHash": "sha1_8:f60e6ee3",
+   "tenant": "t_uxcli_96c34a",
+   "permissions": [
+    "agent"
+   ],
+   "verified": {
+    "tenant": true,
+    "emailSink": true,
+    "permissions": true,
+    "expiresAt": true
+   },
+   "cleanupVerified": false,
+   "expiresAt": "2026-09-28T06:58:36Z",
+   "retained": true,
+   "retainedBecause": "run có fail"
+  },
+  "fixtures": []
+ },
+ "reach": {
+  "requested": "interact",
+  "effective": "interact",
+  "layers": {
+   "project": "inject",
+   "environment": "inject",
+   "workflow": "interact"
+  },
+  "constraints": []
+ },
+ "effects": {
+  "declared": [],
+  "observed": [],
+  "undeclared": []
+ },
+ "breaches": [],
+ "status": "completed",
+ "exit": 2,
+ "steps": [
+  {
+   "id": "s1",
+   "workflow": "email-password",
+   "action": "nhập email + mật khẩu, bấm Đăng nhập",
+   "before": {
+    "state": "anon.login_page",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /login": true,
+     "[data-uxcli=login-form] visible": true
+    },
+    "why": []
+   },
+   "after": {
+    "state": "agent.workspace_ready",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /workspace/{workspaceId}": true,
+     "GET /api/me → 200": true,
+     "[data-uxcli=lead-board] visible": true
+    },
+    "why": []
+   },
+   "interactions": [
+    {
+     "type": "ui",
+     "target": "input[name=email]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 358,
+      "w": 308,
+      "h": 45,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "ui",
+     "target": "input[name=password]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 442,
+      "w": 308,
+      "h": 45,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "ui",
+     "target": "[data-uxcli=login-submit]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 501,
+      "w": 308,
+      "h": 44,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "api",
+     "request": "POST /api/login",
+     "status": 200,
+     "ms": 5
+    },
+    {
+     "type": "data",
+     "expr": "session.token set",
+     "produced": {
+      "session.token": "sha1_8:3bb4d9b5"
+     }
+    },
+    {
+     "type": "navigation",
+     "to": "/workspace/{workspaceId}",
+     "consumed": [
+      "response.workspaceId"
+     ]
+    }
+   ],
+   "produced": {
+    "session.token": "sha1_8:3bb4d9b5"
+   },
+   "timing": {
+    "toStable": 39
+   },
+   "shots": [
+    "email-password-s1-before.png",
+    "email-password-s1-after.png"
+   ]
+  },
+  {
+   "id": "r1",
+   "workflow": "wrong-password",
+   "action": "nhập mật khẩu sai, bấm Đăng nhập",
+   "before": {
+    "state": "anon.login_page",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /login": true,
+     "[data-uxcli=login-form] visible": true
+    },
+    "why": []
+   },
+   "after": {
+    "state": "anon.login_rejected",
+    "held": true,
+    "strength": "medium",
+    "signals": {
+     "role=alert visible": true,
+     "[role=alert] contains 'không đúng'": true,
+     "[data-uxcli=login-form] visible": true
+    },
+    "why": []
+   },
+   "interactions": [
+    {
+     "type": "ui",
+     "target": "input[name=email]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 358,
+      "w": 308,
+      "h": 45,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "ui",
+     "target": "input[name=password]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 442,
+      "w": 308,
+      "h": 45,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "ui",
+     "target": "[data-uxcli=login-submit]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 501,
+      "w": 308,
+      "h": 44,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "api",
+     "request": "POST /api/login",
+     "status": 401,
+     "ms": 11
+    }
+   ],
+   "produced": {},
+   "timing": {
+    "toStable": 43
+   },
+   "shots": [
+    "wrong-password-r1-before.png",
+    "wrong-password-r1-after.png"
+   ]
+  },
+  {
+   "id": "r1",
+   "workflow": "server-error",
+   "action": "bấm Đăng nhập; chặn POST /api/login tại browser, trả 500",
+   "before": {
+    "state": "anon.login_page",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /login": true,
+     "[data-uxcli=login-form] visible": true
+    },
+    "why": []
+   },
+   "after": {
+    "state": "anon.login_failed_retryable",
+    "held": false,
+    "strength": "medium",
+    "signals": {
+     "role=alert visible": true,
+     "[data-uxcli=login-submit] enabled": true,
+     "input[name=email] valueUnchanged": false
+    },
+    "why": [
+     "input[name=email] valueUnchanged: false"
+    ],
+    "what": "input[name=email] valueUnchanged: false"
+   },
+   "interactions": [
+    {
+     "type": "ui",
+     "target": "input[name=email]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 358,
+      "w": 308,
+      "h": 45,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "ui",
+     "target": "input[name=password]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 442,
+      "w": 308,
+      "h": 45,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "ui",
+     "target": "[data-uxcli=login-submit]",
+     "inViewportWithoutScroll": true,
+     "scrollsNeeded": 0,
+     "viewport": "390x844",
+     "rect": {
+      "x": 41,
+      "y": 501,
+      "w": 308,
+      "h": 44,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "api",
+     "request": "POST /api/login",
+     "status": 500,
+     "ms": 59,
+     "blocked": true,
+     "intercepted": {
+      "status": 500
+     }
+    }
+   ],
+   "produced": {},
+   "timing": {
+    "toStable": 42
+   },
+   "shots": [
+    "server-error-r1-before.png",
+    "server-error-r1-after.png"
+   ],
+   "intercepted": {
+    "request": "POST /api/login",
+    "returned": 500,
+    "blocked": 1
+   }
+  }
+ ],
+ "lineage": [],
+ "ruleSnapshots": {
+  "leads.responseSlaMinutes": {
+   "value": 15,
+   "source": "project-policy",
+   "file": "domain/leads-policy.json"
+  },
+  "leads.maxOpenPerAgent": {
+   "value": 40,
+   "source": "project-policy",
+   "file": "domain/leads-policy.json"
+  }
+ },
+ "verdicts": [
+  {
+   "commitment": "C-003",
+   "measurement": 0,
+   "caps": [],
+   "value": "fail",
+   "cause": "probe-said",
+   "where": "s1",
+   "what": "[data-uxcli=lead-board][data-view=kanban] visible: false tại agent.workspace_ready",
+   "shot": "email-password-s1-after.png"
+  },
+  {
+   "journey": "authenticate",
+   "workflow": "server-error",
+   "step": "r1",
+   "value": "fail",
+   "caps": [],
+   "cause": "state-not-held",
+   "what": "input[name=email] valueUnchanged: false",
+   "shot": "server-error-r1-after.png"
+  }
+ ],
+ "evidence": {
+  "shots": [
+   "email-password-s1-after.png",
+   "email-password-s1-before.png",
+   "server-error-r1-after.png",
+   "server-error-r1-before.png",
+   "wrong-password-r1-after.png",
+   "wrong-password-r1-before.png"
+  ],
+  "redacted": [
+   "Authorization",
+   "Cookie",
+   "password",
+   "email",
+   "phone",
+   "ids → sha1_8"
+  ]
+ }
+}

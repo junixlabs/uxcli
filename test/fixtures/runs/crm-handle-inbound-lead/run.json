@@ -1,0 +1,310 @@
+{
+ "id": "j-handle-inbound-lead",
+ "ranAt": "2026-09-28T05:58:33.713Z",
+ "environment": "local",
+ "viewport": "390x844",
+ "journey": {
+  "ref": "journeys/handle-inbound-lead.json",
+  "definitionHash": "sha256:380cbb0025822498e39b88289ff9668be4bb9c9c3e9ddfb556688400c2134d52"
+ },
+ "scenario": {
+  "identity": {
+   "mode": "provision",
+   "profile": "agent-basic",
+   "profileHash": "sha256:27fc6ba5e80c84102868ddd65743f23f1a76c231ba4ebaa5d9b83fb6da903db2",
+   "idHash": "sha1_8:dc337e28",
+   "tenant": "t_uxcli_1edc0a",
+   "permissions": [
+    "agent"
+   ],
+   "verified": {
+    "tenant": true,
+    "emailSink": true,
+    "permissions": true,
+    "expiresAt": true
+   },
+   "cleanupVerified": false,
+   "expiresAt": "2026-09-28T06:58:33Z",
+   "retained": true,
+   "retainedBecause": "run có fail"
+  },
+  "fixtures": [
+   {
+    "step": "f0",
+    "profile": "lead-new-unassigned",
+    "profileHash": "sha256:34276d30fa26c36c8c9d6a88bedc1fcdec75a0f5ea434aa9c1ad1ff8faaae6fa",
+    "params": {
+     "createdMinutesAgo": 10
+    },
+    "idHash": "sha1_8:cbec3893",
+    "verifiedHold": {
+     "status": true,
+     "tenant": true
+    },
+    "verifiedBy": "provisioner output",
+    "cleanup": "retained",
+    "retainedBecause": "run có fail — fixture là bằng chứng",
+    "expiresAt": "2026-09-30T05:58:36.502Z"
+   }
+  ]
+ },
+ "reach": {
+  "requested": "mutate",
+  "effective": "mutate",
+  "layers": {
+   "project": "inject",
+   "environment": "inject",
+   "workflow": "mutate"
+  },
+  "constraints": []
+ },
+ "effects": {
+  "declared": [
+   "database_write"
+  ],
+  "observed": [
+   "database_write"
+  ],
+  "undeclared": []
+ },
+ "breaches": [],
+ "status": "completed",
+ "exit": 2,
+ "steps": [
+  {
+   "id": "f0",
+   "workflow": "open-and-call",
+   "kind": "fixture",
+   "profile": "lead-new-unassigned",
+   "produced": {
+    "lead.id": "sha1_8:cbec3893",
+    "lead.phone": "sha1_8:af381339"
+   },
+   "ms": 26
+  },
+  {
+   "id": "s1",
+   "workflow": "open-and-call",
+   "action": "bấm vào dòng lead mới",
+   "before": {
+    "state": "agent.workspace_ready",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /workspace/{workspaceId}": true,
+     "GET /api/me → 200": true,
+     "[data-uxcli=lead-board] visible": true
+    },
+    "why": []
+   },
+   "after": {
+    "state": "agent.lead_detail",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /leads/{leadId}": true,
+     "[data-uxcli=lead-phone] visible": true,
+     "[data-uxcli=lead-phone] equals response.phone (e164)": true
+    },
+    "why": []
+   },
+   "interactions": [
+    {
+     "type": "ui",
+     "target": "[data-uxcli=lead-row][data-id={leadId}]",
+     "inViewportWithoutScroll": false,
+     "scrollsNeeded": 1,
+     "viewport": "390x844",
+     "rect": {
+      "x": 35,
+      "y": 389,
+      "w": 458,
+      "h": 139,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     },
+     "consumed": [
+      "lead.id"
+     ]
+    },
+    {
+     "type": "navigation",
+     "to": "/leads/{leadId}",
+     "consumed": [
+      "lead.id"
+     ]
+    },
+    {
+     "type": "api",
+     "request": "GET /api/leads/{leadId}",
+     "status": 200,
+     "ms": 1,
+     "produced": {
+      "response.phone": "sha1_8:af381339",
+      "response.status": "sha1_8:c2a6b03f"
+     },
+     "consumed": [
+      "lead.id"
+     ]
+    }
+   ],
+   "produced": {
+    "response.phone": "sha1_8:af381339",
+    "response.status": "sha1_8:c2a6b03f"
+   },
+   "timing": {
+    "toStable": 46
+   },
+   "shots": [
+    "open-and-call-s1-before.png",
+    "open-and-call-s1-after.png"
+   ]
+  },
+  {
+   "id": "s2",
+   "workflow": "open-and-call",
+   "action": "bấm Gọi khách",
+   "before": {
+    "state": "agent.lead_detail",
+    "held": true,
+    "strength": "strong",
+    "signals": {
+     "path == /leads/{leadId}": true,
+     "[data-uxcli=lead-phone] visible": true,
+     "[data-uxcli=lead-phone] equals response.phone (e164)": true
+    },
+    "why": []
+   },
+   "after": {
+    "state": "agent.call_started",
+    "held": true,
+    "strength": "medium",
+    "signals": {
+     "[data-uxcli=call-status] visible": true,
+     "[data-uxcli=call-status] contains 'Đang gọi'": true
+    },
+    "why": []
+   },
+   "interactions": [
+    {
+     "type": "ui",
+     "target": "[data-uxcli=call-action]",
+     "inViewportWithoutScroll": false,
+     "scrollsNeeded": 2,
+     "viewport": "390x844",
+     "rect": {
+      "x": 35,
+      "y": 1790,
+      "w": 320,
+      "h": 44,
+      "viewport": {
+       "w": 390,
+       "h": 844
+      }
+     }
+    },
+    {
+     "type": "api",
+     "request": "POST /api/calls",
+     "status": 201,
+     "ms": null,
+     "effect": "database_write",
+     "tenantHeader": "t_uxcli_1edc0a"
+    },
+    {
+     "type": "system",
+     "expr": "mở tel:{response.phone}",
+     "consumed": [
+      "response.phone"
+     ]
+    }
+   ],
+   "produced": {},
+   "timing": {
+    "toStable": 53
+   },
+   "shots": [
+    "open-and-call-s2-before.png",
+    "open-and-call-s2-after.png"
+   ]
+  }
+ ],
+ "lineage": [
+  {
+   "path": "f0.lead.id",
+   "sha1_8": "cbec3893",
+   "consumedBy": [
+    "s1.ui",
+    "s1.navigation",
+    "s1.api"
+   ]
+  },
+  {
+   "path": "s1.response.phone",
+   "sha1_8": "af381339",
+   "consumedBy": [
+    "s2.system"
+   ]
+  }
+ ],
+ "ruleSnapshots": {
+  "leads.responseSlaMinutes": {
+   "value": 15,
+   "source": "project-policy",
+   "file": "domain/leads-policy.json"
+  },
+  "leads.maxOpenPerAgent": {
+   "value": 40,
+   "source": "project-policy",
+   "file": "domain/leads-policy.json"
+  }
+ },
+ "verdicts": [
+  {
+   "commitment": "C-001",
+   "measurement": 0,
+   "caps": [],
+   "value": "fail",
+   "cause": "probe-said",
+   "where": "s2",
+   "what": "[data-uxcli=call-action] inViewportWithoutScroll: false — cần 2 lần cuộn ở 390x844 tại agent.lead_detail",
+   "shot": "open-and-call-s2-before.png"
+  },
+  {
+   "commitment": "C-002",
+   "measurement": 0,
+   "caps": [],
+   "value": "not-applicable",
+   "cause": "toStable 46ms ≤ 1000ms — điều kiện không xảy ra",
+   "where": "s1",
+   "shot": "open-and-call-s1-after.png"
+  },
+  {
+   "commitment": "C-002",
+   "measurement": 1,
+   "caps": [],
+   "value": "not-applicable",
+   "cause": "toStable 46ms ≤ 10000ms — điều kiện không xảy ra",
+   "where": "s1",
+   "shot": "open-and-call-s1-after.png"
+  }
+ ],
+ "evidence": {
+  "shots": [
+   "open-and-call-s1-after.png",
+   "open-and-call-s1-before.png",
+   "open-and-call-s2-after.png",
+   "open-and-call-s2-before.png"
+  ],
+  "redacted": [
+   "Authorization",
+   "Cookie",
+   "password",
+   "email",
+   "phone",
+   "ids → sha1_8"
+  ]
+ }
+}

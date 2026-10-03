@@ -5,9 +5,9 @@
 import { mapModel, mapPage, mapCard } from '../src/core/map.js';
 import fs from 'node:fs'; import path from 'node:path';
 import { read, ROOT } from './example-data.mjs';
-// The Verdict Lab's packets are the current shape, regenerated from real runs and tracked; the
+// Two real runs of the fixture CRM, tracked under test/fixtures/runs/, are the current shape; the
 // example project's runs are older packets kept as they were.
-const lab = name => ({ dir: `docs/lab/runs/${name}`, run: JSON.parse(fs.readFileSync(path.join(ROOT, 'docs', 'lab', 'runs', name, 'run.json'), 'utf8')) });
+const lab = name => ({ dir: `test/fixtures/runs/${name}`, run: JSON.parse(fs.readFileSync(path.join(ROOT, 'test', 'fixtures', 'runs', name, 'run.json'), 'utf8')) });
 
 export const OPERATOR = 'drift only on a state not held or a fail at the step; a passing step and an unrun step are not drift; '
   + 'each fail and each unheld state is one finding; the picked mockup is the model frame and an unpicked screen has none; '
