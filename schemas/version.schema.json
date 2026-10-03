@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/version.schema.json",
+  "title": "uxcli version",
+  "description": "A version of a journey — .uxcli/versions/<journey>/<name>.json: a name given to one walk of it, so it is kept against pruning and can be compared with another (uxcli experience --from --to). Created by uxcli version save, never edited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "journey", "name", "run", "at", "by"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "journey": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "run": { "type": "string", "pattern": "^runs/R-[^/]+$", "description": "the walk this version is" },
+    "at": { "type": "string", "minLength": 1 },
+    "by": { "type": "object", "additionalProperties": false, "required": ["type", "ref"], "properties": { "type": { "type": "string", "minLength": 1 }, "ref": { "type": "string", "minLength": 1 } } },
+    "note": { "type": "string", "minLength": 1, "description": "what changed in this version, in words" },
+    "build": { "type": "string", "minLength": 1, "description": "the commit the walk ran against" },
+    "proposal": { "type": "string", "minLength": 1, "description": "the redesign proposal this version answers" }
+  }
+}

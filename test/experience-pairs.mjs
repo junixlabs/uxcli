@@ -9,7 +9,7 @@ import { experiences, experiencePage } from '../src/experience.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const clone = o => JSON.parse(JSON.stringify(o));
 
-export const OPERATOR = 'a clean three-step walk with no finding, against the same walk made to settle in 2.4 s, to need its button two scrolls down, to ask for an email typed one step earlier, to miss the state a step must reach, and to take one more step; the estimate grows by the operators of the planted step and nothing else; a comparison of the two walks names what moved and which findings came and went; a fixture step is not a step the person takes; and the example project\'s last walk, whose call button C-001 says is reachable without scrolling, must report it two scrolls away';
+export const OPERATOR = 'a clean three-step walk with no finding, against the same walk made to settle in 2.4 s, to need its button two scrolls down, to ask for an email typed one step earlier, to miss the state a step must reach, and to take one more step; an error answered with the typed answer kept and a message announced, against one that clears the answer and one that announces nothing, and a packet that never recorded announcements, which is not silence; a navigation that keeps its order or only gains an item, against one whose items swap; the estimate grows by the operators of the planted step and nothing else; a comparison of the two walks names what moved and which findings came and went; a fixture step is not a step the person takes; and the example project\'s last walk, whose call button C-001 says is reachable without scrolling, must report it two scrolls away';
 
 const ui = (target, extra = {}) => ({ type: 'ui', target, inViewportWithoutScroll: true, scrollsNeeded: 0, viewport: '390x844', rect: { x: 20, y: 300, w: 350, h: 48, viewport: { w: 390, h: 844 } }, ...extra });
 const typed = (chars, value) => ({ typed: { chars, value } });
@@ -57,6 +57,27 @@ export async function pair() {
   const longR = experience(longer);
   must('an extra step did not add one step and one click', longR.totals.steps === 4 && longR.totals.clicks === 4);
   must('an extra step did not add its operators to the estimate', Math.abs(longR.totals.klmSeconds - clean.totals.klmSeconds - (click + 0.1)) < 0.21);
+
+  // recovery: an error answer keeps what was typed and says so; planted, it does neither
+  const errStep = (kept, announced) => ({ id: 'e1', workflow: 'buy', action: 'continue while the server fails', after: { state: 'details-error', held: true },
+    interactions: [ui('input[name=email]', { typed: { chars: 17, value: 'sha1_8:cccc3333', keptAfter: kept } }), ui('[data-uxcli=continue]'), { type: 'api', request: 'POST /api/details', status: 500, ms: 40 }],
+    timing: { toStable: 90 }, shots: [], announced, nav: [] });
+  const okErr = clone(CLEAN); okErr.steps.push({ ...errStep(true, ['alert']), workflow: 'server-error' });
+  must(`an error that kept the answer and announced itself was reported: ${JSON.stringify(experience(okErr).findings)}`, !metrics(experience(okErr)).includes('recovery'));
+  const cleared = clone(CLEAN); cleared.steps.push({ ...errStep(false, ['alert']), workflow: 'server-error' });
+  must('an error that cleared the typed answer was not reported', experience(cleared).findings.some(f => f.metric === 'recovery' && /no longer holds/.test(f.what)));
+  const pw = clone(CLEAN); const p = errStep(true, ['alert']); p.interactions.unshift(ui('input[name=password]', { typed: { chars: 12, value: 'sha1_8:dddd4444', keptAfter: false, secret: true } })); pw.steps.push({ ...p, workflow: 'server-error' });
+  must('a password cleared after the error was reported as a lost answer', !metrics(experience(pw)).includes('recovery'));
+  const silent = clone(CLEAN); silent.steps.push({ ...errStep(true, []), workflow: 'server-error' });
+  must('an error nothing announced was not reported', experience(silent).findings.some(f => f.metric === 'recovery' && /announced/.test(f.what)));
+  const unknownAnn = clone(CLEAN); const u = errStep(true, undefined); delete u.announced; unknownAnn.steps.push({ ...u, workflow: 'server-error' });
+  must('a packet that never recorded announcements was read as silence', !metrics(experience(unknownAnn)).includes('recovery'));
+  // consistency: one navigation, the same order on every screen; planted, two items swap
+  const NAV = ['Home', 'Shop', 'Cart', 'Account'];
+  const withNav = order => { const r = clone(CLEAN); r.steps[1].nav = [{ label: 'Main', items: NAV }]; r.steps[2].nav = [{ label: 'Main', items: NAV }]; r.steps[3].nav = [{ label: 'Main', items: order }]; return r; };
+  must('the same navigation on every screen was reported', !metrics(experience(withNav(NAV))).includes('consistency'));
+  must('a navigation that only gained an item was reported', !metrics(experience(withNav([...NAV, 'Help']))).includes('consistency'));
+  must('two navigation items that swapped places were not reported', experience(withNav(['Home', 'Cart', 'Shop', 'Account'])).findings.some(f => f.metric === 'consistency' && f.step === 's3' && /Main/.test(f.what)));
 
   // alternatives are not a longer journey: a second workflow is totalled on its own
   const alt = clone(CLEAN); alt.steps.push({ id: 'r1', workflow: 'card-declined', action: 'place the order with a declined card', after: { state: 'declined', held: true }, interactions: [ui('[data-uxcli=place-order]')], timing: { toStable: 200 }, shots: [] });

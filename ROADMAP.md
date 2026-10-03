@@ -49,6 +49,12 @@ Measured from the trace of a real walk in Chrome, each with a must-fail and a mu
 - **Consistency**: navigation, terms and the primary action in the same place across the journey's
   screens (3.2.3 generalised).
 
+- Done 2026-10-03: `uxcli experience` reports steps, typing, scrolls, settle time in Nielsen's bands
+  and a keystroke-level estimate per workflow; a wait past 1 s, a control below the fold, an answer
+  typed twice, a step that did not arrive; after an error answer, a typed answer the page cleared
+  (passwords excepted) and an error nothing announced; a navigation landmark whose items change order
+  within a workflow. `--page` pins each on the step's screenshot. All findings; none validated yet.
+
 Every finding is pinned on the step's screenshot. Exit: each metric has its pair in the gate, and on
 the CRM example a planted extra step, a missing progress signal and a lost value are each caught.
 
@@ -59,6 +65,11 @@ the CRM example a planted extra step, a missing progress signal and a lost value
 - A version of a journey: its screens, metrics and findings at one build. A proposal for a new version
   names the evidence that caused it.
 - `map` compares two versions step by step: what changed on screen, and what the metrics did.
+- Done 2026-10-03: `uxcli version save <journey> <name>` names a walk (one file per version, never
+  rewritten; its run kept against pruning); `experience --journey --from --to [--page]` compares two
+  versions step by step with both pictures side by side; proposals take `kind: redesign`, with
+  `evidence[]` citing the walk; `references/versions.md` is the loop. The trace and evidence shapes are
+  the run packet and the experience report; a schema of their own is next.
 - Exit: on the CRM example, v1 and v2 side by side, with the metrics that moved.
 
 ## 4. Walkthrough and personas

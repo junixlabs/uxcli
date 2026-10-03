@@ -37,4 +37,5 @@ export const SUITES = [
   { tag: 'lens', title: 'a viewpoint has a name, a review answers all', file: 'lens-pairs.mjs', miss: 'refused' },
   { tag: 'tmpl', title: 'a template asks, and apply only creates', file: 'template-pairs.mjs', miss: 'refused' },
   { tag: 'exp', title: 'what the person goes through, from the trace', file: 'experience-pairs.mjs', miss: 'seen' },
+  { tag: 'ver', title: 'a version is kept, and two compare', file: 'version-pairs.mjs', miss: 'refused' },
 ];

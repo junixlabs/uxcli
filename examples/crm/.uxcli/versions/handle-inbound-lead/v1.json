@@ -1,0 +1,9 @@
+{
+ "schema_version": 1,
+ "journey": "handle-inbound-lead",
+ "name": "v1",
+ "run": "runs/R-2026-09-24T09-12-03Z-dujexe",
+ "at": "2026-09-24T09:30:00Z",
+ "by": { "type": "person", "ref": "example-owner" },
+ "note": "First walk: open the lead from the list."
+}

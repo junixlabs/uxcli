@@ -24,6 +24,7 @@ import { outcomeOf } from './core/run/measure.js';
 import { projection } from './core/level/projection.js';
 import { UXCLI, newRunDir, artifactsDir, currentRuns, prune } from './adapters/store/runs.js';
 import { runHash } from './adapters/store/run-hash.js';
+import { pinnedRuns } from './version.js';
 
 const readJson = f => JSON.parse(fs.readFileSync(f, 'utf8'));
 const sha256 = s => 'sha256:' + crypto.createHash('sha256').update(s).digest('hex');
@@ -126,7 +127,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const wfId = w => `${journey.id}/${w.id}`;
   const shell = { ...process.env, UXCLI_TARGET: target };
   // Written once. Then older runs of every target beyond KEEP go, except any a commitment anchors to.
-  const finish = async (run, scenarioFix) => { const sealed = scenarioFix ? await scenarioFix(run) : run; fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(sealed, null, 1) + '\n'); prune(root, { pinned: commitments.map(c => c.anchor?.run).filter(Boolean) }); writeProjection(P); return { run: sealed, commitments, root, dir }; };
+  const finish = async (run, scenarioFix) => { const sealed = scenarioFix ? await scenarioFix(run) : run; fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(sealed, null, 1) + '\n'); prune(root, { pinned: [...commitments.map(c => c.anchor?.run).filter(Boolean), ...pinnedRuns(root)] }); writeProjection(P); return { run: sealed, commitments, root, dir }; };
 
   // Identity: the provisioner's word, checked against the environment. Creating one is a mutation.
   let identity = null, idValues = null, idProfile = null, idRejected = null;
@@ -195,7 +196,7 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
     if (fills.length) { try { ref = await observe(page, { action: fills, since: 0, selectors: fills.map(f => f.selector), policy }); } catch (e) { failedFill = e.message; } }
     const produces = (step.interactions || []).filter(x => x.type === 'api' && x.produces?.length).map(x => ({ request: fill(x.request, params), paths: x.produces }));
     let obsA = null, failed = failedFill;
-    if (!failed) try { obsA = await observe(page, { action, selectors: selectorsOf(after, step, [...measurementsAt(step.after), ...measurementsAt(step.id)], params), produces, policy, storageKeys: keysOf(after, step), shotDir: record ? shotDir : null, shotName: shot('after') }); }
+    if (!failed) try { obsA = await observe(page, { action, selectors: [...new Set([...selectorsOf(after, step, [...measurementsAt(step.after), ...measurementsAt(step.id)], params), ...fills.map(f => f.selector)])], produces, policy, storageKeys: keysOf(after, step), shotDir: record ? shotDir : null, shotName: shot('after') }); }
     catch (e) { failed = e.message; }
     for (const { h } of handles) h.release();
     const ah = obsA ? holds(after, obsA, { ...ctx, params, before: ref }) : { held: null, strength: after?.strength, signals: {}, why: [`action failed: ${failed}`] };
@@ -210,12 +211,16 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
     const interactions = (step.interactions || []).map(x => {
       // A typed value is kept as its length and its hash, never as itself: enough to estimate the typing
       // time and to see the same answer asked for twice, and nothing a reader of the packet could use.
-      if (x.type === 'ui') { const d = obsB.dom?.[fill(x.target, params)]; const v = x.fill !== undefined ? String(fill(x.fill, params)) : null; return { type: 'ui', target: x.target, ...(d && { inViewportWithoutScroll: d.inViewportWithoutScroll, scrollsNeeded: d.scrollsNeeded, viewport, ...(d.rect && { rect: d.rect }) }), ...(v !== null && { typed: { chars: v.length, value: sha1_8(v) } }), ...(x.consumes && { consumed: x.consumes }) }; }
+      if (x.type === 'ui') { const d = obsB.dom?.[fill(x.target, params)]; const v = x.fill !== undefined ? String(fill(x.fill, params)) : null; const seen = v !== null ? obsA?.dom?.[fill(x.target, params)] : null; return { type: 'ui', target: x.target, ...(d && { inViewportWithoutScroll: d.inViewportWithoutScroll, scrollsNeeded: d.scrollsNeeded, viewport, ...(d.rect && { rect: d.rect }) }), ...(v !== null && { typed: { chars: v.length, value: sha1_8(v), ...(seen?.present && seen.value !== null && { keptAfter: seen.value === v }), ...((d?.inputType || seen?.inputType) === 'password' && { secret: true }) } }), ...(x.consumes && { consumed: x.consumes }) }; }
       if (x.type === 'api') { const n = (obsA?.network || []).find(e => requestMatches(fill(x.request, params), e.method, e.path)); return { type: 'api', request: x.request, ...(n && { status: n.status, ms: n.ms, ...(n.effectClass && { effect: n.effectClass }), ...(n.requestHeaders?.['x-tenant-id'] && { tenantHeader: n.requestHeaders['x-tenant-id'] }), ...(n.blocked && { blocked: true, intercepted: n.intercepted }) }), ...(byInteraction.has(x) && { produced: byInteraction.get(x) }), ...(x.consumes && { consumed: x.consumes }) }; }
       return { type: x.type, ...(x.to && { to: x.to }), ...(x.expr && { expr: x.expr }), ...(byInteraction.has(x) && { produced: byInteraction.get(x) }), ...(x.consumes && { consumed: x.consumes }) };
     });
     const shots = [obsB, obsA].flatMap(o => o?.shots || []);
+    // What the person was told and what they could find their way by, after the action: the visible
+    // announcements (role=alert, role=status, live regions) by role only, and each navigation landmark's items.
+    const announced = (obsA?.a11y?.alerts || []).filter(a => a.visible && a.text).map(a => a.role);
     const r = { id: step.id, workflow: w.id, action: step.action, before: { state: step.before, ...bh }, after: { state: step.after, ...ah, ...(ah.held === false && { what: ah.why.join('; ') }) }, interactions, produced, ...(obsA?.timing && { timing: obsA.timing }), shots,
+      ...(obsA && { announced, nav: obsA.nav || [] }),
       ...(handles.length && { intercepted: { request: handles[0].x.request, returned: handles[0].x.intercept.status, blocked: handles.reduce((n, { h }) => n + h.count, 0) } }) };
     stepResults.push(r); obsOf.set(r, { before: obsB, after: obsA }); obsList.push({ step: step.id, observation: obsA });
     return true;

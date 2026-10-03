@@ -196,6 +196,7 @@ uxcli lens [show <kind>]              # the shipped lenses: named designers' vie
 uxcli template [show <id> | apply <id>]   # where to start for a kind of product: screens, lenses, journeys, research questions
 uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside a drawing (a URL with --name reviews a screen)
 uxcli review check                    # every review complete, fresh, and not contradicted by a probe
+uxcli version [save <journey> <name>] # name a walk so it is kept; experience --journey=<id> --from=<a> --to=<b> compares two
 uxcli experience [dir] [--page]       # what the person goes through: steps, typing, scrolls, waits, an estimate in seconds; findings pinned on screenshots
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out

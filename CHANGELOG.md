@@ -18,8 +18,19 @@ Entries are written per release. The log is the source material, not the text.
   twice in one workflow, and a step that did not reach its state — every one a finding with the source
   of its threshold, never a fail. With an older walk on disk it says what moved since. `--page` writes
   `.uxcli/experience/index.html`: each step's screenshot with its findings pinned where the browser
-  found the element (a dashed bar at the bottom edge when it was below the fold). The runner now records
+  found the element (a dashed bar at the bottom edge when it was below the fold).
+  After an error answer (4xx, 5xx or an intercepted failure) it reports an answer the page cleared —
+  a password excepted, the security convention — and an error nothing announced in text; within a
+  workflow it reports a navigation landmark whose items change order (3.2.3). The runner records, per
+  step, whether each typed field still held the value afterwards, which announcement roles were
+  visible, and each navigation landmark's items; the observer reads the input type and the landmarks. The runner now records
   a typed value as its length and its hash, never the value. Gate: `experience-pairs`.
+- `uxcli version [save <journey> <name>]` and `uxcli experience --journey=<id> --from=<a> --to=<b>`:
+  a name for one walk of a journey, kept against pruning and comparable with another, step by step,
+  with both pictures side by side on the page. `.uxcli/versions/<journey>/<name>.json`, one file per
+  version, created and never rewritten (`schemas/version.schema.json`). Proposals take
+  `kind: redesign`, citing the walk in `evidence[]`; `references/versions.md` is the loop. Gate:
+  `version-pairs`.
 - `uxcli template [show <id> | apply <id> [dir]]`: templates for three kinds of product — `workspace`,
   `shop`, `landing` — with the screens such products have and the lens each is read against, the
   journeys to walk first and what to watch on them, the research questions and where research starts.

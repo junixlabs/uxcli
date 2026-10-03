@@ -78,7 +78,7 @@ const DOM = `(sels) => {
   const out = {};
   for (const sel of sels) {
     let el = null; try { el = document.querySelector(sel); } catch {}
-    if (!el) { out[sel] = { present: false, visible: false, enabled: false, inViewportWithoutScroll: false, scrollsNeeded: null, text: null, value: null }; continue; }
+    if (!el) { out[sel] = { present: false, visible: false, enabled: false, inViewportWithoutScroll: false, scrollsNeeded: null, text: null, value: null, inputType: null }; continue; }
     const r = el.getBoundingClientRect(); const H = window.innerHeight, W = window.innerWidth;
     const inView = r.top >= 0 && r.left >= 0 && r.bottom <= H && r.right <= W;
     const scrollsNeeded = inView ? 0 : Math.ceil(Math.max(r.bottom - H, -r.top, 0) / H) || (r.right > W || r.left < 0 ? 1 : 0);
@@ -87,7 +87,7 @@ const DOM = `(sels) => {
       // Where the element sits in the viewport at this moment, in CSS pixels: the same frame the
       // screenshot shows, so a picture can point at the hotspot — or at where it is, below the fold.
       rect: { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), viewport: { w: W, h: H } },
-      value: 'value' in el && el.tagName !== 'LI' ? String(el.value ?? '') : null };
+      value: 'value' in el && el.tagName !== 'LI' ? String(el.value ?? '') : null, inputType: el.tagName === 'INPUT' ? (el.type || 'text') : null };
   }
   return out;
 }`;
@@ -96,6 +96,12 @@ const ALERTS = `() => [...document.querySelectorAll('[role=alert],[role=status],
   return { role: el.getAttribute('role') || 'live:' + el.getAttribute('aria-live'), text: (el.innerText ?? el.textContent ?? '').trim(),
     visible: !!el.getClientRects().length && cs.visibility !== 'hidden' && cs.display !== 'none' && parseFloat(cs.opacity) > 0 };
 })`;
+// Navigation landmarks as a person reads them: each nav's label and the text of its links and buttons,
+// in order. Read so a journey's screens can be compared with each other, never to judge one alone.
+const NAV = `() => [...document.querySelectorAll('nav,[role=navigation]')].filter(n => n.getClientRects().length).map(n => ({
+  label: n.getAttribute('aria-label') || (n.getAttribute('aria-labelledby') && document.getElementById(n.getAttribute('aria-labelledby'))?.textContent?.trim()) || null,
+  items: [...n.querySelectorAll('a,button,[role=link],[role=menuitem]')].filter(x => x.getClientRects().length).map(x => (x.innerText ?? x.textContent ?? '').trim()).filter(Boolean),
+}))`;
 const STORAGE = `(keys) => { const c = Object.fromEntries(document.cookie.split(';').map(x => x.trim().split('=')).filter(x => x[0]).map(([k, ...v]) => [k, v.join('=')]));
   const out = {};
   for (const k of keys) { const v = localStorage.getItem(k) ?? sessionStorage.getItem(k) ?? c[k] ?? null; out[k] = v === null ? { present: false } : { present: true, value: v }; }
@@ -130,6 +136,7 @@ export async function observe(page, opts = {}) {
   const href = page.url();
   const dom = await page.evaluate(new Function('return ' + DOM)(), selectors).catch(() => ({}));
   const alerts = await page.evaluate(new Function('return ' + ALERTS)()).catch(() => []);
+  const nav = await page.evaluate(new Function('return ' + NAV)()).catch(() => []);
   const raw = await page.evaluate(new Function('return ' + STORAGE)(), storageKeys).catch(() => ({}));
   const storage = {};
   for (const [k, v] of Object.entries(raw)) storage[k] = v.present ? { present: true, hash: sha1_8(v.value) } : { present: false };
@@ -155,5 +162,5 @@ export async function observe(page, opts = {}) {
     const file = `${shotName}.png`;
     await page.screenshot({ path: path.join(shotDir, file), timeout: 5000 }).then(() => shots.push(file)).catch(() => {});
   }
-  return { at, url: { href, path: pathOf(href) }, dom, a11y: { alerts }, network, storage, timing: { toStable }, shots };
+  return { at, url: { href, path: pathOf(href) }, dom, a11y: { alerts }, nav, network, storage, timing: { toStable }, shots };
 }

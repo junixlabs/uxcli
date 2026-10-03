@@ -20,6 +20,9 @@ const SRC = {
   reach: 'Steve Krug, Don\'t Make Me Think; NN/g on content below the fold — what a step needs is where the person already is',
   twice: 'WCAG 2.2 SC 3.3.7 Redundant Entry — information entered before is not asked for again in the same process',
   reached: 'the project\'s own journey: the state this step must reach',
+  kept: 'GOV.UK Design System, Error message — "Do not clear any form fields … Keep both passing and failing answers." (forms.keep-answers-after-an-error)',
+  announced: 'WCAG 2.2 SC 3.3.1 Error Identification and 4.1.3 Status Messages — an error is described to the person in text and announced',
+  consistent: 'WCAG 2.2 SC 3.2.3 Consistent Navigation — navigation repeated on several pages occurs in the same relative order',
 };
 export const LIMITS = { instant: 100, flow: 1000, attention: 10000 };
 
@@ -46,6 +49,7 @@ export function experience(run) {
   const steps = []; const findings = [];
   const typedAt = new Map();      // hash of a typed value → the first step it was typed at
   const visited = new Map();      // a path navigated to → the first step that went there
+  const navAt = new Map();        // a navigation landmark → the first step it was seen at, and its items
   // A fixture step sets data up before the person arrives; it is not something the person goes through.
   for (const st of (run?.steps || []).filter(x => x.kind !== 'fixture')) {
     const ui = (st.interactions || []).filter(x => x.type === 'ui');
@@ -79,6 +83,27 @@ export function experience(run) {
     }
     if (st.after?.held === false) findings.push({ metric: 'not-reached', step: st.id, workflow: st.workflow || null,
       what: `${st.action || st.id} did not reach ${st.after.state}${st.after.what ? `: ${st.after.what}` : ''}`, source: SRC.reached, shot: shotAfter });
+    // Recovery: a step the server answered with an error is where answers get lost and messages go missing.
+    const errored = (st.interactions || []).some(i => i.type === 'api' && (i.status >= 400 || i.blocked));
+    if (errored) {
+      row.error = true;
+      // A password is cleared after a failed sign-in on purpose: the security exception GOV.UK and the
+      // platforms make, so it is not counted.
+      for (const x of typed) if (x.typed.keptAfter === false && !x.typed.secret) findings.push({ metric: 'recovery', step: st.id, workflow: st.workflow || null,
+        what: `after the error, ${x.target} no longer holds what the person typed — they have to type it again`, source: SRC.kept, shot: shotAfter, ...(x.rect && { rect: x.rect }) });
+      if (Array.isArray(st.announced) && !st.announced.length) findings.push({ metric: 'recovery', step: st.id, workflow: st.workflow || null,
+        what: `${st.action || st.id}: the server answered with an error and nothing on the page announced it (no visible role=alert, role=status or live region with text)`, source: SRC.announced, shot: shotAfter });
+    }
+    // Consistency: the same navigation, in the same order, on every screen of the workflow that shows it.
+    for (const [i, n] of (st.nav || []).entries()) {
+      const key = `${st.workflow}|${n.label || `nav ${i + 1}`}`;
+      const seen = navAt.get(key);
+      if (!seen) { navAt.set(key, { step: st.id, items: n.items }); continue; }
+      const common = n.items.filter(t => seen.items.includes(t));
+      const order = seen.items.filter(t => common.includes(t));
+      if (common.length > 1 && common.join('\u0000') !== order.join('\u0000')) findings.push({ metric: 'consistency', step: st.id, workflow: st.workflow || null,
+        what: `${n.label ? `the "${n.label}" navigation` : `navigation ${i + 1}`} reads ${common.join(' · ')} here and ${order.join(' · ')} at ${seen.step}`, source: SRC.consistent, shot: shotBefore });
+    }
     for (const x of (st.interactions || []).filter(i => i.type === 'navigation' && i.to)) {
       const was = visited.get(`${st.workflow}|${x.to}`);
       if (was && was !== st.id) row.revisits = [...(row.revisits || []), { to: x.to, first: was }];
