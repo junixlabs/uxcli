@@ -127,7 +127,14 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   const wfId = w => `${journey.id}/${w.id}`;
   const shell = { ...process.env, UXCLI_TARGET: target };
   // Written once. Then older runs of every target beyond KEEP go, except any a commitment anchors to.
-  const finish = async (run, scenarioFix) => { const sealed = scenarioFix ? await scenarioFix(run) : run; fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(sealed, null, 1) + '\n'); prune(root, { pinned: [...commitments.map(c => c.anchor?.run).filter(Boolean), ...pinnedRuns(root)] }); writeProjection(P); return { run: sealed, commitments, root, dir }; };
+  const finish = async (run, scenarioFix) => { const sealed = scenarioFix ? await scenarioFix(run) : run;
+    // the design step, when the policy holds the work to one: beside the verdicts, never among them
+    if (sealed.status !== 'blocked' && P.policy.value?.project?.design && P.policy.value.project.design !== 'off') {
+      const { discover } = await import('./mockups.js'); const D = await import('./core/design-gate.js');
+      sealed.design = D.designGate(discover(root).screens, D.walkedStates(sealed), P.policy.value.project.design);
+      sealed.exit = D.exitWithDesign(sealed.exit, sealed.design);
+    }
+    fs.writeFileSync(path.join(dir, 'run.json'), JSON.stringify(sealed, null, 1) + '\n'); prune(root, { pinned: [...commitments.map(c => c.anchor?.run).filter(Boolean), ...pinnedRuns(root)] }); writeProjection(P); return { run: sealed, commitments, root, dir }; };
 
   // Identity: the provisioner's word, checked against the environment. Creating one is a mutation.
   let identity = null, idValues = null, idProfile = null, idRejected = null;

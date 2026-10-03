@@ -7,6 +7,7 @@ import { contextCard, WIDTH } from '../src/core/report/index.js';
 import { parseActor, parseInsight } from '../src/core/model/user-model.js';
 import { DATA, read, list, runOf } from './example-data.mjs';
 import { parseJourney } from '../src/core/model/journey.js';
+import { journeysOf } from '../src/core/journey-of.js';
 
 const clone = v => JSON.parse(JSON.stringify(v));
 
@@ -72,5 +73,10 @@ export function pair() {
   must('no understanding: card does not say unknowns are everything', c2.includes('unknowns are everything'));
   must('no understanding: journey states vanished from the card', c2.includes('agent.lead_detail'));
 
+  // a page run names the journey its screen belongs to, so the agent is sent to read it
+  { const lead = read('journeys/handle-inbound-lead.json');
+    must('a lead page was not recognised as a screen of handle-inbound-lead', journeysOf([lead], '/leads/ld_0001').some(x => x.journey === 'handle-inbound-lead' && x.state === 'agent.lead_detail'));
+    must('a path no journey declares was given a journey', journeysOf([lead], '/settings').length === 0);
+    must('a path one segment deeper matched a parameter', journeysOf([lead], '/leads/ld_0001/edit').length === 0); }
   return { ok: problems.length === 0, problems, checks };
 }

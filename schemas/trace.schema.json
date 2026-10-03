@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/trace.schema.json",
+  "title": "uxcli trace step",
+  "description": "One step of a walk, as a run packet records it under steps[] in .uxcli/runs/R-…/run.json: what was done, to which element, what the person would have had to scroll, type and wait for, what the page said afterwards. The fields uxcli experience reads are typed here; a packet may carry more. A typed value is never stored: only its length, its hash and whether the page kept it.",
+  "type": "object",
+  "required": ["id"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "kind": { "enum": ["fixture"] },
+    "workflow": { "type": "string" },
+    "action": { "type": "string" },
+    "before": { "$ref": "#/$defs/side" },
+    "after": { "$ref": "#/$defs/side" },
+    "interactions": { "type": "array", "items": { "$ref": "#/$defs/interaction" } },
+    "timing": { "type": "object", "properties": { "toStable": { "type": "number", "minimum": 0 }, "firstChangeMs": { "type": "number", "minimum": 0, "description": "from the action to the first visible change on the page" }, "progressSeen": { "type": "boolean", "description": "for a wait past a second: whether a progressbar, a busy region or a status text appeared while it lasted" } } },
+    "shots": { "type": "array", "items": { "type": "string", "pattern": "\\.png$" } },
+    "announced": { "type": "array", "items": { "type": "string" }, "description": "the roles of the visible announcements with text after the action: alert, status, live:polite…" },
+    "nav": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["items"], "properties": { "label": { "type": ["string", "null"] }, "items": { "type": "array", "items": { "type": "string" } } } } }
+  },
+  "$defs": {
+    "side": { "type": "object", "properties": { "state": { "type": "string" }, "held": { "type": ["boolean", "null"] }, "what": { "type": "string" } } },
+    "rect": { "type": "object", "required": ["x", "y", "w", "h"], "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "w": { "type": "number" }, "h": { "type": "number" }, "viewport": { "type": "object", "properties": { "w": { "type": "number" }, "h": { "type": "number" } } } } },
+    "typed": {
+      "type": "object", "additionalProperties": false, "required": ["chars", "value"],
+      "properties": {
+        "chars": { "type": "number", "minimum": 0 },
+        "value": { "type": "string", "pattern": "^sha1_8:[0-9a-f]{8}$", "description": "the hash, never the value" },
+        "keptAfter": { "type": "boolean" },
+        "secret": { "const": true }
+      }
+    },
+    "interaction": {
+      "type": "object", "required": ["type"],
+      "properties": {
+        "type": { "type": "string", "minLength": 1, "description": "ui, api, navigation, data, system, … as the journey declared it" },
+        "target": { "type": "string" },
+        "scrollsNeeded": { "type": ["number", "null"], "minimum": 0 },
+        "inViewportWithoutScroll": { "type": "boolean" },
+        "viewport": { "type": "string" },
+        "rect": { "$ref": "#/$defs/rect" },
+        "typed": { "$ref": "#/$defs/typed" },
+        "request": { "type": "string" },
+        "status": { "type": ["number", "null"] },
+        "ms": { "type": ["number", "null"] },
+        "to": { "type": "string" }
+      }
+    }
+  }
+}

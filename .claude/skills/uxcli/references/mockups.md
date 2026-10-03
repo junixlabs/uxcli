@@ -4,6 +4,10 @@ Read when: `uxcli init` says a screen has no mockup or no pick, or `context show
 nobody has drawn. A mockup is a page you draw; a pick is a person's choice among your drawings; the
 picked variant is what you build.
 
+A project can make this step part of done: with `project.design: drawn` in its policy, a journey walk
+exits 3 while a screen it passed through has fewer than two drawings or no complete lens review; with
+`picked`, also until a person has picked. Drawing and reviewing are yours to do; the pick is not.
+
 ## What a mockup is
 
 One static HTML file per variant of a screen, at `.uxcli/mockups/<state>/<variant>.html`, where

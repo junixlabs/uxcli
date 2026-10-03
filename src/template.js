@@ -82,7 +82,18 @@ export function applyTemplate(dir, t, { at = new Date().toISOString() } = {}) {
     fs.writeFileSync(file, JSON.stringify(actorSeed(t, a, at), null, 1) + '\n');
     return { file, status: 'created' };
   });
+  // which template the project started from, so context show can name it; kept if one is already there
+  const tf = path.join(path.resolve(dir), '.uxcli', 'template.json');
+  if (fs.existsSync(tf)) items.push({ file: tf, status: 'kept' });
+  else { fs.mkdirSync(path.dirname(tf), { recursive: true }); fs.writeFileSync(tf, JSON.stringify({ schema_version: 1, template: t.id, at }, null, 1) + '\n'); items.push({ file: tf, status: 'created' }); }
   return { template: t.id, items };
+}
+
+// The template the project started from, if `template apply` recorded one.
+export function projectTemplate(root) {
+  const f = path.join(root, '.uxcli', 'template.json'); if (!fs.existsSync(f)) return null;
+  let id; try { id = readJson(f).template; } catch { return null; }
+  return templates().list.find(t => t.id === id) || { id, missing: true };
 }
 
 export function applyCard(r, t, cwd = process.cwd()) {

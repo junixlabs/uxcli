@@ -10,6 +10,28 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — the designer's habits: a library to cite, templates to start from, the walk measured
 
+- Policy `project.design: off | drawn | picked`: a project can hold the work to a design step. A journey
+  walk that finds no fail exits 3 (`DESIGN STEP OPEN`) while a screen it passed through has fewer than
+  two drawings or no complete lens review, or — under `picked` — no person's pick; the run packet keeps
+  the `design` block beside its verdicts, never among them, and a fail keeps exit 2. Default off.
+  Measured on the experiment's draw arm (see its README). Gate: `design-pairs`.
+
+- `uxcli prefer make|serve|tally <study>`: blind pairwise preference. Two folders of pictures of the
+  same screens are paired by file name and renamed so nothing names a group; each judge answers on a
+  local page in their own order with sides swapped by their seed, and the server, not the page, records
+  which side each group sat on; `tally` counts wins and a two-sided sign test. A judgment is a
+  person's: one signed by an agent is refused. `references/prefer.md`. Gate: `prefer-pairs`.
+
+- `uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]`: the project as a board, laid out like
+  a design file — each journey a band, each workflow a lane, each step a column with the screen as drawn
+  (variants A/B, the pick), as built (the last walk's screenshot, findings pinned) and as each named
+  version left it; pan, zoom, fit, an outline, an inspector, and Context and Library tabs. One HTML file
+  under `.uxcli/studio/`. `--serve` runs it on localhost, refreshes it as files under `.uxcli/` change,
+  serves nothing outside `.uxcli/`, and takes a person's pick or redraw request through the parser the
+  file is read with, creating only; a note on a built frame becomes a `redesign` proposal citing the walk.
+  Two named versions compare on the board. `--shot` photographs the board for an agent. Gate: `studio-pairs`,
+  which also runs the four page probes on the board.
+
 - `uxcli experience [dir|run] [--page] [--json]`: what the person goes through on each journey's last
   walk, read from the trace — steps, clicks, fields and characters typed, scrolls, the settle time of
   each step in Nielsen's bands (100 ms, 1 s, 10 s), and a keystroke-level estimate of the time a
@@ -25,6 +47,18 @@ Entries are written per release. The log is the source material, not the text.
   step, whether each typed field still held the value afterwards, which announcement roles were
   visible, and each navigation landmark's items; the observer reads the input type and the landmarks. The runner now records
   a typed value as its length and its hash, never the value. Gate: `experience-pairs`.
+- `uxcli walkthrough <journey> [--as=<actor>] [--for=<person>] | check`: a cognitive walkthrough
+  (Wharton, Rieman, Lewis & Polson, 1994) of a walk — four questions at every step, answered from its
+  screenshot, optionally as one of the project's actors. `check` refuses a step left out, an answer
+  without why, a no without where, a persona nobody wrote, an agent answering for nobody, and a "yes"
+  the walk contradicts. "No" and "unsure" are findings, on the studio's inspector. Gate:
+  `walkthrough-pairs`.
+- `schemas/trace.schema.json` and `schemas/experience.schema.json`: the step a walk records and the
+  report `experience` makes, each with a shape of its own; a typed value stored instead of its hash
+  does not fit.
+- Templates `content` (docs and help centres) and `mobile-app`; `template apply` records the template in
+  `.uxcli/template.json`, and `context show` names it with the lens for each kind of screen and the
+  lens each of the journey's screens was reviewed against.
 - `uxcli version [save <journey> <name>]` and `uxcli experience --journey=<id> --from=<a> --to=<b>`:
   a name for one walk of a journey, kept against pruning and comparable with another, step by step,
   with both pictures side by side on the page. `.uxcli/versions/<journey>/<name>.json`, one file per
@@ -40,10 +74,22 @@ Entries are written per release. The log is the source material, not the text.
   the evidence can carry, and writing the findings down as insights.
 - Four topic pools beside the four schools, from the source repositories of GOV.UK, USWDS, Carbon,
   Primer, Polaris, Mailchimp and the W3C, every quote checked verbatim: colour (10), writing and
-  microcopy (10), data display (12), forms (12). The lenses now carry 167 viewpoints.
+  microcopy (10), data display (12), forms (12), navigation and information architecture (10), motion and
+  feedback (10). The lenses now carry 187 viewpoints.
 
 ### Changed
 
+- The observer measures the first visible change after an action (`timing.firstChangeMs`) and, when the
+  page has not changed at all, waits up to 2.5 s for it instead of calling a silent page settled; during a
+  wait past a second it records whether a progress signal (a progressbar, a busy region, a status text)
+  was shown. `experience` reads response from the first change, and a wait with a signal shown is not a
+  finding until ten seconds.
+- `uxcli run <url>` on a screen a declared journey reaches (its path matches a state's url signal) says
+  which journey and state it is, and that a page run measures the screen, not the journey: read
+  `context show`, then run the journey. Two of ten skill sessions in the experiment ran only page runs
+  and never read the journey's card; the instrument now says so itself.
+- The experiment scores sessions on the walk as well (`score.mjs`), rescoring every session with one
+  instrument (`rescore.mjs`).
 - VISION, PRODUCT, README and ROADMAP describe uxcli as the owner set it on 2026-10-03: an agent that
   designs like a designer who did the research, in four pillars — knowledge, process, evidence and
   versions, and experience validation at the centre.

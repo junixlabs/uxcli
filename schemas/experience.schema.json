@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/experience.schema.json",
+  "title": "uxcli experience report",
+  "description": "What the person goes through on one walk of a journey, as uxcli experience --json reports it: per step and per workflow, and the findings — each with the metric that raised it, the step, the source of its threshold, and where on the screenshot when the browser found the element. Every finding is method-unproven.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["journey", "steps", "workflows", "totals", "findings"],
+  "properties": {
+    "dir": { "type": "string" },
+    "journey": { "type": ["string", "null"] },
+    "viewport": { "type": ["string", "null"] },
+    "ranAt": { "type": ["string", "null"] },
+    "sources": { "type": "object" },
+    "change": { "type": "object" },
+    "steps": { "type": "array", "items": {
+      "type": "object", "required": ["id", "clicks", "fields", "chars", "scrolls", "klmSeconds"],
+      "properties": {
+        "id": { "type": "string" }, "workflow": { "type": ["string", "null"] }, "action": { "type": ["string", "null"] },
+        "clicks": { "type": "number", "minimum": 0 }, "fields": { "type": "number", "minimum": 0 }, "chars": { "type": "number", "minimum": 0 }, "scrolls": { "type": "number", "minimum": 0 },
+        "settleMs": { "type": ["number", "null"] }, "response": { "enum": ["instant", "flow", "wait", "lost", null] }, "apiMs": { "type": "number" },
+        "klmSeconds": { "type": "number", "minimum": 0 }, "reached": { "type": ["boolean", "null"] }, "error": { "const": true },
+        "shots": { "type": "object" }, "revisits": { "type": "array" }, "typedUnknown": { "const": true }
+      }
+    } },
+    "workflows": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "totals"], "properties": { "id": { "type": ["string", "null"] }, "totals": { "$ref": "#/$defs/totals" } } } },
+    "totals": { "$ref": "#/$defs/totals" },
+    "findings": { "type": "array", "items": {
+      "type": "object", "additionalProperties": false, "required": ["metric", "step", "what", "source"],
+      "properties": {
+        "metric": { "enum": ["response", "reach", "asked-twice", "not-reached", "recovery", "consistency"] },
+        "step": { "type": "string" }, "workflow": { "type": ["string", "null"] },
+        "what": { "type": "string", "minLength": 1 }, "source": { "type": "string", "minLength": 1 },
+        "shot": { "type": ["string", "null"] },
+        "rect": { "type": "object", "required": ["x", "y", "w", "h"], "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "w": { "type": "number" }, "h": { "type": "number" }, "viewport": { "type": "object" } } }
+      }
+    } }
+  },
+  "$defs": {
+    "totals": { "type": "object", "additionalProperties": false, "required": ["steps", "clicks", "fields", "chars", "scrolls", "klmSeconds"],
+      "properties": { "steps": { "type": "number" }, "clicks": { "type": "number" }, "fields": { "type": "number" }, "chars": { "type": "number" }, "scrolls": { "type": "number" }, "klmSeconds": { "type": "number" }, "slowestMs": { "type": "number" }, "reached": { "type": "number" } } }
+  }
+}

@@ -10,6 +10,8 @@ ends with a word you may or may not say.
 
 `uxcli run` exits 0 when no probe reports `fail`, 2 when at least one does, 1 when it could not run. You say done only after a run you made yourself, on the final state of the files, exited 0. A `fail` blocks the word done until it is fixed and re-measured, or until the human has seen it and decided; in that case you report the fail, you do not report done. A `finding` is not a pass: it is a would-be fail from a probe whose method is not yet validated. Name it as a finding and say what it says; never fold it into "passes" or "no issues". `unmeasurable` and `not-applicable` are not passes either.
 
+A journey walk can also exit 3 (`DESIGN STEP OPEN`): it found no fail, but the project's policy holds the work to a design step (`project.design`) that a walked screen has not had — two variants and a lens review, or under `picked` a person's pick. Exit 3 is not a verdict on the interface; it is the work not being finished, and it blocks the word done like any exit that is not 0.
+
 ## What exit 0 does not cover
 
 `uxcli run <url>` runs five probes, and only these: `focus-visible` (2.4.7), `contrast` (1.4.3),

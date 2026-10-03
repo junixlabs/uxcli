@@ -65,6 +65,12 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    Then read what the person goes through: `npx -y @junixlabs/uxcli experience --page` — steps, clicks,
    typing, scrolls, waits and a keystroke-level estimate per journey, each finding pinned on the step's
    screenshot, and what moved since the walk before. Report each finding in its words; they never block.
+   To see the whole board — every journey's screens as drawn, as built and per version, findings
+   pinned — run `npx -y @junixlabs/uxcli studio --shot=.uxcli/studio/board.png` and look at the picture.
+   When a person has to pick a drawing or look at the work, tell them to open
+   `npx -y @junixlabs/uxcli studio --serve`: they pan and zoom it like a design file, choose a drawing or
+   ask for a redraw there, and it refreshes as you change files. Their choice lands in `pick.json` or
+   `revise.json`; read it from there.
 6. **Say done only at exit 0**, and say what was measured. Anything else, say what stands in the way.
    `references/before-done.md` is the full sequence and the list of what exit 0 does not cover.
 
@@ -80,6 +86,7 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `unmeasurable` | say what could not be measured and why; do not retry until it passes |
 | `not-applicable` | nothing to do here; the condition did not occur |
 | `blocked` (exit 1) | no verdict was reached; read the reason and the `fix` line (identity, fixture, reach) and report it; this is not a UX fail |
+| `DESIGN STEP OPEN` (exit 3) | the walk measured clean, but the policy holds this project to a design step and a walked screen has no drawing, review or pick; draw and review it, then ask the person to pick — never write a pick yourself without their say-so. Not done |
 | exit 0 | no probe found a fail; report what ran and what it did not look at |
 
 ## Invariants
@@ -101,7 +108,9 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `references/journey.md` | the card says no journey, or a flow has changed shape: states as signals, hooks, workflows |
 | `references/mockups.md` | a screen the journey names has no mockup or no pick: variants, hooks, `pick.json` |
 | `references/understand.md` | the card says no understanding, or an insight the screen leans on is missing or a hypothesis |
+| `references/walkthrough.md` | a journey was walked and you need to know whether a person could follow it: the four questions at every step, as one of the project's actors |
 | `references/versions.md` | a walk showed something worth changing: naming versions, a redesign proposal with evidence, comparing two versions |
+| `references/prefer.md` | two versions exist and someone asks which people would rather use: a blind pairwise study you prepare and people judge |
 | `references/research.md` | you do not know the product's field from sources yet: where to look, what to come back with, how to write it down |
 | `templates/<id>.md` | the product is a kind uxcli has a template for — `workspace`, `shop`, `landing`: screens and their lens, journeys to walk, what to research |
 | `lenses/<kind>.md` | before you draw or change a screen: the checklist for its kind of UI — `marketing`, `content`, `data`, `workspace`, `shop`, `transaction` |

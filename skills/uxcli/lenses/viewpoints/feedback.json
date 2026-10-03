@@ -1,0 +1,471 @@
+{
+ "schema_version": 1,
+ "school": "feedback",
+ "name": "Motion and feedback",
+ "research": "docs/lenses/feedback.md",
+ "viewpoints": [
+  {
+   "id": "feedback.status-messages-announced-without-focus",
+   "claim": "A message about the result of an action, a wait, progress or errors that appears without moving focus is exposed to assistive tech as a status (role=status, role=alert or an aria-live region), so a screen reader announces it without the user losing their place.",
+   "source": {
+    "author": "W3C Accessibility Guidelines Working Group",
+    "work": "Understanding Success Criterion 4.1.3: Status Messages (WCAG 2.2)",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html",
+    "quote": "The intent of this success criterion is to make users aware of important changes in content that are not given focus, and to do so in a way that doesn't unnecessarily interrupt their work."
+   },
+   "evidence": "author",
+   "prefers": [
+    "role=\"status\" (polite) for results, saved and progress messages such as '18 results returned' or 'Saved'",
+    "role=\"alert\" only for messages that must interrupt, such as an error that blocks the task",
+    "The live region rendered empty with the page and its text changed later, so the browser is already watching it",
+    "aria-busy=\"true\" on a live region while it fills, then false, so half-loaded content is not read out"
+   ],
+   "forbids": [
+    "A 'Saved' or 'Added to basket' message painted as plain text with no live role",
+    "Moving focus to a success message just so it gets read, when the user was still working",
+    "Injecting the live region and its text in the same tick, which many screen readers do not announce",
+    "Every message as role=alert, so routine confirmations interrupt whatever is being read"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Walk every action that adds a message without navigating (save, add to basket, filter, copy, upload, inline submit). For each text node that appears within 3 s of the action and is not inside the focused element, count it when no ancestor has role=status|alert|log|progressbar or aria-live=polite|assertive, or when that live ancestor was itself inserted in the same mutation as the text. Count must be 0.",
+    "mustFail": "Clicking 'Add to basket' inserts <div class=\"msg\">Added to basket</div> beside the button; no role, no aria-live; focus stays on the button.",
+    "mustPass": "The page loads with an empty <div role=\"status\"></div>; clicking 'Add to basket' sets its text to 'Added to basket, 3 items'; focus stays on the button."
+   },
+   "exceptions": [
+    "Changes of context (a new page, a dialog that takes focus) are announced by focus and are outside this rule",
+    "New content itself (the list of search results) is not a status message; the line about it ('18 results') is",
+    "The 3 s window is uxcli's, not W3C's"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Any screen that confirms, filters or saves in place needs it; brochure and article pages often have no in-place messages at all.",
+   "agrees": [
+    "usability.visibility-of-system-status",
+    "usability.feedback-within-a-second"
+   ]
+  },
+  {
+   "id": "feedback.confirmation-page-says-what-happens-next",
+   "claim": "A finished transaction ends on a confirmation page whose panel states the outcome as a heading, gives the reference number if there is one, says what happens next and when, how to get in touch, and offers a way to keep a record.",
+   "source": {
+    "author": "GOV.UK Design System",
+    "work": "Confirmation pages pattern",
+    "url": "https://design-system.service.gov.uk/patterns/confirmation-pages/",
+    "quote": "Confirmation pages reassure users that they have completed a transaction and helps them understand what to expect next."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A panel whose h1 says the outcome ('Application complete') with the reference number beneath it",
+    "A 'What happens next' section with a timescale ('We'll email you within 5 working days')",
+    "Contact details for the service, links to what users are likely to need next, and a save-as-PDF or print link",
+    "A page that still answers sensibly when it is revisited from a bookmark"
+   ],
+   "forbids": [
+    "A toast reading 'Submitted!' over the form the user just filled in",
+    "A thank-you page with no reference number for a transaction that has one",
+    "Links or buttons inside the green panel without changing its focus and contrast styles"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Complete the journey to its last page. Count missing items among: (a) an h1 that names the outcome (contains a past-tense verb or 'complete'/'confirmed'/'received'); (b) the reference number, when the back end issued one, as visible text; (c) a heading or paragraph about what happens next containing a time expression (a day, date or duration); (d) a contact method (mailto:, tel: or a contact link); (e) a print, download or email-me-a-copy control. Count must be 0.",
+    "mustFail": "After 'Pay now' the page shows a centred tick and 'Thank you!' with a 'Back to home' button; the order number exists in the API response but is not on the page.",
+    "mustPass": "The page shows a panel 'Order confirmed — your reference is HDJ2123F', a 'What happens next' section saying 'We'll send it by Friday 10 October', a phone number and 'Download a PDF receipt'."
+   },
+   "exceptions": [
+    "GOV.UK also asks for a link to a feedback page; that is a government service requirement, not counted here",
+    "A step that is part of a longer task, where the user has not finished, uses a success banner on the next page instead (GOV.UK notification banner)",
+    "The past-tense and time-expression heuristics are uxcli's"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "no",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Checkout and application journeys end in a transaction; a marketing sign-up or a workspace action that creates something may; reading and dashboards do not.",
+   "agrees": [
+    "usability.peak-end-finish-well",
+    "usability.visibility-of-system-status"
+   ]
+  },
+  {
+   "id": "feedback.toasts-carry-nothing-critical",
+   "claim": "A toast is only for a short, low-priority confirmation of something the user just did; an error that needs action, a warning, or anything the user cannot find again elsewhere goes in an inline message or banner that stays.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Toast component — Accessibility",
+    "url": "https://polaris.shopify.com/components/deprecated/toast",
+    "quote": "Avoid using toast for critical information that merchants need to act on immediately."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Short noun + verb confirmations: 'Product updated', 'Collection added'",
+    "Errors the user must fix shown next to the cause or in a banner that persists until resolved",
+    "Whatever the toast says also visible somewhere on the page after it goes (the saved value, the item in the list, a notifications area)"
+   ],
+   "forbids": [
+    "A validation or payment error delivered only as a toast that auto-dismisses",
+    "A toast that holds the only copy of a generated password, link or code",
+    "Several sentences of explanation in a toast"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Record a walk through every action, including forced failures (offline, 4xx, 5xx). Treat as a toast any fixed- or absolute-positioned element with role=status|alert or aria-live that is removed or hidden within 15 s without user input. Count toasts whose text matches error/failed/could not/denied/invalid, toasts with more than 15 words, and toasts whose distinctive text (any token of 6+ characters other than common words) appears nowhere in the DOM 2 s after they leave. Count must be 0.",
+    "mustFail": "Submitting a card that is declined shows a red toast 'Payment failed: your card was declined, try another card' for 4 s; the form shows nothing.",
+    "mustPass": "A declined card shows an error summary above the form and a message by the card field; a successful save shows the toast 'Settings saved' and the new values stay in the fields."
+   },
+   "exceptions": [
+    "Polaris allows an error toast for system errors not caused by the user, such as 'Internet disconnected', in 3 words",
+    "Polaris's own Toast component is deprecated in favour of the App Bridge Toast API; the guidance quoted is still on its page",
+    "The 15 s, 15-word and 6-character thresholds are uxcli's"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Toasts live in apps, shops and transactions; static marketing and content pages rarely show them.",
+   "agrees": [
+    "usability.banner-blindness-dont-style-content-like-ads",
+    "modern.feedback-is-local-and-optimistic"
+   ]
+  },
+  {
+   "id": "feedback.toast-actions-wait-for-the-user",
+   "claim": "A toast that carries an action (Undo, Retry, View) stays at least 10 seconds or until dismissed, and the same action can be reached somewhere else on the page.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Toast component — Toast with action",
+    "url": "https://polaris.shopify.com/components/deprecated/toast",
+    "quote": "Toast with action should persist for at least 10,000 milliseconds to give the merchant enough time to act on it."
+   },
+   "evidence": "author",
+   "prefers": [
+    "An actionable toast that persists until the user dismisses it (Carbon's rule)",
+    "One short verb as the action label: Undo, Retry, View",
+    "The same Undo or Retry reachable another way: a restore from trash, a reload, a history entry",
+    "Auto-dismiss timers paused while the toast is hovered or has focus inside it"
+   ],
+   "forbids": [
+    "An Undo toast that vanishes after 3–5 seconds",
+    "Undo offered only in the toast, with no trash, history or other way back",
+    "'OK', 'Got it' or 'Dismiss' as the toast's action"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Trigger each action that shows a toast. For each toast containing a button or link other than close, record how long it stays in the DOM and visible with no user input; count those under 10 000 ms. Then for each such action label, search the page (menus included) for another control with the same accessible name or a trash/history route; count toasts whose action has no second route. Count must be 0.",
+    "mustFail": "Deleting a file shows 'File deleted  [Undo]' that disappears after 4 s; there is no trash view.",
+    "mustPass": "Deleting a file shows 'File deleted  [Undo]' that stays until closed, and the file can also be restored from Trash."
+   },
+   "exceptions": [
+    "Carbon asks that actionable toasts persist until dismissed, which is stricter than Polaris's 10 seconds",
+    "A toast without an action may auto-dismiss (Polaris's default is 5000 ms) when its content is available elsewhere, which WCAG 2.2.1 lists as not needing to be adjustable"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Undo and Retry toasts belong to tools and shop admin; marketing pages do not offer them, and transaction flows usually confirm on a page.",
+   "agrees": [
+    "usability.clearly-marked-emergency-exit",
+    "feedback.destructive-actions-confirmed-or-undoable"
+   ]
+  },
+  {
+   "id": "feedback.match-the-indicator-to-the-wait",
+   "claim": "Choose the loading indicator by the wait: nothing under about a second, an indeterminate spinner or skeleton for one to three seconds, and a determinate progress bar with a label for longer operations whose progress is known, placed where the result will appear.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Loading UI pattern",
+    "url": "https://primer.style/product/ui-patterns/loading/",
+    "quote": "Determinate loading indicators work best for processes that are likely to take longer (approximately 3 or more seconds)."
+   },
+   "evidence": "author",
+   "prefers": [
+    "No loading state under 1 s, so nothing flashes",
+    "A skeleton when the shape of the content is known; a spinner for a button action or a region whose shape is not",
+    "<progress> or role=progressbar with aria-valuenow for uploads, downloads, imports and exports of known size",
+    "A specific label: 'Loading status checks', 'Uploading 3 of 12 files', not just 'Loading'",
+    "The indicator in the region it stands in for; long jobs moved to the background so the page stays usable"
+   ],
+   "forbids": [
+    "A full-page overlay spinner when one panel is loading",
+    "An indeterminate spinner for a 40 s upload whose byte count is known",
+    "A spinner that appears and disappears in a few hundred milliseconds on every click",
+    "A static hourglass or 'Please wait' text with no motion and no progress"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Record the walk unthrottled and again with network throttled (Slow 3G). Count: (a) loading indicators (role=progressbar, aria-busy=true, elements matching spinner|loader|skeleton) visible for less than 1000 ms in the unthrottled run when the request itself took under 1000 ms; (b) uploads or downloads of a known byte size that run longer than 3 s throttled without an element exposing aria-valuenow or a <progress value>; (c) indicators whose bounding box covers more than 80% of the viewport while the request being waited on fills a region smaller than half the viewport; (d) indicators with no accessible name. Count must be 0.",
+    "mustFail": "Uploading a 20 MB file shows a centred full-screen spinner with no label for 45 s; every tab switch flashes the same overlay for 150 ms.",
+    "mustPass": "The upload shows '<progress value=42 max=100>' labelled 'Uploading report.pdf, 42%' in the file row while the rest of the page stays usable; tab switches under a second show no indicator."
+   },
+   "exceptions": [
+    "Primer's bands (under 1 s, 1–3 s, 3–10 s, over 10 s) are general guidance; it says waits cannot be predicted exactly",
+    "An interstitial loading page is acceptable for a long process that ends in a significant change, such as creating a repository",
+    "The 80% and half-viewport thresholds are uxcli's"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Apps, dashboards, shops and transactions wait on servers; static pages rarely show loading states.",
+   "agrees": [
+    "usability.feedback-within-a-second",
+    "data-display.loading-skeleton-holds-the-layout",
+    "modern.every-state-is-designed"
+   ]
+  },
+  {
+   "id": "feedback.motion-duration-scales-with-size",
+   "claim": "Animation durations come from a small set of tokens and grow with the size of the change: about 70–150 ms for button and toggle feedback, around 240 ms for a toast or expansion, 400 ms for large expansion, 700 ms only for background dimming.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Motion — Duration and duration tokens",
+    "url": "https://carbondesignsystem.com/elements/motion/overview/",
+    "quote": "Motion’s duration should be dynamic based on the size of the animation; the larger the change in distance (traveled) or size (scaling) of the element, the longer the animation takes."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Named duration tokens (duration-fast-01 70ms, duration-fast-02 110ms, duration-moderate-01 150ms, duration-moderate-02 240ms, duration-slow-01 400ms, duration-slow-02 700ms) instead of ad hoc values",
+    "Productive (faster, subtler) motion for task UI; expressive motion only for occasional significant moments",
+    "Ease-out on user input; micro-interactions within 90–120 ms per Carbon's checklist",
+    "Motion that answers a question: what changed, where it came from, that the action registered"
+   ],
+   "forbids": [
+    "A 600 ms transition on a button hover",
+    "The same long duration on a tooltip and on a full-screen panel",
+    "Decorative motion nobody asked for that is noticed on every use"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Read computed transition-duration and animation-duration (plus delay) on every element that changes on :hover, :focus, :active, [aria-expanded], [aria-checked] or [data-state], and on elements that enter or leave during the walk. Excluding loading indicators and media, count: animations longer than 700 ms; changes on buttons, links, checkboxes, switches and tabs longer than 150 ms; and pairs where a smaller element's duration exceeds that of a larger one (by bounding-box area) that changes in the same interaction. Count must be 0.",
+    "mustFail": "Buttons transition background over 500 ms, a toast slides in over 1200 ms, and a full-width drawer opens in 150 ms.",
+    "mustPass": "Buttons change in 110 ms, the toast enters in 240 ms, the drawer opens in 400 ms and its scrim fades in 700 ms."
+   },
+   "exceptions": [
+    "Carbon says dynamic, size-based duration is preferred and the six static tokens are an interim implementation; other systems have other scales",
+    "Expressive motion for a page change or an important moment may sit at the slow end",
+    "Grouping elements into 'micro-interaction' controls and comparing by bounding-box area are uxcli's operationalisation"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Every kind animates something; the scale is about proportion, not about the kind of page.",
+   "agrees": [
+    "modern.interactions-feel-immediate-under-200ms",
+    "modern.motion-values-proportional-to-trigger",
+    "modern.frequent-actions-do-not-animate"
+   ]
+  },
+  {
+   "id": "feedback.moving-content-can-be-paused",
+   "claim": "Anything that starts moving, blinking or scrolling on its own and lasts more than five seconds, and anything that auto-updates (carousels, tickers, live feeds, background video), has a visible control to pause, stop or hide it.",
+   "source": {
+    "author": "W3C Accessibility Guidelines Working Group",
+    "work": "Understanding Success Criterion 2.2.2: Pause, Stop, Hide (WCAG 2.2)",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html",
+    "quote": "Content that moves or auto-updates can be a barrier to anyone who has trouble reading stationary text quickly as well as anyone who has trouble tracking moving objects."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A labelled Pause/Play button on carousels, marquees, background video and animated hero illustrations",
+    "Auto-updating feeds with a pause or a way to choose the update frequency",
+    "Real-time data (stock ticker, auction timer) that jumps to the current state when resumed",
+    "No autoplay at all where the motion carries no information"
+   ],
+   "forbids": [
+    "An auto-advancing carousel whose only stop is hovering or focusing it",
+    "A looping background video with no control",
+    "A news ticker that scrolls forever"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Load each page and wait 6 s without input. Count elements still animating (running CSS animations or Web Animations with iteration count above 1 or infinite, <video autoplay> playing, a carousel whose visible slide changed, or a region whose text changed on a timer) that have no visible, keyboard-reachable control whose accessible name contains pause, stop, hide or turn off. Exclude loading indicators shown while a request is pending. Count must be 0.",
+    "mustFail": "A homepage hero carousel advances every 4 s and pauses only on hover; a muted background video loops with no controls.",
+    "mustPass": "The carousel has a 'Pause slideshow' button before the slides and the video has a 'Pause background video' button; both stop motion when pressed."
+   },
+   "exceptions": [
+    "Motion that is part of an activity where it is essential (a game, an animation preview) is exempt",
+    "Moving content that stops by itself within 5 seconds and runs in parallel with other content does not need a control; auto-updating content has no such 5-second exception",
+    "A pause that only holds while the pointer or focus is on the element does not count as a mechanism"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Carousels and background video are marketing, content and shop staples; live-updating dashboards and tools sometimes auto-update; transaction flows rarely move on their own.",
+   "agrees": [
+    "modern.honour-prefers-reduced-motion",
+    "usability.banner-blindness-dont-style-content-like-ads"
+   ]
+  },
+  {
+   "id": "feedback.time-limits-warn-and-extend",
+   "claim": "When a session or form times out, the user is warned before it happens and can extend it with a simple action, given at least 20 seconds to respond, or the limit can be turned off or lengthened.",
+   "source": {
+    "author": "W3C Accessibility Guidelines Working Group",
+    "work": "Understanding Success Criterion 2.2.1: Timing Adjustable (WCAG 2.2)",
+    "url": "https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html",
+    "quote": "Providing options to disable time limits, customize the length of time limits, or request more time before a time limit occurs helps those users who require more time than expected to successfully complete tasks."
+   },
+   "evidence": "author",
+   "prefers": [
+    "No time limit where none is needed",
+    "A warning dialog before expiry, announced and focused, with 'Stay signed in' as the primary action",
+    "At least 20 seconds to respond to the warning; extending possible at least ten times",
+    "After a time-out, the user's answers kept so they can continue once signed in again"
+   ],
+   "forbids": [
+    "Silent session expiry that discards a half-filled form",
+    "A timed redirect ('You will be taken to the home page in 5 seconds') with no way to stop it",
+    "A warning that appears only as a toast or banner outside the user's focus"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "With the clock accelerated (or the session TTL shortened) on each authenticated or multi-step page, leave the page idle until the time limit. Count limits that expire with no prior warning; warnings that give less than 20 s between appearing and expiry; warnings with no keyboard-reachable control that extends the session; meta refresh or JavaScript redirects that fire on a timer with no control to stop them; and expiries after which previously entered field values are lost. Count must be 0.",
+    "mustFail": "After 15 idle minutes on step 3 of an application the next submit lands on the sign-in page and the answers on steps 1–3 are gone; no warning appeared.",
+    "mustPass": "At 13 minutes a dialog says 'You'll be signed out in 2 minutes' with a focused 'Stay signed in' button; pressing it resets the timer, and if ignored, signing back in returns to step 3 with answers kept."
+   },
+   "exceptions": [
+    "Real-time events such as auctions, and limits that are essential or longer than 20 hours, are exempt",
+    "Security limits such as one-time codes can be essential, but other criteria (redundant entry, accessible authentication) still apply",
+    "Answers being kept after a time-out comes from WCAG 2.2.5 Re-authenticating (AAA), referenced from this page, not from 2.2.1 itself"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Time limits come with sign-in and long forms: transactions and signed-in tools; checkout sessions and dashboards sometimes; public pages almost never.",
+   "agrees": [
+    "forms.keep-answers-after-an-error",
+    "feedback.status-messages-announced-without-focus"
+   ]
+  },
+  {
+   "id": "feedback.message-type-said-in-words",
+   "claim": "Every alert, banner and toast names its type in words — Success, Error, Warning, Information — as the first word or its heading, used the same way across the product, not only through its colour or icon.",
+   "source": {
+    "author": "U.S. Web Design System",
+    "work": "Alert component — Accessibility guidance",
+    "url": "https://designsystem.digital.gov/components/alert/",
+    "quote": "Users should be able to understand the purpose of the alert without relying solely on its color or the shape of its icon."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A heading such as 'Success', 'Error' or 'Warning' (GOV.UK uses 'Success' on its green notification banner)",
+    "The same heading word for the same type everywhere in the service",
+    "An icon per type with a text alternative, in addition to the word",
+    "The alert's ARIA role matched to its urgency (status for success, alert for errors)"
+   ],
+   "forbids": [
+    "A green box and a red box with otherwise identical wording styles",
+    "An icon-only type indicator with alt=\"\"",
+    "'Success' in one place and 'Done!' or 'Yay' for the same type elsewhere"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Collect every alert, banner, toast and inline notification shown during the walk (role=alert|status, aria-live, or class/name matching alert|banner|toast|notification|callout). Count those whose heading or first five words of accessible text contain none of: success, successful, error, warning, important, information, info, notice, announcement, emergency, problem, failed, complete. Then count types (by colour family) that use more than one such word across the product. Count must be 0.",
+    "mustFail": "A save shows a green box reading 'Your changes are live'; a failure shows a red box reading 'Something went sideways' with a decorative icon whose alt is empty.",
+    "mustPass": "A save shows a banner headed 'Success' reading 'Your changes are live'; a failure shows one headed 'Error' with 'Error' as the icon's text alternative."
+   },
+   "exceptions": [
+    "USWDS allows the type word in the body rather than the lead when leading with it would make the alert unclear",
+    "The word list and the five-word window are uxcli's"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Wherever outcomes are reported back; marketing and content pages show alerts less often.",
+   "agrees": [
+    "color.never-the-only-signal",
+    "color.status-colours-keep-their-meaning",
+    "craft.wcag-contrast-and-dont-rely-on-colour-alone"
+   ]
+  },
+  {
+   "id": "feedback.destructive-actions-confirmed-or-undoable",
+   "claim": "An action that destroys the user's work never completes on a single click with no way back: it asks for confirmation in a dialog, or it completes and offers Undo with a route to restore.",
+   "source": {
+    "author": "U.S. Web Design System",
+    "work": "Alert component — When to consider something else",
+    "url": "https://designsystem.digital.gov/components/alert/",
+    "quote": "If an action will result in destroying a user’s work (for example, deleting an application) use a more intrusive pattern, such as a confirmation modal dialogue, to allow the user to confirm that this action is what they want."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Undo (in a persistent toast, a trash or a version history) for actions that can be reversed",
+    "A confirmation dialog for actions that cannot be reversed",
+    "Bulk and irreversible deletes behind a confirmation, single reversible deletes behind Undo"
+   ],
+   "forbids": [
+    "A trash icon that deletes immediately and permanently",
+    "Only an alert or toast announcing the deletion after the fact, with no Undo",
+    "A confirmation dialog for every trivial, reversible action, which teaches users to click through it"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Activate every control whose name or icon matches delete, remove, discard, clear, reset, archive, cancel subscription or close account on a disposable fixture. Count those where, within 2 s, the object is gone from the DOM (and from a reload) with no role=dialog|alertdialog having appeared and no visible control named Undo/Restore/Revert, and no trash, archive or history route that lists the object. Count must be 0.",
+    "mustFail": "Clicking the bin icon on a saved report removes the row and the report is gone after reload; no dialog, no Undo, no trash.",
+    "mustPass": "Clicking the bin icon removes the row and shows 'Report deleted  [Undo]' until dismissed, and the report sits in Trash for 30 days; 'Delete all' opens a dialog 'Delete 14 reports?'."
+   },
+   "exceptions": [
+    "Clearing transient input (a search box, a filter) is not destroying work",
+    "USWDS names the confirmation dialog; offering Undo instead for reversible actions follows Polaris's toast guidance and is this pool's reading, not USWDS's words",
+    "The 2 s window is uxcli's"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Tools that hold the user's work have destructive actions; shops have removable baskets and accounts; marketing and reading pages do not.",
+   "agrees": [
+    "writing.destructive-actions-name-the-consequence",
+    "usability.clearly-marked-emergency-exit",
+    "craft.button-hierarchy-one-primary"
+   ]
+  }
+ ]
+}

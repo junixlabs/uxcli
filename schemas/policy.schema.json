@@ -40,6 +40,14 @@
             "inject"
           ]
         },
+        "design": {
+          "description": "Whether a walk holds the work to a design step: drawn (two or more variants and a complete lens review for every walked screen) or picked (and a person's pick). Open, a clean run exits 3. Default off.",
+          "enum": [
+            "off",
+            "drawn",
+            "picked"
+          ]
+        },
         "constraints": {
           "type": "array",
           "items": {

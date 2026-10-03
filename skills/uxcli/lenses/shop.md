@@ -2,7 +2,7 @@
 
 Catalogues, search results and product pages: browse, compare, choose.
 
-60 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
+65 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
 
 ## 1. `usability.visibility-of-system-status`
 
@@ -14,9 +14,21 @@ Every action with consequences shows the user something changed, as quickly as p
 - **Don't:** Submit silently; Change state with no visible trace; Show an action's result only somewhere else
 - **Look at:** Drive an action, then diff DOM or pixels over the next frames: did anything visibly change within 1 s; is there a live region, status text, spinner or busy state?
 - **Unless:** Below 0.1 s no special feedback is needed beyond showing the result
-- **Also stated as:** modern.feedback-is-local-and-optimistic (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); writing.success-names-what-happened (Shopify Polaris); data-display.loading-skeleton-holds-the-layout (GitHub Primer); forms.do-not-disable-the-submit-button (GitHub Primer).
+- **Also stated as:** modern.feedback-is-local-and-optimistic (Rauno Freiberg); modern.density-is-value-per-time-and-space (Matthew Ström-Awn); writing.success-names-what-happened (Shopify Polaris); data-display.loading-skeleton-holds-the-layout (GitHub Primer); forms.do-not-disable-the-submit-button (GitHub Primer); feedback.status-messages-announced-without-focus (W3C Accessibility Guidelines Working Group); feedback.confirmation-page-says-what-happens-next (GOV.UK Design System).
 
-## 2. `usability.speak-the-users-language`
+## 2. `usability.feedback-within-a-second`
+
+Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
+
+- **Source:** Jakob Nielsen, *Response Times: The 3 Important Limits (1993)* — https://www.nngroup.com/articles/response-times-3-important-limits/ (study)
+- **In their words:** "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
+- **Do:** Use a progress indicator for any action over about 1 s; Use a looped indicator for 2–9 s waits; Use a percent-done indicator for 10 s or more
+- **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
+- **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
+- **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
+- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg); feedback.match-the-indicator-to-the-wait (GitHub Primer).
+
+## 3. `usability.speak-the-users-language`
 
 Write in the words the actor already uses; no internal jargon, error codes or unexplained abbreviations.
 
@@ -26,9 +38,9 @@ Write in the words the actor already uses; no internal jargon, error codes or un
 - **Don't:** Show bare error codes; Expose internal entity names; Use unexplained abbreviations
 - **Look at:** Flag bare error codes (e.g. ERR-422, Error 0x…), all-caps acronyms not defined on the page, and Latin abbreviations; whether a term is jargon for this actor needs the journey's actor.
 - **Unless:** Expert-only tools where the domain term is the users' language — match the user, do not simplify per se
-- **Also stated as:** writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen).
+- **Also stated as:** writing.errors-say-what-and-how-to-fix (GOV.UK Design System (Government Digital Service)); writing.plain-language-reading-level (Shopify Polaris); forms.error-message-says-how-to-fix (GOV.UK Design System); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); navigation.top-level-is-sections-not-a-site-map (GOV.UK Design System).
 
-## 3. `usability.signifiers-make-clickable-look-clickable`
+## 4. `usability.signifiers-make-clickable-look-clickable`
 
 Links and buttons must look clickable — colour, underline, border or fill — because weak signifiers cost measured time and fixations.
 
@@ -39,18 +51,6 @@ Links and buttons must look clickable — colour, underline, border or fill — 
 - **Look at:** For each a[href], button, [role=button]: computed colour, underline, border and background versus surrounding text; a link matching body colour with no underline and no other differentiator is weak; count disabled buttons.
 - **Unless:** Link position in nav menus or peripheral lists may eliminate the need for underlining (Loranger); Flat works best with low information density, traditional layouts and high-contrast targets positioned standardly (Moran)
 - **Also stated as:** usability.banner-blindness-dont-style-content-like-ads (Kara Pernice, NN/g); craft.button-hierarchy-one-primary (Steve Schoger); canon.gestalt-similarity (Aurora Harley, NN/g); color.one-action-colour-apart-from-status (IBM Carbon Design System).
-
-## 4. `usability.feedback-within-a-second`
-
-Paint something within 0.1 s; keep the user's flow with a response under 1 s; show a progress indicator for anything longer.
-
-- **Source:** Jakob Nielsen, *Response Times: The 3 Important Limits (1993)* — https://www.nngroup.com/articles/response-times-3-important-limits/ (study)
-- **In their words:** "0.1 second is about the limit for having the user feel that the system is reacting instantaneously … 1.0 second is about the limit for the user's flow of thought to stay uninterrupted"
-- **Do:** Use a progress indicator for any action over about 1 s; Use a looped indicator for 2–9 s waits; Use a percent-done indicator for 10 s or more
-- **Don't:** Leave dead time with no indicator; Show a percent-done bar that lies badly
-- **Look at:** Time from input event to first paint of any change; presence of a progress element, aria-busy, <progress> or role=status update when the wait exceeds 1 s.
-- **Unless:** Laws of UX claims a purposeful delay can raise perceived value — an opinion with no study cited
-- **Also stated as:** modern.interactions-feel-immediate-under-200ms (Rauno Freiberg).
 
 ## 5. `usability.fitts-target-size-and-distance`
 
@@ -76,42 +76,7 @@ One visually distinct primary action per view, left-aligned with the form, and d
 - **Unless:** Do not pre-highlight a dangerous action as the default (Nielsen)
 - **Also stated as:** canon.vignelli-weight-for-function-not-volume (Massimo Vignelli).
 
-## 7. `usability.no-false-affordances`
-
-Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
-
-- **Source:** Hoa Loranger, NN/g, *Beyond Blue Links: Making Clickable Elements Recognizable (2015)* — https://www.nngroup.com/articles/clickable-elements/
-- **In their words:** "Avoid making non-clickable items (like headings) resemble buttons."
-- **Do:** Reserve link colour and underline for links; Reserve button shape and fill for buttons
-- **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
-- **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
-- **Also stated as:** modern.no-dead-zones-and-honest-clickability (Rauno Freiberg).
-
-## 8. `usability.follow-conventions`
-
-Work the way the sites and platforms users already know; a convention beats a locally optimised novelty.
-
-- **Source:** Jakob Nielsen, *OK-Cancel or Cancel-OK? (2008)* — https://www.nngroup.com/articles/ok-cancel-or-cancel-ok/
-- **In their words:** "Following platform conventions is more important than optimizing an individual dialog box."
-- **Do:** Keep button order identical in every dialog; Highlight the most common button as default, except for dangerous actions; Prefer descriptive labels over 'OK'; Let users keep a familiar version for a while when changing
-- **Don't:** Invent a new pattern for a solved problem; Vary the same control's placement between screens
-- **Look at:** Logo in header links home; a search input has type=search or a search label; primary/secondary button order is the same in every dialog; cart and account icons stay where they were on other screens.
-- **Unless:** Desktop apps follow their own OS: Windows OK-first, Apple OK-last
-- **Also stated as:** craft.anything-but-dropdowns (Erik D. Kennedy); modern.boring-and-familiar-beats-novel (Scott Berkun).
-
-## 9. `usability.visual-hierarchy-for-scanning`
-
-Design for scanning, not reading: headings that out-rank body text, bold key phrases, lists, and no walls of unformatted text.
-
-- **Source:** Kara Pernice, NN/g, *F-Shaped Pattern of Reading on the Web (2017, rev. 2026)* — https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/ (study)
-- **In their words:** "The F-shaped scanning pattern is bad for users and businesses."
-- **Do:** Use prominent headings with information-rich opening words; Bold key phrases; employ lists and bullets; Remove unnecessary content
-- **Don't:** Leave walls of unstructured text; Let headings fail to out-rank body text visually; Let visual weight contradict importance
-- **Look at:** Heading font-size and weight monotonic with level (h1 ≥ h2 ≥ h3 ≥ body); longest paragraph in words; ratio of headings and list items to total text blocks.
-- **Unless:** The pattern needs moderate, not high, interest — highly motivated readers read
-- **Also stated as:** craft.hierarchy-is-everything-squint-test (Erik D. Kennedy).
-
-## 10. `usability.hicks-fewer-choices-when-time-matters`
+## 7. `usability.hicks-fewer-choices-when-time-matters`
 
 Fewer equal-weight choices at a decision point, with one recommended; but never use seven as a cap on menu length.
 
@@ -122,7 +87,7 @@ Fewer equal-weight choices at a decision point, with one recommended; but never 
 - **Look at:** Count same-weight primary actions in a view; count options in a select or radio group with no recommended default. A menu's item count alone is not a failure.
 - **Unless:** Recognition, not recall, governs menus — length is a scan cost, not a memory cost (Nielsen)
 
-## 11. `usability.mindless-clicks-not-fewer-clicks`
+## 8. `usability.mindless-clicks-not-fewer-clicks`
 
 Do not count clicks; make each one an unambiguous choice with clear link text that says where it goes.
 
@@ -134,18 +99,42 @@ Do not count clicks; make each one an unambiguous choice with clear link text th
 - **Unless:** Fewer clicks matter more when the same path is drilled repeatedly or pages take long to load (Krug)
 - **Also stated as:** writing.links-describe-their-destination (Mailchimp).
 
-## 12. `usability.aesthetic-usability-effect-bias`
+## 9. `usability.no-false-affordances`
 
-Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.
+Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
 
-- **Source:** Kate Moran, NN/g, *The Aesthetic-Usability Effect (2024, rev. 2026)* — https://www.nngroup.com/articles/aesthetic-usability-effect/ (study)
-- **In their words:** "Users' tendency to perceive attractive products as more usable. People tend to believe that things that look better will work better — even if they aren't actually more effective or efficient."
-- **Do:** Rate your own screen after the measurable checks, not before; Treat polish as tolerance for minor problems only
-- **Don't:** Read polish as usability; Let an attractive surface hide a usability problem
-- **Look at:** Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.
-- **Unless:** With severe usability issues, or functionality sacrificed for aesthetics, users lose patience
+- **Source:** Hoa Loranger, NN/g, *Beyond Blue Links: Making Clickable Elements Recognizable (2015)* — https://www.nngroup.com/articles/clickable-elements/
+- **In their words:** "Avoid making non-clickable items (like headings) resemble buttons."
+- **Do:** Reserve link colour and underline for links; Reserve button shape and fill for buttons
+- **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
+- **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
+- **Also stated as:** modern.no-dead-zones-and-honest-clickability (Rauno Freiberg).
 
-## 13. `usability.clearly-marked-emergency-exit`
+## 10. `usability.follow-conventions`
+
+Work the way the sites and platforms users already know; a convention beats a locally optimised novelty.
+
+- **Source:** Jakob Nielsen, *OK-Cancel or Cancel-OK? (2008)* — https://www.nngroup.com/articles/ok-cancel-or-cancel-ok/
+- **In their words:** "Following platform conventions is more important than optimizing an individual dialog box."
+- **Do:** Keep button order identical in every dialog; Highlight the most common button as default, except for dangerous actions; Prefer descriptive labels over 'OK'; Let users keep a familiar version for a while when changing
+- **Don't:** Invent a new pattern for a solved problem; Vary the same control's placement between screens
+- **Look at:** Logo in header links home; a search input has type=search or a search label; primary/secondary button order is the same in every dialog; cart and account icons stay where they were on other screens.
+- **Unless:** Desktop apps follow their own OS: Windows OK-first, Apple OK-last
+- **Also stated as:** craft.anything-but-dropdowns (Erik D. Kennedy); modern.boring-and-familiar-beats-novel (Scott Berkun).
+
+## 11. `usability.visual-hierarchy-for-scanning`
+
+Design for scanning, not reading: headings that out-rank body text, bold key phrases, lists, and no walls of unformatted text.
+
+- **Source:** Kara Pernice, NN/g, *F-Shaped Pattern of Reading on the Web (2017, rev. 2026)* — https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/ (study)
+- **In their words:** "The F-shaped scanning pattern is bad for users and businesses."
+- **Do:** Use prominent headings with information-rich opening words; Bold key phrases; employ lists and bullets; Remove unnecessary content
+- **Don't:** Leave walls of unstructured text; Let headings fail to out-rank body text visually; Let visual weight contradict importance
+- **Look at:** Heading font-size and weight monotonic with level (h1 ≥ h2 ≥ h3 ≥ body); longest paragraph in words; ratio of headings and list items to total text blocks.
+- **Unless:** The pattern needs moderate, not high, interest — highly motivated readers read
+- **Also stated as:** craft.hierarchy-is-everything-squint-test (Erik D. Kennedy).
+
+## 12. `usability.clearly-marked-emergency-exit`
 
 Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo — so a mistaken action does not trap the user.
 
@@ -155,6 +144,18 @@ Every interaction has a visible, labelled way out — Cancel, Back, Escape, Undo
 - **Don't:** Open a modal with no close; Build a wizard step with no back; Ship a destructive action with no undo
 - **Look at:** For each role=dialog or modal: a focusable control whose text or aria-label matches close/cancel/back, and Escape dismisses it; for each step past the first in a flow: a back control exists.
 - **Unless:** Legally required interstitials — the exit must still be visible, not necessarily free of consequence
+- **Also stated as:** feedback.toast-actions-wait-for-the-user (Shopify Polaris).
+
+## 13. `usability.aesthetic-usability-effect-bias`
+
+Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.
+
+- **Source:** Kate Moran, NN/g, *The Aesthetic-Usability Effect (2024, rev. 2026)* — https://www.nngroup.com/articles/aesthetic-usability-effect/ (study)
+- **In their words:** "Users' tendency to perceive attractive products as more usable. People tend to believe that things that look better will work better — even if they aren't actually more effective or efficient."
+- **Do:** Rate your own screen after the measurable checks, not before; Treat polish as tolerance for minor problems only
+- **Don't:** Read polish as usability; Let an attractive surface hide a usability problem
+- **Look at:** Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.
+- **Unless:** With severe usability issues, or functionality sacrificed for aesthetics, users lose patience
 
 ## 14. `usability.natural-mapping-and-proximity`
 
@@ -201,7 +202,19 @@ Draw every margin, padding and gap from one scale, and make space between groups
 - **Unless:** Optical adjustments on icons and hanging punctuation sit a pixel or two off-scale
 - **Also stated as:** canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.spacing-comes-from-a-scale (Stan Kirilov).
 
-## 18. `craft.de-emphasize-to-emphasize-up-pop-down-pop`
+## 18. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
+
+Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
+
+- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
+- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
+- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
+- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
+- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
+- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); navigation.you-are-here (U.S. Web Design System (USWDS)); feedback.message-type-said-in-words (U.S. Web Design System).
+
+## 19. `craft.de-emphasize-to-emphasize-up-pop-down-pop`
 
 To emphasize, quiet the competitors as much as you loudify the hero; never stack every up-pop property on non-title elements.
 
@@ -212,18 +225,6 @@ To emphasize, quiet the competitors as much as you loudify the hero; never stack
 - **Look at:** Flag text at 2x body size or more that is also font-weight 700+, full contrast and uppercase, when it is not the page h1.
 - **Unless:** The page title may be all-out up-pop
 - **Also stated as:** canon.tufte-smallest-effective-difference (Edward Tufte).
-
-## 19. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
-
-Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
-
-- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
-- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
-- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
-- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
-- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
-- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
-- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group).
 
 ## 20. `craft.black-and-white-first-limit-hues`
 
@@ -335,9 +336,33 @@ Icons carry labels, menus are named for what they hold, and no primary feature h
 - **Don't:** More, ellipsis or Tools catch-alls holding primary features; Icon-only toolbars without labels; Tooltips on disabled buttons
 - **Look at:** Icon-only buttons with no text and no aria-label fail; menus triggered by More, …, Tools or Options holding over 5 items or a primary-action label warn; disabled buttons with title or aria-describedby fail.
 - **Unless:** Universally recognised icons in tight toolbars, though even the hamburger is weaker than designers think
-- **Also stated as:** writing.buttons-name-the-action (IBM Carbon Design System); usability.dont-make-me-think (Steve Krug).
+- **Also stated as:** writing.buttons-name-the-action (IBM Carbon Design System); navigation.primary-nav-visible-on-wide-screens (GitHub Primer); usability.dont-make-me-think (Steve Krug).
 
-## 30. `modern.signifiers-survive-flatness`
+## 30. `modern.frequent-actions-do-not-animate`
+
+Actions used many times a day, and anything keyboard-triggered, appear instantly without an enter animation.
+
+- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
+- **In their words:** "Actions that are frequent and low in novelty should avoid extraneous animations: opening a right click menu, deleting or adding items from a list, hovering trivial buttons"
+- **Do:** Show context menus, command palettes and list changes instantly; Leave keyboard-driven navigation unanimated
+- **Don't:** Opacity and scale fades on controls used hundreds of times a day; Animating keyboard-initiated actions
+- **Look at:** Enter animations on [role=menu], [cmdk-root] and newly inserted list items (animation-name not none), and animation state diffed within 16ms of a dispatched key; which actions count as frequent comes from the journey.
+- **Unless:** macOS context menus fade out and blink the chosen item; Rare features may be theatrical (delight-impact curve)
+- **Also stated as:** modern.motion-values-proportional-to-trigger (Rauno Freiberg); feedback.motion-duration-scales-with-size (IBM Carbon Design System).
+
+## 31. `modern.honour-prefers-reduced-motion`
+
+Every large motion has a reduced variant under prefers-reduced-motion; fade instead of slide rather than ignoring the setting.
+
+- **Source:** Emil Kowalski, *Great Animations* — https://emilkowal.ski/ui/great-animations
+- **In their words:** "our animations need to account for people who don't want animations"
+- **Do:** Provide a reduced variant such as a fade instead of a slide; Give autoplaying motion over five seconds pause, stop or hide controls
+- **Don't:** Large translate or scale motion that ignores the media query
+- **Look at:** Emulate prefers-reduced-motion: reduce and list elements whose computed animation-name or transition-property still includes translations over about 20px or durations above zero.
+- **Unless:** Motion that is the content, such as a video or a chart drawing, is out of scope
+- **Also stated as:** feedback.moving-content-can-be-paused (W3C Accessibility Guidelines Working Group).
+
+## 32. `modern.signifiers-survive-flatness`
 
 Flat styling keeps its signifiers: buttons have a fill or border, links are underlined or distinctly coloured, inputs show a boundary.
 
@@ -348,19 +373,7 @@ Flat styling keeps its signifiers: buttons have a fill or border, links are unde
 - **Look at:** For each button or role=button: background differs from parent, or border width above 0, or text colour is the accent, else fail; an in-text link with no text-decoration and colour close to the surrounding text fails.
 - **Unless:** Toolbar icon buttons with tooltips and hover fills; Navigation bars recognised by position
 
-## 31. `modern.frequent-actions-do-not-animate`
-
-Actions used many times a day, and anything keyboard-triggered, appear instantly without an enter animation.
-
-- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
-- **In their words:** "Actions that are frequent and low in novelty should avoid extraneous animations: opening a right click menu, deleting or adding items from a list, hovering trivial buttons"
-- **Do:** Show context menus, command palettes and list changes instantly; Leave keyboard-driven navigation unanimated
-- **Don't:** Opacity and scale fades on controls used hundreds of times a day; Animating keyboard-initiated actions
-- **Look at:** Enter animations on [role=menu], [cmdk-root] and newly inserted list items (animation-name not none), and animation state diffed within 16ms of a dispatched key; which actions count as frequent comes from the journey.
-- **Unless:** macOS context menus fade out and blink the chosen item; Rare features may be theatrical (delight-impact curve)
-- **Also stated as:** modern.delight-scales-with-rarity (Benji Taylor).
-
-## 32. `modern.mobile-inputs-do-not-zoom-or-trap`
+## 33. `modern.mobile-inputs-do-not-zoom-or-trap`
 
 Inputs are at least 16px on phones, never autofocus on touch, and the page never disables zoom or blocks paste.
 
@@ -372,7 +385,7 @@ Inputs are at least 16px on phones, never autofocus on touch, and the page never
 - **Unless:** Desktop-only admin tools; Autofocus on desktop with a single primary input
 - **Also stated as:** forms.input-type-matches-the-answer (GOV.UK Design System).
 
-## 33. `modern.numbers-and-text-do-not-shift-layout`
+## 34. `modern.numbers-and-text-do-not-shift-layout`
 
 Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.
 
@@ -384,18 +397,18 @@ Numbers in columns and timers use tabular figures, images carry dimensions, and 
 - **Unless:** Prose numbers
 - **Also stated as:** data-display.right-align-numbers-tabular-figures (GitHub Primer).
 
-## 34. `modern.motion-values-proportional-to-trigger`
+## 35. `modern.delight-scales-with-rarity`
 
-Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.
+Spend delight on rare moments, keep daily actions plain, and never let an element visibly duplicate itself during a transition.
 
-- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
-- **In their words:** "Don't animate dialog scale in from 0 → 1, fade opacity and scale from ~0.8. Don't scale buttons on press from 1 → 0.8, but ~0.96, ~0.9, or so."
-- **Do:** Enter dialogs and popovers from scale 0.8–0.97 with opacity; Press buttons to about scale 0.96–0.97
-- **Don't:** Scale-from-zero pops on dialogs; Press states that squash a button to 0.8 or below
-- **Look at:** Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.
-- **Unless:** Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small
+- **Source:** Benji Taylor, *Family Values* — https://benji.org/family-values
+- **In their words:** "the potential for delight increases as the frequency of feature usage decreases"
+- **Do:** Directional motion between tabs; Morphing labels such as Continue to Confirm; One action per tray
+- **Don't:** Static jumps on core flows; Theatrical motion on daily actions; An element visibly duplicated mid-transition
+- **Look at:** After a transition, count DOM nodes with the same key or text present twice on screen at once; frequency-weighted motion needs the journey to say what is frequent.
+- **Unless:** Utility, performance and security come first; delight is selective emphasis
 
-## 35. `modern.animate-only-transform-and-opacity`
+## 36. `modern.animate-only-transform-and-opacity`
 
 Animate only transform and opacity, listing properties explicitly; never transition all or animate layout properties.
 
@@ -406,7 +419,7 @@ Animate only transform and opacity, listing properties explicitly; never transit
 - **Look at:** Scan stylesheets and computed transition-property for all and for layout properties; scan @keyframes for width, height, top and left.
 - **Unless:** Accordion height animation via grid-template-rows or interpolate-size is layout by nature and accepted when it is the only honest way
 
-## 36. `modern.motion-has-an-origin`
+## 37. `modern.motion-has-an-origin`
 
 A popover or menu animates from the side facing its trigger; set transform-origin where the motion physically starts.
 
@@ -416,17 +429,6 @@ A popover or menu animates from the side facing its trigger; set transform-origi
 - **Don't:** Popovers scaling from their own centre when anchored to a button
 - **Look at:** For each open popover or menu with a known trigger (aria-controls or aria-haspopup), compare the computed transform-origin with the side facing the trigger.
 - **Unless:** Centred modals have no anchor; a centred origin is right there
-
-## 37. `modern.honour-prefers-reduced-motion`
-
-Every large motion has a reduced variant under prefers-reduced-motion; fade instead of slide rather than ignoring the setting.
-
-- **Source:** Emil Kowalski, *Great Animations* — https://emilkowal.ski/ui/great-animations
-- **In their words:** "our animations need to account for people who don't want animations"
-- **Do:** Provide a reduced variant such as a fade instead of a slide; Give autoplaying motion over five seconds pause, stop or hide controls
-- **Don't:** Large translate or scale motion that ignores the media query
-- **Look at:** Emulate prefers-reduced-motion: reduce and list elements whose computed animation-name or transition-property still includes translations over about 20px or durations above zero.
-- **Unless:** Motion that is the content, such as a video or a chart drawing, is out of scope
 
 ## 38. `modern.animations-are-interruptible`
 
@@ -536,6 +538,7 @@ One concept, one word: controls that do the same thing carry the same label ever
 - **Don't:** Synonyms for one action across screens: 'Save' here, 'Update' there, 'Apply' elsewhere; Identical labels for different actions on the same page; Naming the same object two ways ('workspace' and 'project') in one product
 - **Look at:** Across the journey's pages, collect (accessible name, action) pairs for buttons and links, where action is the form action/href/handler target. Count names that map to two or more different actions on one page, and actions reached by two or more different names across pages; also flag known synonym pairs present together (save/update/apply, delete/remove, sign in/log in, cart/basket). Count must be 0.
 - **Unless:** Delete and Remove may coexist when they mean different things (destroy vs take out of a collection), as Carbon defines them — then each must be used only for its own meaning
+- **Also stated as:** navigation.same-navigation-on-every-page (W3C WAI).
 
 ## 48. `writing.sentence-case-ui-text`
 
@@ -679,3 +682,58 @@ Every question on the form has a named use; drop the ones nobody can justify, an
 - **Don't:** 'Nice to have' fields such as title, gender or 'how did you hear about us' with no stated use; Asking for an email or address a second time in the same journey; Confirm-email fields that make the user type the address twice, instead of playing it back for checking
 - **Look at:** List every field on the form. For each, can the team name who reads the answer and what decision it changes? How many fields have no answer, and how many repeat information given earlier in the journey?
 - **Unless:** Legal or regulatory questions whose use is mandated, which should still say why in a hint
+
+## 61. `navigation.breadcrumbs-only-for-real-hierarchy`
+
+Breadcrumbs belong on pages more than two levels deep in a hierarchy; never on a flat site, never to show steps in a linear flow, and never in place of the primary navigation.
+
+- **Source:** GOV.UK Design System, *Breadcrumbs component* — https://design-system.service.gov.uk/components/breadcrumbs/
+- **In their words:** "Do not use the breadcrumbs component on websites with a flat structure, or to show progress through a linear journey or transaction."
+- **Do:** A trail that starts with the word 'Home' and follows the site's hierarchy, not the user's click history; Breadcrumbs placed at the top of the page, before <main>, so the skip link skips them; Every ancestor a link; the current page last and marked aria-current, or left off; Breadcrumb wording identical to the page titles it points at
+- **Don't:** Breadcrumbs that list the steps of a sign-up or checkout; 'Home > About' on a site whose every page is linked from the top nav; Breadcrumbs as the only way to move between sections; Breadcrumbs and a Back link on the same page
+- **Look at:** If the page has a breadcrumb (a nav whose accessible name contains 'breadcrumb', or an ordered list of links styled as one, before main): does it hold at least two ancestor links (Home > Section > page), does it sit before main, is every item except the current page a link, is there also a primary nav on the page, and is there no Back link and no step indicator on the same page?
+- **Unless:** 'At least two ancestor links' is uxcli's reading of Carbon's 'more than two levels'; no source gives a link count; GOV.UK ends the trail with the parent section; Primer and USWDS end it with the current page marked aria-current; either passes; USWDS: omit breadcrumbs on the home page and optionally on section landing pages, and where a side navigation already shows the hierarchy; Carbon recognises path-based breadcrumbs (the steps the user took) as a type; GOV.UK and USWDS do not, and this viewpoint follows them
+
+## 62. `navigation.skip-link-is-the-first-tab-stop`
+
+The first Tab press on every page lands on a visible 'Skip to main content' link that moves focus past the header and navigation into main.
+
+- **Source:** GOV.UK Design System, *Skip link component* — https://design-system.service.gov.uk/components/skip-link/
+- **In their words:** "Including the skip link component gives users the option to bypass the top-level navigation links and jump to the main content on a page."
+- **Do:** The skip link immediately after <body> (or after a cookie banner); Visually hidden until it receives keyboard focus, then clearly shown; A target id on <main> (or its first heading) that can take focus; Breadcrumbs and back links placed before <main>, so the skip link skips them too
+- **Don't:** A page whose first Tab stop is the logo or the first of a dozen nav links; A skip link that stays invisible when focused; A skip link whose href points at an id that does not exist; A skip link wrapped in <nav> or moved inside the header
+- **Look at:** Load the page and press Tab once: is document.activeElement an <a> whose href is '#id' of an element that is main or inside main, with a non-zero box inside the viewport and opacity above 0? Press Enter, then Tab: is focus on an element inside main?
+- **Unless:** WCAG 2.4.1 is met by other means too (landmarks, headings); the first-Tab test follows GOV.UK and Carbon practice and is stricter than the criterion; WCAG: when the repeated navigation is at the bottom of the page, a skip link may be unnecessary; A page with no repeated block before main (a bare single-purpose page) has nothing to skip
+
+## 63. `navigation.more-than-one-way-to-a-page`
+
+Each page in a set can be reached more than one way — navigation plus search, a site map, an index or links between related pages — except pages that are a step in, or the result of, a process.
+
+- **Source:** W3C WAI, *Understanding SC 2.4.5 Multiple Ways* — https://www.w3.org/WAI/WCAG22/Understanding/multiple-ways.html
+- **In their words:** "Provide at least two options for reaching the same content."
+- **Do:** A site search in the header that searches this site and says so ('Search [service]'); A site map, A–Z index or table of contents linked from the footer of every page; Related-page links inside content, in addition to the menu
+- **Don't:** A large site whose only route to a page is a deep menu; A search box that searches something other than the site it sits on, without saying so
+- **Look at:** On every page of a set larger than a handful: besides the nav landmark, is there a search form (role=search, or input[type=search]) or a link to a site map or index in the header or footer? Searching the h1 of a sampled deep page: does the search return that page?
+- **Unless:** WCAG: for a three- or four-page site with every page linked from the home page, links to and from the home page can suffice; WCAG exempts pages that are the result of, or a step in, a process (a payment step, a search results page); 'Larger than a handful' is uxcli's threshold; WCAG applies the criterion to any set of pages and names no size
+
+## 64. `navigation.pagination-says-where-and-how-many`
+
+Pagination marks the current page, shows the first and last page (or says the set has no end), marks skipped pages with an ellipsis, drops Previous on the first page and Next on the last, and puts the page number in the title.
+
+- **Source:** U.S. Web Design System (USWDS), *Pagination component* — https://designsystem.digital.gov/components/pagination/
+- **In their words:** "Show the size of the paginated set. Users want to know the length of a paginated section."
+- **Do:** aria-current="page" and a visible highlight on the current page number; The last page number as a link, or a trailing ellipsis when the set is unbounded; A non-selectable ellipsis wherever page numbers are skipped; A title such as 'Search results (page 3 of 12)'; Pagination directly below the list it pages, on one line
+- **Don't:** Only 'Previous' and 'Next' with no indication of position or length; A Previous link on page 1 or a Next link on the last page; Pagination shown for a single page of results; Infinite scroll for content keyboard users must get past
+- **Look at:** On page k of n: does the pagination nav contain page 1 and page n (or a trailing ellipsis when unbounded), mark k with aria-current and a style differing from its siblings, show an ellipsis wherever consecutive numbers skip, lack a Previous link when k = 1 and a Next link when k = n, and wrap onto no more than one line? Does document.title contain k? With one page of results, is the pagination absent?
+- **Unless:** 'Load more' and infinite scroll are different patterns; GOV.UK advises against infinite scroll because it causes problems for keyboard users; Content split across pages (a guide in chapters) uses GOV.UK's block style: previous and next links labelled with the neighbouring pages' titles, no page numbers
+
+## 65. `feedback.toasts-carry-nothing-critical`
+
+A toast is only for a short, low-priority confirmation of something the user just did; an error that needs action, a warning, or anything the user cannot find again elsewhere goes in an inline message or banner that stays.
+
+- **Source:** Shopify Polaris, *Toast component — Accessibility* — https://polaris.shopify.com/components/deprecated/toast
+- **In their words:** "Avoid using toast for critical information that merchants need to act on immediately."
+- **Do:** Short noun + verb confirmations: 'Product updated', 'Collection added'; Errors the user must fix shown next to the cause or in a banner that persists until resolved; Whatever the toast says also visible somewhere on the page after it goes (the saved value, the item in the list, a notifications area)
+- **Don't:** A validation or payment error delivered only as a toast that auto-dismisses; A toast that holds the only copy of a generated password, link or code; Several sentences of explanation in a toast
+- **Look at:** Record a walk through every action, including forced failures (offline, 4xx, 5xx). Treat as a toast any fixed- or absolute-positioned element with role=status|alert or aria-live that is removed or hidden within 15 s without user input. Count toasts whose text matches error/failed/could not/denied/invalid, toasts with more than 15 words, and toasts whose distinctive text (any token of 6+ characters other than common words) appears nowhere in the DOM 2 s after they leave. Count must be 0.
+- **Unless:** Polaris allows an error toast for system errors not caused by the user, such as 'Internet disconnected', in 3 words; Polaris's own Toast component is deprecated in favour of the App Bridge Toast API; the guidance quoted is still on its page; The 15 s, 15-word and 6-character thresholds are uxcli's

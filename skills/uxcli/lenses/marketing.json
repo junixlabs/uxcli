@@ -9,19 +9,28 @@
    "note": "Same rule, also stated as: usability.hicks-fewer-choices-when-time-matters (Jon Yablonski (Laws of UX)); usability.von-restorff-one-emphasis (GOV.UK Design System); craft.growth-design-psychology-principles (Growth.Design (Dan Benoni, Louis-Xavier Lavallée)); modern.no-deceptive-patterns (Harry Brignull)."
   },
   {
+   "viewpoint": "usability.speak-the-users-language",
+   "note": "Same rule, also stated as: writing.plain-language-reading-level (Shopify Polaris)."
+  },
+  {
    "viewpoint": "usability.signifiers-make-clickable-look-clickable",
    "note": "Same rule, also stated as: modern.signifiers-survive-flatness (Kate Moran (NN/G)); modern.no-dead-zones-and-honest-clickability (Rauno Freiberg)."
   },
   {
    "viewpoint": "usability.omit-needless-words",
-   "note": "Same rule, also stated as: writing.sentence-case-ui-text (IBM Carbon Design System); writing.plain-language-reading-level (Shopify Polaris)."
-  },
-  {
-   "viewpoint": "usability.speak-the-users-language"
+   "note": "Same rule, also stated as: writing.sentence-case-ui-text (IBM Carbon Design System)."
   },
   {
    "viewpoint": "usability.minimalist-no-competing-information",
    "note": "Same rule, also stated as: forms.ask-only-what-you-need (GOV.UK Design System)."
+  },
+  {
+   "viewpoint": "usability.mindless-clicks-not-fewer-clicks",
+   "note": "Same rule, also stated as: writing.links-describe-their-destination (Mailchimp)."
+  },
+  {
+   "viewpoint": "usability.banner-blindness-dont-style-content-like-ads",
+   "note": "Same rule, also stated as: modern.honour-prefers-reduced-motion (Emil Kowalski); feedback.moving-content-can-be-paused (W3C Accessibility Guidelines Working Group)."
   },
   {
    "viewpoint": "usability.visual-hierarchy-for-scanning",
@@ -31,15 +40,8 @@
    "viewpoint": "usability.no-false-affordances"
   },
   {
-   "viewpoint": "usability.mindless-clicks-not-fewer-clicks",
-   "note": "Same rule, also stated as: writing.links-describe-their-destination (Mailchimp)."
-  },
-  {
    "viewpoint": "usability.follow-conventions",
    "note": "Same rule, also stated as: modern.boring-and-familiar-beats-novel (Scott Berkun)."
-  },
-  {
-   "viewpoint": "usability.banner-blindness-dont-style-content-like-ads"
   },
   {
    "viewpoint": "usability.aesthetic-usability-effect-bias"
@@ -59,12 +61,12 @@
    "note": "Same rule, also stated as: canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov)."
   },
   {
-   "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop",
-   "note": "Same rule, also stated as: canon.tufte-smallest-effective-difference (Edward Tufte)."
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); navigation.you-are-here (U.S. Web Design System (USWDS))."
   },
   {
-   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
-   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group)."
+   "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop",
+   "note": "Same rule, also stated as: canon.tufte-smallest-effective-difference (Edward Tufte)."
   },
   {
    "viewpoint": "craft.tap-targets-and-control-height",
@@ -105,22 +107,17 @@
   },
   {
    "viewpoint": "modern.no-junk-drawer-menus-or-unlabeled-icons",
-   "note": "Same rule, also stated as: writing.buttons-name-the-action (IBM Carbon Design System); usability.dont-make-me-think (Steve Krug)."
+   "note": "Same rule, also stated as: writing.buttons-name-the-action (IBM Carbon Design System); navigation.primary-nav-visible-on-wide-screens (GitHub Primer); usability.dont-make-me-think (Steve Krug); navigation.top-level-is-sections-not-a-site-map (GOV.UK Design System)."
   },
   {
-   "viewpoint": "modern.interactions-feel-immediate-under-200ms"
-  },
-  {
-   "viewpoint": "modern.motion-values-proportional-to-trigger"
+   "viewpoint": "modern.interactions-feel-immediate-under-200ms",
+   "note": "Same rule, also stated as: modern.motion-values-proportional-to-trigger (Rauno Freiberg); feedback.motion-duration-scales-with-size (IBM Carbon Design System)."
   },
   {
    "viewpoint": "modern.animate-only-transform-and-opacity"
   },
   {
    "viewpoint": "modern.motion-has-an-origin"
-  },
-  {
-   "viewpoint": "modern.honour-prefers-reduced-motion"
   },
   {
    "viewpoint": "modern.mobile-inputs-do-not-zoom-or-trap"
@@ -155,6 +152,12 @@
   },
   {
    "viewpoint": "forms.autocomplete-names-the-purpose"
+  },
+  {
+   "viewpoint": "navigation.skip-link-is-the-first-tab-stop"
+  },
+  {
+   "viewpoint": "navigation.same-navigation-on-every-page"
   }
  ]
 }

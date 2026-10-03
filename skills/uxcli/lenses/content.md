@@ -2,7 +2,7 @@
 
 Docs, articles, blogs and help centres: long text read and navigated by section.
 
-39 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
+42 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
 
 ## 1. `usability.signifiers-make-clickable-look-clickable`
 
@@ -51,17 +51,7 @@ Write in the words the actor already uses; no internal jargon, error codes or un
 - **Look at:** Flag bare error codes (e.g. ERR-422, Error 0x…), all-caps acronyms not defined on the page, and Latin abbreviations; whether a term is jargon for this actor needs the journey's actor.
 - **Unless:** Expert-only tools where the domain term is the users' language — match the user, do not simplify per se
 
-## 5. `usability.no-false-affordances`
-
-Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
-
-- **Source:** Hoa Loranger, NN/g, *Beyond Blue Links: Making Clickable Elements Recognizable (2015)* — https://www.nngroup.com/articles/clickable-elements/
-- **In their words:** "Avoid making non-clickable items (like headings) resemble buttons."
-- **Do:** Reserve link colour and underline for links; Reserve button shape and fill for buttons
-- **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
-- **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
-
-## 6. `usability.mindless-clicks-not-fewer-clicks`
+## 5. `usability.mindless-clicks-not-fewer-clicks`
 
 Do not count clicks; make each one an unambiguous choice with clear link text that says where it goes.
 
@@ -73,7 +63,29 @@ Do not count clicks; make each one an unambiguous choice with clear link text th
 - **Unless:** Fewer clicks matter more when the same path is drilled repeatedly or pages take long to load (Krug)
 - **Also stated as:** writing.links-describe-their-destination (Mailchimp).
 
-## 7. `usability.follow-conventions`
+## 6. `usability.banner-blindness-dont-style-content-like-ads`
+
+Keep essential content and the primary action in the main column, styled like content, never in a right rail, top strip or animated coloured box.
+
+- **Source:** Kara Pernice, NN/g, *Banner Blindness Revisited (2018)* — https://www.nngroup.com/articles/banner-blindness-old-and-new-findings/ (study)
+- **In their words:** "Users have learned to ignore content that resembles ads, is close to ads, or appears in locations traditionally dedicated to ads."
+- **Do:** Put essential content in the main column; Style key notices like content
+- **Don't:** Put the primary CTA in the right rail or a top banner strip; Give a key notice animation, coloured background or fancy formatting; Place essential content next to real ads
+- **Look at:** Is the journey's primary action or a required notice positioned in the right rail (x > 70% of desktop viewport) or in a full-width top strip with background fill and animation?
+- **Unless:** On mobile, large inline ads do get fixated — the effect is weaker for inline placement
+- **Also stated as:** feedback.moving-content-can-be-paused (W3C Accessibility Guidelines Working Group).
+
+## 7. `usability.no-false-affordances`
+
+Nothing that is not interactive may look interactive: no underlined or blue static text, no button-shaped badges, no pointer cursor on inert elements.
+
+- **Source:** Hoa Loranger, NN/g, *Beyond Blue Links: Making Clickable Elements Recognizable (2015)* — https://www.nngroup.com/articles/clickable-elements/
+- **In their words:** "Avoid making non-clickable items (like headings) resemble buttons."
+- **Do:** Reserve link colour and underline for links; Reserve button shape and fill for buttons
+- **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
+- **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
+
+## 8. `usability.follow-conventions`
 
 Work the way the sites and platforms users already know; a convention beats a locally optimised novelty.
 
@@ -84,17 +96,6 @@ Work the way the sites and platforms users already know; a convention beats a lo
 - **Look at:** Logo in header links home; a search input has type=search or a search label; primary/secondary button order is the same in every dialog; cart and account icons stay where they were on other screens.
 - **Unless:** Desktop apps follow their own OS: Windows OK-first, Apple OK-last
 - **Also stated as:** modern.boring-and-familiar-beats-novel (Scott Berkun).
-
-## 8. `usability.banner-blindness-dont-style-content-like-ads`
-
-Keep essential content and the primary action in the main column, styled like content, never in a right rail, top strip or animated coloured box.
-
-- **Source:** Kara Pernice, NN/g, *Banner Blindness Revisited (2018)* — https://www.nngroup.com/articles/banner-blindness-old-and-new-findings/ (study)
-- **In their words:** "Users have learned to ignore content that resembles ads, is close to ads, or appears in locations traditionally dedicated to ads."
-- **Do:** Put essential content in the main column; Style key notices like content
-- **Don't:** Put the primary CTA in the right rail or a top banner strip; Give a key notice animation, coloured background or fancy formatting; Place essential content next to real ads
-- **Look at:** Is the journey's primary action or a required notice positioned in the right rail (x > 70% of desktop viewport) or in a full-width top strip with background fill and animation?
-- **Unless:** On mobile, large inline ads do get fixated — the effect is weaker for inline placement
 
 ## 9. `usability.aesthetic-usability-effect-bias`
 
@@ -152,7 +153,19 @@ Draw every margin, padding and gap from one scale, and make space between groups
 - **Unless:** Optical adjustments on icons and hanging punctuation sit a pixel or two off-scale
 - **Also stated as:** canon.rams-thorough-to-the-last-detail (Dieter Rams); modern.radii-are-few-and-concentric (Vercel Labs); modern.quality-is-a-choice-spec-is-the-floor (Karri Saarinen); modern.spacing-comes-from-a-scale (Stan Kirilov).
 
-## 14. `craft.separation-order-space-then-lines-then-boxes`
+## 14. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
+
+Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
+
+- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
+- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
+- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
+- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
+- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
+- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group); navigation.you-are-here (U.S. Web Design System (USWDS)).
+
+## 15. `craft.separation-order-space-then-lines-then-boxes`
 
 Use the lightest separator that works: more space first, then a keyline or background band, and a box only for the object that is acted on.
 
@@ -162,7 +175,7 @@ Use the lightest separator that works: more space first, then a keyline or backg
 - **Look at:** Between sibling groups, record which separator is used: gap at least 2x the inner gap (space), hr or border-bottom (line), bordered or shadowed wrapper (box); report the inner/outer gap ratio.
 - **Unless:** Dense data such as tables where zebra stripes or keylines are used; Interactive cards that are the unit of action
 
-## 15. `craft.body-16px-line-height-1-5`
+## 16. `craft.body-16px-line-height-1-5`
 
 Body copy at 16px or more with 1.5 line height; inputs at 16px or more on mobile.
 
@@ -173,18 +186,6 @@ Body copy at 16px or more with 1.5 line height; inputs at 16px or more on mobile
 - **Look at:** At a 375px viewport, computed font-size of paragraph text and of input, textarea and select; line-height divided by font-size for paragraphs.
 - **Unless:** Interaction-heavy desktop pages may go to 14px; Captions sit 2px under body by design
 - **Also stated as:** canon.butterick-body-size-15-25px (Matthew Butterick); modern.readable-type-sizes-and-weights (Rauno Freiberg).
-
-## 16. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
-
-Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
-
-- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
-- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
-- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
-- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
-- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
-- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
-- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group).
 
 ## 17. `craft.line-length-50-75-characters`
 
@@ -286,7 +287,7 @@ Icons carry labels, menus are named for what they hold, and no primary feature h
 - **Don't:** More, ellipsis or Tools catch-alls holding primary features; Icon-only toolbars without labels; Tooltips on disabled buttons
 - **Look at:** Icon-only buttons with no text and no aria-label fail; menus triggered by More, …, Tools or Options holding over 5 items or a primary-action label warn; disabled buttons with title or aria-describedby fail.
 - **Unless:** Universally recognised icons in tight toolbars, though even the hamburger is weaker than designers think
-- **Also stated as:** usability.dont-make-me-think (Steve Krug).
+- **Also stated as:** navigation.primary-nav-visible-on-wide-screens (GitHub Primer); usability.dont-make-me-think (Steve Krug); navigation.top-level-is-sections-not-a-site-map (GOV.UK Design System).
 
 ## 26. `modern.interactions-feel-immediate-under-200ms`
 
@@ -298,19 +299,9 @@ Interaction transitions run 200ms or less with an ease-out curve so the interfac
 - **Don't:** Slow transitions on hover, focus, open and close; Bounce or elastic easing on everyday controls; ease-in on an entering element
 - **Look at:** Computed transition-duration and animation-duration on elements that change on :hover, :focus, [aria-expanded] or [data-state]; flag any over 300ms, warn over 200ms; ease-in on an entering element fails.
 - **Unless:** Toasts may run slower with a plain ease on purpose for tone; Large page or scene transitions and decorative loops sit outside the interaction budget; Exit animations can be a bit more relaxed
+- **Also stated as:** modern.motion-values-proportional-to-trigger (Rauno Freiberg); feedback.motion-duration-scales-with-size (IBM Carbon Design System).
 
-## 27. `modern.motion-values-proportional-to-trigger`
-
-Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.
-
-- **Source:** Rauno Freiberg, *Web Interface Guidelines* — https://interfaces.rauno.me/
-- **In their words:** "Don't animate dialog scale in from 0 → 1, fade opacity and scale from ~0.8. Don't scale buttons on press from 1 → 0.8, but ~0.96, ~0.9, or so."
-- **Do:** Enter dialogs and popovers from scale 0.8–0.97 with opacity; Press buttons to about scale 0.96–0.97
-- **Don't:** Scale-from-zero pops on dialogs; Press states that squash a button to 0.8 or below
-- **Look at:** Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.
-- **Unless:** Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small
-
-## 28. `modern.animate-only-transform-and-opacity`
+## 27. `modern.animate-only-transform-and-opacity`
 
 Animate only transform and opacity, listing properties explicitly; never transition all or animate layout properties.
 
@@ -321,7 +312,7 @@ Animate only transform and opacity, listing properties explicitly; never transit
 - **Look at:** Scan stylesheets and computed transition-property for all and for layout properties; scan @keyframes for width, height, top and left.
 - **Unless:** Accordion height animation via grid-template-rows or interpolate-size is layout by nature and accepted when it is the only honest way
 
-## 29. `modern.focus-is-visible-and-unobscured`
+## 28. `modern.focus-is-visible-and-unobscured`
 
 Every focusable element shows a visible focus ring on :focus-visible, and no sticky or fixed element ever covers it.
 
@@ -331,7 +322,7 @@ Every focusable element shows a visible focus ring on :focus-visible, and no sti
 - **Don't:** outline: none or 0 with no replacement; Focus rings hidden under sticky headers
 - **Look at:** Tab through every focusable element; diff the focused and unfocused rect or read computed outline and box-shadow under :focus-visible; check the focused rect is not intersected by position fixed or sticky elements above it.
 
-## 30. `modern.numbers-and-text-do-not-shift-layout`
+## 29. `modern.numbers-and-text-do-not-shift-layout`
 
 Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.
 
@@ -342,7 +333,7 @@ Numbers in columns and timers use tabular figures, images carry dimensions, and 
 - **Look at:** Numeric td cells whose computed font-variant-numeric lacks tabular-nums; img without width/height or aspect-ratio; sibling rect drift while a counter fixture runs.
 - **Unless:** Prose numbers
 
-## 31. `modern.defaults-are-decisions-you-inherited`
+## 30. `modern.defaults-are-decisions-you-inherited`
 
 A library or AI default is someone else's decision; commit to one written aesthetic direction instead of inheriting it.
 
@@ -353,7 +344,7 @@ A library or AI default is someone else's decision; commit to one written aesthe
 - **Look at:** Score the constellation: purple-to-blue/cyan gradients warn, Inter or Roboto with no display face notes, 3+ identical icon+h3+p cards note, backdrop-filter plus glow notes, gradient text on numerals warns, overshoot cubic-bezier on hover warns.
 - **Unless:** A purple brand is allowed to be purple; the tell is the constellation and the absence of a decision, not any one colour
 
-## 32. `color.from-tokens-not-hex`
+## 31. `color.from-tokens-not-hex`
 
 Every colour on the page comes from the design system's named tokens or palette functions, never from hex values copied into components.
 
@@ -364,7 +355,7 @@ Every colour on the page comes from the design system's named tokens or palette 
 - **Look at:** Collect every computed color, background-color, border-*-color, outline-color and fill/stroke of painted elements, and every value of CSS custom properties declared on :root (and on any theme selector). Count distinct painted colours that match no custom-property value (exact RGBA after resolution), and count pairs of painted colours closer than ΔE 2 that are not identical.
 - **Unless:** Images, illustrations and embedded third-party widgets; Browser defaults on unstyled native controls; GOV.UK: palette colours (not functional ones) are allowed for illustrations and custom components
 
-## 33. `color.one-action-colour-apart-from-status`
+## 32. `color.one-action-colour-apart-from-status`
 
 Links and primary actions share one interactive colour family, used consistently, and that colour is not the colour of errors, warnings or success.
 
@@ -375,7 +366,7 @@ Links and primary actions share one interactive colour family, used consistently
 - **Look at:** Take the computed text colour of every a[href] in running text and the background of every primary (first, filled, or type=submit) button. Count distinct hues among them (30° bins), and count links or primary buttons whose colour is within ΔE 10 of the page's error, warning or success colour. Also count non-interactive text elements painted in the link colour.
 - **Unless:** Primer (GitHub) deliberately uses the success role for primary buttons; a system that states such a mapping consistently is following its own rule; Destructive primary actions (Delete account) take the danger colour on purpose; Navigation menus, where position signals the link
 
-## 34. `color.focus-ring-contrasts-with-its-surroundings`
+## 33. `color.focus-ring-contrasts-with-its-surroundings`
 
 The focus indicator contrasts at least 3:1 with whatever it is drawn against: the page background for an outer ring, the component's own colours for an inner one.
 
@@ -386,7 +377,7 @@ The focus indicator contrasts at least 3:1 with whatever it is drawn against: th
 - **Look at:** Tab to each focusable control; diff the focused and unfocused screenshots of the control's box padded by a few pixels; for the changed pixels, take their colour and the colour of the unchanged pixels adjacent to them (page background outside, component fill inside). Count controls where no changed region reaches 3:1 against its adjacent colour. page.focus-visible checks only that some pixel changes; this checks that the change can be seen.
 - **Unless:** Unmodified browser default focus styles; WCAG does not compare focused and unfocused states with each other; a background-only change is out of scope for 1.4.11 but fails Use of Color
 
-## 35. `color.few-families-in-proportion`
+## 34. `color.few-families-in-proportion`
 
 Use a few colour families in a deliberate proportion (neutral base dominant, then primary, secondary and a small accent), not an even spread of many hues.
 
@@ -397,7 +388,7 @@ Use a few colour families in a deliberate proportion (neutral base dominant, the
 - **Look at:** Screenshot the page and bucket every non-neutral pixel (HSL saturation above about 15%) by hue into 30° bins, ignoring images and status colours. How many hue families take more than 2% of the coloured area, and does the largest one carry most of it while the smallest (accent) stays near a tenth?
 - **Unless:** USWDS: the proportions are for non-base colours; neutral text will usually dominate; Illustration, photography and data visualisation, which need their own palettes; Brands whose identity is multi-hue
 
-## 36. `writing.sentence-case-ui-text`
+## 35. `writing.sentence-case-ui-text`
 
 Labels, buttons, headings, tabs and table headers are written in sentence case; capitals only for the first word, proper nouns and acronyms — never title case or all caps for emphasis.
 
@@ -408,7 +399,7 @@ Labels, buttons, headings, tabs and table headers are written in sentence case; 
 - **Look at:** For each button, label, th, tab and h1–h6 with three or more words, take the rendered text (after text-transform) and count those where two or more non-initial words that are not acronyms or in the page's proper-noun list start with a capital (title case), or where the whole text of four or more words is upper case. Count must be 0.
 - **Unless:** Proper nouns, product names and acronyms keep their capitals; Mailchimp's own guide uses title case for page titles, menu names and global navigation — a house style, decide one and keep it; Short tracked overline labels in caps are a typographic choice; the four-word floor leaves them alone
 
-## 37. `writing.dates-numbers-units-for-the-reader`
+## 36. `writing.dates-numbers-units-for-the-reader`
 
 Dates spell out the month, numbers are numerals with thousands separators, and units sit a space after their number — formatted in the reader's locale, never as an ambiguous all-numeric date or a raw machine value.
 
@@ -419,7 +410,7 @@ Dates spell out the month, numbers are numerals with thousands separators, and u
 - **Look at:** Scan visible text nodes. Count matches of all-numeric dates (\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b), raw ISO timestamps (\d{4}-\d{2}-\d{2}T\d{2}:), integers of 5+ digits with no separator outside codes/IDs, and numbers glued to a unit (\d(kg|lb|cm|mm|km|mi|ml|oz)\b). Count must be 0.
 - **Unless:** Polaris notes these are American English base rules and dates, numbers and measurements should be localized automatically — the target is the reader's locale, not US format; Identifiers, codes, SKUs and years are not quantities and take no separator; Dense data tables may use compact numeric dates if the format is unambiguous for the locale and stated in the column header
 
-## 38. `data-display.no-tables-for-layout`
+## 37. `data-display.no-tables-for-layout`
 
 A table is for comparing data in rows and columns, never for arranging content on the page; layout belongs to the grid.
 
@@ -431,7 +422,7 @@ A table is for comparing data in rows and columns, never for arranging content o
 - **Unless:** HTML email, where tables are still the only reliable layout tool
 - **Also stated as:** modern.cards-are-a-choice-not-a-default (Stan Kirilov).
 
-## 39. `data-display.header-cells-are-th-with-scope`
+## 38. `data-display.header-cells-are-th-with-scope`
 
 A data table marks its header cells as th and its data cells as td; when headers run both across and down, scope (or id/headers in complex tables) ties each cell to its headers.
 
@@ -441,3 +432,47 @@ A data table marks its header cells as th and its data cells as td; when headers
 - **Don't:** Header rows built from td styled bold; Div grids that look like tables with no role=table/row/columnheader/cell semantics; One table holding several topics separated by extra rows of th
 - **Look at:** Count table (and role=table/grid) elements that have more than one row of data and no th / role=columnheader; count tables with both a header row and a header column whose th lack scope; count tables with no caption, aria-label or aria-labelledby.
 - **Unless:** A simple table with one header row needs only th, not scope; scope matters once there are header rows and header columns; Layout tables, which should not exist (see data-display.no-tables-for-layout)
+
+## 39. `navigation.breadcrumbs-only-for-real-hierarchy`
+
+Breadcrumbs belong on pages more than two levels deep in a hierarchy; never on a flat site, never to show steps in a linear flow, and never in place of the primary navigation.
+
+- **Source:** GOV.UK Design System, *Breadcrumbs component* — https://design-system.service.gov.uk/components/breadcrumbs/
+- **In their words:** "Do not use the breadcrumbs component on websites with a flat structure, or to show progress through a linear journey or transaction."
+- **Do:** A trail that starts with the word 'Home' and follows the site's hierarchy, not the user's click history; Breadcrumbs placed at the top of the page, before <main>, so the skip link skips them; Every ancestor a link; the current page last and marked aria-current, or left off; Breadcrumb wording identical to the page titles it points at
+- **Don't:** Breadcrumbs that list the steps of a sign-up or checkout; 'Home > About' on a site whose every page is linked from the top nav; Breadcrumbs as the only way to move between sections; Breadcrumbs and a Back link on the same page
+- **Look at:** If the page has a breadcrumb (a nav whose accessible name contains 'breadcrumb', or an ordered list of links styled as one, before main): does it hold at least two ancestor links (Home > Section > page), does it sit before main, is every item except the current page a link, is there also a primary nav on the page, and is there no Back link and no step indicator on the same page?
+- **Unless:** 'At least two ancestor links' is uxcli's reading of Carbon's 'more than two levels'; no source gives a link count; GOV.UK ends the trail with the parent section; Primer and USWDS end it with the current page marked aria-current; either passes; USWDS: omit breadcrumbs on the home page and optionally on section landing pages, and where a side navigation already shows the hierarchy; Carbon recognises path-based breadcrumbs (the steps the user took) as a type; GOV.UK and USWDS do not, and this viewpoint follows them
+
+## 40. `navigation.skip-link-is-the-first-tab-stop`
+
+The first Tab press on every page lands on a visible 'Skip to main content' link that moves focus past the header and navigation into main.
+
+- **Source:** GOV.UK Design System, *Skip link component* — https://design-system.service.gov.uk/components/skip-link/
+- **In their words:** "Including the skip link component gives users the option to bypass the top-level navigation links and jump to the main content on a page."
+- **Do:** The skip link immediately after <body> (or after a cookie banner); Visually hidden until it receives keyboard focus, then clearly shown; A target id on <main> (or its first heading) that can take focus; Breadcrumbs and back links placed before <main>, so the skip link skips them too
+- **Don't:** A page whose first Tab stop is the logo or the first of a dozen nav links; A skip link that stays invisible when focused; A skip link whose href points at an id that does not exist; A skip link wrapped in <nav> or moved inside the header
+- **Look at:** Load the page and press Tab once: is document.activeElement an <a> whose href is '#id' of an element that is main or inside main, with a non-zero box inside the viewport and opacity above 0? Press Enter, then Tab: is focus on an element inside main?
+- **Unless:** WCAG 2.4.1 is met by other means too (landmarks, headings); the first-Tab test follows GOV.UK and Carbon practice and is stricter than the criterion; WCAG: when the repeated navigation is at the bottom of the page, a skip link may be unnecessary; A page with no repeated block before main (a bare single-purpose page) has nothing to skip
+
+## 41. `navigation.more-than-one-way-to-a-page`
+
+Each page in a set can be reached more than one way — navigation plus search, a site map, an index or links between related pages — except pages that are a step in, or the result of, a process.
+
+- **Source:** W3C WAI, *Understanding SC 2.4.5 Multiple Ways* — https://www.w3.org/WAI/WCAG22/Understanding/multiple-ways.html
+- **In their words:** "Provide at least two options for reaching the same content."
+- **Do:** A site search in the header that searches this site and says so ('Search [service]'); A site map, A–Z index or table of contents linked from the footer of every page; Related-page links inside content, in addition to the menu
+- **Don't:** A large site whose only route to a page is a deep menu; A search box that searches something other than the site it sits on, without saying so
+- **Look at:** On every page of a set larger than a handful: besides the nav landmark, is there a search form (role=search, or input[type=search]) or a link to a site map or index in the header or footer? Searching the h1 of a sampled deep page: does the search return that page?
+- **Unless:** WCAG: for a three- or four-page site with every page linked from the home page, links to and from the home page can suffice; WCAG exempts pages that are the result of, or a step in, a process (a payment step, a search results page); 'Larger than a handful' is uxcli's threshold; WCAG applies the criterion to any set of pages and names no size
+
+## 42. `navigation.same-navigation-on-every-page`
+
+Navigation that repeats across pages keeps the same items, in the same order and place, with the same names and icons on every page; sub-navigation may expand within it.
+
+- **Source:** W3C WAI, *Understanding SC 3.2.3 Consistent Navigation* — https://www.w3.org/WAI/WCAG22/Understanding/consistent-navigation.html
+- **In their words:** "Consistently order navigation that repeats across multiple pages."
+- **Do:** One header and footer component rendered on every page, not a hand-built copy per page; The same accessible name for the same nav item, search control and account control everywhere (WCAG 3.2.4); Header icons in fixed positions, so they do not shift between screens
+- **Don't:** Nav items that reorder, appear or disappear depending on the page (apart from the current section expanding); 'Sign in' on one page and 'Log in' on the next for the same control; The search field in the header on some pages and the footer on others
+- **Look at:** Visit three or more pages that share a header. On each, read the ordered accessible names of the links and buttons in the header nav, the footer nav and the header tools. Are the lists identical, apart from expanded sub-items of the current section? At one viewport, is each landmark's bounding box at the same x and y?
+- **Unless:** WCAG 3.2.4 lets a label vary with context when the function is recognisably the same ('Page 4' read as 'Previous page' from page 5); A change of order the user asked for (a preference, an adaptive user agent) is allowed; Comparing bounding boxes at one viewport is uxcli's test; WCAG asks for the same relative order

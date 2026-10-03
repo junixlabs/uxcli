@@ -57,7 +57,8 @@ export function experience(run) {
     const clicks = ui.length - typed.length;
     const chars = typed.reduce((n, x) => n + x.typed.chars, 0);
     const scrolls = ui.reduce((n, x) => n + (x.scrollsNeeded || 0), 0);
-    const settle = st.timing?.toStable ?? null;
+    // response is the first visible change after the action when the walk recorded it, else the settle time
+    const settle = st.timing?.firstChangeMs ?? st.timing?.toStable ?? null;
     const api = (st.interactions || []).filter(x => x.type === 'api' && typeof x.ms === 'number');
     const k = klmOf(ui);
     const seconds = k.seconds + (settle != null ? settle / 1000 : 0);
@@ -68,8 +69,11 @@ export function experience(run) {
       shots: { before: shotBefore, after: shotAfter } };
     steps.push(row);
 
-    if (settle != null && settle > LIMITS.flow) findings.push({ metric: 'response', step: st.id, workflow: st.workflow || null,
-      what: `${st.action || st.id}: ${(settle / 1000).toFixed(1)} s before the screen settles${settle > LIMITS.attention ? ' — past 10 s attention is lost' : ' — past 1 s the person needs a sign that something is happening'}`,
+    // Past a second a person needs a sign that something is happening; one the observer saw answers it,
+    // until attention is lost at ten seconds.
+    const signalled = st.timing?.progressSeen === true;
+    if (settle != null && settle > LIMITS.flow && (!signalled || settle > LIMITS.attention)) findings.push({ metric: 'response', step: st.id, workflow: st.workflow || null,
+      what: `${st.action || st.id}: ${(settle / 1000).toFixed(1)} s before the screen settles${settle > LIMITS.attention ? ' — past 10 s attention is lost' : ' — past 1 s the person needs a sign that something is happening, and none was seen'}`,
       source: SRC.response, shot: shotAfter });
     for (const x of ui) if ((x.scrollsNeeded || 0) > 0) findings.push({ metric: 'reach', step: st.id, workflow: st.workflow || null,
       what: `${x.target} is ${x.scrollsNeeded} scroll${x.scrollsNeeded === 1 ? '' : 's'} away at ${x.viewport || run.viewport || 'this viewport'} when this step needs it`,
