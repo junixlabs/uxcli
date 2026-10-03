@@ -72,6 +72,13 @@ the CRM example a planted extra step, a missing progress signal and a lost value
   the run packet and the experience report; a schema of their own is next.
 - Exit: on the CRM example, v1 and v2 side by side, with the metrics that moved.
 
+## The studio
+
+- Done 2026-10-03: `uxcli studio` — one local board for the project, read like a design file and built
+  only from `.uxcli/`; served, the place a person picks or asks for a redraw while the agent works
+  through the CLI. Next: version-to-version view toggled on the board; comments a person leaves on a
+  frame, written as a redraw request scoped to it; export of a frame as PNG for an issue.
+
 ## 4. Walkthrough and personas
 
 - Cognitive walkthrough at each step: the four questions answered with the screenshot, as findings.

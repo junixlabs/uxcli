@@ -30,6 +30,8 @@ experiments/*/results/*/transcript.jsonl
 **/.uxcli/mockups/.shots/
 **/.uxcli/mockups/index.html
 **/.uxcli/map/
+**/.uxcli/studio/
+**/.uxcli/experience/
 
 # experiment results stay on the machine that ran them
 experiments/*/results/

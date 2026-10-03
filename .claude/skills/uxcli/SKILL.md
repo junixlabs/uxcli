@@ -65,6 +65,12 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    Then read what the person goes through: `npx -y @junixlabs/uxcli experience --page` — steps, clicks,
    typing, scrolls, waits and a keystroke-level estimate per journey, each finding pinned on the step's
    screenshot, and what moved since the walk before. Report each finding in its words; they never block.
+   To see the whole board — every journey's screens as drawn, as built and per version, findings
+   pinned — run `npx -y @junixlabs/uxcli studio --shot=.uxcli/studio/board.png` and look at the picture.
+   When a person has to pick a drawing or look at the work, tell them to open
+   `npx -y @junixlabs/uxcli studio --serve`: they pan and zoom it like a design file, choose a drawing or
+   ask for a redraw there, and it refreshes as you change files. Their choice lands in `pick.json` or
+   `revise.json`; read it from there.
 6. **Say done only at exit 0**, and say what was measured. Anything else, say what stands in the way.
    `references/before-done.md` is the full sequence and the list of what exit 0 does not cover.
 

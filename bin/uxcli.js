@@ -44,6 +44,7 @@ const usage = `usage:
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli lens [show <kind>]            the shipped lenses — named designers' viewpoints by kind of UI (marketing, content, data, workspace, shop, transaction)
   uxcli experience [dir|run] [--page] [--json]   what the person goes through on each journey's last walk: steps, clicks, typing, scrolls, waits, a keystroke-level estimate, and what changed since the walk before; findings only, never a fail
+  uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]   the board: every journey as a canvas — each step drawn (variants, the pick), built (the last walk, findings pinned) and in each named version; pan, zoom, inspect; --serve on localhost refreshes as files change and lets a person pick or ask for a redraw
   uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
   uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
   uxcli review <state>/<variant> --lens=<kind> --write   an empty review beside the drawing; a URL with --name=<n> reviews a screen
@@ -148,6 +149,21 @@ try {
     else console.log(E.experienceCard(list));
     if (flags.has('--page')) { const f = E.experiencePage(list, opt('out') || E.pageFile(args[0] && fs.existsSync(path.join(args[0], '.uxcli')) ? args[0] : '.')); console.log(`  page   ${path.relative(process.cwd(), f)}`); }
     process.exit(0);
+  } else if (cmd === 'studio') {
+    // The board: every journey as a canvas of steps — drawn, built, each named version — with findings pinned.
+    const S = await import('../src/studio.js'); const vpt = opt('viewport') || '390x844';
+    if (flags.has('--serve')) {
+      const r = await S.serveStudio(args[0] || '.', { port: Number(opt('port') || 4317), viewport: vpt });
+      if (!r.model) { console.error('uxcli: ' + (r.problems || []).join('\n  ')); process.exit(1); }
+      console.log(S.studioCard(r.model, path.relative(process.cwd(), r.page)));
+      console.log(`\n  serving ${r.url}  (localhost only; refreshes as files under .uxcli/ change; Ctrl+C to stop)`);
+    } else {
+      const r = await S.writeStudio(args[0] || '.', { viewport: vpt });
+      if (!r.model) { console.error('uxcli: ' + (r.problems || []).join('\n  ')); process.exit(1); }
+      if (opt('shot')) { await S.shootStudio(r.page, opt('shot')); }
+      console.log(flags.has('--json') ? JSON.stringify(r.model, null, 1) : S.studioCard(r.model, path.relative(process.cwd(), r.page)) + (opt('shot') ? `\n  shot   ${opt('shot')}` : ''));
+      process.exit(0);
+    }
   } else if (cmd === 'version') {
     // Named walks of a journey: kept against pruning, compared with experience --from --to.
     const V = await import('../src/version.js'); const root = path.resolve(opt('src') || '.');

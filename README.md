@@ -47,6 +47,22 @@ have, and an instrument to prove the result works for the person using it:
 uxcli writes no claim about your users. Every sentence on a card was authored by the project, quoted
 from a cited source, or measured by the browser.
 
+## The studio
+
+```bash
+uxcli studio --serve        # http://127.0.0.1:4317 — the project as a board, refreshed as the agent works
+```
+
+A canvas laid out like a design file, built from what is under `.uxcli/` and nothing else: each journey
+a band, each workflow a lane, each step a column; in each column the screen as drawn (the variants, A/B,
+the pick), as built (the last walk's screenshot with its findings pinned where the browser found the
+element) and as each named version left it. Drag to pan, scroll or pinch to zoom, click a frame for what
+the files and the walk say about it. Context (actors, unknowns, insights) and the library (lenses,
+templates) are a tab away. Served, it is also where a person decides — choose a drawing, or ask for a
+redraw — written as `pick.json` or `revise.json` through the same parser, creating only. The agent
+works through the CLI and the skill; `uxcli studio --shot=FILE` gives it the same board as a picture.
+Free, local, no account: the page is one HTML file.
+
 ## Install
 
 | Agent | Skill | Instrument |
@@ -198,6 +214,7 @@ uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside 
 uxcli review check                    # every review complete, fresh, and not contradicted by a probe
 uxcli version [save <journey> <name>] # name a walk so it is kept; experience --journey=<id> --from=<a> --to=<b> compares two
 uxcli experience [dir] [--page]       # what the person goes through: steps, typing, scrolls, waits, an estimate in seconds; findings pinned on screenshots
+uxcli studio [dir] [--serve] [--shot=FILE]   # the board: every journey's screens drawn, built and per version, pan and zoom like a design file; served, a person picks there
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
 uxcli run <url>                       # measure one screen       --prove --state=FILE --src=DIR

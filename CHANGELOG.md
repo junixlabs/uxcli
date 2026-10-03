@@ -10,6 +10,15 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — the designer's habits: a library to cite, templates to start from, the walk measured
 
+- `uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]`: the project as a board, laid out like
+  a design file — each journey a band, each workflow a lane, each step a column with the screen as drawn
+  (variants A/B, the pick), as built (the last walk's screenshot, findings pinned) and as each named
+  version left it; pan, zoom, fit, an outline, an inspector, and Context and Library tabs. One HTML file
+  under `.uxcli/studio/`. `--serve` runs it on localhost, refreshes it as files under `.uxcli/` change,
+  serves nothing outside `.uxcli/`, and takes a person's pick or redraw request through the parser the
+  file is read with, creating only. `--shot` photographs the board for an agent. Gate: `studio-pairs`,
+  which also runs the four page probes on the board.
+
 - `uxcli experience [dir|run] [--page] [--json]`: what the person goes through on each journey's last
   walk, read from the trace — steps, clicks, fields and characters typed, scrolls, the settle time of
   each step in Nielsen's bands (100 ms, 1 s, 10 s), and a keystroke-level estimate of the time a
