@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/template.schema.json",
+  "title": "uxcli project template",
+  "description": "A project template — skills/uxcli/templates/<id>.json: the screens a kind of product usually has and the lens each is read against, the journeys worth walking first and what to watch on them, and the questions research must answer. It states no fact about any product's users.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "name", "when", "actors", "screens", "journeys", "research", "sources"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "name": { "type": "string", "minLength": 1 },
+    "when": { "type": "string", "minLength": 1, "description": "what kind of product this template is for" },
+    "actors": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["actor", "who", "questions"],
+        "properties": {
+          "actor": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "who": { "type": "string", "minLength": 1 },
+          "questions": { "type": "array", "minItems": 3, "items": { "type": "string", "pattern": "\\?\\s*$" }, "description": "written into the actor's unknowns[] by template apply" }
+        }
+      }
+    },
+    "screens": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "name", "lens", "does"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "name": { "type": "string", "minLength": 1 },
+          "lens": { "enum": ["marketing", "content", "data", "workspace", "shop", "transaction"] },
+          "does": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "journeys": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id", "goal", "actor", "through", "watch"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "goal": { "type": "string", "minLength": 1 },
+          "actor": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "through": { "type": "array", "minItems": 2, "items": { "type": "string" } },
+          "watch": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "research": { "type": "array", "minItems": 3, "items": { "type": "string", "pattern": "\\?\\s*$" } },
+    "sources": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["name", "url", "why"],
+        "properties": { "name": { "type": "string", "minLength": 1 }, "url": { "type": "string", "pattern": "^https?://" }, "why": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}

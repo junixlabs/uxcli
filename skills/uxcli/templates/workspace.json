@@ -1,0 +1,97 @@
+{
+ "schema_version": 1,
+ "id": "workspace",
+ "name": "B2B workspace",
+ "when": "CRMs, admin panels, project and ticket tools, internal back-offices: people who come back every day to work through records.",
+ "actors": [
+  {
+   "actor": "daily_operator",
+   "who": "The person who works through records all day: a sales rep, a support agent, a coordinator.",
+   "questions": [
+    "Which single task do they repeat most in a day, and how many times?",
+    "How many records do they handle per day, and how many are open at once?",
+    "On which device and where do they do it: a desk, a phone between meetings, a site visit?",
+    "What words do they use for the records and states, as opposed to the words the database uses?",
+    "What do they switch to outside the product to finish a task (phone, email, chat, spreadsheet)?",
+    "What makes them lose their place: an interruption, a page reload, a filter that resets?"
+   ]
+  },
+  {
+   "actor": "team_admin",
+   "who": "The person who sets the product up for others: permissions, fields, imports, reports.",
+   "questions": [
+    "Which settings do they change after the first week, and how often?",
+    "Who do they answer to for what the team sees in reports?",
+    "What happens today when a permission or a field is set wrong, and who notices?"
+   ]
+  }
+ ],
+ "screens": [
+  { "id": "sign-in", "name": "Sign in", "lens": "transaction", "does": "Gets into their own workspace and lands where they left off." },
+  { "id": "first-run", "name": "First run (empty)", "lens": "workspace", "does": "Understands what goes here and creates or imports the first record." },
+  { "id": "record-list", "name": "Record list", "lens": "workspace", "does": "Finds the record they need by searching, filtering or sorting, and opens it." },
+  { "id": "record-detail", "name": "Record detail", "lens": "workspace", "does": "Reads the record and takes the next action on it without leaving the screen." },
+  { "id": "record-form", "name": "Create or edit record", "lens": "transaction", "does": "Enters or corrects the record's data once, with errors caught before they save." },
+  { "id": "overview", "name": "Overview dashboard", "lens": "data", "does": "Sees what needs attention today and goes straight to it." },
+  { "id": "settings", "name": "Settings", "lens": "workspace", "does": "Changes how the workspace behaves and sees that the change took effect." }
+ ],
+ "journeys": [
+  {
+   "id": "first-value",
+   "goal": "Get from sign-up to the first useful record",
+   "actor": "daily_operator",
+   "through": ["sign-in", "first-run", "record-form", "record-list"],
+   "watch": [
+    "The empty state says what goes here and offers the one action that starts it.",
+    "Count the steps from landing to the first saved record; every step must earn its place.",
+    "After saving, the new record is visible where the person expects it, without a reload."
+   ]
+  },
+  {
+   "id": "find-and-act",
+   "goal": "Find one record and take the next action on it",
+   "actor": "daily_operator",
+   "through": ["record-list", "record-detail"],
+   "watch": [
+    "The primary action on the detail screen is reachable without scrolling at a phone viewport.",
+    "Every action shows a change within a second; anything longer shows progress.",
+    "Going back to the list keeps the search, filter and scroll position."
+   ]
+  },
+  {
+   "id": "triage-today",
+   "goal": "See what needs attention today and clear it",
+   "actor": "daily_operator",
+   "through": ["overview", "record-detail", "overview"],
+   "watch": [
+    "Numbers on the overview link to the records behind them.",
+    "After acting on a record, the overview reflects the change when the person returns.",
+    "Nothing on the overview needs a legend the screen does not show."
+   ]
+  },
+  {
+   "id": "change-a-setting",
+   "goal": "Change one setting and confirm it applied",
+   "actor": "team_admin",
+   "through": ["settings", "record-list"],
+   "watch": [
+    "The setting says what it changes before it is saved.",
+    "A destructive or team-wide change names its consequence and can be undone or is confirmed.",
+    "The effect is visible on the screen it changes."
+   ]
+  }
+ ],
+ "research": [
+  "What is the domain's own vocabulary for records, stages and outcomes, and where is it written down?",
+  "Which regulations or audit rules apply to the data (personal data, retention, who may see what)?",
+  "Which competing or adjacent tools do these teams already use, and what do people praise or complain about in their reviews?",
+  "What volume and speed does the work have: records per day, time allowed per record, peak hours?",
+  "What does a mistake cost in this domain: a lost customer, a fine, a re-do?"
+ ],
+ "sources": [
+  { "name": "Nielsen Norman Group — 10 usability heuristics", "url": "https://www.nngroup.com/articles/ten-usability-heuristics/", "why": "The baseline vocabulary for reviewing any workspace screen." },
+  { "name": "IBM Carbon Design System", "url": "https://carbondesignsystem.com/", "why": "Enterprise patterns for data tables, forms, notifications and empty states, documented with usage guidance." },
+  { "name": "GitHub Primer", "url": "https://primer.style/", "why": "Patterns from a tool people work in all day: navigation, lists, empty states, saving." },
+  { "name": "GOV.UK Design System — patterns", "url": "https://design-system.service.gov.uk/patterns/", "why": "Researched patterns for questions, errors and confirmation, tested with real users." }
+ ]
+}

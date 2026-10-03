@@ -1,0 +1,86 @@
+{
+ "schema_version": 1,
+ "id": "shop",
+ "name": "Online shop",
+ "when": "E-commerce and marketplaces: people browse, compare, buy, and come back for their order.",
+ "actors": [
+  {
+   "actor": "first_time_shopper",
+   "who": "Someone who arrived from search or an ad and has never bought here.",
+   "questions": [
+    "What were they looking for when they arrived, in their own words?",
+    "What do they need to know before trusting this shop with a payment?",
+    "Which device do they buy on, and do they start on one device and finish on another?",
+    "What costs or conditions would make them abandon at checkout (delivery price, delivery date, returns)?",
+    "How do they compare products: by price, by a spec, by reviews, by photos?"
+   ]
+  },
+  {
+   "actor": "returning_customer",
+   "who": "Someone who has bought before and comes back to buy again or to check an order.",
+   "questions": [
+    "Why do they come back: to reorder, to track, to return?",
+    "Do they expect to be signed in, and what happens if they are not?",
+    "What would they need to see to resolve an order problem without contacting support?"
+   ]
+  }
+ ],
+ "screens": [
+  { "id": "catalogue", "name": "Catalogue or category", "lens": "shop", "does": "Browses a range and narrows it down." },
+  { "id": "search-results", "name": "Search results", "lens": "shop", "does": "Finds the product they have in mind, or a close alternative." },
+  { "id": "product", "name": "Product page", "lens": "shop", "does": "Decides whether this is the right product at the right total price and delivery date." },
+  { "id": "cart", "name": "Cart", "lens": "transaction", "does": "Checks what they are buying and what it will cost in total." },
+  { "id": "checkout", "name": "Checkout", "lens": "transaction", "does": "Gives delivery and payment details once and places the order." },
+  { "id": "confirmation", "name": "Order confirmation", "lens": "transaction", "does": "Knows the order went through and what happens next." },
+  { "id": "orders", "name": "Order history", "lens": "workspace", "does": "Finds an order, sees where it is, and starts a return." }
+ ],
+ "journeys": [
+  {
+   "id": "find-and-buy",
+   "goal": "Find a product and buy it",
+   "actor": "first_time_shopper",
+   "through": ["search-results", "product", "cart", "checkout", "confirmation"],
+   "watch": [
+    "The total cost, including delivery, is visible before the last step.",
+    "Checkout can be finished without creating an account.",
+    "Count the form fields in checkout; each must be needed to deliver or to charge.",
+    "An error in checkout keeps everything the shopper already typed."
+   ]
+  },
+  {
+   "id": "compare-and-choose",
+   "goal": "Narrow a range down to one product",
+   "actor": "first_time_shopper",
+   "through": ["catalogue", "product", "catalogue", "product"],
+   "watch": [
+    "Filters apply without losing scroll position, and say how many results remain.",
+    "Going back from a product returns to the same place in the list.",
+    "The facts people compare on are in the same place on every product page."
+   ]
+  },
+  {
+   "id": "track-and-return",
+   "goal": "Find a past order and start a return",
+   "actor": "returning_customer",
+   "through": ["orders", "confirmation"],
+   "watch": [
+    "The order's current status and expected date are visible without opening a sub-page.",
+    "The return starts from the order, not from a help article.",
+    "Every step says what happens next and when."
+   ]
+  }
+ ],
+ "research": [
+  "What do shoppers in this category need to see before buying (sizes, compatibility, ingredients, warranty)?",
+  "Which delivery, payment and return options are expected in this market, and which are legally required?",
+  "What do customer reviews of this shop and its competitors complain about most?",
+  "What share of traffic is on phones, and where does it come from (search, social, email)?",
+  "Which local conventions matter: currency format, address format, phone format, tax shown or not?"
+ ],
+ "sources": [
+  { "name": "Baymard Institute — e-commerce UX research", "url": "https://baymard.com/research", "why": "Large-sample usability research on product pages, search, cart and checkout." },
+  { "name": "Nielsen Norman Group — 10 usability heuristics", "url": "https://www.nngroup.com/articles/ten-usability-heuristics/", "why": "The baseline vocabulary for reviewing any screen." },
+  { "name": "Shopify Polaris", "url": "https://polaris.shopify.com/", "why": "Commerce patterns and content guidelines from a platform that runs many shops." },
+  { "name": "GOV.UK Design System — patterns", "url": "https://design-system.service.gov.uk/patterns/", "why": "Researched patterns for addresses, payment details, errors and confirmation pages." }
+ ]
+}

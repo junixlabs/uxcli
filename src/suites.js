@@ -35,4 +35,5 @@ export const SUITES = [
   { tag: 'map', title: 'drift is what the run said, nothing more', file: 'map-pairs.mjs', miss: 'seen' },
   { tag: 'page', title: 'the instrument measures its own pages', file: 'page-pairs.mjs', miss: 'seen' },
   { tag: 'lens', title: 'a viewpoint has a name, a review answers all', file: 'lens-pairs.mjs', miss: 'refused' },
+  { tag: 'tmpl', title: 'a template asks, and apply only creates', file: 'template-pairs.mjs', miss: 'refused' },
 ];
