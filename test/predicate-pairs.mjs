@@ -25,7 +25,7 @@ const STATES = {
   'agent.workspace_ready': {
     signals: [{ observer: 'url', path: '/workspace/{workspaceId}' }, { observer: 'network', request: 'GET /api/me', status: 200 },
       { observer: 'dom', selector: '[data-uxcli=lead-list]', visible: true }],
-    strength: 'strong', mustMatch: ['/workspace/*'], mustNotMatch: ['/login', '/onboarding', '/workspace/* khi GET /api/me → 401'],
+    strength: 'strong', mustMatch: ['/workspace/*'], mustNotMatch: ['/login', '/onboarding', '/workspace/* when GET /api/me → 401'],
   },
   'anon.login_failed_retryable': {
     signals: [{ observer: 'a11y', role: 'alert', visible: true }, { observer: 'dom', selector: '[data-uxcli=login-submit]', enabled: true },
@@ -134,7 +134,7 @@ export function pair() {
   const ALERT = { signals: [{ observer: 'a11y', role: 'alert', visible: true }] };
   is(holds(ALERT, { a11y: { alerts: [{ role: 'alert', text: '', visible: true }] } }).held, false, 'a mounted, empty alert region does not satisfy role=alert visible');
   is(holds(ALERT, { a11y: { alerts: [{ role: 'alert', text: '   ', visible: true }] } }).held, false, 'whitespace is not an alert either');
-  is(holds(ALERT, { a11y: { alerts: [{ role: 'alert', text: '', visible: true }, { role: 'alert', text: 'Mật khẩu không đúng', visible: true }] } }).held, true, 'the same page with a region that says something holds');
+  is(holds(ALERT, { a11y: { alerts: [{ role: 'alert', text: '', visible: true }, { role: 'alert', text: 'Incorrect password', visible: true }] } }).held, true, 'the same page with a region that says something holds');
 
   // Caps lower fail to finding, and touch nothing else.
   is(capFor({ method: 'method-validated', strength: 'strong' }), [], 'a validated method on a strong state is uncapped');
@@ -148,7 +148,7 @@ export function pair() {
   // The example run: runs/j-authenticate server-error/r1. After the intercepted 500 the alert shows, the
   // button is enabled, and the email field is empty — the state is not held and the email signal says why.
   const before = { url: { path: '/login' }, dom: { 'input[name=email]': { present: true, value: sha8('agent@mail.sink.local') } } };
-  const after = emailValue => ({ url: { path: '/login' }, a11y: { alerts: [{ role: 'alert', text: 'Lỗi máy chủ, thử lại', visible: true }] },
+  const after = emailValue => ({ url: { path: '/login' }, a11y: { alerts: [{ role: 'alert', text: 'Server error, try again', visible: true }] },
     dom: { '[data-uxcli=login-submit]': { present: true, visible: true, enabled: true }, 'input[name=email]': { present: true, value: emailValue } }, network: [] });
   const r1 = holds(STATES['anon.login_failed_retryable'], after(''), { before, hash });
   is([r1.held, r1.strength], [false, 'medium'], 'server-error/r1: the state is not held');

@@ -2,7 +2,7 @@ import { readContext, standingOf, citable, citationOf, STANDINGS, FIELDS } from 
 
 export const OPERATOR = 'a field quoting words that are really in the document, against the same field once the document no longer says them — which is what happened to this project\'s own declaration and which the old rule, asking only whether `source` was a non-empty string, reported as known; and the three honest ways a citation says less than that, none of which may be read as a mismatch: a source that is only a name, a document that could not be read, and a field nobody wrote.';
 
-const DOC = 'Trước khi nó được phép nói "xong", sản phẩm đang chạy\nphải được đối chiếu với những gì đã được hứa.';
+const DOC = 'Before it may say "done", the running product\nmust be checked against what was promised.';
 const at = (text, tracked = true) => ({ 'spec.md': { found: true, text, tracked } });
 const field = (source, value = 'x') => ({ value, source });
 
@@ -11,14 +11,14 @@ export function pair() {
   let checks = 0;
   const is = (got, want, what) => { checks++; if (got !== want) problems.push(`${what}: ${JSON.stringify(got)}, wanted ${JSON.stringify(want)}`); };
 
-  const cited = field({ doc: 'spec.md', quote: 'phải được đối chiếu với những gì đã được hứa' });
+  const cited = field({ doc: 'spec.md', quote: 'must be checked against what was promised' });
 
   // The pair. Same declaration, same quote; only the document moves.
   is(standingOf(cited, at(DOC)).standing, 'quoted', 'a quote that is in the document');
-  is(standingOf(cited, at('Tài liệu này đã được viết lại.')).standing, 'drifted', 'the document no longer says it');
+  is(standingOf(cited, at('This document has been rewritten.')).standing, 'drifted', 'the document no longer says it');
 
   // A quote is words, not bytes: a sentence re-wrapped when the file was edited is the same sentence.
-  is(standingOf(field({ doc: 'spec.md', quote: 'sản phẩm đang chạy phải được đối chiếu' }), at(DOC)).standing,
+  is(standingOf(field({ doc: 'spec.md', quote: 'the running product must be checked' }), at(DOC)).standing,
     'quoted', 'a quote that spans a line break in the document');
 
   // The three ways of saying less, each its own word. None of them is `drifted`: a citation that was

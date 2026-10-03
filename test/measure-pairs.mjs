@@ -23,7 +23,7 @@ export function pair() {
   must('a state met at two steps was not read at the scope step', o.where === 's2');
   must('the before side was not preferred at the scope step', o.shot === 's2-before.png');
   must('a button two scrolls down was not not-held', o.outcome === 'not-held');
-  must('how far the button sits was not in the outcome', /2 lần cuộn ở 390x844/.test(o.what || ''));
+  must('how far the button sits was not in the outcome', /2 scrolls at 390x844/.test(o.what || ''));
   const held = outcomeOf({ ...c1, scope: { step: 's1' } }, c1.measurements[0], 0, steps, {});
   must('a button in view at s1 was not held', held.outcome === 'held' && held.where === 's1');
   must('prose predicate was not unmeasurable', outcomeOf(c1, { target: 'agent.lead_detail', predicate: 'in viewport' }, 0, steps).outcome === 'unmeasurable');

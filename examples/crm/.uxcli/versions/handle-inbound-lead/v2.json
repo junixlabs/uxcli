@@ -1,0 +1,9 @@
+{
+ "schema_version": 1,
+ "journey": "handle-inbound-lead",
+ "name": "v2",
+ "run": "runs/R-2026-09-25T08-41-12Z-zs8fns",
+ "at": "2026-09-25T09:00:00Z",
+ "by": { "type": "person", "ref": "example-owner" },
+ "note": "The walk now seeds its own lead and goes on to the call."
+}

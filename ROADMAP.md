@@ -1,65 +1,90 @@
 # Roadmap
 
-Phases end when their exit criteria pass. No dates. Order reflects what the evidence so far supports, not the original plan: flow probes came first because they are the part no other tool has; the single-screen probes moved ahead of the second flow cut after the first real-project run, where the flow probes were mostly not applicable and the single-screen probes found the defects.
+Phases end when their exit criteria pass. No dates. The order follows the four pillars in VISION.md,
+and the owner's call of 2026-10-03: build the library first, then the experience metrics that check it.
 
 ## Done
 
-- **Prove.** Frozen, hashed definitions run on unseen pages and a seeded flow fixture; agents tested against the verdict format. Records live in the working notes; the README carries no evidence table until each row can name its runner and whether the definitions were frozen before or revised after the pages were seen.
-- **Instrument.** `run <url>` with three single-screen probes (2.4.7 pixels by a real Tab press, 1.4.12 by ACT rules, 1.4.3 by a pinned axe-core), every twin reaching `pass`, method status per probe, all three `method-validated` on unseen pages (details below).
-- **Flow, first cut.** `run <journey>` with three probes (WCAG 3.3.4, 3.3.7, 3.2.3), process segments with a human `sameProcess` override, the verdict card, `--json`, `--refute`, and `gate` with a falsification pair per probe.
+- **Page checks.** `run <url>` with focus-visible (2.4.7), text-spacing (1.4.12) and contrast (1.4.3)
+  `method-validated` on 20–80 unseen pages with 0 false fails; text-overlap and nesting as findings;
+  `--prove` plants each check's own defect so every pass earns it.
+- **Flow checks, first cut.** `run <journey>` with 3.3.1, 3.3.4, 3.3.7 and 3.2.3, each with its pair;
+  method-unproven, so they report findings.
+- **Context before design.** Understanding (actors, insights with evidence and a falsifier), journeys
+  as states the browser can check, `context show`. Measured: 0/10 sessions from a ticket alone, 10/10
+  with the card.
+- **Drawing and picking.** `mockups`: variants per state photographed, one decision per screen, picks
+  and revisions hashed to the drawing; `map`: the journey as screens, model, run, diff and impact.
+- **Lenses.** 123 viewpoints from four schools of designers, packaged by kind of UI; `review` and
+  `review check`, which refuses a review a probe contradicts.
+- **One skill, three ways in.** `doctor`, `demo`, `guide`; the skill installs into Claude Code, Codex,
+  opencode and Cursor.
 
-## Next
+## 1. Knowledge — the library
 
+- Done 2026-10-03: four topic pools from public design systems and WCAG — colour (10), writing and
+  microcopy (10), data display (12), forms (12) — every quote fetched from the source repository and
+  checked verbatim; folded into the six lenses.
+- Done 2026-10-03: templates for three kinds of product — `workspace`, `shop`, `landing` — with
+  screens and their lens, journeys to walk with what to watch, research questions and sources;
+  `template apply` writes the questions as an actor's unknowns, creating only.
+- Done 2026-10-03: `references/research.md`, the order in which the field is researched and how
+  findings are written down.
+- Next: templates for `content` (docs, help centres) and `mobile-app`; a topic pool for navigation and
+  information architecture; a topic pool for motion and feedback.
+- Next: `context show` names the template and the lens for each screen of the journey.
+- Exit: an agent given only a ticket and the skill picks the right template and lens, and its drawing's
+  review cites topic-pool rules, in 8 of 10 fresh sessions.
 
-### Flow, second cut
-- Done in part: recall on defects seeded blind by two independent agents (a multi-page checkout, 12 mutants; a same-URL wizard, 8 mutants): every in-scope defect caught after two recorded revisions, 0 false fails, no-verdict counted separately; the key for one wizard mutant is contested and recorded as such. Still open: precision on 20 flows the probes have never seen.
-- Done: same-URL wizards (journey `expect`, or the submitted form gone / heading changed); navigation built from buttons and roles; footer and header landmarks as mechanisms; login identity on a password step as the security exception; `back` only as a whole label; reformatted values as a finding. Still open: change controls matched by observed URLs; disabled submit as a checking mechanism; forced clicks for overlay widgets; unlandmarked menus as a lower-provenance fallback.
-- Done 2026-09-07: **3.3.1 error identification** shipped with its pair on day one (must-fail: silent rejection; must-pass: message tied by `aria-describedby` and `aria-invalid`), `method-unproven`. Candidate changed from 2.2.1 timing because every page with a form needs it, and the first outside run (a landing page with one form) had nothing else to measure. It plants one error (a required field left empty, submit) so it runs only where the journey opts in, never on a bare URL; `method-unproven` at birth.
-- Exit: three numbers published separately: precision, recall, no-verdict rate.
+## 2. Experience validation — the centre
 
-### Skills
-The instrument is used by an agent; the skills are how the agent is told to use it. A skill is a set of obligations on a fresh agent, and it is correct only when its transcript shows the obligations met and its mutant shows them broken.
-- `principles` shipped in 0.4.0 without a twin; it gets one here.
-- `journey`: from `discover` output to `*.proposed.json` with the questions only the owner can answer (which step commits, `expect` on a same-URL step, values, a test endpoint). Must not set `confirmedBy`, must not place the file among the project's journeys, must not fill hidden or invisible inputs.
-- `before-done`: what an agent must do before it may say the UI work is finished: run `uxcli run` on the screens it touched and the journeys it affected, fix or report every `fail`, call a `finding` unverified rather than a pass, say "done" only at exit 0. Named after its trigger, not after a verdict it does not give.
-- Done 2026-09-07: `journey`, `before-done` written and tested on 95 fresh sessions with four arms (intact, one paragraph removed, every statement removed, no skill). No paragraph-level twin ever broke; the absence of the skill did: without `principles` 5/5 agents wrote the commitments file themselves; without `journey` 2/5 put the proposal in the confirmed directory; without `before-done` and with no mention of uxcli 4/10 never ran the instrument. Records in `skills/pair.json`.
-- Learned: the card already carries "a finding is not a pass" and "a fail blocks done" (0 of 45 sessions with the instrument running said otherwise, skill or not). A skill earns its place only for what the instrument cannot say by itself: start me, and keep the proposal out of the confirmed directory.
-- Exit met 2026-09-07 with the twin redefined as the absence of the skill (the paragraph twins measured redundancy, recorded as such). VISION "Shape" names two skills; a third is the owner's change to make.
+Measured from the trace of a real walk in Chrome, each with a must-fail and a must-pass journey:
 
-### Falsify on the target
-A falsification pair proves a probe can fail on a fixture. Nothing proves it can fail on this project. An all-green run must be able to show its counterfactual.
-- Done 2026-09-07 for the three page probes: `run <url> --prove`, reached decided by computed style before the re-measure, gate requires `would fail` on every must-pass twin; the first real page gave `would fail` on focus-visible. Flow probes not yet (they need the overlay mechanism, not a live-page mutation).
-- `run --prove`: for each probe that passed, plant one defect that reaches the very controls it measured (a focus rule that changes their computed style, a colour override on the cited text group, a locked `letter-spacing`; for a journey, a dropped review value or a reordered navigation item), re-measure the same controls, print `pass · would fail on <mutation>` or `pass · could not be made to fail`, which is a warning.
-- Definition first: what "the mutation reaches the measured element" means is written and committed before any code.
-- Exit: on the twins and on one real project every pass carries its counterfactual line.
+- **Steps against the shortest path**: actions taken, clicks, characters typed, back-tracks, dead ends.
+- **Keystroke-level estimate**: the time a practised user would need for the journey (Card, Moran &
+  Newell's operators), so two versions can be compared in seconds rather than impressions.
+- **Response**: time from each action to the first visible change; a progress signal past one second.
+- **Continuity**: data entered on one step present on the next; nothing asked twice (3.3.7 generalised).
+- **Recovery**: an error planted on purpose — a message, at the field, with the other answers kept.
+- **Consistency**: navigation, terms and the primary action in the same place across the journey's
+  screens (3.2.3 generalised).
 
-### Commit
-The project's own commitments become thresholds.
-- Done: `uxcli.commitments.json` with owner and source per entry; `sheet` measures `contrast` commitments on declared tokens (aliases resolved, theme-ambiguous tokens `unmeasurable`); falsification pair in the gate.
-- Done: `principles`, a skill that drafts the file as a proposal with trade-offs; the human fills owner and source and commits it. The agent may propose, it may not commit.
-- Done: `discover <repo|url>` writes journey candidates as proposals; `run` refuses a proposal until a human sets `confirmedBy`.
-- Done: `diff a b --gate` over two saved runs; only `fail` blocks.
-- Journey authoring beyond proposals: the `journey` skill (see Skills).
-- `init`: copy the shipped skills into the project's `.claude/skills/`, create `.uxcli/`, print the CI step. Nothing else: no commitments file, no journey, no edits to existing files.
-- Exit: one real project runs `sheet` or `diff --gate` in CI on its own commitments. Not yet: the first project's commitments file has to be written by its owner.
+- Done 2026-10-03: `uxcli experience` reports steps, typing, scrolls, settle time in Nielsen's bands
+  and a keystroke-level estimate per workflow; a wait past 1 s, a control below the fold, an answer
+  typed twice, a step that did not arrive; after an error answer, a typed answer the page cleared
+  (passwords excepted) and an error nothing announced; a navigation landmark whose items change order
+  within a workflow. `--page` pins each on the step's screenshot. All findings; none validated yet.
 
-### Release
-- Done: on npm as `@junixlabs/uxcli`; CI runs `gate` on every push; `publish.yml` publishes tags `v*` through npm trusted publishing, with provenance.
-- Done: 0.3.0 = Instrument exit (three page probes `method-validated`); 0.4.0 = Commit tooling (`sheet`, `diff --gate`, `discover`, `principles`). The Commit exit itself is still open above.
-- Done: 0.5.0 = the `journey` and `before-done` skills with their records, `init`, flow probe 3.3.1 with its pair, `run --prove` for the page probes, the `discover` dedup fix.
-- Done: 0.5.1 = `--refute` explicit about what it spawns and what it costs; `run.json` in every run directory; card footer and two GitHub issue forms (wrong or missed verdict; a flow for the unseen list). Feedback from projects enters here and nowhere else.
-- Done: 0.5.3 = `text-overlap`, the first probe with provenance `opinion` (text painted over text at rest), written from the first feedback issue (#1: a step counter painted over a command name on the project's own landing draft, missed by all three page probes). Ships `method-unproven` with its pair; needs 20 unseen pages. Also: a status line on stderr before a page run when attached to a terminal.
-- 0.6.0 when the flow probes flip to `method-validated` (20 unseen flows, the Gate 0 ruling); 0.5.x for the Commit exit and `--prove` on flow probes.
-- CI action running `run` against a live fixture; the planted-verdict test repeated on a second model.
-- Exit: a stranger installs it and gets a first verdict in ten minutes without reading the source.
+Every finding is pinned on the step's screenshot. Exit: each metric has its pair in the gate, and on
+the CRM example a planted extra step, a missing progress signal and a lost value are each caught.
 
-## Instrument, record
-Single-screen probes into the package with the same contract as the flow probes: spec, code, hashed must-fail and must-pass fixtures.
-- Done: `run <url>` with focus-visible (2.4.7) and text-spacing (1.4.12, ACT 24afc2/9e45ec/78fd32), both carried from Prove with recorded revisions, and contrast (1.4.3) delegated to a pinned axe-core; `--state` for signed-in pages; third-party subtrees excluded; bot challenges and load errors reported as `unmeasurable` with the reason.
-- Done: `gate` covers every probe; the must-pass twin of each page probe has to reach `pass`, never `not-applicable`; non-pass card lines carry the reason.
-- Done: every twin, flow and page, must reach `pass`; method status per probe (`method-validated` needs a recorded unseen run with the packaged code, 0 false fails, and a recall record); unproven probes report `finding`.
-- Done: focus-visible measures rendered pixels per control after one real Tab press; what a crop cannot show (off-viewport, covered, self-changing, ring drawn elsewhere) is reported per control as not measured, never as fail. Each false-fail class found on unseen pages is a recorded revision in the spec.
-- Exit met 2026-09-06: 20 pages the probes had never seen (Tranco order, list hashed, definitions committed at `8dde0e1` before the draw), re-run with the packaged code: focus-visible 62 failing controls on 7 pages, 58 re-measured by a real Tab press and a whole-viewport diff, 4 by the viewport diff alone (the check could not land Tab on them), 0 false fails; text-spacing and contrast 0 false fails over 80 unseen pages. It took four lists: the first three each found a false-fail class the probe's own measurement could not see (eight recorded revisions, v3.1 to v3.8). All three page probes are `method-validated`.
+## 3. Evidence and versions
+
+- A trace schema (the actions, their targets, timings and the state after each) and an evidence schema
+  (a screenshot, a region, what was found there, which rule or metric).
+- A version of a journey: its screens, metrics and findings at one build. A proposal for a new version
+  names the evidence that caused it.
+- `map` compares two versions step by step: what changed on screen, and what the metrics did.
+- Done 2026-10-03: `uxcli version save <journey> <name>` names a walk (one file per version, never
+  rewritten; its run kept against pruning); `experience --journey --from --to [--page]` compares two
+  versions step by step with both pictures side by side; proposals take `kind: redesign`, with
+  `evidence[]` citing the walk; `references/versions.md` is the loop. The trace and evidence shapes are
+  the run packet and the experience report; a schema of their own is next.
+- Exit: on the CRM example, v1 and v2 side by side, with the metrics that moved.
+
+## 4. Walkthrough and personas
+
+- Cognitive walkthrough at each step: the four questions answered with the screenshot, as findings.
+- Personas from the project's own understanding walk the journey and record where they hesitate.
+- Exit: agreement with a human designer measured on a sample and published with its limits. Until
+  then, findings only.
+
+## The decisive experiment
+
+Same ticket, fresh sessions, agent with uxcli against agent without, scored on the walk (the metrics
+above) and by blind pairwise preference from designers. The repository already has the harness
+(`experiments/understanding-before-design`).
 
 ## Not planned
-Scores. Summaries. Conformance claims. Design critique. An MCP tool schema for the common path.
+
+Scores. Summaries that hide their sources. Conformance claims. A UI generator. A rule nobody can cite.

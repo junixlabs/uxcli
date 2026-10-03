@@ -1,0 +1,453 @@
+{
+ "schema_version": 1,
+ "school": "writing",
+ "name": "Writing and microcopy",
+ "research": "docs/lenses/writing.md",
+ "viewpoints": [
+  {
+   "id": "writing.errors-say-what-and-how-to-fix",
+   "claim": "An error message says what went wrong and how to fix it, in plain words, using the field's own label, without blame, apology or generic filler.",
+   "source": {
+    "author": "GOV.UK Design System (Government Digital Service)",
+    "work": "Error message component, 'Be clear and concise'",
+    "url": "https://design-system.service.gov.uk/components/error-message/",
+    "quote": "Describe what has happened and tell them how to fix it. The message must be in plain English, use positive language and get to the point."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Reuse the words of the field's label in its error ('Enter how many hours you work a week')",
+    "Write a different message for each failure: empty, too long, too short, wrong format",
+    "Use an instruction for empty fields and a description for out-of-range values, consistently",
+    "Show the same text next to the field and in the error summary",
+    "Keep the user's answer in the field when showing the error"
+   ],
+   "forbids": [
+    "Generic messages: 'An error occurred', 'This field is required', 'Select an option', 'Fill in the field'",
+    "Technical jargon and codes: 'form post error', 'error 0x0000000643'",
+    "Blame or legalese: 'forbidden', 'illegal', 'you forgot', 'prohibited'",
+    "'Invalid' / 'valid', 'please', 'sorry' and 'oops'",
+    "Using an inline field error to say the user is ineligible or the service is down"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Submit each form empty and with a malformed value; collect every rendered error text (role=alert, aria-invalid fields' aria-describedby, .error classes). Count messages that (a) match a generic list ('an error occurred', 'this field is required', 'invalid', 'error', 'required', 'something went wrong' with no next step), (b) contain 'oops', 'sorry', 'please', 'illegal', 'forbidden', 'you forgot', or a bare code, or (c) share no content word with their field's label. Count must be 0.",
+    "mustFail": "An email field labelled 'Email address' that, left empty, shows 'This field is required' and, malformed, shows 'Invalid input'.",
+    "mustPass": "Same field shows 'Enter your email address' when empty and 'Enter an email address in the correct format, like name@example.com' when malformed."
+   },
+   "exceptions": [
+    "Problems the user cannot fix (eligibility, permissions, outages) belong on a page that explains what to do next, not in a field error",
+    "Do not repeat an example in the error if the same example is already shown as hint text"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages usually have at most a sign-up or search form; anything with real input needs this everywhere.",
+   "agrees": [
+    "forms.error-message-says-how-to-fix",
+    "modern.feedback-is-local-and-optimistic",
+    "usability.speak-the-users-language"
+   ]
+  },
+  {
+   "id": "writing.buttons-name-the-action",
+   "claim": "A button's label is a verb (plus its object when needed) that says what happens when it is pressed; vague labels like OK, Done, Submit or Yes are replaced whenever a specific action exists.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Dialog pattern, anatomy: Actions",
+    "url": "https://carbondesignsystem.com/patterns/dialog-pattern/",
+    "quote": "Use descriptive words for the actions like Add, Delete, Save and avoid vague words like Done or OK."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Start the label with a verb: 'Save and continue', 'Send invoice', 'Add product'",
+    "Name the object when the verb alone is ambiguous on that screen",
+    "Make the dialog title and its confirming button use the same verb"
+   ],
+   "forbids": [
+    "'OK', 'Done', 'Submit', 'Yes', 'Go', 'Confirm' where a specific action exists",
+    "Labels that describe the button rather than the action ('Button', 'Click')",
+    "Icon-only buttons without an accessible name"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "List every visible button and input[type=submit] with its accessible name. Count those whose trimmed, lower-cased name is in the generic set {ok, okay, done, submit, yes, go, confirm, click here, click, button} or is empty. Count must be 0 outside of a platform-standard alert with a single acknowledgement.",
+    "mustFail": "A 'Delete project?' dialog whose buttons read 'OK' and 'Cancel', and a sign-up form whose button reads 'Submit'.",
+    "mustPass": "The dialog's buttons read 'Delete project' and 'Cancel'; the form's button reads 'Create account'."
+   },
+   "exceptions": [
+    "A purely informational alert with one acknowledgement button may say 'OK'",
+    "GOV.UK uses 'Continue' for a question page that does not save the user's answers — a convention for multi-page forms, not a generic label"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Content pages often have few buttons beyond navigation; every other kind leads with actions.",
+   "agrees": [
+    "modern.no-junk-drawer-menus-or-unlabeled-icons"
+   ]
+  },
+  {
+   "id": "writing.links-describe-their-destination",
+   "claim": "Link text names where the link goes or what it opens, read on its own; never 'click here', 'here', 'read this' or 'more'.",
+   "source": {
+    "author": "Mailchimp",
+    "work": "Content Style Guide, Web Elements: Links",
+    "url": "https://styleguide.mailchimp.com/web-elements/",
+    "quote": "Don’t say things like “Click here!” or “Click for more information” or “Read this.” Write the sentence as you normally would, and link relevant keywords."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Link the keywords that name the destination ('Read the automation guide')",
+    "Keep trailing punctuation outside the link",
+    "At most one 'Learn more' per screen, and only when the sentence already names the topic"
+   ],
+   "forbids": [
+    "'Click here', 'here', 'this', 'read this', 'more', 'link' as the whole link text",
+    "Several links with the same text pointing to different places"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "List every visible <a href> with its accessible name. Count links whose name, trimmed and lower-cased without punctuation, is in {click here, here, this, read this, more, read more, learn more, link, click} AND has no aria-label/aria-describedby adding the topic; also count sets of links with identical names but different hrefs. Count must be 0 (allow one 'learn more' per page when it follows a sentence naming the topic).",
+    "mustFail": "'To set up payments, click [here].' and three cards each ending in a 'Read more' link to different articles.",
+    "mustPass": "'Set up [payments] before your first sale.' and cards whose titles are the links."
+   },
+   "exceptions": [
+    "A single 'Learn more' after a sentence that names the topic, as Polaris allows"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "maybe",
+    "workspace": "maybe",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Data, workspace and transaction screens are built mostly from buttons and controls; prose links matter most where people read.",
+   "agrees": [
+    "usability.mindless-clicks-not-fewer-clicks"
+   ]
+  },
+  {
+   "id": "writing.one-label-per-action",
+   "claim": "One concept, one word: controls that do the same thing carry the same label everywhere, and controls that do different things never share a label.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "Accessibility guide: Descriptive buttons, 'How to test names'",
+    "url": "https://primer.style/guides/accessibility/descriptive-buttons",
+    "quote": "When buttons perform the same action, they have the same name."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Keep a terminology list of preferred words and words not to use for the product",
+    "Pick one verb per action (Delete or Remove, not both for the same thing) and reuse it across pages",
+    "Add the object to disambiguate repeated actions ('Remove Apples', 'Remove Pears')"
+   ],
+   "forbids": [
+    "Synonyms for one action across screens: 'Save' here, 'Update' there, 'Apply' elsewhere",
+    "Identical labels for different actions on the same page",
+    "Naming the same object two ways ('workspace' and 'project') in one product"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Across the journey's pages, collect (accessible name, action) pairs for buttons and links, where action is the form action/href/handler target. Count names that map to two or more different actions on one page, and actions reached by two or more different names across pages; also flag known synonym pairs present together (save/update/apply, delete/remove, sign in/log in, cart/basket). Count must be 0.",
+    "mustFail": "A list where each row has a 'Remove' button with no accessible name difference, and settings pages using 'Save' on one tab and 'Update' on another for the same submit.",
+    "mustPass": "Row buttons named 'Remove Apples', 'Remove Pears'; every settings tab submits with 'Save changes'."
+   },
+   "exceptions": [
+    "Delete and Remove may coexist when they mean different things (destroy vs take out of a collection), as Carbon defines them — then each must be used only for its own meaning"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "A one-page marketing or content site has few repeated actions; consistency matters wherever people move between screens doing tasks.",
+   "agrees": []
+  },
+  {
+   "id": "writing.sentence-case-ui-text",
+   "claim": "Labels, buttons, headings, tabs and table headers are written in sentence case; capitals only for the first word, proper nouns and acronyms — never title case or all caps for emphasis.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Content guidelines: Writing style, Capitalization",
+    "url": "https://carbondesignsystem.com/guidelines/content/writing-style/",
+    "quote": "Use sentence–case capitalization for all UI text elements."
+   },
+   "evidence": "author",
+   "prefers": [
+    "'First name', 'Email address', 'Save changes'",
+    "Refer to a UI element with the capitalization it has in the UI ('the My network page')",
+    "Use bold or italic, not capitals, for emphasis"
+   ],
+   "forbids": [
+    "Title Case Buttons Like 'Save Your Changes'",
+    "ALL CAPS text set in the markup (as opposed to a tracked small label styled with text-transform)",
+    "Capitalizing feature names to mark them as special"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "For each button, label, th, tab and h1–h6 with three or more words, take the rendered text (after text-transform) and count those where two or more non-initial words that are not acronyms or in the page's proper-noun list start with a capital (title case), or where the whole text of four or more words is upper case. Count must be 0.",
+    "mustFail": "A button 'Save Your Changes', a heading 'Manage Team Members', and a table header 'ORDER DATE PLACED'.",
+    "mustPass": "'Save your changes', 'Manage team members', 'Order date placed'."
+   },
+   "exceptions": [
+    "Proper nouns, product names and acronyms keep their capitals",
+    "Mailchimp's own guide uses title case for page titles, menu names and global navigation — a house style, decide one and keep it",
+    "Short tracked overline labels in caps are a typographic choice; the four-word floor leaves them alone"
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Every kind of UI has labels and buttons.",
+   "agrees": [
+    "usability.omit-needless-words"
+   ]
+  },
+  {
+   "id": "writing.plain-language-reading-level",
+   "claim": "Interface text uses plain, everyday words and short sentences, at about a 7th-grade reading level, with sentences that start with the verb when they ask for action.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Content: Fundamentals, 'Write like merchants talk'",
+    "url": "https://polaris.shopify.com/content/fundamentals",
+    "quote": "Aim for a 7th grade reading level—it’s easiest for merchants to digest"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Short, common words: 'use' not 'utilize', 'large' not 'voluminous'",
+    "Direct instructions starting with a verb ('Add apps', not 'You can add apps')",
+    "Contractions where they read naturally",
+    "Keep jargon only when it is what the actual users say"
+   ],
+   "forbids": [
+    "Long multi-clause sentences in UI text",
+    "Inflated words chosen to sound impressive",
+    "Passive constructions that hide who does what"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Extract visible running text (p, li, label hint text, dialog and banner bodies; skip user-generated content and legal text). Compute Flesch–Kincaid grade per block of 2+ sentences and the word count per sentence. Count blocks above grade 9 and sentences over 25 words. Count must be 0.",
+    "mustFail": "A hint reading 'In order to facilitate the expeditious processing of your application, it is imperative that all requisite documentation be furnished prior to submission.'",
+    "mustPass": "'Upload your documents before you send your application. We need them to process it quickly.'"
+   },
+   "exceptions": [
+    "Expert tools whose users speak a domain language — readability formulas punish necessary domain terms; judge those against the journey's actor",
+    "Legal terms that must be quoted verbatim",
+    "The numeric thresholds in \"look at\" are uxcli's starting point, not the source's; the source states the rule, not the number."
+   ],
+   "kinds": {
+    "marketing": "yes",
+    "content": "maybe",
+    "data": "maybe",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Long-form content and data labels may be written for specialists; the grade target fits task and selling copy best.",
+   "agrees": [
+    "usability.speak-the-users-language",
+    "usability.omit-needless-words"
+   ]
+  },
+  {
+   "id": "writing.empty-states-say-what-next",
+   "claim": "An empty state's copy says what will appear in this space and how to start, with one action that begins it; if it is empty because of an error, it says what went wrong and how to recover.",
+   "source": {
+    "author": "GitHub Primer",
+    "work": "UI patterns: Empty states, Secondary text",
+    "url": "https://primer.style/ui-patterns/empty-states",
+    "quote": "From the text, users should be able to understand what steps they might take next."
+   },
+   "evidence": "author",
+   "prefers": [
+    "A title that names the purpose of the space ('No repositories yet')",
+    "One sentence on what the feature is for",
+    "One primary action that starts the creation flow, named for it ('Create repository')",
+    "For empty search results, say how to change the search or filters"
+   ],
+   "forbids": [
+    "A bare 'No data', 'No results' or 'Nothing here' with no next step",
+    "Vague error text like 'There was a problem'",
+    "Over-literal infrastructure detail ('The US East-2 database cluster is down')"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Render each list, table, search and dashboard with zero items (the journey's empty state). For each empty container, count it when the visible text is under 6 words or matches {no data, no results, nothing here, empty, no items} AND there is no button or link inside or adjacent to it. Count must be 0.",
+    "mustFail": "An invoices table that, with no invoices, shows only the header row and 'No data'.",
+    "mustPass": "'No invoices yet. Invoices you send to customers appear here.' with a 'Create invoice' button."
+   },
+   "exceptions": [
+    "Temporarily empty feeds (no notifications) need a message but not an action",
+    "Empty states caused by missing permissions point to who can grant access rather than a creation action",
+    "The numeric thresholds in \"look at\" are uxcli's starting point, not the source's; the source states the rule, not the number."
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "maybe",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "maybe"
+   },
+   "kindsWhy": "Marketing pages ship with their content; search results, carts, dashboards and workspaces start or end empty.",
+   "agrees": [
+    "craft.dont-overlook-empty-states-teach-by-example",
+    "modern.every-state-is-designed"
+   ]
+  },
+  {
+   "id": "writing.success-names-what-happened",
+   "claim": "A success message names the thing and what happened to it, in a few words ('Product updated'), instead of a generic 'Success!' or a wordy 'Your product has been successfully updated'.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Toast component, Content guidelines: Message",
+    "url": "https://polaris.shopify.com/components/internal-only/toast",
+    "quote": "Written in the pattern of: noun + verb"
+   },
+   "evidence": "author",
+   "prefers": [
+    "Object + past-tense verb: 'Collection added', 'Invoice sent'",
+    "Include the identifier when there are several (e.g. 'Issue #21 created' with a link)",
+    "On the final page of a transaction, add a reference and what happens next"
+   ],
+   "forbids": [
+    "A bare 'Success!', 'Done' or 'Saved successfully' with no object",
+    "'Your X has been successfully Y-ed' padding",
+    "Title Case or field-colon formats like 'Discount: Saved successfully'"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Drive each save/create/send/delete action and capture the resulting status text (role=status, aria-live regions, toasts, banners). Count messages that contain no noun from the action's object (the button label's object or the page's entity name), or that are only a generic word {success, done, saved, ok, complete}, or that exceed 8 words for a toast. Count must be 0.",
+    "mustFail": "Saving a customer shows a toast 'Success!'; sending an invoice shows 'Your invoice has been successfully sent to the customer you selected'.",
+    "mustPass": "'Customer updated'; 'Invoice #1042 sent'."
+   },
+   "exceptions": [
+    "When the result is already obvious on screen (the edited item reappears updated, or the user lands on the new item), Primer says no extra success message is needed — screen readers still need it announced",
+    "Confirmation pages at the end of a transaction carry more: reference number and what happens next"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "no",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Content pages rarely run actions; marketing has at most a sign-up confirmation.",
+   "agrees": [
+    "usability.visibility-of-system-status",
+    "usability.peak-end-finish-well"
+   ]
+  },
+  {
+   "id": "writing.destructive-actions-name-the-consequence",
+   "claim": "Before a destructive or irreversible action, the confirmation says exactly what will be destroyed and what follows from it, and the title and button repeat the action's verb — 'Delete project', not 'Are you sure?' / 'OK'.",
+   "source": {
+    "author": "IBM Carbon Design System",
+    "work": "Dialog pattern: Confirm a user decision",
+    "url": "https://carbondesignsystem.com/patterns/dialog-pattern/",
+    "quote": "Clearly describe the action being confirmed and explain any potential consequences that it may cause. Both the title and the button should reflect the action that will occur."
+   },
+   "evidence": "author",
+   "prefers": [
+    "Title names action and object: 'Delete project Atlas?'",
+    "Body states the consequence: what is lost, whether it can be undone, what else goes with it",
+    "Confirm button repeats the verb and object: 'Delete project'",
+    "For high-impact deletes, have the user type the resource name",
+    "Do not rely on the red colour alone to signal danger"
+   ],
+   "forbids": [
+    "'Are you sure?' with no object or consequence",
+    "'OK' / 'Yes' as the destructive button",
+    "A danger confirmation for low-impact actions that are trivial to undo"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Trigger every delete/remove/cancel-subscription/reset action and capture the confirmation dialog. Count dialogs where (a) the confirming button's name does not contain the action verb, (b) the title or body does not contain the object's name or type, or (c) the body has no consequence statement (no word from {permanently, cannot be undone, can't be undone, will be deleted, will lose, also delete, removes}). Count must be 0.",
+    "mustFail": "Clicking 'Delete' on a project opens 'Are you sure?' with buttons 'OK' and 'Cancel'.",
+    "mustPass": "'Delete project Atlas?' / 'This permanently deletes Atlas and its 14 files. You can't undo this.' / buttons 'Delete project' and 'Cancel'."
+   },
+   "exceptions": [
+    "Low-impact deletes that are trivial to undo or recreate should happen without a confirmation, offering Undo instead"
+   ],
+   "kinds": {
+    "marketing": "no",
+    "content": "no",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "maybe",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing and content pages have nothing to destroy; shops only at cart removal or account deletion.",
+   "agrees": [
+    "craft.button-hierarchy-one-primary",
+    "usability.clearly-marked-emergency-exit"
+   ]
+  },
+  {
+   "id": "writing.dates-numbers-units-for-the-reader",
+   "claim": "Dates spell out the month, numbers are numerals with thousands separators, and units sit a space after their number — formatted in the reader's locale, never as an ambiguous all-numeric date or a raw machine value.",
+   "source": {
+    "author": "Shopify Polaris",
+    "work": "Content: Grammar and mechanics, 'Numbers, dates, and currency'",
+    "url": "https://polaris.shopify.com/content/grammar-and-mechanics",
+    "quote": "Use the month’s full name. If there isn’t enough space, use 3-letter abbreviations. Don’t write dates with numerals only."
+   },
+   "evidence": "author",
+   "prefers": [
+    "'December 11, 2024' or 'Dec 11, 2024' (in the reader's locale order)",
+    "Numerals, not words: 'You have 5 orders to fulfill'",
+    "Thousands separators: '12,000'",
+    "A space between number and unit: '3.4 lb', '2 kg'",
+    "Currency code after the amount when currencies can be confused: '$10,000 USD'",
+    "Format with Intl.DateTimeFormat / Intl.NumberFormat for the user's locale"
+   ],
+   "forbids": [
+    "All-numeric dates like '12/11/24'",
+    "ISO timestamps or epoch values shown raw ('2024-12-11T09:30:00Z')",
+    "Ordinals in dates ('January 23rd')",
+    "Unit glued to the number ('3.4lb')",
+    "Shortened numbers like '12 k' where the exact value matters"
+   ],
+   "measure": {
+    "kind": "count",
+    "what": "Scan visible text nodes. Count matches of all-numeric dates (\\b\\d{1,2}[/.-]\\d{1,2}[/.-]\\d{2,4}\\b), raw ISO timestamps (\\d{4}-\\d{2}-\\d{2}T\\d{2}:), integers of 5+ digits with no separator outside codes/IDs, and numbers glued to a unit (\\d(kg|lb|cm|mm|km|mi|ml|oz)\\b). Count must be 0.",
+    "mustFail": "An orders table showing 'Placed 12/11/24', 'Updated 2024-12-11T09:30:00Z', 'Total 12000' and 'Weight 3.4lb'.",
+    "mustPass": "'Placed Dec 11, 2024', 'Updated Dec 11 at 9:30 am', 'Total 12,000', 'Weight 3.4 lb'."
+   },
+   "exceptions": [
+    "Polaris notes these are American English base rules and dates, numbers and measurements should be localized automatically — the target is the reader's locale, not US format",
+    "Identifiers, codes, SKUs and years are not quantities and take no separator",
+    "Dense data tables may use compact numeric dates if the format is unambiguous for the locale and stated in the column header"
+   ],
+   "kinds": {
+    "marketing": "maybe",
+    "content": "yes",
+    "data": "yes",
+    "workspace": "yes",
+    "shop": "yes",
+    "transaction": "yes"
+   },
+   "kindsWhy": "Marketing pages carry few dates or quantities; every other kind shows them.",
+   "agrees": []
+  }
+ ]
+}

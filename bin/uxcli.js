@@ -43,6 +43,9 @@ const usage = `usage:
       --apply creates the shipped skill in dir/.claude/skills/uxcli/, dir/.claude/rules/uxcli.md (read at the start of every session), and dir/.uxcli/. It only ever creates: nothing is edited, overwritten or appended to
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli lens [show <kind>]            the shipped lenses — named designers' viewpoints by kind of UI (marketing, content, data, workspace, shop, transaction)
+  uxcli experience [dir|run] [--page] [--json]   what the person goes through on each journey's last walk: steps, clicks, typing, scrolls, waits, a keystroke-level estimate, and what changed since the walk before; findings only, never a fail
+  uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
+  uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
   uxcli review <state>/<variant> --lens=<kind> --write   an empty review beside the drawing; a URL with --name=<n> reviews a screen
   uxcli review check                  every review complete, fresh against its drawing, and not contradicted by a probe
   uxcli why <rule>                    print a probe's definition (e.g. why 3.3.7, why redundant-entry, why 2.4.7, why text-overlap)
@@ -136,6 +139,37 @@ try {
       console.log(flags.has('--json') ? JSON.stringify(l, null, 1) : L.lensShowCard(l, proj));
     } else console.log(flags.has('--json') ? JSON.stringify({ lenses: lib.lenses.map(l => ({ id: l.id, name: l.name, when: l.when, viewpoints: l.viewpoints.length, on: !proj.off.includes(l.id) })), off: proj.off, problems: [...lib.problems, ...proj.problems] }, null, 1) : L.lensListCard(lib, proj));
     process.exit(lib.problems.length || proj.problems.length ? 1 : 0);
+  } else if (cmd === 'experience') {
+    // What the person goes through on each journey's last walk: steps, typing, scrolls, waits, an estimate in seconds.
+    const E = await import('../src/experience.js'); let list;
+    if (opt('from') && opt('to')) { if (!opt('journey')) { console.error('--from and --to compare two versions of one journey: add --journey=<id>'); process.exit(1); } const c = await E.versionComparison(args[0] || '.', opt('journey'), opt('from'), opt('to')); if (c.problems) { console.error('uxcli: ' + c.problems.join('\n  ')); process.exit(1); } list = [c.entry]; }
+    else list = E.experiences(args[0] || '.');
+    if (flags.has('--json')) console.log(JSON.stringify(list.map(x => ({ dir: x.dir, ...x.report, ...(x.change && { change: x.change }) })), null, 1));
+    else console.log(E.experienceCard(list));
+    if (flags.has('--page')) { const f = E.experiencePage(list, opt('out') || E.pageFile(args[0] && fs.existsSync(path.join(args[0], '.uxcli')) ? args[0] : '.')); console.log(`  page   ${path.relative(process.cwd(), f)}`); }
+    process.exit(0);
+  } else if (cmd === 'version') {
+    // Named walks of a journey: kept against pruning, compared with experience --from --to.
+    const V = await import('../src/version.js'); const root = path.resolve(opt('src') || '.');
+    if (args[0] === 'save' && args[1] && args[2]) {
+      let by = { type: 'person', ref: 'unknown' };
+      try { const { execFileSync } = await import('node:child_process'); const n = execFileSync('git', ['config', 'user.name'], { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); if (n) by = { type: 'person', ref: n }; } catch {}
+      if (opt('as')) by = { type: 'agent', ref: `${opt('as')}${opt('for') ? ` for ${opt('for')}` : ''}` };
+      const r = V.saveVersion(root, args[1], args[2], { run: opt('run'), note: opt('note'), by, proposal: opt('proposal') });
+      if (r.problems) { console.error('uxcli: ' + r.problems.join('\n  ')); process.exit(1); }
+      console.log(`wrote ${path.relative(process.cwd(), r.file)} · ${r.value.journey}/${r.value.name} is ${r.value.run}, kept against pruning`);
+      process.exit(0);
+    }
+    console.log(flags.has('--json') ? JSON.stringify(V.versions(root), null, 1) : V.versionListCard(root));
+    process.exit(V.versions(root).some(v => !v.value) ? 1 : 0);
+  } else if (cmd === 'template') {
+    // Where to start for a kind of product: screens and their lens, journeys to walk, what to research.
+    const T = await import('../src/template.js'); const lib = T.templates();
+    const pick = id => { const t = lib.list.find(x => x.id === id); if (!t) { console.error(`no template ${id}; have: ${lib.list.map(x => x.id).join(', ')}`); process.exit(1); } return t; };
+    if (args[0] === 'show' && args[1]) { const t = pick(args[1]); console.log(flags.has('--json') ? JSON.stringify(t, null, 1) : T.templateShowCard(t)); }
+    else if (args[0] === 'apply' && args[1]) { const t = pick(args[1]); const r = T.applyTemplate(args[2] || '.', t); console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : T.applyCard(r, t)); }
+    else console.log(flags.has('--json') ? JSON.stringify({ templates: lib.list.map(t => ({ id: t.id, name: t.name, when: t.when })), problems: lib.problems }, null, 1) : T.templateListCard(lib));
+    process.exit(lib.problems.length ? 1 : 0);
   } else if (cmd === 'review' && args[0] === 'check') {
     const L = await import('../src/lens.js'); const J = await import('../src/journey.js');
     const root = J.findRoot(path.resolve(opt('src') || '.')); if (!root) { console.error('no .uxcli/policy/policy.json here or above'); process.exit(1); }

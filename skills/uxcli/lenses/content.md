@@ -2,7 +2,7 @@
 
 Docs, articles, blogs and help centres: long text read and navigated by section.
 
-32 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
+39 viewpoints from named designers. Answer every one for the screen you are looking at: `holds` with where, `breaks` with where and what, `n/a` with why. The sequence, the review file and `uxcli review check` are in `../references/lenses.md`. The rules are the designers', not uxcli's and not yours.
 
 ## 1. `usability.signifiers-make-clickable-look-clickable`
 
@@ -61,7 +61,19 @@ Nothing that is not interactive may look interactive: no underlined or blue stat
 - **Don't:** Give static items hyperlink colours; Underline non-interactive text; Make headings or badges resemble buttons
 - **Look at:** Elements with no href, handler, role or tabindex that have cursor: pointer, underline plus link colour, or a button-like box (border-radius, filled background, short centred text).
 
-## 6. `usability.follow-conventions`
+## 6. `usability.mindless-clicks-not-fewer-clicks`
+
+Do not count clicks; make each one an unambiguous choice with clear link text that says where it goes.
+
+- **Source:** Steve Krug, *Don't Make Me Think, Revisited — chapter 4 (Krug's Second Law of Usability)* — https://ptgmedia.pearsoncmg.com/images/9780321965516/samplepages/0321965515.pdf
+- **In their words:** "It doesn't matter how many times I have to click, as long as each click is a mindless, unambiguous choice."
+- **Do:** Write link text that identifies its target; Use breadcrumbs and hub pages for scent; Keep clear labelling with strong information scent
+- **Don't:** Count clicks as the metric; Use generic links like 'Click here' or 'Learn more'
+- **Look at:** Count links and buttons whose text is generic ('Click here', 'Learn more', 'Read more', bare 'Next') or duplicates another link's text with a different target; do not measure path length.
+- **Unless:** Fewer clicks matter more when the same path is drilled repeatedly or pages take long to load (Krug)
+- **Also stated as:** writing.links-describe-their-destination (Mailchimp).
+
+## 7. `usability.follow-conventions`
 
 Work the way the sites and platforms users already know; a convention beats a locally optimised novelty.
 
@@ -73,7 +85,7 @@ Work the way the sites and platforms users already know; a convention beats a lo
 - **Unless:** Desktop apps follow their own OS: Windows OK-first, Apple OK-last
 - **Also stated as:** modern.boring-and-familiar-beats-novel (Scott Berkun).
 
-## 7. `usability.banner-blindness-dont-style-content-like-ads`
+## 8. `usability.banner-blindness-dont-style-content-like-ads`
 
 Keep essential content and the primary action in the main column, styled like content, never in a right rail, top strip or animated coloured box.
 
@@ -84,7 +96,7 @@ Keep essential content and the primary action in the main column, styled like co
 - **Look at:** Is the journey's primary action or a required notice positioned in the right rail (x > 70% of desktop viewport) or in a full-width top strip with background fill and animation?
 - **Unless:** On mobile, large inline ads do get fixated — the effect is weaker for inline placement
 
-## 8. `usability.aesthetic-usability-effect-bias`
+## 9. `usability.aesthetic-usability-effect-bias`
 
 Polish makes a screen look more usable than it is; discount your aesthetic impression and run the measurable checks first.
 
@@ -95,7 +107,7 @@ Polish makes a screen look more usable than it is; discount your aesthetic impre
 - **Look at:** Did the evaluator judge the screen usable because it looks good? Re-check the verdict against the count-kind entries before trusting it; 'attractive' is the variable and stays taste.
 - **Unless:** With severe usability issues, or functionality sacrificed for aesthetics, users lose patience
 
-## 9. `usability.natural-mapping-and-proximity`
+## 10. `usability.natural-mapping-and-proximity`
 
 Put a control next to the thing it changes and a label next to its field; gaps between groups must exceed gaps within them.
 
@@ -105,17 +117,6 @@ Put a control next to the thing it changes and a label next to its field; gaps b
 - **Don't:** Put a control far from the thing it changes; Separate groups by less space than their members
 - **Look at:** Distance from each label to its own input versus the nearest other input; gap within a fieldset versus gap between fieldsets; distance from last input to the submit button.
 - **Unless:** Left-aligned labels are acceptable if space is constrained and labels are of similar length
-
-## 10. `usability.mindless-clicks-not-fewer-clicks`
-
-Do not count clicks; make each one an unambiguous choice with clear link text that says where it goes.
-
-- **Source:** Steve Krug, *Don't Make Me Think, Revisited — chapter 4 (Krug's Second Law of Usability)* — https://ptgmedia.pearsoncmg.com/images/9780321965516/samplepages/0321965515.pdf
-- **In their words:** "It doesn't matter how many times I have to click, as long as each click is a mindless, unambiguous choice."
-- **Do:** Write link text that identifies its target; Use breadcrumbs and hub pages for scent; Keep clear labelling with strong information scent
-- **Don't:** Count clicks as the metric; Use generic links like 'Click here' or 'Learn more'
-- **Look at:** Count links and buttons whose text is generic ('Click here', 'Learn more', 'Read more', bare 'Next') or duplicates another link's text with a different target; do not measure path length.
-- **Unless:** Fewer clicks matter more when the same path is drilled repeatedly or pages take long to load (Krug)
 
 ## 11. `usability.start-with-user-needs-design-with-data`
 
@@ -173,7 +174,19 @@ Body copy at 16px or more with 1.5 line height; inputs at 16px or more on mobile
 - **Unless:** Interaction-heavy desktop pages may go to 14px; Captions sit 2px under body by design
 - **Also stated as:** canon.butterick-body-size-15-25px (Matthew Butterick); modern.readable-type-sizes-and-weights (Rauno Freiberg).
 
-## 16. `craft.line-length-50-75-characters`
+## 16. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
+
+Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
+
+- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
+- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
+- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
+- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
+- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
+- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
+- **Also stated as:** modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group).
+
+## 17. `craft.line-length-50-75-characters`
 
 Cap paragraph measure at 50–75 characters per line and do not let it fall under about 30.
 
@@ -185,7 +198,7 @@ Cap paragraph measure at 50–75 characters per line and do not let it fall unde
 - **Unless:** Tables and forms are not paragraph text; Blurbs under 3 lines are not measured
 - **Also stated as:** canon.bringhurst-measure-45-75 (Robert Bringhurst).
 
-## 17. `craft.center-text-only-under-three-lines`
+## 18. `craft.center-text-only-under-three-lines`
 
 Centre text only when there are fewer than three lines, and rarely even then; body text is left-aligned.
 
@@ -196,18 +209,6 @@ Centre text only when there are fewer than three lines, and rarely even then; bo
 - **Look at:** For every block with text-align:center, count rendered line boxes from Range client rects; fail at 3 or more.
 - **Unless:** Poetry, quotes or hero copy the project explicitly commits to
 - **Also stated as:** canon.vignelli-flush-left (Massimo Vignelli).
-
-## 18. `craft.wcag-contrast-and-dont-rely-on-colour-alone`
-
-Meet 4.5:1 for body text and 3:1 for headlines, prefer soft backgrounds with dark text, and never convey status by colour alone.
-
-- **Source:** Erik D. Kennedy, *100 Things a UX/UI Designer Should Know* — https://www.learnui.design/blog/100-things-ux-ui-designer-know.html
-- **In their words:** "The WCAG recommended contrast ratio for body text — 4.5:1 to meet AA standards"
-- **Do:** Style coloured badges as a soft background with dark text; Pair every colour state with an icon or label
-- **Don't:** Set white text on yellow, green or red fills that fail 4.5:1; Convey status by colour only
-- **Look at:** Standard contrast ratio of computed text colour against effective background at 4.5:1 or 3:1 by size; status elements must carry a non-colour signal such as text or an icon.
-- **Unless:** Disabled controls; Logos; Incidental text, per WCAG itself
-- **Also stated as:** modern.contrast-and-not-colour-alone (Apple).
 
 ## 19. `craft.size-isnt-everything-use-weight-and-colour`
 
@@ -275,18 +276,7 @@ The leading is the vertical unit; add and remove vertical space in multiples of 
 - **Look at:** Body line-height L; margins and paddings between text blocks as multiples of L (or L/2 if the lens allows).
 - **Unless:** More leading for longer measures, darker faces, larger x-height and sans serifs: the ratio moves with the face
 
-## 25. `modern.cards-are-a-choice-not-a-default`
-
-Cards are for browsing; use lists for searching and tables for comparing, and keep each card readable with one primary action.
-
-- **Source:** Stan Kirilov, *UI Card Design (StanVision journal)* — https://www.stan.vision/journal/ui-card-design-examples-best-practices-and-common-patterns (secondary)
-- **In their words:** "Cards for browsing. Lists for searching. Tables for comparing."
-- **Do:** Lists for ranked or homogeneous data, tables for comparison; Consistent card heights; The title as the link, with a pseudo-element extending the hit area
-- **Don't:** Card grids for search results and settings; Whole-card anchor wrappers; More than 3 clickable elements per card; Nested cards
-- **Look at:** Detect card grids (3+ siblings with equal border, shadow and radius); fail on text under 14px, over 3 interactive descendants per card, row heights differing over 20%, or an anchor wrapping more than heading plus paragraph.
-- **Unless:** Masonry where variable height is the design choice; Media browsing such as Netflix or Pinterest
-
-## 26. `modern.no-junk-drawer-menus-or-unlabeled-icons`
+## 25. `modern.no-junk-drawer-menus-or-unlabeled-icons`
 
 Icons carry labels, menus are named for what they hold, and no primary feature hides under More or an ellipsis.
 
@@ -298,7 +288,7 @@ Icons carry labels, menus are named for what they hold, and no primary feature h
 - **Unless:** Universally recognised icons in tight toolbars, though even the hamburger is weaker than designers think
 - **Also stated as:** usability.dont-make-me-think (Steve Krug).
 
-## 27. `modern.interactions-feel-immediate-under-200ms`
+## 26. `modern.interactions-feel-immediate-under-200ms`
 
 Interaction transitions run 200ms or less with an ease-out curve so the interface feels immediate.
 
@@ -309,7 +299,7 @@ Interaction transitions run 200ms or less with an ease-out curve so the interfac
 - **Look at:** Computed transition-duration and animation-duration on elements that change on :hover, :focus, [aria-expanded] or [data-state]; flag any over 300ms, warn over 200ms; ease-in on an entering element fails.
 - **Unless:** Toasts may run slower with a plain ease on purpose for tone; Large page or scene transitions and decorative loops sit outside the interaction budget; Exit animations can be a bit more relaxed
 
-## 28. `modern.motion-values-proportional-to-trigger`
+## 27. `modern.motion-values-proportional-to-trigger`
 
 Scale and fade motion starts near its resting size, in proportion to the trigger, never from zero or a heavy squash.
 
@@ -320,7 +310,7 @@ Scale and fade motion starts near its resting size, in proportion to the trigger
 - **Look at:** Parse @keyframes and WAAPI keyframes on dialogs, popovers and buttons and read the starting scale(); :active transforms below about 0.9 fail.
 - **Unless:** Elements that genuinely originate from a point, such as a FAB expanding into a sheet, can grow from small
 
-## 29. `modern.animate-only-transform-and-opacity`
+## 28. `modern.animate-only-transform-and-opacity`
 
 Animate only transform and opacity, listing properties explicitly; never transition all or animate layout properties.
 
@@ -331,7 +321,7 @@ Animate only transform and opacity, listing properties explicitly; never transit
 - **Look at:** Scan stylesheets and computed transition-property for all and for layout properties; scan @keyframes for width, height, top and left.
 - **Unless:** Accordion height animation via grid-template-rows or interpolate-size is layout by nature and accepted when it is the only honest way
 
-## 30. `modern.focus-is-visible-and-unobscured`
+## 29. `modern.focus-is-visible-and-unobscured`
 
 Every focusable element shows a visible focus ring on :focus-visible, and no sticky or fixed element ever covers it.
 
@@ -341,7 +331,7 @@ Every focusable element shows a visible focus ring on :focus-visible, and no sti
 - **Don't:** outline: none or 0 with no replacement; Focus rings hidden under sticky headers
 - **Look at:** Tab through every focusable element; diff the focused and unfocused rect or read computed outline and box-shadow under :focus-visible; check the focused rect is not intersected by position fixed or sticky elements above it.
 
-## 31. `modern.numbers-and-text-do-not-shift-layout`
+## 30. `modern.numbers-and-text-do-not-shift-layout`
 
 Numbers in columns and timers use tabular figures, images carry dimensions, and nothing changes weight on hover.
 
@@ -352,7 +342,7 @@ Numbers in columns and timers use tabular figures, images carry dimensions, and 
 - **Look at:** Numeric td cells whose computed font-variant-numeric lacks tabular-nums; img without width/height or aspect-ratio; sibling rect drift while a counter fixture runs.
 - **Unless:** Prose numbers
 
-## 32. `modern.defaults-are-decisions-you-inherited`
+## 31. `modern.defaults-are-decisions-you-inherited`
 
 A library or AI default is someone else's decision; commit to one written aesthetic direction instead of inheriting it.
 
@@ -362,3 +352,92 @@ A library or AI default is someone else's decision; commit to one written aesthe
 - **Don't:** Untouched library defaults; Clean and modern as a brief; The AI-look constellation of purple gradient, Inter, identical cards, glass glow and bounce hover
 - **Look at:** Score the constellation: purple-to-blue/cyan gradients warn, Inter or Roboto with no display face notes, 3+ identical icon+h3+p cards note, backdrop-filter plus glow notes, gradient text on numerals warns, overshoot cubic-bezier on hover warns.
 - **Unless:** A purple brand is allowed to be purple; the tell is the constellation and the absence of a decision, not any one colour
+
+## 32. `color.from-tokens-not-hex`
+
+Every colour on the page comes from the design system's named tokens or palette functions, never from hex values copied into components.
+
+- **Source:** GOV.UK Design System (Government Digital Service), *Styles: Colour* — https://design-system.service.gov.uk/styles/colour/
+- **In their words:** "Do not copy the specific hexadecimal (hex) colour values."
+- **Do:** Reference colour by role token (brand, text, error, border) rather than by value; Use palette colours (tints and shades of a few families) for supporting elements; Use a functional token only in the context it is designed for
+- **Don't:** Hex literals in component styles; Near-duplicate colours (#1d70b8 next to #1d70b9) created by eye-dropping; Using the error token as a general red
+- **Look at:** Collect every computed color, background-color, border-*-color, outline-color and fill/stroke of painted elements, and every value of CSS custom properties declared on :root (and on any theme selector). Count distinct painted colours that match no custom-property value (exact RGBA after resolution), and count pairs of painted colours closer than ΔE 2 that are not identical.
+- **Unless:** Images, illustrations and embedded third-party widgets; Browser defaults on unstyled native controls; GOV.UK: palette colours (not functional ones) are allowed for illustrations and custom components
+
+## 33. `color.one-action-colour-apart-from-status`
+
+Links and primary actions share one interactive colour family, used consistently, and that colour is not the colour of errors, warnings or success.
+
+- **Source:** IBM Carbon Design System, *Elements: Color, Overview (Color anatomy)* — https://carbondesignsystem.com/elements/color/overview/
+- **In their words:** "The core blue family serves as the primary action color across all IBM products and experiences. Additional colors are used sparingly and purposefully."
+- **Do:** One link colour, used only for links; Primary buttons in the brand or action colour; Danger colour reserved for destructive buttons, not for the primary action
+- **Don't:** Links in the error red; Primary buttons in several different hues across screens; Static text coloured like links
+- **Look at:** Take the computed text colour of every a[href] in running text and the background of every primary (first, filled, or type=submit) button. Count distinct hues among them (30° bins), and count links or primary buttons whose colour is within ΔE 10 of the page's error, warning or success colour. Also count non-interactive text elements painted in the link colour.
+- **Unless:** Primer (GitHub) deliberately uses the success role for primary buttons; a system that states such a mapping consistently is following its own rule; Destructive primary actions (Delete account) take the danger colour on purpose; Navigation menus, where position signals the link
+
+## 34. `color.focus-ring-contrasts-with-its-surroundings`
+
+The focus indicator contrasts at least 3:1 with whatever it is drawn against: the page background for an outer ring, the component's own colours for an inner one.
+
+- **Source:** W3C Accessibility Guidelines Working Group, *Understanding Success Criterion 1.4.11: Non-text Contrast, Relationship with Focus Visible (WCAG 2.2)* — https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html
+- **In their words:** "In combination with 2.4.7 Focus Visible, the visual focus indicator for a component must have sufficient contrast against the adjacent background when the component is focused, except where the appearance of the component is determined by the user agent and not modified by the author."
+- **Do:** An outer ring that contrasts with the page background; A two-colour ring (dark and light) that holds on any background; A thick indicator rather than a 1px one
+- **Don't:** A yellow outer ring on a white page; A focus border that changes hue inside the component without contrasting with its fill; Focus shown only by a background tint change
+- **Look at:** Tab to each focusable control; diff the focused and unfocused screenshots of the control's box padded by a few pixels; for the changed pixels, take their colour and the colour of the unchanged pixels adjacent to them (page background outside, component fill inside). Count controls where no changed region reaches 3:1 against its adjacent colour. page.focus-visible checks only that some pixel changes; this checks that the change can be seen.
+- **Unless:** Unmodified browser default focus styles; WCAG does not compare focused and unfocused states with each other; a background-only change is out of scope for 1.4.11 but fails Use of Color
+
+## 35. `color.few-families-in-proportion`
+
+Use a few colour families in a deliberate proportion (neutral base dominant, then primary, secondary and a small accent), not an even spread of many hues.
+
+- **Source:** U.S. Web Design System (GSA), *Design tokens: Theme color tokens* — https://designsystem.digital.gov/design-tokens/color/theme-tokens/
+- **In their words:** "about 60% of your site’s color would be the primary color family, about 30% would be the secondary color family, and about 10% would be the accent color families"
+- **Do:** Neutral base for text and most surfaces; One primary family carrying most of the colour, one secondary, a small accent; Additional colours used sparingly and for a purpose (Carbon); Start in black and white, then add colour to support the message (USWDS)
+- **Don't:** Five or more saturated hue families at similar weight on one screen; An accent that covers more area than the primary; A new hue introduced for a single component
+- **Look at:** Screenshot the page and bucket every non-neutral pixel (HSL saturation above about 15%) by hue into 30° bins, ignoring images and status colours. How many hue families take more than 2% of the coloured area, and does the largest one carry most of it while the smallest (accent) stays near a tenth?
+- **Unless:** USWDS: the proportions are for non-base colours; neutral text will usually dominate; Illustration, photography and data visualisation, which need their own palettes; Brands whose identity is multi-hue
+
+## 36. `writing.sentence-case-ui-text`
+
+Labels, buttons, headings, tabs and table headers are written in sentence case; capitals only for the first word, proper nouns and acronyms — never title case or all caps for emphasis.
+
+- **Source:** IBM Carbon Design System, *Content guidelines: Writing style, Capitalization* — https://carbondesignsystem.com/guidelines/content/writing-style/
+- **In their words:** "Use sentence–case capitalization for all UI text elements."
+- **Do:** 'First name', 'Email address', 'Save changes'; Refer to a UI element with the capitalization it has in the UI ('the My network page'); Use bold or italic, not capitals, for emphasis
+- **Don't:** Title Case Buttons Like 'Save Your Changes'; ALL CAPS text set in the markup (as opposed to a tracked small label styled with text-transform); Capitalizing feature names to mark them as special
+- **Look at:** For each button, label, th, tab and h1–h6 with three or more words, take the rendered text (after text-transform) and count those where two or more non-initial words that are not acronyms or in the page's proper-noun list start with a capital (title case), or where the whole text of four or more words is upper case. Count must be 0.
+- **Unless:** Proper nouns, product names and acronyms keep their capitals; Mailchimp's own guide uses title case for page titles, menu names and global navigation — a house style, decide one and keep it; Short tracked overline labels in caps are a typographic choice; the four-word floor leaves them alone
+
+## 37. `writing.dates-numbers-units-for-the-reader`
+
+Dates spell out the month, numbers are numerals with thousands separators, and units sit a space after their number — formatted in the reader's locale, never as an ambiguous all-numeric date or a raw machine value.
+
+- **Source:** Shopify Polaris, *Content: Grammar and mechanics, 'Numbers, dates, and currency'* — https://polaris.shopify.com/content/grammar-and-mechanics
+- **In their words:** "Use the month’s full name. If there isn’t enough space, use 3-letter abbreviations. Don’t write dates with numerals only."
+- **Do:** 'December 11, 2024' or 'Dec 11, 2024' (in the reader's locale order); Numerals, not words: 'You have 5 orders to fulfill'; Thousands separators: '12,000'; A space between number and unit: '3.4 lb', '2 kg'; Currency code after the amount when currencies can be confused: '$10,000 USD'; Format with Intl.DateTimeFormat / Intl.NumberFormat for the user's locale
+- **Don't:** All-numeric dates like '12/11/24'; ISO timestamps or epoch values shown raw ('2024-12-11T09:30:00Z'); Ordinals in dates ('January 23rd'); Unit glued to the number ('3.4lb'); Shortened numbers like '12 k' where the exact value matters
+- **Look at:** Scan visible text nodes. Count matches of all-numeric dates (\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b), raw ISO timestamps (\d{4}-\d{2}-\d{2}T\d{2}:), integers of 5+ digits with no separator outside codes/IDs, and numbers glued to a unit (\d(kg|lb|cm|mm|km|mi|ml|oz)\b). Count must be 0.
+- **Unless:** Polaris notes these are American English base rules and dates, numbers and measurements should be localized automatically — the target is the reader's locale, not US format; Identifiers, codes, SKUs and years are not quantities and take no separator; Dense data tables may use compact numeric dates if the format is unambiguous for the locale and stated in the column header
+
+## 38. `data-display.no-tables-for-layout`
+
+A table is for comparing data in rows and columns, never for arranging content on the page; layout belongs to the grid.
+
+- **Source:** GOV.UK Design System (Government Digital Service), *Table — When not to use this component* — https://design-system.service.gov.uk/components/table/
+- **In their words:** "Never use the table component to layout content on a page."
+- **Do:** CSS grid or flex for page and dashboard layout; A list, cards or a summary list for items that do not share columns; Tables only where every row has the same fields
+- **Don't:** A table that positions a sidebar, form or dashboard tiles; Table cells holding headings, paragraphs or whole forms; role=presentation on a table that actually holds tabular data
+- **Look at:** Count table elements that have no th and either contain headings, more than one paragraph per cell, form fieldsets or nested tables, or have a single row whose cells hold unrelated content blocks.
+- **Unless:** HTML email, where tables are still the only reliable layout tool
+- **Also stated as:** modern.cards-are-a-choice-not-a-default (Stan Kirilov).
+
+## 39. `data-display.header-cells-are-th-with-scope`
+
+A data table marks its header cells as th and its data cells as td; when headers run both across and down, scope (or id/headers in complex tables) ties each cell to its headers.
+
+- **Source:** W3C WAI (Eric Eggert, Shadi Abou-Zahra, eds.), *Tables Tutorial* — https://www.w3.org/WAI/tutorials/tables/
+- **In their words:** "Header cells must be marked up with <th>, and data cells with <td> to make tables accessible. For more complex tables, explicit associations may be needed using scope, id, and headers attributes."
+- **Do:** A thead row of th scope=col in every data table; th scope=row for the first cell when it names the row's item; id and headers attributes when a cell sits under more than one level of header; A caption that names the table
+- **Don't:** Header rows built from td styled bold; Div grids that look like tables with no role=table/row/columnheader/cell semantics; One table holding several topics separated by extra rows of th
+- **Look at:** Count table (and role=table/grid) elements that have more than one row of data and no th / role=columnheader; count tables with both a header row and a header column whose th lack scope; count tables with no caption, aria-label or aria-labelledby.
+- **Unless:** A simple table with one header row needs only th, not scope; scope matters once there are header rows and header columns; Layout tables, which should not exist (see data-display.no-tables-for-layout)

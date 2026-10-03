@@ -41,7 +41,7 @@
           "tenant": true
         },
         "cleanup": "retained",
-        "retainedBecause": "run có fail — fixture là bằng chứng",
+        "retainedBecause": "the run has a fail — the fixture is evidence",
         "expiresAt": "2026-09-27T08:41:12Z"
       }
     ]
@@ -238,7 +238,7 @@
     {
       "path": "s1.response.internalScore",
       "kept": false,
-      "why": "không step nào consume"
+      "why": "no step consumes it"
     }
   ],
   "ruleSnapshots": {
@@ -279,7 +279,7 @@
       "value": "fail",
       "caps": [],
       "cause": "probe-said",
-      "what": "[data-uxcli=call-action] cần 2 lần cuộn ở 390×844 tại agent.lead_detail",
+      "what": "[data-uxcli=call-action] cần 2 lần cuộn ở 390×844 at agent.lead_detail",
       "where": "s2",
       "shot": "s2-before.png"
     },
@@ -288,7 +288,7 @@
       "measurement": 0,
       "value": "not-applicable",
       "caps": [],
-      "cause": "toStable 611ms < 1000ms — điều kiện không xảy ra"
+      "cause": "toStable 611ms < 1000ms — the condition did not occur"
     },
     {
       "commitment": "C-002",

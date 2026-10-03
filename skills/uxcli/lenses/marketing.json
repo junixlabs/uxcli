@@ -13,24 +13,30 @@
    "note": "Same rule, also stated as: modern.signifiers-survive-flatness (Kate Moran (NN/G)); modern.no-dead-zones-and-honest-clickability (Rauno Freiberg)."
   },
   {
-   "viewpoint": "usability.visual-hierarchy-for-scanning",
-   "note": "Same rule, also stated as: craft.hierarchy-is-everything-squint-test (Erik D. Kennedy)."
+   "viewpoint": "usability.omit-needless-words",
+   "note": "Same rule, also stated as: writing.sentence-case-ui-text (IBM Carbon Design System); writing.plain-language-reading-level (Shopify Polaris)."
   },
   {
    "viewpoint": "usability.speak-the-users-language"
   },
   {
-   "viewpoint": "usability.minimalist-no-competing-information"
+   "viewpoint": "usability.minimalist-no-competing-information",
+   "note": "Same rule, also stated as: forms.ask-only-what-you-need (GOV.UK Design System)."
+  },
+  {
+   "viewpoint": "usability.visual-hierarchy-for-scanning",
+   "note": "Same rule, also stated as: craft.hierarchy-is-everything-squint-test (Erik D. Kennedy)."
   },
   {
    "viewpoint": "usability.no-false-affordances"
   },
   {
-   "viewpoint": "usability.follow-conventions",
-   "note": "Same rule, also stated as: modern.boring-and-familiar-beats-novel (Scott Berkun)."
+   "viewpoint": "usability.mindless-clicks-not-fewer-clicks",
+   "note": "Same rule, also stated as: writing.links-describe-their-destination (Mailchimp)."
   },
   {
-   "viewpoint": "usability.omit-needless-words"
+   "viewpoint": "usability.follow-conventions",
+   "note": "Same rule, also stated as: modern.boring-and-familiar-beats-novel (Scott Berkun)."
   },
   {
    "viewpoint": "usability.banner-blindness-dont-style-content-like-ads"
@@ -40,9 +46,6 @@
   },
   {
    "viewpoint": "usability.natural-mapping-and-proximity"
-  },
-  {
-   "viewpoint": "usability.mindless-clicks-not-fewer-clicks"
   },
   {
    "viewpoint": "usability.start-with-user-needs-design-with-data"
@@ -58,6 +61,10 @@
   {
    "viewpoint": "craft.de-emphasize-to-emphasize-up-pop-down-pop",
    "note": "Same rule, also stated as: canon.tufte-smallest-effective-difference (Edward Tufte)."
+  },
+  {
+   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
+   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple); color.never-the-only-signal (W3C Accessibility Guidelines Working Group)."
   },
   {
    "viewpoint": "craft.tap-targets-and-control-height",
@@ -76,10 +83,6 @@
   {
    "viewpoint": "craft.text-on-images-needs-consistent-contrast",
    "note": "Same rule, also stated as: modern.glass-and-blur-earn-their-place (Megan Brown (NN/G))."
-  },
-  {
-   "viewpoint": "craft.wcag-contrast-and-dont-rely-on-colour-alone",
-   "note": "Same rule, also stated as: modern.contrast-and-not-colour-alone (Apple)."
   },
   {
    "viewpoint": "craft.greys-dont-have-to-be-grey-never-use-black"
@@ -101,11 +104,8 @@
    "viewpoint": "canon.gestalt-closure"
   },
   {
-   "viewpoint": "modern.cards-are-a-choice-not-a-default"
-  },
-  {
    "viewpoint": "modern.no-junk-drawer-menus-or-unlabeled-icons",
-   "note": "Same rule, also stated as: usability.dont-make-me-think (Steve Krug)."
+   "note": "Same rule, also stated as: writing.buttons-name-the-action (IBM Carbon Design System); usability.dont-make-me-think (Steve Krug)."
   },
   {
    "viewpoint": "modern.interactions-feel-immediate-under-200ms"
@@ -136,6 +136,25 @@
   },
   {
    "viewpoint": "modern.defaults-are-decisions-you-inherited"
+  },
+  {
+   "viewpoint": "color.from-tokens-not-hex"
+  },
+  {
+   "viewpoint": "color.one-action-colour-apart-from-status"
+  },
+  {
+   "viewpoint": "color.focus-ring-contrasts-with-its-surroundings"
+  },
+  {
+   "viewpoint": "color.few-families-in-proportion"
+  },
+  {
+   "viewpoint": "data-display.no-tables-for-layout",
+   "note": "Same rule, also stated as: modern.cards-are-a-choice-not-a-default (Stan Kirilov)."
+  },
+  {
+   "viewpoint": "forms.autocomplete-names-the-purpose"
   }
  ]
 }

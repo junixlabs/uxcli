@@ -49,7 +49,7 @@ export function lineageOf(journey, steps) {
     for (const [k, h] of Object.entries(produced)) {
       const by = consumers[k] || [];
       if (by.length) out.push({ path: `${s.id}.${k}`, sha1_8: bare(h), consumedBy: by });
-      else if (!declared[s.id]?.has(k)) out.push({ path: `${s.id}.${k}`, kept: false, why: 'không step nào consume' });
+      else if (!declared[s.id]?.has(k)) out.push({ path: `${s.id}.${k}`, kept: false, why: 'no step consumes it' });
     }
   }
   return out;
@@ -100,7 +100,7 @@ export function packet({ id, journey, definitionHash, env, viewport, scenario, r
     breaches,
     status,
     exit: status === 'completed' ? 0 : 1,
-    ...(blocked && { blocked: { ...blocked, note: 'không probe nào chạy; không có verdict; không tính vào FP rate hay level' } }),
+    ...(blocked && { blocked: { ...blocked, note: 'no probe ran; no verdict; not counted toward the FP rate or the level' } }),
     steps: keep(steps, lineage),
     lineage,
     ...(ruleSnapshots && { ruleSnapshots }),

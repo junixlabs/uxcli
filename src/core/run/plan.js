@@ -30,22 +30,22 @@ export function plan(journey, policy, env, scenario, { prerequisites = [], workf
   if (identity) {
     const bad = Object.entries(identity.verified || {}).filter(([, ok]) => ok === false).map(([k]) => k);
     if (!identity.expiresAt) bad.push('expiresAt');
-    if (bad.length) which.identity_rejected.push(`identity ${identity.profile || identity.mode}: ${bad.join(', ')} không xác minh được`);
+    if (bad.length) which.identity_rejected.push(`identity ${identity.profile || identity.mode}: ${bad.join(', ')} could not be verified`);
   }
 
   for (const step of wf.steps || []) {
     if (step.kind === 'fixture') {
-      if (!atLeast(eff, 'mutate')) fixtures.push(`${step.id} ${step.profile}: fixture cần mutate, effective reach là ${eff}`);
+      if (!atLeast(eff, 'mutate')) fixtures.push(`${step.id} ${step.profile}: fixture needs mutate, effective reach is ${eff}`);
       continue;
     }
     if (step.before && prerequisites.includes(step.before)) {
       if (journey.requires?.identityProfile && !identity) {
-        const why = policy?.testIdentity && !atLeast(eff, 'mutate') ? `${env} reach ${eff}, testIdentity không áp dụng` : 'không có identity để tạo state';
-        which.prerequisite_not_satisfied.push(`${step.id}.before ${step.before}: không identity — ${why}`);
+        const why = policy?.testIdentity && !atLeast(eff, 'mutate') ? `${env} reach ${eff}, testIdentity does not apply` : 'no identity to produce the state';
+        which.prerequisite_not_satisfied.push(`${step.id}.before ${step.before}: no identity — ${why}`);
       } else unverified.push(step.before);
     }
     const need = stepNeeds(wf, step);
-    if (!atLeast(eff, need)) which.reach_insufficient.push(`${wf.id}/${step.id}: cần ${need}, effective reach là ${eff}`);
+    if (!atLeast(eff, need)) which.reach_insufficient.push(`${wf.id}/${step.id}: needs ${need}, effective reach is ${eff}`);
   }
   which.prerequisite_not_satisfied.push(...fixtures);
 
@@ -60,7 +60,7 @@ export function plan(journey, policy, env, scenario, { prerequisites = [], workf
 export function blockedAt({ prerequisites = [], identity = null, fixtures = [] } = {}) {
   const which = {
     prerequisite_not_satisfied: [
-      ...prerequisites.filter(p => p.held === false).map(p => `${p.step}.before ${p.state}: không giữ${p.why?.length ? ' — ' + p.why.join('; ') : ''}`),
+      ...prerequisites.filter(p => p.held === false).map(p => `${p.step}.before ${p.state}: not held${p.why?.length ? ' — ' + p.why.join('; ') : ''}`),
       ...fixtures.filter(f => f.problems?.length).map(f => `${f.step} ${f.profile}: ${f.problems.join('; ')}`),
     ],
     identity_rejected: (identity?.rejected || []).map(r => `${r.field}: ${r.why}`),

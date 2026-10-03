@@ -1,72 +1,87 @@
 # UXCLI
 
-**Every verdict cites the commitment it enforces: W3C's, yours, or none.**
-**Where no one has committed, UXCLI says nothing.**
+**A coding agent should design like a designer who did the research, and prove the experience works
+by walking it.**
 
-## Design should be executable.
+## The agent is now the designer
 
-Software has machines that refuse a build that breaks a contract. Nothing refuses a build that breaks a journey. A journey map dies at handoff. A token becomes a suggestion. A principle becomes a thread. What ships is whatever survived, and no instrument can say how far it drifted from what was decided.
+Most new interface code is written by coding agents. They are fast and fluent, and they design from
+what they assume: about the field they are building for, about the people who will use it, about what
+good looks like. The result is plausible and generic. It uses the database's words instead of the
+user's, and it is declared done by the same agent that made it, after a glance at a screenshot.
 
-UXCLI is that instrument. It measures the running product against the commitments that produced it: the journeys that matter, the tokens that define the system, the principles that govern behavior. It drives a real browser. It follows flows. It measures change over time. It locates drift between builds to the element and the file. It sees defects that exist between screens, not only inside them.
+A human designer does three things an agent skips. They **learn the field** before they draw — its
+vocabulary, its rules, what its people do all day and what goes wrong for them. They **design from
+principles somebody tested** — not taste, but what research, design systems and decades of practice
+have shown to work for this kind of screen. And they **watch someone use it** — walk the journey, see
+where people hesitate, lose their place, or have to type something twice.
 
-This matters now because the author of the interface is changing. Agents produce more frontend than humans can inspect. The agent that writes the interface cannot be the authority that declares it correct. It needs perception, not another opinion.
+uxcli gives an agent those three habits, as files it reads and an instrument it runs.
 
-A commitment becomes a measurement. A measurement produces evidence. Evidence earns a verdict.
+## Four pillars
 
-**Your design, executable.**
+**1. Knowledge — a library the agent can cite.** Rules from named designers, design systems and
+studies, each with its author, its page and its exact words, packaged by the kind of UI it applies to
+(marketing, content, data, workspace, shop, transaction) and by topic (colour, writing, data display,
+forms). Templates for kinds of product — a B2B workspace, a shop, a product site — that say which
+screens such products have, which lens each is read against, which journeys to walk first, and what
+research has to answer. A rule without a source does not ship; every rule says how it is checked.
 
-## The next layer is not generation. It is perception.
+**2. Process — research, then design, then build.** The agent starts from a user story or a journey,
+researches the field from sources in a fixed order of trust, writes what it learned as insights with
+evidence and what it could not learn as open questions, draws two or three variants to the lens for
+each screen, and builds the one a person picks. `context show` prints all of it before the agent draws.
 
-axe answers *is this page broken?* Dembrandt answers *did the tokens drift?* Nothing answers *does the flow the user came for still complete?* The difference is the input. Those tools read a page. UXCLI reads a page and the commitment, and the commitment is a journey. That input makes a new class of defect measurable.
+**3. Evidence and versions — one shape for what was seen.** Every walk of a journey leaves screenshots,
+the trace of what was done, and the places that went wrong, highlighted on the frame. A proposal for a
+new version of a screen points at the evidence that caused it. Versions are kept and compared along
+the flow, step by step, so "better" is something you can see.
 
-- **Between screens.** Data entered on step one, absent from the review on step three. Navigation that reorders itself between pages. No page-level tool can see this, because no page-level tool remembers.
-- **Across time.** A toast that lives 800 ms when the principle says four seconds. Motion is data, not noise to freeze.
-- **Between builds.** Drift, reported at the element and the file that caused it. Never as a score.
-- **At five scales.** One element. One screen. One flow. The whole design system. The delta between two builds. One instrument, five zoom levels.
+**4. Experience validation — the centre.** Checking that a page is technically sound is the easy part
+and is solved elsewhere. uxcli's question is whether the person can do what they came to do: how many
+steps it takes against the shortest path, how long a practised user would need, whether every action
+answers within a second, whether data typed on one step is still there on the next, whether an error
+can be recovered without starting over, whether the screens agree with each other. These come from the
+trace of a real walk in real Chrome, with methods HCI has used for decades — task efficiency, the
+keystroke-level model, Nielsen's response-time limits, cognitive walkthrough.
 
-## Who runs it
+## Why it can be trusted
 
-The human operating a coding agent. The pain is specific: the agent reports success with proof of failure in hand. UXCLI is the instrument an agent runs before it is allowed to say done.
+A review tool that is wrong three times is switched off forever. So uxcli keeps a line between what it
+measured and what it believes.
 
-Commitments are written by a human, before the build, and versioned. The agent may propose one. It may not commit it. The party being measured never authors the measure in the same run.
+- **Measured, and proven able to fail, may block.** A check ships with a case where it must fail and a
+  twin where it must pass, and blocks only after it has run on pages it was never tuned on with no
+  false fails. `uxcli gate` holds every such pair on every push.
+- **Believed, may only inform.** A designer's rule, a walkthrough answer, a simulated persona's
+  hesitation: each is reported as a finding with its source, never as a pass and never as a block.
+- **The agent does not get to say done with a failure in hand.** Exit 0 means the checks that ran found
+  no fail. The card says what ran and what it did not look at.
+- **Nothing unsourced is presented as knowledge.** A quote is fetched and verbatim, or it is not a quote.
+  An unknown about the user stays a question until a source answers it.
 
-Developers get the same instrument as a pre-merge gate: findings that need no re-checking before fixing, and a `fail` that blocks.
+## Who uses it
 
-## Why it stays on
+The person operating a coding agent on a product with an interface, and the agent itself. The agent
+reads the library and the context before it designs, walks the journey after it builds, and reports
+what the walk showed. The person picks between variants, answers the questions research could not,
+and decides what the product commits to.
 
-A review tool that lies three times is disabled forever. UXCLI is built around one rule and its consequences.
+## What it is not
 
-**No commitment, no verdict.** A commitment is a threshold with a named owner and a written source. W3C is a named owner, so WCAG runs by default. Nobody signed taste, so taste never runs.
-
-- Every finding names its provenance: `spec`, `project`, or `opinion`. Opinion without a written principle stays silent.
-- Every probe declares its method. An unproven method can raise a `finding`, never a `fail`.
-- No commitment yields `not-committed`, not `fail`. Cannot measure yields `unmeasurable`, never `pass`.
-- Nine verdicts. One blocks a merge.
-- The opening rule set contains only probes proven not to false-positive, and at least one of them is a flow rule.
-
-A tool with no opinions of its own has nothing to be wrong about.
-
-**UXCLI wins by saying less, and being right.**
-
-## Shape
-
-Two skills write commitments: `journey`, `principles`. Seven commands measure: `init`, `run`, `sheet`, `query`, `scan`, `diff --gate`, `why`. Everything that carries a name carries `id · why · correct-when · applies-when`.
-
-UXCLI does not score design. It does not certify taste. It does not replace visual regression. It does not turn uncertainty into green checks.
+A UI generator — there are many, and uxcli works beside any of them. A score — there is no 0–100 for an
+experience. A replacement for watching real people — it finds what a careful designer would find
+walking the flow, and says plainly that it did not watch anyone.
 
 ## Where it stands
 
 | Axis | Evidence | Verdict |
 |---|---|---|
-| Method | focus-visible 7/7 W3C ACT, 22 GOV.UK pages 0 false fails; text-spacing 62/62; axe contrast 0 FP. Definitions frozen and hashed, then 20 unseen pages on 5 sites: 0 false fails. Three independent detectors and chrome-devtools-mcp #86 converged on the same computed-style approach. | Confirmed |
-| The flow claim | The gap is real: axe has no rules for 3.3.4 / 3.3.7 / 3.2.3; Evinced and Lighthouse aggregate per page. Three flow probes written from the WCAG text before any fixture existed. Seeded fixture: 3/3 caught, silent on the clean twin. 10 flows on 4 real apps the probes had never seen, definitions frozen: 0 false fails; one real 3.3.7 defect found by hand that the probe did not see. | Measured on fixtures. Unproven at scale. |
-| Understanding before design | Same ticket, same product with the lead page removed, ten fresh Sonnet sessions per arm, scored by `uxcli run` on the page each wrote (exit 0, C-001 pass, every measured state held at 390×844). Ticket alone: 0 of 10, and no session put a single `data-uxcli` hook on the page. Ticket + the journey file: 5 of 10. Ticket + the card `uxcli context show` prints: 10 of 10. A project with the skill installed and nothing inline: 10 of 10, and 9 of 10 ran `uxcli run` unprompted. `experiments/understanding-before-design/results/summary.md`, 2026-09-28. | Measured on one model, one fixture, one ticket. The card, not the raw journey, is what moves the number. |
-| Adoption | The strongest community pain is agents that report success with proof of failure in hand. 40 fresh Sonnet sessions on the seeded fixture, 20 of them running the tool themselves: 0 reported done while a check still failed, and none treated `unmeasurable` as a pass. Agents given the card edited only the cited file in 19 of 20 sessions; agents given the full JSON packet, in 7 of 20. Given a planted wrong `fail`, 2 of 10 agents without the tool rewrote the site to satisfy it; 0 of 10 with the tool in hand did, all re-ran it and disputed. Re-measured 2026-09-28 with the one shipped skill: 10 of 10 fresh sessions ran uxcli, 0 of 10 said done while the page they left measured a fail, 0 of 10 edited a declaration under `.uxcli/`. | Measured on one model and one fixture. The resistance comes from re-running the measurement, not from the report's wording. |
-
-Next, in order: 20 flows on apps the probes have never seen; recall from defects seeded into real pages by someone who does not tune the probes; a second model on the planted-verdict test.
+| Page checks | focus-visible 7/7 W3C ACT, 22 GOV.UK pages 0 false fails; text-spacing 62/62; axe contrast 0 FP. Definitions frozen and hashed, then 20 unseen pages on 5 sites: 0 false fails. | Confirmed for three checks |
+| Flow checks | Three flow probes written from the WCAG text before any fixture existed. Seeded fixture: 3/3 caught, silent on the clean twin. 10 flows on 4 real apps never seen: 0 false fails; one real 3.3.7 defect found by hand that the probe did not see. | Measured on fixtures; unproven at scale |
+| Context before design | Same ticket, ten fresh sessions per arm, scored by `uxcli run` on the page each wrote. Ticket alone: 0 of 10. Ticket + the journey file: 5 of 10. Ticket + `uxcli context show`: 10 of 10. The installed skill with nothing inline: 10 of 10. 2026-09-28. | One model, one fixture, one ticket |
+| Saying done | 40 fresh sessions on a seeded fixture, 20 running the tool: 0 said done while a check still failed. Re-measured with the shipped skill: 10 of 10 ran uxcli, 0 of 10 said done holding a fail. | One model, one fixture |
+| Library | Lenses: 123 viewpoints from four schools of designers; topic pools for colour, writing, data display and forms; templates for three kinds of product. Every quote fetched and verbatim. | Built; whether it changes what agents draw is unmeasured |
+| Experience metrics | Not built yet. | The next experiment: agent with uxcli against agent without, scored on the walk |
 
 **The part worth building is the part not yet proven.**
-
-## Sources
-
-developersdigest.tech/blog/ai-design-slop-and-how-to-spot-it · impeccable.style/slop · solodesign.cc/blog/ai-design-slop-the-tells · github.com/ChromeDevTools/chrome-devtools-mcp/issues/86 · github.com/anthropics/claude-code/issues/38948 · news.ycombinator.com/item?id=46594200 · arxiv.org/abs/2503.15885 · arxiv.org/abs/2502.10884 · dequeuniversity.com/rules/axe/4.10 · github.com/dembrandt/dembrandt

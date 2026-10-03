@@ -16,9 +16,9 @@ export function insightStanding(i) {
   if (i.demotedAt || check?.fired === true) {
     return { confidence: 'hypothesis', demoted: day(i.demotedAt || check?.at), propagated: (i.propagatedTo || []).map(idOf) };
   }
-  if (!evidence) return { confidence: 'hypothesis', why: 'không evidence' };
-  if (!i.wouldChangeIf) return { confidence: 'low', why: 'không wouldChangeIf' };
-  if (!check) return { confidence: 'medium', why: 'wouldChangeIf chưa từng kiểm' };
+  if (!evidence) return { confidence: 'hypothesis', why: 'no evidence' };
+  if (!i.wouldChangeIf) return { confidence: 'low', why: 'no wouldChangeIf' };
+  if (!check) return { confidence: 'medium', why: 'wouldChangeIf never checked' };
   return { confidence: 'high', lastCheck: day(check.at), fired: false };
 }
 
@@ -68,24 +68,24 @@ export function projection({ insights: insightList = [], journeys = [], commitme
   const corpusN = corpusLabels.length;
   const failedProbes = new Set(completed.flatMap(r => (r.probes || []).filter(p => ['fail', 'finding'].includes(p.value)).map(p => p.id)));
   for (const id of failedProbes) {
-    if (!fpMeasured(probes.find(p => p.id === id), corpusLabels, id)) toGate.push(`probe ${id}: fpRate chưa đo (${corpusN} corpus case, cần ≥ N) → chưa được fail`);
+    if (!fpMeasured(probes.find(p => p.id === id), corpusLabels, id)) toGate.push(`probe ${id}: fpRate not measured (${corpusN} corpus case${corpusN === 1 ? '' : 's'}, needs ≥ N) → may not fail yet`);
   }
   for (const c of commitments) {
     const n = unproven(c), total = (c.measurements || []).length;
     if (c.status === 'ACTIVE' && n) {
-      const label = n === total ? (total === 1 ? 'measurement' : total === 2 ? 'cả hai measurement' : `cả ${total} measurement`) : `${n}/${total} measurement`;
-      toGate.push(`${c.id}: ${label} method-unproven → chưa gate được`);
+      const label = n === total ? (total === 1 ? 'measurement' : total === 2 ? 'both measurements' : `all ${total} measurements`) : `${n}/${total} measurements`;
+      toGate.push(`${c.id}: ${label} method-unproven → cannot gate yet`);
     }
     // Blocking power is earned against ground truth: a commitment nobody has labeled a run for has no
     // false-positive rate, and a verdict with no measured error rate cannot gate.
     const labeled = corpusLabels.some(l => l.journey === c.scope?.journey && (!c.scope?.step || !l.step || l.step === c.scope.step));
-    if (c.status === 'ACTIVE' && !n && !labeled) toGate.push(`${c.id}: chưa có nhãn corpus nào cho ${c.scope?.journey || '?'}${c.scope?.step ? '/' + c.scope.step : ''} → FP rate chưa đo, chưa gate được`);
-    if (c.status === 'RETIREMENT_PROPOSED' && !c.retirement?.decidedBy) toGate.push(`${c.id} RETIREMENT_PROPOSED từ ${day(c.retirement?.at)}, chưa ai quyết`);
-    if (standingC[c.id].reviewOverdue) toGate.push(`${c.id}: quá reviewAfter ${c.reviewAfter}, chưa ai xem → chỉ được finding`);
-    if (standingC[c.id].traceDemoted) toGate.push(`${c.id}: trace tới insight đã demote (${standingC[c.id].traceDemoted.join(', ')}) → chờ quyết`);
+    if (c.status === 'ACTIVE' && !n && !labeled) toGate.push(`${c.id}: no corpus label yet for ${c.scope?.journey || '?'}${c.scope?.step ? '/' + c.scope.step : ''} → FP rate not measured, cannot gate yet`);
+    if (c.status === 'RETIREMENT_PROPOSED' && !c.retirement?.decidedBy) toGate.push(`${c.id} RETIREMENT_PROPOSED since ${day(c.retirement?.at)}, nobody has decided`);
+    if (standingC[c.id].reviewOverdue) toGate.push(`${c.id}: past reviewAfter ${c.reviewAfter}, nobody has reviewed it → finding only`);
+    if (standingC[c.id].traceDemoted) toGate.push(`${c.id}: traces to a demoted insight (${standingC[c.id].traceDemoted.join(', ')}) → awaiting a decision`);
   }
   const trust = verified === 0 ? 'observe' : toGate.length ? 'verify' : 'gate';
-  if (trust === 'observe') toGate.unshift('chưa có ACTIVE commitment nào với measurement method-validated được đo trên một run completed');
+  if (trust === 'observe') toGate.unshift('no ACTIVE commitment yet with a method-validated measurement evaluated on a completed run');
 
   // Reach axis: the most any completed run achieved, and what keeps the next environment shut.
   const reach = completed.map(r => r.reach?.effective).filter(Boolean).sort((a, b) => rankReach(b) - rankReach(a))[0] || 'observe';
@@ -93,10 +93,10 @@ export function projection({ insights: insightList = [], journeys = [], commitme
   const fixtureRuns = current.flatMap(r => (r.scenario?.fixtures || []).map(f => ({ ...f, ranAt: r.ranAt })));
   for (const p of new Set(fixtureRuns.map(f => f.profile))) {
     const cleanups = fixtureRuns.filter(f => f.profile === p).map(f => f.cleanup);
-    if (!cleanups.includes('deleted')) toInject.push(`recoverability của ${p} unverified: cleanup chưa từng chạy sạch trên run fail`);
+    if (!cleanups.includes('deleted')) toInject.push(`recoverability of ${p} unverified: cleanup has never run clean on a failed run`);
   }
   for (const [env, e] of Object.entries(policy.environments || {})) {
-    if (rankReach(e.reachMax) > rankReach(reach) && !current.some(r => r.environment === env)) toInject.push(`environment ${env} chưa có run nào`);
+    if (rankReach(e.reachMax) > rankReach(reach) && !current.some(r => r.environment === env)) toInject.push(`environment ${env} has no run yet`);
   }
   const L = { observe: 'L1 — Observe', verify: 'L2 — Verify', gate: reach === ORDER[ORDER.length - 1] ? 'L4 — Gate + inject' : 'L3 — Gate' }[trust];
 

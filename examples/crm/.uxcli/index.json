@@ -7,13 +7,13 @@
     "story": "L2 — Verify",
     "toNext": {
       "trust → gate": [
-        "probe lead-phone-visible: fpRate chưa đo (1 corpus case, cần ≥ N) → chưa được fail",
-        "C-002: cả hai measurement method-unproven → chưa gate được",
-        "C-003 RETIREMENT_PROPOSED từ 2026-09-24, chưa ai quyết"
+        "probe lead-phone-visible: fpRate not measured (1 corpus case, needs ≥ N) → may not fail yet",
+        "C-002: both measurements method-unproven → cannot gate yet",
+        "C-003 RETIREMENT_PROPOSED since 2026-09-24, nobody has decided"
       ],
       "reach → inject": [
-        "recoverability của lead-new-unassigned unverified: cleanup chưa từng chạy sạch trên run fail",
-        "environment local chưa có run nào"
+        "recoverability of lead-new-unassigned unverified: cleanup has never run clean on a failed run",
+        "environment local has no run yet"
       ]
     }
   },
@@ -33,7 +33,7 @@
       },
       "I-003": {
         "confidence": "hypothesis",
-        "why": "không evidence"
+        "why": "no evidence"
       }
     },
     "commitments": {

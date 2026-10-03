@@ -6,7 +6,7 @@
     "ref": "claude",
     "onBehalfOf": "chuongld"
   },
-  "statement": "Cam kết: hành động Gọi khách trong viewport không cuộn tại agent.lead_detail",
+  "statement": "Cam kết: hành động Gọi khách trong viewport không cuộn at agent.lead_detail",
   "trace": [
     "understanding/insights/I-001.json",
     "journeys/handle-inbound-lead.json#open-and-call/s2"
