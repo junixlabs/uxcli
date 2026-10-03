@@ -277,11 +277,11 @@ export async function runJourney(file, { env, origin, viewport = '390x844', out 
   return finish(run, async r => {
     const retain = r.exit === 2; const expires = new Date(Date.now() + 48 * 3600e3).toISOString();
     for (const f of [...fixtures].reverse()) {
-      if (retain) Object.assign(f.record, { cleanup: 'retained', retainedBecause: 'run có fail — fixture là bằng chứng', expiresAt: expires });
+      if (retain) Object.assign(f.record, { cleanup: 'retained', retainedBecause: 'the run has a fail — the fixture is evidence', expiresAt: expires });
       else { const c = cleanup(f.prof, f.values, { cwd: root, env: shell }); Object.assign(f.record, { cleanup: c.status, cleanupVerified: c.verified }); }
     }
     if (identity && idValues) {
-      if (retain) Object.assign(identity, { cleanupVerified: false, retained: true, retainedBecause: 'run có fail' });
+      if (retain) Object.assign(identity, { cleanupVerified: false, retained: true, retainedBecause: 'the run has a fail' });
       else identity.cleanupVerified = cleanup(idProfile.value, idValues, { cwd: root, env: shell }).verified;
     }
     return { ...r, scenario: { identity, fixtures: fixtures.map(f => f.record) } };

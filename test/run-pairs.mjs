@@ -43,7 +43,7 @@ export function pair() {
   const okPlan = plan(lead, policy, 'staging', exLead.scenario, { prerequisites: ['agent.workspace_ready'] });
   must('staging plan with identity did not come back ok', okPlan.status === 'ok' && eq(okPlan.unverified, ['agent.workspace_ready']));
   const noIdPlan = plan(lead, policy, 'staging', { identity: null, fixtures: [] }, { prerequisites: ['agent.workspace_ready'] });
-  must('staging without identity did not block on the prerequisite', noIdPlan.status === 'blocked' && noIdPlan.reason === 'prerequisite_not_satisfied' && noIdPlan.which.some(w => w.startsWith('f0 lead-new-unassigned: fixture cần mutate, effective reach là interact')));
+  must('staging without identity did not block on the prerequisite', noIdPlan.status === 'blocked' && noIdPlan.reason === 'prerequisite_not_satisfied' && noIdPlan.which.some(w => w.startsWith('f0 lead-new-unassigned: fixture needs mutate, effective reach is interact')));
   const rejected = plan(lead, policy, 'staging', { identity: { ...exLead.scenario.identity, verified: { ...exLead.scenario.identity.verified, tenant: false } }, fixtures: [] }, { prerequisites: [] });
   must('an identity that failed tenant verification was not rejected', rejected.status === 'blocked' && rejected.reason === 'identity_rejected');
   must('an intercept workflow under observe was not reach_insufficient', plan(auth, policy, 'production', { identity: null }, { workflow: 'server-error' }).reason === 'reach_insufficient');
@@ -98,16 +98,16 @@ export function pair() {
 
   // Constraints: false is a breach, null is recorded and nothing more.
   const cs = exLead.reach.constraints;
-  const broken = packet({ ...base, constraints: cs.map(c => c.id !== 'no-real-sms' ? c : { ...c, held: false, observed: '1 egress tới sms-provider' }) });
+  const broken = packet({ ...base, constraints: cs.map(c => c.id !== 'no-real-sms' ? c : { ...c, held: false, observed: '1 egress to sms-provider' }) });
   must('a constraint measured false did not abort with a breach', broken.status === 'aborted' && broken.breaches.some(b => b.constraint === 'no-real-sms' && b.rule === 'constraint-not-held'));
   const unknown = packet({ ...base, constraints: cs.map(c => c.id !== 'no-real-sms' ? c : { ...c, held: null }) });
   must('a constraint that could not be observed was treated as a breach', unknown.status === 'completed' && unknown.breaches.length === 0 && unknown.reach.constraints.some(c => c.held === null));
 
   // Runtime blocks, from the observer's own results.
-  must('a prerequisite measured false did not block', eq(blockedAt({ prerequisites: [{ step: 's1', state: 'agent.workspace_ready', held: false, why: ['GET /api/me → 401'] }] }), { reason: 'prerequisite_not_satisfied', which: ['s1.before agent.workspace_ready: không giữ — GET /api/me → 401'], fix: FIX.prerequisite_not_satisfied }));
+  must('a prerequisite measured false did not block', eq(blockedAt({ prerequisites: [{ step: 's1', state: 'agent.workspace_ready', held: false, why: ['GET /api/me → 401'] }] }), { reason: 'prerequisite_not_satisfied', which: ['s1.before agent.workspace_ready: not held — GET /api/me → 401'], fix: FIX.prerequisite_not_satisfied }));
   must('a prerequisite measured null blocked', blockedAt({ prerequisites: [{ step: 's1', state: 'agent.workspace_ready', held: null }] }) === null);
-  must('a rejected identity did not block as identity_rejected', eq(blockedAt({ identity: { rejected: [{ field: 'tenantId', why: 'không thuộc syntheticTenants' }] } }), { reason: 'identity_rejected', which: ['tenantId: không thuộc syntheticTenants'], fix: FIX.identity_rejected }));
-  must('a fixture derive() could not value did not block', eq(blockedAt({ fixtures: [{ step: 'f0', profile: 'lead-new-unassigned', problems: ['leads.responseSlaMinutes không có giá trị'] }] }), { reason: 'prerequisite_not_satisfied', which: ['f0 lead-new-unassigned: leads.responseSlaMinutes không có giá trị'], fix: FIX.prerequisite_not_satisfied }));
+  must('a rejected identity did not block as identity_rejected', eq(blockedAt({ identity: { rejected: [{ field: 'tenantId', why: 'not in syntheticTenants' }] } }), { reason: 'identity_rejected', which: ['tenantId: not in syntheticTenants'], fix: FIX.identity_rejected }));
+  must('a fixture derive() could not value did not block', eq(blockedAt({ fixtures: [{ step: 'f0', profile: 'lead-new-unassigned', problems: ['leads.responseSlaMinutes has no value'] }] }), { reason: 'prerequisite_not_satisfied', which: ['f0 lead-new-unassigned: leads.responseSlaMinutes has no value'], fix: FIX.prerequisite_not_satisfied }));
 
   // Effects from the observer: the class, never a blocked request.
   const net = [{ method: 'POST', path: '/api/calls', effectClass: 'database_write' }, { method: 'POST', path: '/api/login', effectClass: 'account_mutation', blocked: true, intercepted: { status: 500 } }, { method: 'GET', path: '/api/me' }];

@@ -46,12 +46,12 @@ export function pair() {
   must('a blocked run counted somewhere as a pass', onlyBlocked.level.trust === 'observe' && onlyBlocked.level.reach === 'observe' && onlyBlocked.rows.length === 1 && onlyBlocked.rows[0].status === 'blocked' && !('fails' in onlyBlocked.rows[0]));
   const validatedIn = edit('C-002', c => ({ ...c, measurements: c.measurements.map(m => ({ ...m, method: 'method-validated' })) }));
   const validated = projection(validatedIn);
-  must('validating C-002 did not turn its method sentence into a corpus sentence', !validated.level.toNext['trust → gate'].some(s => s.startsWith('C-002') && s.includes('method-unproven')) && validated.level.toNext['trust → gate'].some(s => s.startsWith('C-002') && s.includes('nhãn corpus')) && validated.level.trust === 'verify');
+  must('validating C-002 did not turn its method sentence into a corpus sentence', !validated.level.toNext['trust → gate'].some(s => s.startsWith('C-002') && s.includes('method-unproven')) && validated.level.toNext['trust → gate'].some(s => s.startsWith('C-002') && s.includes('no corpus label')) && validated.level.trust === 'verify');
   // Gate is earned against ground truth: only a corpus label on this commitment's step clears the last sentence.
   const labeled = projection({ ...validatedIn, corpusLabels: [...input.corpusLabels, { id: 'L-test', journey: 'handle-inbound-lead', step: 's1', groundTruth: 'pass', blind: true, labeledBy: [{ who: 'test' }] }] });
   must('a corpus label on C-002\'s step did not clear its sentence', !labeled.level.toNext['trust → gate'].some(s => s.startsWith('C-002')));
   const unlabeled = projection({ ...input, corpusLabels: [] });
-  must('with no corpus label at all, C-001 (validated, measured) still had no corpus sentence', unlabeled.level.toNext['trust → gate'].some(s => s.startsWith('C-001') && s.includes('nhãn corpus')));
+  must('with no corpus label at all, C-001 (validated, measured) still had no corpus sentence', unlabeled.level.toNext['trust → gate'].some(s => s.startsWith('C-001') && s.includes('no corpus label')));
   const cleaned = projection({ ...input, runs: input.runs.map(r => r.run.id !== 'j-handle-inbound-lead' ? r : { ...r, run: { ...r.run, scenario: { ...r.run.scenario, fixtures: r.run.scenario.fixtures.map(f => ({ ...f, cleanup: 'deleted' })) } } }) });
   must('a verified cleanup did not remove the recoverability sentence', !cleaned.level.toNext['reach → inject'].some(s => s.startsWith('recoverability')));
 

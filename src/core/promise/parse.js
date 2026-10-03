@@ -53,7 +53,7 @@ function parse0(file, J) {
 }
 
 // schema 1 — the signed promise of 2026-09-17-business-definitions.md §4.
-// Two different failures, kept apart on purpose: a missing **buộc** key means the file is not a
+// Two different failures, kept apart on purpose: a missing **required** key means the file is not a
 // promise at all and nothing may be measured from it; a missing signature means it is a proposal —
 // still a valid file, simply not one anyone may run.
 const REQUIRED = ['id', 'task', 'actor', 'entry', 'steps', 'done', 'owner', 'source'];

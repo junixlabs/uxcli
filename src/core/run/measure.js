@@ -36,13 +36,13 @@ export function outcomeOf(c, m, index, steps, ctx = {}) {
     const v = step.timing?.[p.field];
     if (v == null) return { ...out, outcome: 'unmeasurable', cause: `${p.field} was not measured at ${step.id}` };
     if (v >= CAP) return { ...out, outcome: 'unmeasurable', cause: `${p.field} never stabilized (≥ ${CAP}ms)` };
-    if (!(v > p.gt)) return { ...out, outcome: 'condition-not-met', cause: `${p.field} ${v}ms ≤ ${p.gt}ms — điều kiện không xảy ra` };
+    if (!(v > p.gt)) return { ...out, outcome: 'condition-not-met', cause: `${p.field} ${v}ms ≤ ${p.gt}ms — the condition did not occur` };
     sig = p.then;
   }
   const r = holds({ signals: [sig] }, obs, ctx);
   if (r.held === true) return { ...out, outcome: 'held' };
   if (r.held === null) return { ...out, outcome: 'unmeasurable', cause: r.why.join('; ') };
   const d = sig.selector ? obs.dom?.[sig.selector] : null;
-  const scroll = d && sig.inViewportWithoutScroll && d.scrollsNeeded ? ` — cần ${d.scrollsNeeded} lần cuộn${ctx.viewport ? ` ở ${ctx.viewport}` : ''}` : '';
-  return { ...out, outcome: 'not-held', what: `${r.why.join('; ')}${scroll} tại ${m.target}` };
+  const scroll = d && sig.inViewportWithoutScroll && d.scrollsNeeded ? ` — needs ${d.scrollsNeeded} scroll${d.scrollsNeeded === 1 ? '' : 's'}${ctx.viewport ? ` at ${ctx.viewport}` : ''}` : '';
+  return { ...out, outcome: 'not-held', what: `${r.why.join('; ')}${scroll} at ${m.target}` };
 }

@@ -83,7 +83,7 @@ export function pair() {
   must('discrimination check missed a mustNotMatch entry that is not even a sentence', discriminationProblems(j).filter(p => p.includes('is not a state name')).length === 2);
   j = clone(auth); j.states['anon.login_page'].mustNotMatch = ['anon.login_page'];
   must('discrimination check let a state exclude itself', discriminationProblems(j).some(p => p.includes('cannot be what it must not match')));
-  j = clone(auth); j.states['anon.login_page'].mustNotMatch = ['khi đang tải'];
+  j = clone(auth); j.states['anon.login_page'].mustNotMatch = ['while loading'];
   must('discrimination check refused a prose entry, which the runtime leaves unchecked', discriminationProblems(j).length === 0);
   must('discrimination check objected to the example', discriminationProblems(auth).length === 0 && discriminationProblems(lead).length === 0);
   const pre = prerequisitesOf(lead);
@@ -97,7 +97,7 @@ export function pair() {
   // Commitment — one owner, and a quote the document still says.
   let c = clone(c001); c.owner = [c.owner, { type: 'role', ref: 'engineering-lead' }];
   must('commitment parser accepted two owners', says(parseCommitment(c, { docs }), 'owner: one signer, not a list'));
-  c = clone(c001); c.source.quote = 'hành động nằm rất xa dữ liệu đang xem';
+  c = clone(c001); c.source.quote = 'the action sits far from the data being viewed';
   must('commitment parser accepted a quote the document does not say', says(parseCommitment(c, { docs }), 'source.quote: understanding/actors/real-estate-agent.json no longer says'));
   c = clone(c001); delete c.source.quote;
   must('commitment parser accepted a document named without its words', says(parseCommitment(c, { docs }), 'source.quote: required'));
