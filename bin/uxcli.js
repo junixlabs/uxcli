@@ -78,7 +78,11 @@ try {
     if (flags.has('--refute')) { const { refuteAll } = await import('../src/refute.js'); refuteAll(result.probes); }
     result.exit = exitFor({ verdicts: result.probes.map(p => p.verdict), couldNotRun: !!result.error });
     saveRun(result, outDir);
-    console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result));
+    // A screen that belongs to a declared journey: say which, so the journey's states and commitments are read too.
+    let belongs = [];
+    try { const J = await import('../src/journey.js'); const root = /^https?:/i.test(url) ? J.findRoot(path.resolve(opt('src') || '.')) : null; if (root) { const { journeysOf } = await import('../src/core/journey-of.js'); belongs = journeysOf(J.loadProject(root).journeys.map(x => x.value).filter(Boolean), new URL(url).pathname); } } catch {}
+    if (belongs.length) result.journeys = belongs;
+    console.log(flags.has('--json') ? JSON.stringify(result, null, 1) : card(result) + (belongs.length ? `\n\n  journey  this screen is ${belongs.map(b => `${b.state} in ${b.journey}`).join(', ')}: a page run measures the screen, not the journey.\n           read uxcli context show ${belongs[0].journey}, then uxcli run .uxcli/journeys/${belongs[0].journey}.json` : ''));
     process.exit(result.exit);
   } else if (cmd === 'run' && args[0] && (await import('../src/journey.js')).isSchema2(JSON.parse(fs.readFileSync(path.resolve(args[0]), 'utf8')))) {
     const { runJourney } = await import('../src/journey.js'); const { journeyCard, why } = await import('../src/core/report/index.js');
@@ -254,8 +258,16 @@ try {
     const tline = !b.template ? '\n  template none recorded — uxcli template show <id> names the screens of a kind of product and the lens for each; template apply records it'
       : b.template.missing ? `\n  template ${b.template.id} (no longer shipped)`
       : `\n  template ${b.template.id} · ${b.template.name}\n${b.template.screens.map(x => `           ${x.name.padEnd(26)} lens ${x.lens}`).join('\n')}`;
+    // Before building: each screen of the journey drawn, picked, or neither. A screen with no drawing is
+    // drawn first, to a lens; one with drawings and no pick waits for a person.
+    b.drawing = states.map(st => { const d = path.join(mdir, st); const vs = fs.existsSync(d) ? fs.readdirSync(d).filter(f => f.endsWith('.html')) : []; return { state: st, variants: vs.length, picked: fs.existsSync(path.join(d, 'pick.json')) }; });
+    const undrawn = b.drawing.filter(x => !x.variants), unpicked = b.drawing.filter(x => x.variants && !x.picked);
+    const kinds = b.template && !b.template.missing ? [...new Set(b.template.screens.map(x => x.lens))] : LN.KINDS;
+    const dline = `\n\n  drawing  ${b.drawing.map(x => `${x.state}: ${x.picked ? 'picked' : x.variants ? `${x.variants} drawn, no pick` : 'not drawn'}`).join(' · ')}`
+      + (undrawn.length ? `\n  BEFORE YOU BUILD  ${undrawn.map(x => x.state).join(', ')} ${undrawn.length === 1 ? 'has' : 'have'} no drawing. Choose the lens for what the person does there (${kinds.join(', ')}), read it with uxcli lens show <kind>, draw two or three variants into .uxcli/mockups/<state>/<variant>.html with the hooks above, run uxcli mockups, and ask the person to pick. Do not build these screens until a pick exists.` : '')
+      + (unpicked.length ? `\n  WAITING FOR A PICK  ${unpicked.map(x => x.state).join(', ')}: drawn, not picked. Ask the person (uxcli studio --serve); do not build them yet.` : '');
     const rline = Object.keys(b.reviewedLens).length ? `\n  reviewed ${Object.entries(b.reviewedLens).map(([st, l]) => `${st}: ${l.join(', ')}`).join(' · ')}` : '';
-    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b) + `\n\n  lenses   on: ${b.lenses.on.join(', ')}${b.lenses.off.length ? ` · off: ${b.lenses.off.join(', ')}` : ''}\n           pick the one for what the person does on this screen; uxcli lens show <kind> before you draw, uxcli review check before you say done` + tline + rline);
+    console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b) + `\n\n  lenses   on: ${b.lenses.on.join(', ')}${b.lenses.off.length ? ` · off: ${b.lenses.off.join(', ')}` : ''}\n           pick the one for what the person does on this screen; uxcli lens show <kind> before you draw, uxcli review check before you say done` + tline + rline + dline);
     process.exit(want && !b.journey ? 1 : 0);
   } else if (cmd === 'diff' && args[0] && args[1]) {
     const { diff, diffCard, gateExit } = await import('../src/diff.js'); const d = diff(path.resolve(args[0]), path.resolve(args[1]));

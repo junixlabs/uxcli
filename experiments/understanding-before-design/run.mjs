@@ -22,7 +22,7 @@ const FIXTURE = path.join(ROOT, 'test', 'fixtures', 'crm');
 const RESULTS = path.join(HERE, 'results');
 const opt = (k, d) => { const a = process.argv.find(a => a.startsWith(`--${k}=`)); return a ? a.split('=').slice(1).join('=') : d; };
 const ARM = opt('arm', 'context'), N = Number(opt('n', 10)), PAR = Number(opt('parallel', 4)), MODEL = opt('model', 'sonnet'), TURNS = Number(opt('max-turns', 60));
-if (!['ticket', 'journey', 'context', 'skill'].includes(ARM)) throw new Error('--arm=ticket|journey|context|skill');
+if (!['ticket', 'journey', 'context', 'skill', 'draw'].includes(ARM)) throw new Error('--arm=ticket|journey|context|skill|draw');
 const CLAUDE = process.env.CLAUDE_BIN || 'claude';
 const TICKET = fs.readFileSync(path.join(HERE, 'ticket.md'), 'utf8');
 
@@ -31,7 +31,7 @@ const TICKET = fs.readFileSync(path.join(HERE, 'ticket.md'), 'utf8');
 function stage(arm) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), `ubd-${arm}-`));
   fs.cpSync(FIXTURE, dir, { recursive: true, filter: src => !/[\\/]\.uxcli([\\/]|$)/.test(src) && !/[\\/]pages[\\/]lead\.html$/.test(src) && !/DEFECTS\.md$|README\.md$|check\.mjs$/.test(src) });
-  if (arm === 'skill') {
+  if (arm === 'skill' || arm === 'draw') {
     fs.cpSync(path.join(FIXTURE, '.uxcli'), path.join(dir, '.uxcli'), { recursive: true, filter: src => !/[\\/]\.uxcli[\\/](runs|index\.json)/.test(src) });
     fs.cpSync(path.join(ROOT, 'skills', 'uxcli'), path.join(dir, '.claude', 'skills', 'uxcli'), { recursive: true });
     // The shipped text says `npx -y @junixlabs/uxcli`, which would fetch the published package, not
@@ -40,6 +40,12 @@ function stage(arm) {
     execFileSync(process.execPath, [path.join(ROOT, 'bin', 'uxcli.js'), 'init', '--apply', dir], { stdio: 'ignore' });
     fs.mkdirSync(path.join(dir, '.bin')); const shim = path.join(dir, '.bin', 'uxcli');
     fs.writeFileSync(shim, `#!/bin/sh\nexec "${process.execPath}" "${path.join(ROOT, 'bin', 'uxcli.js')}" "$@"\n`); fs.chmodSync(shim, 0o755);
+  }
+  // draw: the same project with the lead page's two screens never drawn, so the agent has to choose a
+  // lens and draw before it may build; the project says which template it started from.
+  if (arm === 'draw') {
+    for (const st of ['agent.lead_detail', 'agent.call_started']) fs.rmSync(path.join(dir, '.uxcli', 'mockups', st), { recursive: true, force: true });
+    fs.writeFileSync(path.join(dir, '.uxcli', 'template.json'), JSON.stringify({ schema_version: 1, template: 'workspace', at: new Date().toISOString() }) + '\n');
   }
   return dir;
 }
@@ -52,14 +58,14 @@ function promptFor(arm, dir) {
     const card = execFileSync(process.execPath, [path.join(ROOT, 'bin', 'uxcli.js'), 'context', 'show', 'handle-inbound-lead', `--src=${FIXTURE}`], { encoding: 'utf8' });
     L.push('', 'Read this before you design. It is what the project has declared about the person this page is for and what the page must be able to hold; nothing in it is advice:', '', '```', card.trim(), '```');
   }
-  if (arm === 'skill') L.push('', 'This project uses uxcli; `uxcli` is on your PATH and the project has a .claude/ with its rule and skill.');
+  if (arm === 'skill' || arm === 'draw') L.push('', 'This project uses uxcli; `uxcli` is on your PATH and the project has a .claude/ with its rule and skill.');
   return L.join('\n');
 }
 
 function session(arm, i) {
   return new Promise(resolve => {
     const dir = stage(arm); const prompt = promptFor(arm, dir); const t0 = Date.now();
-    const env = { ...process.env, PATH: arm === 'skill' ? `${path.join(dir, '.bin')}:${process.env.PATH}` : process.env.PATH };
+    const env = { ...process.env, PATH: arm === 'skill' || arm === 'draw' ? `${path.join(dir, '.bin')}:${process.env.PATH}` : process.env.PATH };
     for (const k of ['CLAUDECODE', 'CLAUDE_CODE_ENTRYPOINT', 'CLAUDE_CODE_SSE_PORT']) delete env[k];
     const args = ['-p', '--model', MODEL, '--max-turns', String(TURNS), '--output-format', 'stream-json', '--verbose', '--dangerously-skip-permissions', '--add-dir', dir];
     const child = spawn(CLAUDE, args, { cwd: dir, env, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -73,6 +79,12 @@ function session(arm, i) {
         ranUxcli: tools.filter(t => t.name === 'Bash' && /\buxcli\b/.test(t.input?.command || '')).map(t => t.input.command),
         editedDeclarations: tools.filter(t => /^(Edit|Write|MultiEdit)$/.test(t.name) && /\.uxcli[\\/]/.test(t.input?.file_path || '')).map(t => t.input.file_path),
         wroteLead: fs.existsSync(path.join(dir, 'pages', 'lead.html')), final, stderr: err.slice(-2000) };
+      // which lens and template the session reached for, and what it drew and reviewed
+      const lensOf = t => { const m = /lenses\/([a-z]+)\.md/.exec(t.input?.file_path || t.input?.command || '') || /\blens show ([a-z]+)/.exec(t.input?.command || ''); return m ? m[1] : null; };
+      rec.lenses = [...new Set(tools.map(lensOf).filter(Boolean))];
+      rec.templateShown = tools.some(t => /\btemplate (show|apply)\b/.test(t.input?.command || '') || /templates\/[a-z-]+\.md/.test(t.input?.file_path || ''));
+      rec.drew = fs.existsSync(path.join(dir, '.uxcli', 'mockups')) ? walk(path.join(dir, '.uxcli', 'mockups')).filter(f => /agent\.(lead_detail|call_started)[\\/][^\\/]+\.html$/.test(f)).map(f => path.relative(dir, f)) : [];
+      rec.reviews = fs.existsSync(path.join(dir, '.uxcli', 'mockups')) ? walk(path.join(dir, '.uxcli', 'mockups')).filter(f => f.endsWith('.review.json')).map(f => path.relative(dir, f)) : [];
       const tag = `${arm}-${String(i).padStart(2, '0')}`;
       fs.mkdirSync(path.join(RESULTS, tag), { recursive: true });
       fs.writeFileSync(path.join(RESULTS, tag, 'transcript.jsonl'), out);

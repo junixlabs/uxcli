@@ -44,7 +44,7 @@
   "loadBearing": "You draw the variants and you never write `pick.json` on your own judgement: a pick is a person's, or you write it on a person's say-so and `note` names who said so. You never draw a variant that drops a hook the journey names in order to make the screen simpler. You never build a screen that has variants and no pick.",
   "loadBearingSha256": "3fa76ed580b4380bcd60f4dc850f30c9d07225d4b562a4be50a336735f3ba89d",
   "mutant": "the same file with this paragraph removed",
-  "record": "no fresh-agent record yet: new on 2026-09-28, written when the owner asked for the screens to be drawn as a flow before they are built. Unmeasured.",
-  "recordSource": "none"
+  "record": "2026-10-03, experiments/understanding-before-design arm `draw` (twenty fresh Sonnet sessions, the lead page's two screens undrawn, the skill, the rule file and — for ten of them — a context card printing BEFORE YOU BUILD): 0/20 drew a variant, 0/20 wrote a pick or a review, 20/20 built the page without a pick, 19/20 said in their final message that they had skipped the design step. The paragraph does not hold the behaviour when the ticket asks for the page and no person is there to pick.",
+  "recordSource": "experiment"
  }
 }

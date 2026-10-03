@@ -85,3 +85,33 @@ difference is the `not-reached` step on the ticket arm's pages: the call state n
 keystroke-level estimate is the same in both arms (6.5 s at 390×844) because the journey's steps are
 the same; it will tell arms apart only on tickets where the agent decides the steps. Three sessions an
 arm on one model and one ticket is a direction, not a result; results/ stays on the machine that ran it.
+
+## Ten sessions an arm, and the draw arm — 2026-10-03
+
+All sessions scored by `uxcli run` and `uxcli experience`, rescored with one instrument (`rescore.mjs`).
+
+| arm | n | first-run pass 390×844 | first-run pass 1440×900 | hooks on the page | experience findings at 390 (median) |
+|---|---|---|---|---|---|
+| ticket | 10 | 0/10 | 0/10 | 0/10 | 2 — reach, not-reached |
+| skill | 10 | 8/10 | 8/10 | 8/10 | 1 — reach |
+| draw (before the hint) | 10 | 9/10 | 9/10 | 9/10 | 1 — reach |
+| draw (with the hint) | 10 | 10/10 at 390 | 9/10 | 10/10 | 1 — reach |
+
+The two skill sessions that failed ran only page runs and never `context show`; neither said done.
+`uxcli run <url>` now names the journey a screen belongs to and sends the agent to its card.
+
+**The draw arm** removes the lead page's two drawings and records the `workspace` template, so the
+skill's sequence asks the agent to choose a lens, draw variants and wait for a person's pick before
+building. The rule file loaded in every session says the same. It did not happen:
+
+| draw | read a lens | the workspace lens | the template | drew variants | wrote a lens review | built lead.html anyway | said it skipped design |
+|---|---|---|---|---|---|---|---|
+| before the hint | 1/10 | 1/10 | 0/10 | 0/10 | 0/10 | 10/10 | 9/10 |
+| with the hint (`context show` prints BEFORE YOU BUILD; 8/10 saw it) | 1/10 | 1/10 | 0/10 | 0/10 | 0/10 | 10/10 | 10/10 |
+
+A ticket that asks for the page wins over every instruction to draw first, in the skill, the rule file
+and the card — when there is nobody to pick, the agent builds and says so. The library's exit (an
+agent picks the right template and lens in 8 of 10 sessions) is not met by text. What would change it
+is a decision for the owner: whether drawing and a lens review are something the instrument holds the
+work to (a journey run that reports a screen built with no pick or no review), or whether a person in
+the loop is the condition for the design step at all.

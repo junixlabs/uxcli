@@ -37,6 +37,11 @@ and the owner's call of 2026-10-03: build the library first, then the experience
   feedback (10), quotes checked verbatim against the source repositories; the lenses carry 187.
 - Exit: an agent given only a ticket and the skill picks the right template and lens, and its drawing's
   review cites topic-pool rules, in 8 of 10 fresh sessions.
+- Measured 2026-10-03, not met: in the draw arm (two screens undrawn, the template recorded) 1/10 read
+  a lens, 0/10 drew or reviewed, 10/10 built the page anyway — before and after `context show` printed
+  BEFORE YOU BUILD (8/10 saw it), with the rule file saying the same. 19/20 said they skipped design.
+  Text does not move it; the owner decides whether the instrument holds the work to a pick and a
+  review, or the design step waits for a person in the loop.
 
 ## 2. Experience validation — the centre
 
@@ -105,8 +110,11 @@ above) and by blind pairwise preference from designers. The repository already h
 - Done 2026-10-03, small: three sessions an arm, scored by `uxcli run` and `uxcli experience` with one
   instrument (`rescore.mjs`). Ticket alone 0/3, with the skill 3/3 at both viewports; the ticket arm's
   pages leave the call step unreached. Recorded in the experiment's README.
-- Next: ten sessions an arm on two tickets where the agent decides the steps, so the estimate and the
-  findings can differ; then blind pairwise preference from designers on the screenshots.
+- Done 2026-10-03: ten sessions an arm — ticket alone 0/10, with the skill 8/10, the draw arm 9/10
+  and 10/10; experience findings median 2 against 1. The two failing skill sessions never read the
+  journey's card; `uxcli run <url>` now names the journey a screen belongs to.
+- Next, needs people: blind pairwise preference from designers on the screenshots; a second ticket where
+  the agent decides the steps, so the estimate can differ between arms.
 
 ## Not planned
 

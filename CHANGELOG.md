@@ -72,6 +72,10 @@ Entries are written per release. The log is the source material, not the text.
   wait past a second it records whether a progress signal (a progressbar, a busy region, a status text)
   was shown. `experience` reads response from the first change, and a wait with a signal shown is not a
   finding until ten seconds.
+- `uxcli run <url>` on a screen a declared journey reaches (its path matches a state's url signal) says
+  which journey and state it is, and that a page run measures the screen, not the journey: read
+  `context show`, then run the journey. Two of ten skill sessions in the experiment ran only page runs
+  and never read the journey's card; the instrument now says so itself.
 - The experiment scores sessions on the walk as well (`score.mjs`), rescoring every session with one
   instrument (`rescore.mjs`).
 - VISION, PRODUCT, README and ROADMAP describe uxcli as the owner set it on 2026-10-03: an agent that

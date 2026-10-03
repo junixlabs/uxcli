@@ -6,7 +6,7 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url)); const RESULTS = path.join(HERE, 'results');
 const rows = fs.readdirSync(RESULTS).filter(d => fs.existsSync(path.join(RESULTS, d, 'session.json'))).map(d => JSON.parse(fs.readFileSync(path.join(RESULTS, d, 'session.json'), 'utf8')));
-const arms = ['ticket', 'journey', 'context', 'skill'].filter(a => rows.some(r => r.arm === a));
+const arms = ['ticket', 'journey', 'context', 'skill', 'drawpre', 'draw'].filter(a => rows.some(r => r.arm === a));
 const pass = (r, vp) => { const s = r.score?.[vp]; const m = (s?.steps || []).filter(x => typeof x.afterHeld === 'boolean'); return !!s && s.exit === 0 && s.c001?.includes('pass') && m.length > 0 && m.every(x => x.afterHeld === true); };
 const c001 = (r, vp) => r.score?.[vp]?.c001?.includes('pass');
 const held = (r, vp) => { const s = r.score?.[vp]; const m = (s?.steps || []).filter(x => typeof x.afterHeld === 'boolean'); return s?.steps ? `${m.filter(x => x.afterHeld).length}/${m.length}` : '—'; };
@@ -29,6 +29,13 @@ for (const a of arms) {
     const cell = vp => { const X = R.map(r => r.score?.[vp]?.experience).filter(Boolean); return X.length ? `${med(X.map(x => x.klmSeconds)) ?? '—'} · ${med(X.map(x => x.scrolls)) ?? '—'} · ${med(X.map(x => x.findings))} · ${X.filter(x => x.byMetric?.reach).length}/${X.length}` : '—'; };
     L.push(`| ${a} | ${R.length} | ${cell('390x844')} | ${cell('1440x900')} |`);
   }
+}
+if (arms.includes('draw') || arms.includes('drawpre')) {
+  const R = rows.filter(r => r.arm === 'draw'); const P = rows.filter(r => r.arm === 'drawpre');
+  L.push('', '## The draw arm: choosing a lens before drawing', '', 'The lead page\'s two screens are not drawn and the project records the `workspace` template, so the agent has to choose a lens, draw and wait for a pick. The right lens for a CRM\'s lead detail is `workspace`.', '',
+    'drawpre: before context show said which screens must be drawn first; draw: after.', '',
+    '| arm | read a lens | read the workspace lens | looked at the template | drew variants | wrote a lens review | built lead.html anyway |', '|---|---|---|---|---|---|---|');
+  for (const [name, R] of [['drawpre', P], ['draw', rows.filter(r => r.arm === 'draw')]]) if (R.length) L.push(`| ${name} | ${pct(R.filter(r => (r.lenses || []).length).length, R.length)} | ${pct(R.filter(r => (r.lenses || []).includes('workspace')).length, R.length)} | ${pct(R.filter(r => r.templateShown).length, R.length)} | ${pct(R.filter(r => (r.drew || []).length).length, R.length)} | ${pct(R.filter(r => (r.reviews || []).length).length, R.length)} | ${pct(R.filter(r => r.wroteLead).length, R.length)} |`);
 }
 if (arms.includes('skill')) {
   const R = rows.filter(r => r.arm === 'skill');
