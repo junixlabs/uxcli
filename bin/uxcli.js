@@ -44,6 +44,8 @@ const usage = `usage:
   uxcli gate                          run every probe's falsification pair; exit 1 unless all hold
   uxcli lens [show <kind>]            the shipped lenses — named designers' viewpoints by kind of UI (marketing, content, data, workspace, shop, transaction)
   uxcli experience [dir|run] [--page] [--json]   what the person goes through on each journey's last walk: steps, clicks, typing, scrolls, waits, a keystroke-level estimate, and what changed since the walk before; findings only, never a fail
+  uxcli prefer make <study> --a=<folder> --b=<folder> [--question=…] | serve <study> --judge=<person> [--port=N] | tally <study> [--json]
+      blind pairwise preference: two folders of pictures of the same screens, paired by file name and renamed so nothing names a group; each judge answers on a local page in their own order with sides swapped; tally counts wins and a sign test. A judge is a person, never an agent
   uxcli walkthrough <journey> [--as=<actor>] [--for=<person>] [--run=R-…] | check   a cognitive walkthrough of the last walk: four questions at every step, answered looking at its screenshot, optionally as one of the project's actors; check refuses an incomplete one and one the walk contradicts; "no" and "unsure" are findings
   uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]   the board: every journey as a canvas — each step drawn (variants, the pick), built (the last walk, findings pinned) and in each named version; pan, zoom, inspect; --serve on localhost refreshes as files change and lets a person pick or ask for a redraw
   uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
@@ -89,7 +91,7 @@ try {
     const r = await runJourney(path.resolve(args[0]), { env: opt('env'), origin: opt('origin'), viewport: opt('viewport') || undefined, out: opt('out') });
     if (r.problems) { console.error('uxcli: the declarations do not parse —\n  ' + r.problems.join('\n  ')); process.exit(1); }
     if (flags.has('--json')) console.log(JSON.stringify({ ...r.run, next: r.run.verdicts.filter(v => v.value !== 'pass').map(v => why(v, r.commitments)) }, null, 1));
-    else { console.log(journeyCard(r.run, r.commitments)); const acts = r.run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding').map(v => '  next   ' + why(v, r.commitments)); if (acts.length) console.log('\n' + acts.join('\n')); console.log('  packet ' + path.relative(process.cwd(), path.join(r.dir, 'run.json'))); }
+    else { console.log(journeyCard(r.run, r.commitments)); const acts = r.run.verdicts.filter(v => v.value === 'fail' || v.value === 'finding').map(v => '  next   ' + why(v, r.commitments)); if (acts.length) console.log('\n' + acts.join('\n')); if (r.run.design) { const { designLines } = await import('../src/core/design-gate.js'); console.log('\n' + designLines(r.run.design).join('\n')); } console.log('  packet ' + path.relative(process.cwd(), path.join(r.dir, 'run.json'))); }
     process.exit(r.run.exit);
   } else if (cmd === 'run' && args[0]) {
     const { readFlow } = await import('../src/adapters/store/flow-file.js'); const { runJourney } = await import('../src/run.js'); const { card } = await import('../src/card.js');
@@ -154,6 +156,25 @@ try {
     else console.log(E.experienceCard(list));
     if (flags.has('--page')) { const f = E.experiencePage(list, opt('out') || E.pageFile(args[0] && fs.existsSync(path.join(args[0], '.uxcli')) ? args[0] : '.')); console.log(`  page   ${path.relative(process.cwd(), f)}`); }
     process.exit(0);
+  } else if (cmd === 'prefer') {
+    // Blind pairwise preference: a person's eye on two sets of pictures, neither side named.
+    // a study needs no project: the project's root when there is one, otherwise the directory named
+    const PF = await import('../src/prefer.js'); const J = await import('../src/journey.js');
+    const root = J.findRoot(path.resolve(opt('src') || '.')) || path.resolve(opt('src') || '.');
+    const [sub, name] = args; if (!['make', 'serve', 'tally'].includes(sub) || !name) { console.error('uxcli prefer make|serve|tally <study>'); process.exit(1); }
+    if (sub === 'make') {
+      const r = PF.makeStudy(root, name, { a: opt('a') && path.resolve(opt('a')), b: opt('b') && path.resolve(opt('b')), ...(opt('question') && { question: opt('question') }) });
+      if (r.problems) { console.error('uxcli: ' + r.problems.join('\n  ')); process.exit(1); }
+      console.log(`wrote ${path.relative(process.cwd(), r.dir)}/study.json · ${r.study.pairs.length} pairs, pictures renamed so nothing names a group\n  next: a person runs uxcli prefer serve ${name} --judge=<their name>, and answers every pair`); process.exit(0);
+    }
+    if (sub === 'serve') {
+      const r = await PF.serveStudy(root, name, { judge: opt('judge'), port: Number(opt('port') || 4318) });
+      if (r.problems) { console.error('uxcli: ' + r.problems.join('\n  ')); process.exit(1); }
+      console.log(`uxcli prefer · ${name} · judge ${opt('judge')}\n  open ${r.url}  (ctrl-c to stop)`); await new Promise(() => {});
+    }
+    const s = PF.readStudy(root, name); if (s.problems) { console.error('uxcli: ' + s.problems.join('\n  ')); process.exit(1); }
+    const { tally } = await import('../src/core/model/prefer.js'); const js = PF.judgments(root, s.study); const t = tally(s.study, js);
+    console.log(flags.has('--json') ? JSON.stringify(t, null, 1) : PF.tallyCard(t, js)); process.exit(js.every(j => j.value) ? 0 : 1);
   } else if (cmd === 'walkthrough') {
     // The cognitive walkthrough: four questions at every step of a walk, answered looking at its screenshots.
     const W = await import('../src/walkthrough.js'); const J = await import('../src/journey.js');
@@ -261,11 +282,12 @@ try {
     // Before building: each screen of the journey drawn, picked, or neither. A screen with no drawing is
     // drawn first, to a lens; one with drawings and no pick waits for a person.
     b.drawing = states.map(st => { const d = path.join(mdir, st); const vs = fs.existsSync(d) ? fs.readdirSync(d).filter(f => f.endsWith('.html')) : []; return { state: st, variants: vs.length, picked: fs.existsSync(path.join(d, 'pick.json')) }; });
+    const design = P.policy.value?.project?.design || 'off'; b.design = design;
     const undrawn = b.drawing.filter(x => !x.variants), unpicked = b.drawing.filter(x => x.variants && !x.picked);
     const kinds = b.template && !b.template.missing ? [...new Set(b.template.screens.map(x => x.lens))] : LN.KINDS;
     const dline = `\n\n  drawing  ${b.drawing.map(x => `${x.state}: ${x.picked ? 'picked' : x.variants ? `${x.variants} drawn, no pick` : 'not drawn'}`).join(' · ')}`
-      + (undrawn.length ? `\n  BEFORE YOU BUILD  ${undrawn.map(x => x.state).join(', ')} ${undrawn.length === 1 ? 'has' : 'have'} no drawing. Choose the lens for what the person does there (${kinds.join(', ')}), read it with uxcli lens show <kind>, draw two or three variants into .uxcli/mockups/<state>/<variant>.html with the hooks above, run uxcli mockups, and ask the person to pick. Do not build these screens until a pick exists.` : '')
-      + (unpicked.length ? `\n  WAITING FOR A PICK  ${unpicked.map(x => x.state).join(', ')}: drawn, not picked. Ask the person (uxcli studio --serve); do not build them yet.` : '');
+      + (undrawn.length ? `\n  BEFORE YOU BUILD  ${undrawn.map(x => x.state).join(', ')} ${undrawn.length === 1 ? 'has' : 'have'} no drawing. Choose the lens for what the person does there (${kinds.join(', ')}), read it with uxcli lens show <kind>, draw two or three variants into .uxcli/mockups/<state>/<variant>.html with the hooks above, run uxcli mockups, ` + (design === 'drawn' ? 'and review each against the lens (uxcli review <state>/<variant> --lens=<kind> --write, then uxcli review check). This project\'s policy asks for screens drawn and reviewed, not picked: that is all yours to do, then build the variant you would pick and say which and why.' : 'and ask the person to pick. Do not build these screens until a pick exists.') : '')
+      + (unpicked.length && design !== 'drawn' ? `\n  WAITING FOR A PICK  ${unpicked.map(x => x.state).join(', ')}: drawn, not picked. Ask the person (uxcli studio --serve); do not build them yet.` : '');
     const rline = Object.keys(b.reviewedLens).length ? `\n  reviewed ${Object.entries(b.reviewedLens).map(([st, l]) => `${st}: ${l.join(', ')}`).join(' · ')}` : '';
     console.log(flags.has('--json') ? JSON.stringify(b, null, 1) : contextCard(b) + `\n\n  lenses   on: ${b.lenses.on.join(', ')}${b.lenses.off.length ? ` · off: ${b.lenses.off.join(', ')}` : ''}\n           pick the one for what the person does on this screen; uxcli lens show <kind> before you draw, uxcli review check before you say done` + tline + rline + dline);
     process.exit(want && !b.journey ? 1 : 0);

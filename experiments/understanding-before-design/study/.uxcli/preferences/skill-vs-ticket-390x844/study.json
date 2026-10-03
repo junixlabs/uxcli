@@ -1,0 +1,61 @@
+{
+ "schema_version": 1,
+ "name": "skill-vs-ticket-390x844",
+ "question": "A real-estate agent opens a new lead on their phone to call them. Which of these two pages would serve them better, and why?",
+ "groups": {
+  "A": "skill arm (10 sessions)",
+  "B": "ticket arm (10 sessions)"
+ },
+ "pairs": [
+  {
+   "id": "01",
+   "A": "img/fc80805defd64e28.png",
+   "B": "img/000aee7e870b4436.png"
+  },
+  {
+   "id": "02",
+   "A": "img/f64b8f5e9e980677.png",
+   "B": "img/62551b5a6acc8be8.png"
+  },
+  {
+   "id": "03",
+   "A": "img/377eb31e4303d48f.png",
+   "B": "img/18bfd7703acce98f.png"
+  },
+  {
+   "id": "04",
+   "A": "img/5d39e339c7598239.png",
+   "B": "img/f3b7ce5b58eab1df.png"
+  },
+  {
+   "id": "05",
+   "A": "img/d096cdb0e929cf0c.png",
+   "B": "img/949bbefc1cd2ff25.png"
+  },
+  {
+   "id": "06",
+   "A": "img/39cc61dcc62495e3.png",
+   "B": "img/d3e24ec6f38ee4ef.png"
+  },
+  {
+   "id": "07",
+   "A": "img/af7f3122c83ce0a7.png",
+   "B": "img/ea709af546ceb951.png"
+  },
+  {
+   "id": "08",
+   "A": "img/fb52ebc9332a30c5.png",
+   "B": "img/1b9cce201220dc34.png"
+  },
+  {
+   "id": "09",
+   "A": "img/39b7b431e7072a02.png",
+   "B": "img/1f4f3a390437bacf.png"
+  },
+  {
+   "id": "10",
+   "A": "img/c3ec53c89dcb83b9.png",
+   "B": "img/b430d11a1d9c0604.png"
+  }
+ ]
+}

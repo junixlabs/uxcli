@@ -10,6 +10,18 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Added — the designer's habits: a library to cite, templates to start from, the walk measured
 
+- Policy `project.design: off | drawn | picked`: a project can hold the work to a design step. A journey
+  walk that finds no fail exits 3 (`DESIGN STEP OPEN`) while a screen it passed through has fewer than
+  two drawings or no complete lens review, or — under `picked` — no person's pick; the run packet keeps
+  the `design` block beside its verdicts, never among them, and a fail keeps exit 2. Default off.
+  Measured on the experiment's draw arm (see its README). Gate: `design-pairs`.
+
+- `uxcli prefer make|serve|tally <study>`: blind pairwise preference. Two folders of pictures of the
+  same screens are paired by file name and renamed so nothing names a group; each judge answers on a
+  local page in their own order with sides swapped by their seed, and the server, not the page, records
+  which side each group sat on; `tally` counts wins and a two-sided sign test. A judgment is a
+  person's: one signed by an agent is refused. `references/prefer.md`. Gate: `prefer-pairs`.
+
 - `uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]`: the project as a board, laid out like
   a design file — each journey a band, each workflow a lane, each step a column with the screen as drawn
   (variants A/B, the pick), as built (the last walk's screenshot, findings pinned) and as each named

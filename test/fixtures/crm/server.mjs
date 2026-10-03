@@ -14,6 +14,7 @@ const HOUR = 3600_000;
 
 // ---------- data ----------
 const db = { tenants: new Map(), users: new Map(), leads: new Map(), calls: new Map(), sessions: new Map() };
+const outcomes = [];
 let leadSeq = 0, callSeq = 0, phoneSeq = 1234567;
 
 const newId = (prefix) => prefix + randomBytes(3).toString('hex');
@@ -178,6 +179,27 @@ async function api(req, res, url) {
     l.timeline.push({ at: call.startedAt, kind: 'call', text: `${s.user.name} bắt đầu gọi ${l.phone}` });
     return json(res, 201, call);
   }
+
+  // The outcome of a call (ticket CRM-215 of the experiment): reached, with the lead's next status; no
+  // answer, the lead unchanged; wrong number, the lead lost. Recorded on the call and the timeline.
+  if (m === 'POST' && (seg = p.match(/^\/api\/calls\/([^/]+)\/outcome$/))) {
+    const s = sessionOf(req); if (!s) return json(res, 401, { error: 'Phiên đăng nhập không hợp lệ' });
+    if (req.headers['x-tenant-id'] !== s.tenant.id) return json(res, 403, { error: 'x-tenant-id không thuộc phiên hiện tại' });
+    const call = db.calls.get(seg[1]);
+    if (!call || call.tenantId !== s.tenant.id) return json(res, 404, { error: 'Không tìm thấy cuộc gọi' });
+    const body = await readBody(req); const l = db.leads.get(call.leadId);
+    const outcome = String(body.outcome || '');
+    if (!['reached', 'no-answer', 'wrong-number'].includes(outcome)) return json(res, 400, { error: 'outcome: reached | no-answer | wrong-number' });
+    if (outcome === 'reached' && !['contacted', 'qualified', 'lost'].includes(body.status)) return json(res, 400, { error: 'status: contacted | qualified | lost khi đã liên lạc được' });
+    const note = body.note == null ? '' : String(body.note).slice(0, 500);
+    Object.assign(call, { status: 'ended', outcome, note, endedAt: new Date().toISOString() });
+    if (outcome === 'reached') l.status = body.status; else if (outcome === 'wrong-number') l.status = 'lost';
+    const label = { reached: 'Đã liên lạc', 'no-answer': 'Không nghe máy', 'wrong-number': 'Sai số' }[outcome];
+    l.timeline.push({ at: call.endedAt, kind: 'call', text: `${label}${note ? ' — ' + note : ''}` });
+    outcomes.push({ call: call.id, lead: l.id, outcome, status: l.status, note, at: call.endedAt });
+    return json(res, 200, { call, lead: { id: l.id, status: l.status } });
+  }
+  if (m === 'GET' && p === '/api/provision/outcomes') return json(res, 200, { outcomes });
 
   if (m === 'GET' && p === '/api/calls') {
     const s = sessionOf(req); if (!s) return json(res, 401, { error: 'Phiên đăng nhập không hợp lệ' });

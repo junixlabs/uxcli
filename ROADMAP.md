@@ -42,6 +42,14 @@ and the owner's call of 2026-10-03: build the library first, then the experience
   BEFORE YOU BUILD (8/10 saw it), with the rule file saying the same. 19/20 said they skipped design.
   Text does not move it; the owner decides whether the instrument holds the work to a pick and a
   review, or the design step waits for a person in the loop.
+- Decided and done 2026-10-03 (both, under the owner's grant of authority over the roadmap): policy
+  `project.design: drawn | picked` holds a project's work to the design step — a clean walk exits 3
+  while a walked screen lacks two drawings and a lens review (or, under `picked`, a person's pick).
+  Measured: under the gate 0/30 drew unasked, 29/30 said the work was not done instead of finishing;
+  with the ticket asking for the design step (`asked` arm), 10/10 read the `workspace` lens, drew two
+  variants of each screen, wrote complete reviews answering topic-pool viewpoints (8 to 36 holds or
+  breaks each), built, and closed the walk at exit 0. **Exit met when the design step is asked for**;
+  an agent does not take it up unasked, and the instrument makes its absence impossible to call done.
 
 ## 2. Experience validation — the centre
 
@@ -100,6 +108,11 @@ the CRM example a planted extra step, a missing progress signal and a lost value
   arrive); "no" and "unsure" are findings, shown in the studio. Schema `walkthrough.schema.json`.
 - Exit: agreement with a human designer measured on a sample and published with its limits. Until
   then, findings only.
+- Done 2026-10-03: `uxcli prefer make|serve|tally` — blind pairwise preference, the instrument for that
+  agreement and for the decisive experiment's second score: pictures renamed so nothing names a group,
+  each judge's order and sides their own, a judgment only a person's, a sign test in the tally.
+  `experiments/understanding-before-design/study.mjs` builds the skill-vs-ticket study from the walk's
+  screenshots. The judging itself is people's to do.
 
 ## The decisive experiment
 
@@ -113,8 +126,12 @@ above) and by blind pairwise preference from designers. The repository already h
 - Done 2026-10-03: ten sessions an arm — ticket alone 0/10, with the skill 8/10, the draw arm 9/10
   and 10/10; experience findings median 2 against 1. The two failing skill sessions never read the
   journey's card; `uxcli run <url>` now names the journey a screen belongs to.
-- Next, needs people: blind pairwise preference from designers on the screenshots; a second ticket where
-  the agent decides the steps, so the estimate can differ between arms.
+- Done 2026-10-03: a second ticket where the agent decides the steps (CRM-215, recording how a call
+  went), scored on the journey each session extended and on what the server recorded. 20/20 recorded
+  the outcome; the estimate differed between sessions (one tap 9.2 s ×18, two taps 11.9 s ×2), not
+  between the skill and gate arms.
+- Done 2026-10-03: the study for blind pairwise preference (skill vs ticket, 390×844) is built and
+  served by `uxcli prefer`. Waiting on people: designers to judge it. Its tally is the second score.
 
 ## Not planned
 

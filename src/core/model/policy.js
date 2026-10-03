@@ -66,7 +66,10 @@ export function parsePolicy(doc) {
   if (doc.hostClasses !== undefined && !(isObj(doc.hostClasses) && Object.values(doc.hostClasses).every(strList))) bad.push('hostClasses: { name: [host patterns] }');
 
   if (!isObj(doc.project)) bad.push('project: required — { reachMax, constraints[] }');
-  else { reach(doc.project.reachMax, 'project'); constraints(doc.project.constraints, 'project', null); }
+  else {
+    reach(doc.project.reachMax, 'project'); constraints(doc.project.constraints, 'project', null);
+    if (doc.project.design !== undefined && !['off', 'drawn', 'picked'].includes(doc.project.design)) bad.push('project.design: off, drawn (two variants and a lens review per walked screen) or picked (and a person\'s pick)');
+  }
 
   if (!isObj(doc.environments) || !Object.keys(doc.environments).length) bad.push('environments: at least one, keyed by name');
   else for (const [n, e] of Object.entries(doc.environments)) {

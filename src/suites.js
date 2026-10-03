@@ -39,5 +39,7 @@ export const SUITES = [
   { tag: 'exp', title: 'what the person goes through, from the trace', file: 'experience-pairs.mjs', miss: 'seen' },
   { tag: 'ver', title: 'a version is kept, and two compare', file: 'version-pairs.mjs', miss: 'refused' },
   { tag: 'walk', title: 'four questions at every step, held to the walk', file: 'walkthrough-pairs.mjs', miss: 'refused' },
+  { tag: 'design', title: 'the design step holds the work when the project asks', file: 'design-pairs.mjs', miss: 'refused' },
+  { tag: 'prefer', title: 'a blind pair names no group, and a judge is a person', file: 'prefer-pairs.mjs', miss: 'refused' },
   { tag: 'board', title: 'the studio shows every step, and decides through the files', file: 'studio-pairs.mjs', miss: 'refused' },
 ];

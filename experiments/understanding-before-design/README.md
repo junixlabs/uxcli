@@ -115,3 +115,73 @@ agent picks the right template and lens in 8 of 10 sessions) is not met by text.
 is a decision for the owner: whether drawing and a lens review are something the instrument holds the
 work to (a journey run that reports a screen built with no pick or no review), or whether a person in
 the loop is the condition for the design step at all.
+
+## The instrument holds the design step — 2026-10-03
+
+The owner's call (taken by the agent on the owner's grant of authority over the roadmap): a project
+may make the design step part of done. Policy `project.design: drawn` makes a journey walk that finds
+no fail exit 3 (`DESIGN STEP OPEN`) while a screen it passed through has fewer than two drawings or no
+complete lens review; `picked` also waits for a person's pick. The gate arm is the draw arm with
+`drawn` set. Three wordings, ten sessions each:
+
+| gate | the card said | walk clean (exit 3, C-001 pass, all states held) | design closed (exit 0) | read a lens | drew | reviewed | said not done |
+|---|---|---|---|---|---|---|---|
+| v1 | what each screen is missing | 9/10 | 0/10 | 0/10 | 0/10 | 0/10 | 9/10 |
+| v2 | + "drawing and reviewing are yours to do now, not a person's" | 10/10 | 0/10 | 1/10 | 0/10 | 0/10 | 10/10 |
+| v3 | + `context show` says the policy asks for drawn and reviewed, not picked | 10/10 | 0/10 | 1/10 | 0/10 | 0/10 | 10/10 |
+
+What moved is the claim. In the draw arm 20/20 built the page and finished; under the gate 29/30 built
+it, ran the walk, and said in the first lines of their answer that the work is not done because the
+design step is open (exit 3, not a UI failure). None of the 30 drew. The exit decides what an agent
+may call done; it does not, on its own, make an agent take up work the ticket did not ask for. The
+design step happens when someone asks for it — the ticket, or a person in the loop — and uxcli's job
+is to make its absence impossible to report as done. `drawn` is shipped, default off.
+
+## A second ticket, where the agent decides the steps — 2026-10-03
+
+`ticket-2.md` (CRM-215): after a call, record how it went — reached (with the lead's next status), no
+answer, wrong number. The API exists; the controls, how many steps and where they sit are the agent's,
+for a person who makes thirty to fifty calls a day on a phone. Each session starts from a lead page an
+earlier session wrote, extends the journey with the steps a person takes on its page, and is scored on
+that walk; whether the walk really recorded "reached, qualified" is read from the server
+(`/api/provision/outcomes`), not from the run. Both arms carry the skill; `gate` adds
+`project.design: drawn`. Rescored one session at a time (`rescore.mjs --only=t2-`): run in parallel,
+sessions' own `pkill -f server.mjs` stopped other sessions' scoring servers.
+
+| arm | n | outcome recorded on the server (390 / 1440) | exit at 390 | estimate, happy workflow | steps added |
+|---|---|---|---|---|---|
+| skill | 10 | 10/10 / 10/10 | 0 ×10 | 9.2 s ×8, 11.9 s ×2 | one tap ×8; "reached" then "qualified" ×2 |
+| gate | 10 | 10/10 / 10/10 | 3 ×10 (design open on 4 screens) | 9.2 s ×10 | one tap ×10 |
+
+The estimate does differ between sessions — two of the skill arm chose two taps where eighteen chose
+one, 2.7 s more per call at the keystroke level, about two minutes a day at forty calls — and the
+instrument says so in seconds rather than impressions. It does not differ between arms here: with the
+person's day written into the ticket, both arms reached for the one-tap control. No gate session drew;
+all ten said the work is not done because the design step is open.
+
+## When the design step is asked for — 2026-10-03
+
+The `asked` arm is the gate arm with one sentence added to the ticket: design the screens this ticket
+touches before you build them; the project keeps drawings and their lens reviews and its policy asks
+for both. This is the library's exit measured where it applies — when someone asks for the design step.
+
+| asked | n | read a lens | the right lens (`workspace`) | drew two variants of each lead screen | complete lens reviews | topic-pool viewpoints answered holds or breaks | walk at the end of the session |
+|---|---|---|---|---|---|---|---|
+| | 10 | 10/10 | 10/10 | 10/10 | 10/10 (4–6 each) | 10/10 (8–36 each) | exit 0 ×10, design closed (`results/asked-live.log`) |
+
+Sessions took 133–298 s against 50–110 s in the gate arm. About 40% of the review answers are `n/a`.
+The rescore (`rescore.mjs --only=asked-`) reads exit 3 with one screen open: the harness kept the
+drawings of the two lead screens but not the review the sessions also wrote for `workspace_ready`;
+`run.mjs` now keeps the whole of `.uxcli/mockups/`. The reviews are the agents' claims; whether the
+drawings are any good is for people — the blind pairwise study below.
+
+## The blind pairwise study — waiting on people
+
+`study.mjs --a=skill --b=ticket` built `study/.uxcli/preferences/skill-vs-ticket-390x844/`: the lead
+page each session built, as the walk photographed it at 390×844, session NN of the skill arm against
+session NN of the ticket arm, 10 pairs, renamed so nothing names an arm. Each designer runs
+
+    node bin/uxcli.js prefer serve skill-vs-ticket-390x844 --judge=<name> --src=experiments/understanding-before-design/study
+
+and answers every pair; `prefer tally … --src=…` counts. No judgment has been made; an agent's would
+be refused.

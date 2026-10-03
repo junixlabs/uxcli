@@ -1,0 +1,182 @@
+<!doctype html>
+<!-- A lead page an agent wrote in the experiment (skill arm, session 01); its walk of handle-inbound-lead exits 0. Used by test/design-pairs.mjs as a page with nothing wrong on the walk, so only the design step can hold it. -->
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chi tiết lead – Địa Ốc CRM</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true">Đ</span> Địa Ốc CRM</a>
+    <nav aria-label="Tài khoản">
+      <span class="who" id="who"></span>
+      <span class="avatar" id="avatar" aria-hidden="true"></span>
+      <button class="btn ghost" type="button" id="logout">Đăng xuất</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <p><a class="muted" href="/" id="back" data-uxcli="back-to-list">← Danh sách lead</a></p>
+  <div class="progress" role="progressbar" aria-label="Đang tải lead" id="loading"></div>
+  <div class="alert error" role="alert" id="load-error" hidden></div>
+
+  <div id="lead" hidden>
+    <div class="lead-head">
+      <h1 id="name" style="margin:0"></h1>
+      <span class="badge" id="status-badge"></span>
+      <span class="muted small" id="meta"></span>
+    </div>
+
+    <div class="detail">
+      <aside class="aside card actions" aria-label="Hành động">
+        <div class="muted small">Điện thoại</div>
+        <div class="phone" data-uxcli="lead-phone" id="phone"></div>
+        <p style="margin:12px 0 0">
+          <button class="btn primary block" type="button" id="call" data-uxcli="call-action">Gọi khách</button>
+        </p>
+        <div class="status" id="call-status" data-uxcli="call-status" role="status" aria-live="polite" hidden></div>
+      </aside>
+
+      <div class="main">
+        <section class="card" aria-labelledby="h-contact">
+          <h2 id="h-contact">Liên hệ</h2>
+          <dl class="kv" id="contact"></dl>
+        </section>
+
+        <section class="card" aria-labelledby="h-req">
+          <h2 id="h-req">Nhu cầu</h2>
+          <dl class="kv" id="req"></dl>
+        </section>
+
+        <section class="card" aria-labelledby="h-sugg">
+          <h2 id="h-sugg">Bất động sản phù hợp</h2>
+          <ul class="listings" id="sugg"></ul>
+          <p class="muted small" id="sugg-empty" hidden>Chưa có gợi ý phù hợp.</p>
+        </section>
+
+        <section class="card" aria-labelledby="h-status">
+          <h2 id="h-status">Trạng thái lead</h2>
+          <form id="status-form" class="field">
+            <label for="status-select"><span>Đổi trạng thái</span></label>
+            <select class="input" id="status-select" name="status"></select>
+            <p style="margin:10px 0 0"><button class="btn" type="submit">Lưu trạng thái</button></p>
+          </form>
+          <div class="alert" role="status" id="status-msg" hidden></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-note">
+          <h2 id="h-note">Ghi chú nội bộ</h2>
+          <p id="note" style="margin:0 0 12px"></p>
+          <div class="muted small">Điểm ưu tiên (nội bộ): <b id="score"></b>/100</div>
+        </section>
+
+        <section class="card" aria-labelledby="h-tl">
+          <h2 id="h-tl">Lịch sử tương tác</h2>
+          <ul class="timeline" id="timeline" style="list-style:none;margin:0;padding:0"></ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const STATUS = { new: 'Mới', contacted: 'Đang liên hệ', qualified: 'Tiềm năng', lost: 'Đã mất' };
+  const fmtPhone = (e164) => { const d = e164.replace(/^\+84/, '0'); return d.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3'); };
+  const fmtTime = (iso) => new Date(iso).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const authHeaders = () => { const t = localStorage.getItem('session.token'); return t ? { authorization: 'Bearer ' + t } : {}; };
+  const $ = (id) => document.getElementById(id);
+  const kv = (rows) => rows.filter(([, v]) => v !== null && v !== undefined && v !== '').map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
+
+  let me, lead;
+
+  function showError(msg) { $('loading').hidden = true; $('load-error').hidden = false; $('load-error').textContent = msg; }
+
+  async function boot() {
+    const meRes = await fetch('/api/me', { headers: authHeaders() });
+    if (meRes.status === 401) { localStorage.removeItem('session.token'); location.replace('/login'); return; }
+    me = await meRes.json();
+    $('who').textContent = me.name;
+    $('avatar').textContent = me.name.split(' ').pop()[0];
+    $('back').href = '/workspace/' + encodeURIComponent(me.workspaceId);
+
+    const id = decodeURIComponent(location.pathname.split('/')[2] || '');
+    const res = await fetch('/api/leads/' + encodeURIComponent(id), { headers: authHeaders() });
+    if (res.status === 401) { localStorage.removeItem('session.token'); location.replace('/login'); return; }
+    if (res.status === 404) { showError('Không tìm thấy lead này trong không gian làm việc của bạn.'); return; }
+    if (!res.ok) throw new Error('lỗi ' + res.status);
+    lead = await res.json();
+    render();
+  }
+
+  function render() {
+    const l = lead, r = l.requirements || {};
+    document.title = l.name + ' – Địa Ốc CRM';
+    $('name').textContent = l.name;
+    $('status-badge').className = 'badge ' + l.status;
+    $('status-badge').textContent = STATUS[l.status] || l.status;
+    $('meta').textContent = 'Nguồn: ' + l.source + ' · vào lúc ' + fmtTime(l.createdAt);
+    $('phone').textContent = l.phone;
+    $('contact').innerHTML = kv([['Điện thoại', fmtPhone(l.phone)], ['Email', l.email || 'Chưa có'], ['Nguồn', l.source]]);
+    $('req').innerHTML = kv([['Loại hình', r.type], ['Khu vực', r.area], ['Ngân sách', r.budget], ['Diện tích', r.size],
+      ['Số phòng ngủ', r.bedrooms || null], ['Thời điểm', r.timeline], ['Mục đích', r.purpose], ['Pháp lý', r.legal]]);
+
+    const s = l.suggestions || [];
+    $('sugg').innerHTML = s.map((x) => `<li><div><b>${esc(x.title)}</b><span class="sub">${esc(x.code)} · ${esc(x.size)} · ${esc(x.status)}</span></div><div class="right"><b>${esc(x.price)}</b><span class="sub">Khớp ${esc(x.match)}%</span></div></li>`).join('');
+    $('sugg-empty').hidden = s.length > 0;
+
+    $('status-select').innerHTML = Object.entries(STATUS).map(([k, v]) => `<option value="${k}"${k === l.status ? ' selected' : ''}>${v}</option>`).join('');
+    $('note').textContent = l.note || 'Chưa có ghi chú.';
+    $('score').textContent = l.internalScore;
+    $('timeline').innerHTML = (l.timeline || []).map((t) => `<li class="${esc(t.kind)}"><time datetime="${esc(t.at)}">${esc(fmtTime(t.at))}</time> ${esc(t.text)}</li>`).join('');
+
+    $('loading').hidden = true;
+    $('lead').hidden = false;
+  }
+
+  $('call').addEventListener('click', async () => {
+    const btn = $('call'), box = $('call-status');
+    btn.disabled = true;
+    box.hidden = false; box.className = 'status muted'; box.textContent = 'Đang gọi… ' + fmtPhone(lead.phone);
+    try {
+      const res = await fetch('/api/calls', {
+        method: 'POST',
+        headers: { ...authHeaders(), 'content-type': 'application/json', 'x-tenant-id': me.tenantId },
+        body: JSON.stringify({ leadId: lead.id }),
+      });
+      if (res.status === 401) { localStorage.removeItem('session.token'); location.replace('/login'); return; }
+      if (res.status !== 201) throw new Error((await res.json().catch(() => ({}))).error || 'lỗi ' + res.status);
+      box.className = 'status alert ok';
+      box.textContent = 'Đang gọi… ' + fmtPhone(lead.phone);
+      location.href = 'tel:' + lead.phone;
+    } catch (err) {
+      box.className = 'status alert error';
+      box.textContent = 'Không bắt đầu được cuộc gọi: ' + err.message + '. Bấm Gọi khách để thử lại.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  $('status-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    // TODO: persist the new status once the status-update API exists (out of scope for CRM-214).
+    const msg = $('status-msg');
+    msg.hidden = false;
+    msg.textContent = 'Chưa lưu được: chức năng cập nhật trạng thái đang được phát triển.';
+  });
+
+  $('logout').addEventListener('click', async () => {
+    await fetch('/api/logout', { method: 'POST', headers: authHeaders() });
+    localStorage.removeItem('session.token');
+    localStorage.removeItem('session.workspaceId');
+    location.assign('/login');
+  });
+
+  boot().catch((err) => showError('Không tải được lead: ' + err.message));
+</script>
+</body>
+</html>
