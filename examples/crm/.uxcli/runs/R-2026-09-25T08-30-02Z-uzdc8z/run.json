@@ -24,10 +24,10 @@
   "blocked": {
     "reason": "prerequisite_not_satisfied",
     "which": [
-      "s1.before agent.workspace_ready: không identity — production reach observe, testIdentity không áp dụng",
-      "f0 lead-new-unassigned: fixture cần mutate, effective reach là observe"
+      "s1.before agent.workspace_ready: no identity — production reach observe, testIdentity does not apply",
+      "f0 lead-new-unassigned: fixture needs mutate, effective reach is observe"
     ],
-    "note": "không probe nào chạy; không có verdict; không tính vào FP rate hay level"
+    "note": "no probe ran; no verdict; not counted toward the FP rate or the level"
   },
   "steps": [],
   "verdicts": []

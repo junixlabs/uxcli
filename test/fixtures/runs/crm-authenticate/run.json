@@ -26,7 +26,7 @@
    "cleanupVerified": false,
    "expiresAt": "2026-09-28T06:58:36Z",
    "retained": true,
-   "retainedBecause": "run có fail"
+   "retainedBecause": "the run has a fail"
   },
   "fixtures": []
  },
@@ -378,7 +378,7 @@
    "value": "fail",
    "cause": "probe-said",
    "where": "s1",
-   "what": "[data-uxcli=lead-board][data-view=kanban] visible: false tại agent.workspace_ready",
+   "what": "[data-uxcli=lead-board][data-view=kanban] visible: false at agent.workspace_ready",
    "shot": "email-password-s1-after.png"
   },
   {
