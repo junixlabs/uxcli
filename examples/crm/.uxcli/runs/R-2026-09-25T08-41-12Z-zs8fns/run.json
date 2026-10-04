@@ -279,7 +279,7 @@
       "value": "fail",
       "caps": [],
       "cause": "probe-said",
-      "what": "[data-uxcli=call-action] cần 2 lần cuộn ở 390×844 at agent.lead_detail",
+      "what": "[data-uxcli=call-action] inViewportWithoutScroll: false — needs 2 scrolls at 390x844 at agent.lead_detail",
       "where": "s2",
       "shot": "s2-before.png"
     },

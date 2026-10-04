@@ -8,8 +8,6 @@
 // out: { folder, project, generatedAt, columns, rows: [{ journey, state, cells: { <column>: cell } }], totals }
 //      lastRuns: { [journey]: { when, worst } } — the newest packet of a journey, walked or not
 //      cell: { state: 'ok' | 'gap' | 'fail' | 'finding' | 'open' | 'na', text, fill? } — na: nothing to measure here
-import { compareExperience } from './experience.js';
-
 export const COLUMNS = [
   { id: 'understood', label: 'understood', means: 'the journey traces an insight and its actor is written' },
   { id: 'drawn', label: 'drawn', means: 'variants drawn under .uxcli/mockups/<state>/' },
@@ -90,8 +88,6 @@ export function dashboardModel({ studio, journeys = [], commitments = [], propos
   };
   return { folder, project: studio.project, generatedAt: studio.generatedAt, columns: COLUMNS, rows, totals };
 }
-
-export { compareExperience };
 
 export function dashboardCard(m, page) {
   const t = m.totals; const L = [`uxcli dashboard · ${m.folder}`, '',

@@ -9,7 +9,8 @@ import { allRuns, UXCLI } from './adapters/store/runs.js';
 import { discover, mockups as photograph } from './mockups.js';
 import { mapModel } from './core/map.js';
 import { studioModel, studioCard } from './core/studio.js';
-import { appPage } from './core/app-page.js';
+import { appPage, pageData } from './core/app-page.js';
+import { serveFile } from './adapters/serve-file.js';
 import { experience, journeyName } from './core/experience.js';
 import { versions as listVersions } from './version.js';
 import { library } from './lens.js';
@@ -39,7 +40,8 @@ export async function buildStudio(from, { viewport = '390x844', shoot = true, se
   }));
   // the newest walk of each journey, for map's model; the experience of it; the walks versions name
   const runs = {}; const newest = {};
-  for (const x of allRuns(root)) { const id = journeyName(x.run); if (!id || !Array.isArray(x.run.steps)) continue; if (!runs[id]) { runs[id] = { run: x.run, base: rel(out, x.at) }; newest[id] = x; } }
+  const packets = allRuns(root);
+  for (const x of packets) { const id = journeyName(x.run); if (!id || !Array.isArray(x.run.steps)) continue; if (!runs[id]) { runs[id] = { run: x.run, base: rel(out, x.at) }; newest[id] = x; } }
   const mocks = Object.fromEntries(D.screens.map(s => [s.id, { pick: s.pick?.pick || null, variants: s.variants, shots: Object.fromEntries(s.variants.filter(v => fs.existsSync(path.join(shotsDir, s.id, `${v}.png`))).map(v => [v, rel(out, path.join(shotsDir, s.id, `${v}.png`))])) }]));
   const map = mapModel({ project: P.project, journeys: P.journeys.map(j => j.value).filter(Boolean), commitments: P.commitments.map(c => c.value).filter(Boolean), actors: (P.actors || []).map(a => a.value).filter(Boolean), insights: (P.insights || []).map(i => i.value).filter(Boolean), runs, mockups: mocks, version: VERSION });
   // map links a shot only when the packet lists it in evidence; the studio takes the step's own shots
@@ -58,7 +60,8 @@ export async function buildStudio(from, { viewport = '390x844', shoot = true, se
   try { const { checkWalkthroughs } = await import('./walkthrough.js'); for (const x of checkWalkthroughs(root).items) { if (x.problems.length) continue; const doc = readJson(x.file); const nw = newest[doc.journey]; if (!nw || `runs/${path.basename(nw.at)}` !== doc.run) continue; (walkthroughs[doc.journey] ||= []).push(...x.findings.map(f => ({ ...f, as: doc.as || null }))); } } catch {}
   const lib = library(); const tpl = templates();
   const m = studioModel({ map, screens, experiences, versions, walkthroughs, actors: (P.actors || []).map(a => a.value).filter(Boolean), insights: (P.insights || []).map(i => i.value).filter(Boolean), lenses: lib.lenses, templates: tpl.list, viewport: Object.values(runs)[0]?.run?.viewport || viewport, serve });
-  return { root, out, model: m, problems: P.problems };
+  // what it read on the way, so a reader that wants more (the dashboard's gather) does not read it again
+  return { root, out, model: m, problems: P.problems, project: P, discovered: D, packets };
 }
 
 // The page: everything the board shows plus the screens, runs and people, in the one surface every uxcli
@@ -89,7 +92,6 @@ export async function shootStudio(page, file, { width = 1600, height = 1000 } = 
 }
 
 const by = root => { try { const n = execFileSync('git', ['config', 'user.name'], { cwd: root, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); if (n) return { type: 'person', ref: n }; } catch {} return { type: 'person', ref: 'studio' }; };
-const MIME = { '.html': 'text/html; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.css': 'text/css', '.svg': 'image/svg+xml', '.js': 'text/javascript' };
 
 // The two writes a person makes from the board. Each goes through the parser the file is read with,
 // and neither overwrites: a screen already picked is changed by deleting its pick.json, on purpose.
@@ -139,17 +141,18 @@ export async function serveStudio(from, { port = 4317, viewport = '390x844', hos
     const url = new URL(req.url, 'http://x');
     if (req.method === 'GET' && url.pathname === '/') { res.writeHead(302, { location: '/.uxcli/studio/index.html' }); return res.end(); }
     if (req.method === 'GET' && url.pathname === '/events') { res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store', connection: 'keep-alive' }); res.write('retry: 2000\n\n'); clients.add(res); req.on('close', () => clients.delete(res)); return; }
-    if (req.method === 'GET' && url.pathname === '/.uxcli/studio/data.json') { const g = await studioData(root, { viewport, serve: true, shoot: false }); const { ICONS } = await import('./core/ui.js'); res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify({ model: g.model, design: g.design, asset: '../', serve: true, live: true, icons: ICONS })); }
+    if (req.method === 'GET' && url.pathname === '/.uxcli/studio/data.json') {
+      const g = await studioData(root, { viewport, serve: true, shoot: false });
+      res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify(pageData(g, { serve: true, live: true })));
+    }
     if (req.method === 'POST' && ['/api/pick', '/api/revise', '/api/note'].includes(url.pathname)) {
       let body = ''; for await (const c of req) { body += c; if (body.length > 100000) break; }
       let r; try { r = decide(root, url.pathname.slice(5), JSON.parse(body)); } catch (e) { r = { ok: false, problems: [e.message] }; }
       res.writeHead(r.ok ? 200 : 400, { 'content-type': 'application/json' }); res.end(JSON.stringify(r)); if (r.ok) notify(); return;
     }
     if (req.method !== 'GET') { res.writeHead(405); return res.end(); }
-    const file = path.resolve(root, '.' + decodeURIComponent(url.pathname));
-    if (!file.startsWith(base + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404); return res.end('not found'); }
-    res.writeHead(200, { 'content-type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream', 'cache-control': 'no-store' });
-    fs.createReadStream(file).pipe(res);
+    if (!url.pathname.startsWith('/.uxcli/')) { res.writeHead(404); return res.end('not found'); }
+    serveFile(res, base, url.pathname.slice('/.uxcli/'.length));
   });
   await new Promise((ok, no) => { server.once('error', no); server.listen(port, host, ok); });
   return { ...first, server, url: `http://${host}:${server.address().port}/` };

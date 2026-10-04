@@ -8,18 +8,18 @@
 // Pure: data in, HTML out. Paths in the data are relative to the folder's .uxcli/ (or, in the studio
 // model, to .uxcli/studio/); `asset` is the prefix that turns them into URLs.
 import { TOKENS, COMPONENTS, ICONS, icon } from './ui.js';
-import { human } from './wireflow.js';
+import { human, esc } from './wireflow.js';
 
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const VIEWS = [
   { id: 'journeys', label: 'Journeys', icon: 'journeys' }, { id: 'screens', label: 'Screens', icon: 'screens' },
   { id: 'runs', label: 'Runs', icon: 'walked' }, { id: 'people', label: 'People', icon: 'person' }, { id: 'library', label: 'Library', icon: 'library' },
 ];
 
 // What a person should do next, most urgent first, each pointing at a frame on the canvas.
-// The screen a verdict was measured on: the state its words name ("… at agent.workspace_ready"), or else
-// the screen the step reached — a verdict is read after the action.
-export const verdictState = (v, s) => (/ at ([a-z][\w]*\.[\w.]+)\s*$/.exec(String(v?.what || '')) || [])[1] || s.after.state;
+// The screen a verdict was measured on: the state the run recorded on it, or (older packets) the state its
+// words name ("… at agent.workspace_ready"), or else the screen the step reached — a verdict is read after
+// the action.
+export const verdictState = (v, s) => v?.state || (/ at ([a-z][\w]*\.[\w.]+)\s*$/.exec(String(v?.what || '')) || [])[1] || s.after.state;
 export function todos(model, design = []) {
   const out = []; const seen = new Set();
   const add = (t, key) => { if (seen.has(key)) return; seen.add(key); out.push(t); };
@@ -47,7 +47,7 @@ export function todos(model, design = []) {
 //   "lead board[data-view=kanban] visible: false at agent.workspace_ready" → "Kanban lead board is not shown"
 //   "input[name=email] valueUnchanged: false" → "Email field loses what was typed"
 export function short(what) {
-  let s = String(what || '').trim().replace(/ cần (\d+) lần cuộn/, ' inViewportWithoutScroll: false — needs $1 scrolls').replace(/ ở \d+×\d+/, '');
+  let s = String(what || '').trim();
   const name = sel => { const m = /\[data-uxcli=([^\]]+)\]|\[name=([^\]]+)\]|\[data-view=([^\]]+)\]|#([\w-]+)/.exec(sel); const pre = sel.replace(/\[[^\]]*\]|#[\w-]+|\b(input|button|a|div|span|select|textarea)\b/g, ' ').replace(/\s+/g, ' ').trim();
     const n = m ? (m[1] || m[2] || m[3] || m[4]).replace(/\{[^}]*\}/g, '').replace(/[-_]+/g, ' ').trim() : ''; const field = /^input|^select|^textarea/.test(sel) ? ' field' : '';
     return ((n && pre && !pre.includes(n) ? `${n} ${pre}` : n || pre || 'an element') + field).replace(/\s+/g, ' ').trim(); };
@@ -109,7 +109,7 @@ h1.v{font-size:20px;margin:0 0 4px}.lede{margin:0 0 18px;color:var(--dim);max-wi
 const JS = `(function(){
 var D=JSON.parse(document.getElementById('studio-data').textContent);var M=D.model;var A=D.asset;var IC=D.icons;
 function u(p){return p==null?null:A+String(p).replace(/^\\.\\.\\//,'');}
-function ic(n,s,l){return '<svg class="ic" width="'+(s||16)+'" height="'+(s||16)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(l?' role="img" aria-label="'+l+'"':' aria-hidden="true"')+'>'+(IC[n]||'')+'</svg>';}
+function ic(n,s,l){return '<svg class="ic" width="'+(s||16)+'" height="'+(s||16)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'+(l?' role="img" aria-label="'+esc(l)+'"':' aria-hidden="true"')+'>'+(IC[n]||'')+'</svg>';}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function hum(id){var s=String(id==null?'':id).replace(/^.*\\./,'').replace(/^[a-z]-(?=[a-z])/,'').replace(/[_-]+/g,' ').trim();return s?s[0].toUpperCase()+s.slice(1):'';}
 function el(t,c,h){var e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;}
@@ -120,11 +120,11 @@ var stage=document.getElementById('stage'),world=document.getElementById('world'
 var view={x:360,y:90,k:0.8},sel=null,layer='built',cmp={from:'',to:''};
 var KEY='uxcli-app:'+(M.project.id||M.project.name);
 try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv&&sv.view)view=sv.view;if(sv&&sv.layer)layer=sv.layer;}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({view:view,layer:layer}));}catch(e){}}
+var st=null;function save(){clearTimeout(st);st=setTimeout(function(){try{localStorage.setItem(KEY,JSON.stringify({view:view,layer:layer}));}catch(e){}},300);}
 function apply(){world.style.transform='translate('+view.x+'px,'+view.y+'px) scale('+view.k+')';document.getElementById('zv').value=Math.round(view.k*100)+'%';save();}
 // the screens of a workflow, in the order a person sees them: the screen before each step, then the last one after
 function screens(w){var out=[];w.steps.forEach(function(s,i){out.push({state:s.before.state,shot:s.built.shot,step:s,leave:s,prev:i?w.steps[i-1]:null,end:false,w:w});});var l=w.steps[w.steps.length-1];if(l)out.push({state:l.after.state,shot:l.built.after,step:l,leave:null,prev:l,end:true,reached:l.after.held,w:w});return out;}
-function vstate(v,s){var m=/ at ([a-z][\\w]*\\.[\\w.]+)\\s*$/.exec(String(v.what||''));return m?m[1]:s.after.state;}
+function vstate(v,s){if(v.state)return v.state;var m=/ at ([a-z][\\w]*\\.[\\w.]+)\\s*$/.exec(String(v.what||''));return m?m[1]:s.after.state;}
 function verdictsOn(sc,w){var out=[];w.steps.forEach(function(s){(s.built.verdicts||[]).forEach(function(v){if(vstate(v,s)===sc.state&&(s===sc.leave||(sc.prev===s)))out.push(v);});});return out;}
 function health(sc){var vs=verdictsOn(sc,sc.w);if(vs.some(function(v){return v.value==='fail';})||(sc.end&&sc.reached===false))return'fail';var s=sc.leave;if(vs.length||(s&&(s.built.findings||[]).length))return'find';return'';}
 function status(sc,walked){var d=DES[sc.state]||{variants:[]};var h=health(sc);
@@ -189,11 +189,13 @@ document.getElementById('zin').onclick=function(){zoom(1.2);};document.getElemen
  if(!names.length){var vb=document.querySelector('[data-layer=versions]');if(vb)vb.hidden=true;}
  [a,b].forEach(function(sl){names.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;sl.appendChild(o);});sl.onchange=function(){cmp={from:a.value,to:b.value};render();};});document.getElementById('cmp').hidden=layer!=='versions';})();
 [].forEach.call(document.querySelectorAll('[data-go]'),function(b){if(b.closest('#world'))return;b.addEventListener('click',function(){goTo(b.dataset.go);});});
-function showView(v){[].forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.id!==v;});[].forEach.call(document.querySelectorAll('.tabs a'),function(a){if(a.getAttribute('href')==='#'+v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});var on=v==='journeys';['fix','insp','sheet','zoomer','layers'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display=on?'':'none';});if(location.hash!=='#'+v)history.replaceState(null,'','#'+v);}
+function showView(v){if(!document.getElementById(v)||!document.getElementById(v).classList.contains('view'))v='journeys';[].forEach.call(document.querySelectorAll('.view'),function(s){s.hidden=s.id!==v;});[].forEach.call(document.querySelectorAll('.tabs a'),function(a){if(a.getAttribute('href')==='#'+v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});var on=v==='journeys';['fix','insp','sheet','zoomer','layers'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.display=on?'':'none';});if(location.hash!=='#'+v)history.replaceState(null,'','#'+v);}
 [].forEach.call(document.querySelectorAll('.tabs a'),function(a){a.addEventListener('click',function(e){e.preventDefault();showView(a.getAttribute('href').slice(1));});});
 var first=!(function(){try{return localStorage.getItem(KEY);}catch(e){return null;}})();render();inspect();if(first)fit();
-showView((location.hash||'#journeys').slice(1).replace(/[^a-z]/g,'')||'journeys');
-if(D.live&&window.EventSource){var es=new EventSource('/events');var live=document.getElementById('live');es.onopen=function(){live.textContent='live';};es.onmessage=function(){fetch('data.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){D=d;M=d.model;DES={};(D.design||[]).forEach(function(x){DES[x.state]=x;});render();inspect();live.textContent='live · '+new Date().toLocaleTimeString();});};es.onerror=function(){live.textContent='disconnected';};}
+function fromHash(){showView((location.hash||'#journeys').slice(1).replace(/[^a-z]/g,'')||'journeys');}fromHash();window.addEventListener('hashchange',fromHash);
+if(D.live&&window.EventSource){var es=new EventSource('/events');var live=document.getElementById('live');es.onopen=function(){live.textContent='live';};// a change on disk reloads the page (every view is written by the server), unless the person is typing:
+ // then it waits behind a button so nothing they wrote is lost
+ es.onmessage=function(){var busy=[].some.call(document.querySelectorAll('textarea'),function(t){return t.value||t===document.activeElement;});if(!busy)return location.reload();live.innerHTML='<button class="btn" type="button">updated · reload</button>';live.firstChild.onclick=function(){location.reload();};};es.onerror=function(){live.textContent='disconnected';};}
 })();`;
 
 const shotUrl = (asset, p) => p == null ? null : asset + String(p).replace(/^\.\.\//, '');
@@ -210,9 +212,9 @@ function screensView(data, asset) {
     if ((s.built.findings || []).length && hl[s.before.state] !== 'fail') hl[s.before.state] = 'find';
   });
   const cards = data.design.map(d => {
-    const v = d.variants.find(x => x.name === d.pick) || d.variants[0]; const src = pic[d.state] ? shotUrl(asset, pic[d.state]) : v?.shot ? asset + v.shot : null;
+    const v = d.variants.find(x => x.name === d.pick) || d.variants[0]; const src = shotUrl(asset, pic[d.state] || v?.shot);
     const state = hl[d.state] || '';
-    const s = (on, n, t) => `<span class="s ${on}" title="${t}">${icon(n, 13, t)}</span>`;
+    const s = (on, n, t) => `<span class="s ${on}" title="${esc(t)}">${icon(n, 13, t)}</span>`;
     return `<article class="card float"><button class="open" data-go="${esc(d.state)}" aria-label="Show ${esc(human(d.state))} on the canvas">${device(src, state, src ? '' : 'not walked or drawn yet')}</button>
 <h3>${esc(human(d.state))}${state ? ` ${icon('alert', 14, 'needs a fix')}` : ''}</h3><div class="ics">${s(d.variants.length ? 'y' : '', 'drawn', d.variants.length ? `${d.variants.length} drawn` : 'not drawn')}${s(d.pick ? 'y' : d.variants.length ? 'w' : '', 'picked', d.pick ? `picked ${d.pick}` : d.variants.length ? 'waiting for a pick' : 'no pick')}${s(state === 'fail' ? 'n' : state === 'find' ? 'w' : pic[d.state] ? 'y' : '', state ? 'alert' : 'walked', state === 'fail' ? 'fails' : state === 'find' ? 'finding' : pic[d.state] ? 'walked' : 'not walked')}</div></article>`;
   }).join('');
@@ -221,14 +223,14 @@ function screensView(data, asset) {
 
 function runsView(data, asset) {
   const rows = data.runs.map(r => {
-    const first = r.steps.find(s => s.before || s.after); const src = first ? asset + (first.before || first.after) : null;
+    const first = r.steps.find(s => s.before || s.after); const src = first ? shotUrl(asset, first.before || first.after) : null;
     return `<details class="run float" style="padding:10px 12px;margin-bottom:10px"><summary><div class="mini">${src ? `<img src="${esc(src)}" alt="">` : ''}</div>
 <div><b>${esc(r.kind === 'journey' ? human(r.target) : r.target)}</b><div class="muted">${icon(r.viewport && parseInt(r.viewport) < 700 ? 'phone' : 'desktop', 12)} ${esc(r.viewport || '1280×800')} · ${esc(String(r.when || '').slice(0, 16).replace('T', ' '))}${r.klm != null ? ` · ${icon('clock', 12)} ${r.klm} s` : ''}</div></div>
 <span class="res ${esc(r.worst)}">${icon(r.worst === 'pass' ? 'picked' : r.worst === 'blocked' ? 'minus' : 'alert', 12)}${esc(r.worst)}</span></summary>
 ${r.blocked ? `<p class="muted">Blocked: ${esc(r.blocked)}</p>` : ''}
 ${r.verdicts.length ? `<ul>${r.verdicts.map(v => `<li><span class="res ${v.value === 'fail' ? 'fail' : 'finding'}">${esc(v.value)}</span> ${esc(v.commitment || '')} ${esc(v.what)}</li>`).join('')}</ul>` : ''}
 ${r.probes.length ? `<ul>${r.probes.map(p => `<li><span class="res ${p.verdict === 'fail' ? 'fail' : p.verdict === 'finding' ? 'finding' : p.verdict === 'pass' ? 'pass' : 'blocked'}">${esc(p.verdict)}</span> ${esc(String(p.probe || '').replace(/^page\./, ''))} — ${esc(p.why)}</li>`).join('')}</ul>` : ''}
-${r.steps.length ? `<div class="steps">${r.steps.map(s => `<figure>${device(s.before ? asset + s.before : null, s.held === false ? 'fail' : s.findings.length ? 'find' : '', s.before ? '' : 'no picture kept')}<figcaption><b>${esc(human(s.state))}</b><br>${esc(s.action)}${s.klm != null ? ` · ${s.klm} s` : ''}${s.findings.map(f => `<br><span class="res finding">${icon('alert', 11)}${esc(short(f))}</span>`).join('')}</figcaption></figure>`).join('')}</div>` : ''}</details>`;
+${r.steps.length ? `<div class="steps">${r.steps.map(s => `<figure>${device(shotUrl(asset, s.before), s.held === false ? 'fail' : s.findings.length ? 'find' : '', s.before ? '' : 'no picture kept')}<figcaption><b>${esc(human(s.state))}</b><br>${esc(s.action)}${s.klm != null ? ` · ${s.klm} s` : ''}${s.findings.map(f => `<br><span class="res finding">${icon('alert', 11)}${esc(short(f))}</span>`).join('')}</figcaption></figure>`).join('')}</div>` : ''}</details>`;
   }).join('');
   return `<h1 class="v">Runs</h1><p class="lede">Every time Chrome walked a journey or checked a page, newest first. Open one for its steps as the browser saw them.</p>${rows || '<p class="muted">No run yet: uxcli run &lt;url&gt;, or uxcli run .uxcli/journeys/&lt;id&gt;.json</p>'}`;
 }
@@ -250,12 +252,15 @@ function libraryView(data) {
 <h2 style="font-size:15px;margin:24px 0 10px">Templates</h2><div class="wide">${L.templates.map(t => `<article class="float card"><h3>${icon('screens', 16)} ${esc(t.name)}</h3><p style="margin:0">${esc(t.when)}</p><p class="muted" style="margin:0">${t.screens.length} screens · <code>uxcli template show ${esc(t.id)}</code></p></article>`).join('')}</div>`;
 }
 
+// What the page's script reads, embedded in the page and served as the studio's data.json.
+export const pageData = (data, { asset = '../', serve = false, live = false } = {}) => ({ model: data.model, design: data.design, asset, serve, live, icons: ICONS });
+
 // data: { model, design, runs, understanding } (src/dashboard.js gather). opts: asset — prefix for paths
 // under .uxcli/; serve — the studio's decisions; live — refresh on change; folders/current — the switch.
 export function appPage(data, { asset = '../', serve = false, live = false, folders = null, current = 0, notice = null } = {}) {
   const m = data.model; const T = todos(m, data.design);
   const top = T[0]; const topShot = top && (() => { const x = top.go.split('|'); const j = m.journeys.find(q => q.id === x[1]); const s = j?.workflows.find(w => String(w.id) === x[2])?.steps.find(q => q.id === x[3]); const p = x[4] === 'end' ? s?.built.after : s?.built.shot; return p ? shotUrl(asset, p) : null; })();
-  const embed = JSON.stringify({ model: m, design: data.design, asset, serve, live, icons: ICONS }).replace(/</g, '\\u003c');
+  const embed = JSON.stringify(pageData(data, { asset, serve, live })).replace(/</g, '\\u003c');
   const folder = folders ? `<label class="float box"><span class="ic-wrap">${icon('folder', 15)}</span><select aria-label="Folder" data-uxcli="folder-switch" onchange="location.search='?p='+this.value" style="border:0;background:none;font-weight:600">${folders.map((f, i) => `<option value="${i}"${i === current ? ' selected' : ''}>${esc(f)}</option>`).join('')}</select></label>` : `<span class="float box">${icon('folder', 15)} ${esc(m.project.name)}</span>`;
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(m.project.name)} · uxcli</title><style>${CSS}</style></head><body>
 <header class="top bar"><span class="float box logo"><i></i>uxcli</span>${folder}<nav class="float tabs" aria-label="Views">${VIEWS.map(v => `<a href="#${v.id}">${icon(v.icon, 14)}<span>${v.label}</span></a>`).join('')}</nav><span class="sp"></span>

@@ -34,7 +34,8 @@ export async function pair() {
   must('the bare copy counts no fail', b.matrix.totals.fails === 0 && b.matrix.totals.gaps > b.matrix.rows.length * 5);
 
   const w = await writeDashboard(tmp);
-  must('the written dashboard is missing a view', ['index', 'overview', 'runs', 'design', 'understanding'].every(v => fs.existsSync(path.join(tmp, '.uxcli', 'dashboard', `${v}.html`))));
+  const written = fs.readFileSync(path.join(tmp, '.uxcli', 'dashboard', 'index.html'), 'utf8');
+  must('the written dashboard is missing a view', ['journeys', 'screens', 'runs', 'people', 'library'].every(v => written.includes(`<section class="view" id="${v}"`)));
 
   const s = await serveDashboard([EXAMPLE, tmp], { port: 0 });
   const { runPage } = await import('../src/page.js'); const { launch } = await import('../src/browser.js');

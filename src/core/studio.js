@@ -23,8 +23,8 @@ export function studioModel({ map, screens = [], experiences = {}, versions = {}
       steps: w.steps.map(s => {
         const sc = screenBy[s.after.state] || null;
         const metrics = exp?.steps?.find(x => x.id === s.id && (x.workflow === w.id || x.workflow == null)) || null;
-        const findings = (exp?.findings || []).filter(f => f.step === s.id && (f.workflow === w.id || f.workflow == null)).map(f => ({ metric: f.metric, what: f.what, source: f.source, rect: f.rect || null }));
-        const verdicts = (s.verdicts || []).filter(x => x.value !== 'pass').map(x => ({ value: x.value, what: x.what || '', commitment: x.commitment || null, statement: x.statement || null }));
+        const findings = (exp?.findings || []).filter(f => f.step === s.id && (f.workflow === w.id || f.workflow == null)).map(f => ({ metric: f.metric, what: f.what, source: f.source, rect: f.rect || null, element: f.element || null, scrolls: f.scrolls ?? null }));
+        const verdicts = (s.verdicts || []).filter(x => x.value !== 'pass').map(x => ({ value: x.value, what: x.what || '', commitment: x.commitment || null, statement: x.statement || null, state: x.state || null, element: x.element || null, scrolls: x.scrolls ?? null }));
         return {
           n: s.n, id: s.id, action: s.action, url: s.url,
           before: { state: s.before.state, held: s.before.held }, after: { state: s.after.state, held: s.after.held },

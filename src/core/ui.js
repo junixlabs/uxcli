@@ -3,7 +3,13 @@
 // system/): the project is a canvas of the screens a person sees, read as filmstrips — pictures first,
 // state as icons and colour on the picture, words only where a picture cannot say it. Pure.
 
-// Every colour a page paints is one of these; light, with a dark set under prefers-color-scheme.
+// Every colour a page paints is one of these; light, with a dark set under prefers-color-scheme (unless
+// the page says data-theme="light") or when it says data-theme="dark".
+const DARK = `color-scheme:dark;
+--bg:#0f1115;--canvas:#0f1115;--dot:#262a33;--surface:#171a20;--well:#1d2128;--line:#262b34;--line-strong:#3a404c;
+--ink:#e9ebf0;--soft:#c4c8d2;--dim:#a2a8b5;--device:#3a404c;
+--accent:#a9b0ff;--accent-soft:#23264a;--fail:#ffb0a8;--fail-strong:#f0645a;--fail-soft:#3d1a17;--find:#ffd27a;--find-strong:#e8a33a;--find-soft:#3a2b0f;
+--ok:#7ee2b8;--ok-soft:#123a2a;--open:#a9b0ff;--open-soft:#23264a;--idle:#a2a8b5;--idle-soft:#262b34;--shadow:none;--lift:0 8px 24px rgba(0,0,0,.5)`;
 export const TOKENS = `:root{color-scheme:light;
 --bg:#f3f4f7;--canvas:#f3f4f7;--dot:#d3d6de;--surface:#fff;--well:#f5f6f8;--line:#e6e8ee;--line-strong:#c9ccd6;
 --ink:#16181d;--soft:#4b5160;--dim:#5b6170;--device:#16181d;
@@ -12,14 +18,11 @@ export const TOKENS = `:root{color-scheme:light;
 --ok:#0b7350;--ok-soft:#e3f6ee;--open:#3b3bd0;--open-soft:#eef0ff;--idle:#525866;--idle-soft:#e9ebf0;
 --shadow:0 1px 3px rgba(22,24,29,.06);--lift:0 8px 24px rgba(22,24,29,.12);
 --sans:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
-@media (prefers-color-scheme:dark){:root{color-scheme:dark;
---bg:#0f1115;--canvas:#0f1115;--dot:#262a33;--surface:#171a20;--well:#1d2128;--line:#262b34;--line-strong:#3a404c;
---ink:#e9ebf0;--soft:#c4c8d2;--dim:#a2a8b5;--device:#3a404c;
---accent:#a9b0ff;--accent-soft:#23264a;--fail:#ffb0a8;--fail-strong:#f0645a;--fail-soft:#3d1a17;--find:#ffd27a;--find-strong:#e8a33a;--find-soft:#3a2b0f;
---ok:#7ee2b8;--ok-soft:#123a2a;--open:#a9b0ff;--open-soft:#23264a;--idle:#a2a8b5;--idle-soft:#262b34;--shadow:none;--lift:0 8px 24px rgba(0,0,0,.5)}}`;
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){${DARK}}}
+:root[data-theme="dark"]{${DARK}}`;
 
 // 24px stroke icons; the same shape means the same thing on every page.
-const PATHS = {
+export const ICONS = {
   drawn: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   picked: '<path d="M20 6 9 17l-5-5"/>',
   walked: '<path d="m6 3 14 9-14 9V3z"/>',
@@ -40,12 +43,7 @@ const PATHS = {
   note: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   external: '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
 };
-export const ICONS = PATHS;
-export const icon = (name, size = 16, label = null) => `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${label ? ` role="img" aria-label="${label}"` : ' aria-hidden="true"'}>${PATHS[name] || ''}</svg>`;
-
-// The status of a screen as the icons under its frame: drawn, picked, walked — or what is wrong.
-// state: 'y' done · 'n' wrong · 'w' waiting on a person · '' not yet
-export const STATE_WORDS = { y: 'done', n: 'needs a fix', w: 'waiting on a person', '': 'not yet' };
+export const icon = (name, size = 16, label = null) => `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${label ? ` role="img" aria-label="${String(label).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))}"` : ' aria-hidden="true"'}>${ICONS[name] || ''}</svg>`;
 
 // Components shared by every page: the shell, floating panels, the device frame, status icons, pins.
 export const COMPONENTS = `*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font:13px/1.45 var(--sans)}
