@@ -9,6 +9,7 @@
 // screen: { id, state, n, crumb, title, action, question, status, first?, vw, vh, revise, tech, problems, refs,
 //           variants: [{ name, shot, screens, hooks, pins, view, pickId, status, summary, part, review }] }
 import { esc, human, sentence, flowRow, hooksHtml, pinsHtml, WIREFLOW_CSS } from './wireflow.js';
+import { LEGACY_ALIASES } from './ui.js';
 
 export const STATUS = { picked: 'Decided', revise: 'Revision asked', open: 'Open', undrawn: 'Not drawn' };
 const letter = k => String.fromCharCode(65 + k);
@@ -254,7 +255,7 @@ export function mockupsPage(m) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(m.name)} mockups</title>
-<style>${PAGE_CSS(m.sizes, Math.max(2, ...m.journeys.flatMap(j => j.screens.map(s => s.variants.length))))}</style>
+<style>${PAGE_CSS(m.sizes, Math.max(2, ...m.journeys.flatMap(j => j.screens.map(s => s.variants.length))))}${LEGACY_ALIASES}</style>
 </head>
 <body>
 <div class="app">

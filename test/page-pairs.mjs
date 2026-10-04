@@ -10,7 +10,7 @@ import { launch } from '../src/browser.js';
 import { ROOT } from './example-data.mjs';
 
 export const OPERATOR = 'map and mockups pages at 1440×900, 1600×1000 and 1920×1080: no scroller overflows sideways, no page error, the prototype on the mockups page opens on the first picked frame and its hotspot, arrows and escape do what they say, a variant opens in the viewer with its hooks drawn only when asked, a reload comes back to the screen being looked at, compare shows the drawings of the screen side by side, choosing from the compare view fills the pick bar and writes nothing, neither fills revise.json with the hash of every drawing and next open screen moves on, one screen shows at a time, the sidebar goes to the screen it names, the picked drawing shows first and 1 and 2 flip it with the primary choice following, the flow of a journey is its own view, at 390 the sidebar gives way to a screen selector without sideways scroll, the hooks toggle outlines them, a further viewport shows its own picture alone, play journey chains the lanes, '
-  + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map; a planted 3000px element is seen';
+  + 'the canvas uses at least a third of the height at 1920×1080, and the four page probes find no fail on the map or on the mockups page; a planted 3000px element is seen';
 
 const SIZES = [[1440, 900], [1600, 1000], [1920, 1080]];
 const FIXTURE = path.join(ROOT, 'test', 'fixtures', 'crm');
@@ -140,6 +140,9 @@ export async function pair() {
     const res = await runPage(MAP + '#j/handle-inbound-lead/run/2', { browser, outDir: out });
     for (const p of res.probes || []) must(`map: probe ${p.probe} says ${p.verdict}: ${p.why || ''}`, p.verdict !== 'fail');
     must('the probes did not run on the map', (res.probes || []).length >= 4);
+    // and on the mockups page, which until 2026-10-03 painted a faint grey at 2.9:1 that nothing measured
+    const rm = await runPage(MOCK, { browser, outDir: out });
+    for (const p of rm.probes || []) must(`mockups: probe ${p.probe} says ${p.verdict}: ${p.why || ''}`, p.verdict !== 'fail');
     await page.close();
   } finally { await browser.close(); fs.rmSync(tmp, { recursive: true, force: true }); }
   return { ok: !problems.length, checks, problems };

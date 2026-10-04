@@ -2,7 +2,8 @@
 // steps with their observations attached (`obs.before`, `obs.after` — never written to the packet).
 //
 // in:  commitment, measurement, its index, steps [{ id, workflow, before:{state}, after:{state}, timing, shots, obs }], ctx for holds()
-// out: { commitmentId, index, outcome: held | not-held | condition-not-met | unmeasurable, where, what?, shot?, cause? }
+// out: { commitmentId, index, outcome: held | not-held | condition-not-met | unmeasurable, where, state, what?, element?, scrolls?, shot?, cause? }
+//      state: the screen the measurement was read on; element and scrolls: what a page says in words of its own
 import { holds } from '../observe/holds.js';
 
 const CAP = 10000;
@@ -26,7 +27,7 @@ export function outcomeOf(c, m, index, steps, ctx = {}) {
   if (!hit) return { ...base, outcome: 'unmeasurable', where: c.scope?.step, cause: `${m.target} was not reached in this run` };
   const { step, side } = hit;
   const obs = step.obs?.[side];
-  const out = { ...base, where: step.id, shot: shotOf(step, side) };
+  const out = { ...base, where: step.id, ...(step[side]?.state && { state: step[side].state }), shot: shotOf(step, side) };
   const p = m.predicate;
   if (!p || typeof p !== 'object') return { ...out, outcome: 'unmeasurable', cause: 'predicate is prose; write it as a signal object' };
   if (!obs) return { ...out, outcome: 'unmeasurable', cause: `no observation at ${step.id}.${side}` };
@@ -44,5 +45,5 @@ export function outcomeOf(c, m, index, steps, ctx = {}) {
   if (r.held === null) return { ...out, outcome: 'unmeasurable', cause: r.why.join('; ') };
   const d = sig.selector ? obs.dom?.[sig.selector] : null;
   const scroll = d && sig.inViewportWithoutScroll && d.scrollsNeeded ? ` — needs ${d.scrollsNeeded} scroll${d.scrollsNeeded === 1 ? '' : 's'}${ctx.viewport ? ` at ${ctx.viewport}` : ''}` : '';
-  return { ...out, outcome: 'not-held', what: `${r.why.join('; ')}${scroll} at ${m.target}` };
+  return { ...out, outcome: 'not-held', what: `${r.why.join('; ')}${scroll} at ${m.target}`, ...(sig.selector && { element: sig.selector }), ...(scroll && { scrolls: d.scrollsNeeded }) };
 }

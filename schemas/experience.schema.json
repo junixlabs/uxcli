@@ -32,6 +32,7 @@
         "step": { "type": "string" }, "workflow": { "type": ["string", "null"] },
         "what": { "type": "string", "minLength": 1 }, "source": { "type": "string", "minLength": 1 },
         "shot": { "type": ["string", "null"] },
+        "state": { "type": ["string", "null"] }, "element": { "type": ["string", "null"] }, "scrolls": { "type": ["number", "null"] },
         "rect": { "type": "object", "required": ["x", "y", "w", "h"], "properties": { "x": { "type": "number" }, "y": { "type": "number" }, "w": { "type": "number" }, "h": { "type": "number" }, "viewport": { "type": "object" } } }
       }
     } }

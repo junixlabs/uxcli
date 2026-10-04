@@ -8,6 +8,37 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Changed — one visual surface, picked from drawings
+
+- `uxcli studio` and `uxcli dashboard` now write the same page, in a design system of its own
+  (`src/core/ui.js`, picked by the owner from four drawings, `docs/design/system/`): the project as a
+  canvas of the screens a person sees, each journey a filmstrip of device frames with the real pictures,
+  the action and its keystroke-level seconds on the arrow between; what is wrong pinned on the picture,
+  on the screen it was measured on, in words a person reads ("Call action is 2 scrolls down", not the
+  selector); "fix first" and a to-do bar ordered fail, finding, waiting on a person, not yet done.
+  Views: Journeys (the canvas; layers Built, Drawn, Versions with compare), Screens, Runs, People,
+  Library. The studio's decisions (pick, redraw, note) and live refresh stay; the dashboard keeps its
+  folder switch. The coverage-matrix page is retired; `uxcli dashboard` still prints the matrix as a card.
+- The mockups, map and experience pages take the same tokens. The mockups page painted text at 2.9:1;
+  it now passes, and `page-pairs` runs the page probes on it as well as on the map.
+- The studio's first visit fitted nothing: it saved the view before checking whether one was saved.
+
+### Added — the dashboard
+
+- `uxcli dashboard [dir …] [--serve [--port=N]] [--json]`: the management view of one or more projects,
+  read-only, in the look the owner picked from three ("control room"). Overview is a coverage matrix —
+  every screen the journeys pass through against understood, drawn, picked, reviewed, walked, verdict,
+  estimate and walkthrough; a gap is never a pass and names the command that fills it; a journey whose
+  packet keeps no steps reads as ran-with-its-verdict, the start of an unwalked journey as nothing to
+  measure. Runs, Design and Understanding views. Served, it switches folders, takes another one from the
+  page, and serves pictures only from under a folder's `.uxcli/`. Gate: `dashboard-pairs`, which also
+  runs the page probes on every view.
+
+### Fixed
+
+- `uxcli template apply <id> --src=DIR` wrote into the current directory; it now writes into DIR's
+  project root.
+
 ### Added — the designer's habits: a library to cite, templates to start from, the walk measured
 
 - Policy `project.design: off | drawn | picked`: a project can hold the work to a design step. A journey

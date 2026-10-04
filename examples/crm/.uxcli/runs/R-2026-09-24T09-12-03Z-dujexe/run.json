@@ -58,7 +58,7 @@
       "probe": "flow-reachability",
       "value": "finding",
       "cause": "method-unproven",
-      "what": "Gọi khách cần 2 lần cuộn ở 390×844",
+      "what": "[data-uxcli=call-action] inViewportWithoutScroll: false — needs 2 scrolls at 390x844 at agent.lead_detail",
       "where": "s2"
     }
   ],

@@ -77,7 +77,7 @@ export function experience(run) {
       source: SRC.response, shot: shotAfter });
     for (const x of ui) if ((x.scrollsNeeded || 0) > 0) findings.push({ metric: 'reach', step: st.id, workflow: st.workflow || null,
       what: `${x.target} is ${x.scrollsNeeded} scroll${x.scrollsNeeded === 1 ? '' : 's'} away at ${x.viewport || run.viewport || 'this viewport'} when this step needs it`,
-      source: SRC.reach, shot: shotBefore, ...(x.rect && { rect: x.rect }) });
+      source: SRC.reach, shot: shotBefore, element: x.target, scrolls: x.scrollsNeeded, state: st.before?.state || null, ...(x.rect && { rect: x.rect }) });
     for (const x of typed) {
       const first = typedAt.get(x.typed.value);
       if (first && first.step !== st.id && first.workflow === (st.workflow || null)) findings.push({ metric: 'asked-twice', step: st.id, workflow: st.workflow || null,

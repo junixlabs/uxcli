@@ -37,7 +37,7 @@ const callerCaps = (caps, c, where) => caps.filter(k => (!k.commitment || k.comm
 function one(c, m, index, outcome, run, caps, anchorHashes) {
   const where = outcome?.where || c.scope?.step;
   const base = { commitment: c.id, measurement: index, caps: [] };
-  const pass = (v, cause, extra = {}) => ({ ...base, value: v, cause, ...extra, ...(where && { where }), ...(outcome?.what && { what: outcome.what }), ...(outcome?.shot && { shot: outcome.shot }) });
+  const pass = (v, cause, extra = {}) => ({ ...base, value: v, cause, ...extra, ...(where && { where }), ...(outcome?.what && { what: outcome.what }), ...(outcome?.state && { state: outcome.state }), ...(outcome?.element && { element: outcome.element }), ...(outcome?.scrolls && { scrolls: outcome.scrolls }), ...(outcome?.shot && { shot: outcome.shot }) });
   if (c.anchor && anchorState({ entry: { derivedFrom: c.anchor }, actual: anchorHashes[c.anchor.run] ?? null }) === 'differs')
     return pass('not-committed', 'anchor-differs');
   if (!outcome) return pass('unmeasurable', 'no measurement supplied');
@@ -57,7 +57,7 @@ export const stepVerdicts = run => (run.steps || []).filter(s => s.after && s.af
   const low = LOW.has(s.after.strength);
   return {
     journey: journeyIdOf(run), ...(s.workflow && { workflow: s.workflow }), step: s.id,
-    value: low ? 'finding' : 'fail', caps: low ? [{ by: 'observability', from: 'fail' }] : [], cause: 'state-not-held',
+    value: low ? 'finding' : 'fail', caps: low ? [{ by: 'observability', from: 'fail' }] : [], cause: 'state-not-held', ...(s.after.state && { state: s.after.state }),
     ...(s.after.what && { what: s.after.what }), ...(s.shots?.length && { shot: s.shots[s.shots.length - 1] }),
   };
 });

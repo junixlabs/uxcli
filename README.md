@@ -50,20 +50,24 @@ from a cited source, or measured by the browser.
 ## The studio
 
 ```bash
-uxcli studio --serve        # http://127.0.0.1:4317 — the project as a board, refreshed as the agent works
+uxcli studio --serve        # http://127.0.0.1:4317 — the project as a canvas, refreshed as the agent works
 ```
 
-A canvas laid out like a design file, built from what is under `.uxcli/` and nothing else: each journey
-a band, each workflow a lane, each step a column; in each column the screen as drawn (the variants, A/B,
-the pick), as built (the last walk's screenshot with its findings pinned where the browser found the
-element) and as each named version left it. Drag to pan, scroll or pinch to zoom, click a frame for what
-the files and the walk say about it. Context (actors, unknowns, insights) and the library (lenses,
-templates) are a tab away. Served, it is also where a person decides — choose a drawing, or ask for a
-redraw — written as `pick.json` or `revise.json` through the same parser, creating only — and leaves a
-note on a built frame, written as a `redesign` proposal citing the walk. Two versions can be compared on
-the board, each frame of the later one saying what moved. The agent
-works through the CLI and the skill; `uxcli studio --shot=FILE` gives it the same board as a picture.
-Free, local, no account: the page is one HTML file.
+The project as the screens a person sees. Each journey is a filmstrip on a canvas: device frames with the
+pictures the last walk took, the action and its seconds on the arrow between them, what is wrong pinned
+on the picture of the screen it was measured on and said in a sentence. "Fix first" and a to-do bar say
+what to do next and take you to it. Layers switch the frames between what was built, what was drawn,
+and named versions side by side. Screens, Runs, People (who it is for, what is still a question) and
+Library are a tab away. Served, it is also where a person decides — choose a drawing, ask for a redraw,
+or leave a note on a screen that becomes a `redesign` proposal — through the same parsers the files are
+read with. One HTML file, free, local, no account; `uxcli studio --shot=FILE` gives an agent the picture.
+
+## The dashboard
+
+`uxcli dashboard . ../other-app --serve` (http://127.0.0.1:4319) is the studio's page for several folders
+at once, switched from the header, another one added from the page. Without `--serve` it is written to
+`.uxcli/dashboard/index.html`; the card it prints is the coverage matrix — every screen against
+understood, drawn, picked, reviewed, walked, verdict, estimate and walkthrough, a gap never a pass.
 
 ## Install
 
@@ -217,6 +221,7 @@ uxcli review check                    # every review complete, fresh, and not co
 uxcli walkthrough <journey> [--as=<actor>] | check   # the four cognitive-walkthrough questions at every step, answered from the screenshots; held to the walk
 uxcli version [save <journey> <name>] # name a walk so it is kept; experience --journey=<id> --from=<a> --to=<b> compares two
 uxcli experience [dir] [--page]       # what the person goes through: steps, typing, scrolls, waits, an estimate in seconds; findings pinned on screenshots
+uxcli dashboard [dir …] [--serve]            # the management view: coverage matrix, runs, design, understanding; served, several folders
 uxcli studio [dir] [--serve] [--shot=FILE]   # the board: every journey's screens drawn, built and per version, pan and zoom like a design file; served, a person picks there
 uxcli map [dir]                       # the journey map page: MODEL · RUN · DIFF · IMPACT, step by step, with the evidence
 uxcli run <journey.json>              # measure a journey        --env --origin --viewport --json --out
