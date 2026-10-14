@@ -42,5 +42,6 @@ export const SUITES = [
   { tag: 'design', title: 'the design step holds the work when the project asks', file: 'design-pairs.mjs', miss: 'refused' },
   { tag: 'prefer', title: 'a blind pair names no group, and a judge is a person', file: 'prefer-pairs.mjs', miss: 'refused' },
   { tag: 'dash', title: 'the dashboard says what is missing as plainly as what is there', file: 'dashboard-pairs.mjs', miss: 'seen' },
+  { tag: 'cat', title: 'a formula names only what the catalog holds', file: 'catalog-pairs.mjs', miss: 'refused' },
   { tag: 'board', title: 'the studio shows every step, and decides through the files', file: 'studio-pairs.mjs', miss: 'refused' },
 ];

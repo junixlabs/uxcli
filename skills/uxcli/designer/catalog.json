@@ -1,0 +1,2954 @@
+{
+ "schema_version": 1,
+ "checked": "2026-10-14",
+ "axes": {
+  "A": {
+   "name": "Product type",
+   "rule": "One primary type, at most two secondary. Sorted by what the person comes to do, not by industry.",
+   "min": 1,
+   "max": 3
+  },
+  "B": {
+   "name": "Layout variant",
+   "rule": "One variant per screen; one to three per type.",
+   "min": 0,
+   "max": 12
+  },
+  "C": {
+   "name": "Density",
+   "rule": "Chosen for the people who use it, not for looks.",
+   "min": 1,
+   "max": 1
+  },
+  "D": {
+   "name": "Visual style",
+   "rule": "One base style and at most one accent style.",
+   "min": 1,
+   "max": 2
+  },
+  "E": {
+   "name": "Reference design system",
+   "rule": "Where components and rules come from; never copied as a look.",
+   "min": 0,
+   "max": 1
+  },
+  "F": {
+   "name": "Brand personality",
+   "rule": "One or two.",
+   "min": 0,
+   "max": 2
+  },
+  "G": {
+   "name": "Platform priority",
+   "rule": "One.",
+   "min": 0,
+   "max": 1
+  }
+ },
+ "groups": {
+  "M": "Marketing",
+  "S": "Commerce",
+  "C": "Content",
+  "W": "Workspace",
+  "D": "Data",
+  "T": "Transaction",
+  "X": "AI"
+ },
+ "types": [
+  {
+   "code": "A01",
+   "name": "Company or service site",
+   "does": "Trust the organisation and get in touch",
+   "examples": "company, agency, school or clinic sites",
+   "groups": [
+    "M",
+    "T"
+   ],
+   "layout": "B-M2",
+   "lens": "marketing",
+   "template": "landing"
+  },
+  {
+   "code": "A02",
+   "name": "Landing page",
+   "does": "Do one thing: sign up, buy, download",
+   "examples": "campaign pages, waitlists",
+   "groups": [
+    "M"
+   ],
+   "layout": "B-M1",
+   "lens": "marketing",
+   "template": "landing"
+  },
+  {
+   "code": "A03",
+   "name": "Online shop",
+   "does": "Find, compare and buy",
+   "examples": "online stores, direct-to-consumer brands",
+   "groups": [
+    "S",
+    "T"
+   ],
+   "layout": "B-S1",
+   "lens": "shop",
+   "template": "shop"
+  },
+  {
+   "code": "A04",
+   "name": "Marketplace",
+   "does": "Find a seller or a service and transact, with two sides",
+   "examples": "second-hand markets, rentals, freelance markets",
+   "groups": [
+    "S",
+    "T"
+   ],
+   "layout": "B-S4",
+   "lens": "shop",
+   "template": null
+  },
+  {
+   "code": "A05",
+   "name": "Content, news or blog",
+   "does": "Read",
+   "examples": "newspapers, magazines, blogs",
+   "groups": [
+    "C"
+   ],
+   "layout": "B-C1",
+   "lens": "content",
+   "template": "content"
+  },
+  {
+   "code": "A06",
+   "name": "Docs, help or wiki",
+   "does": "Look something up and follow it",
+   "examples": "developer docs, help centres",
+   "groups": [
+    "C"
+   ],
+   "layout": "B-C3",
+   "lens": "content",
+   "template": "content"
+  },
+  {
+   "code": "A07",
+   "name": "Operations workspace (CRM, ERP, HRM, admin)",
+   "does": "Work through existing records every day",
+   "examples": "CRM, HR, inventory, back-office",
+   "groups": [
+    "W",
+    "D"
+   ],
+   "layout": "B-W1",
+   "lens": "workspace",
+   "template": "workspace"
+  },
+  {
+   "code": "A08",
+   "name": "SaaS tool or editor",
+   "does": "Make something new on a canvas or in a document",
+   "examples": "design tools, docs, issue trackers",
+   "groups": [
+    "W"
+   ],
+   "layout": "B-W9",
+   "lens": "workspace",
+   "template": null
+  },
+  {
+   "code": "A09",
+   "name": "Reporting, BI or dashboard",
+   "does": "Understand numbers to decide",
+   "examples": "executive dashboards, analytics",
+   "groups": [
+    "D"
+   ],
+   "layout": "B-D1",
+   "lens": "data",
+   "template": null
+  },
+  {
+   "code": "A10",
+   "name": "Self-service portal",
+   "does": "See and do one's own things",
+   "examples": "customer portals, online banking, employee portals",
+   "groups": [
+    "W",
+    "T"
+   ],
+   "layout": "B-W4",
+   "lens": "transaction",
+   "template": null
+  },
+  {
+   "code": "A11",
+   "name": "Transaction or booking flow",
+   "does": "Finish a multi-step process",
+   "examples": "booking, tickets, checkout, account opening",
+   "groups": [
+    "T"
+   ],
+   "layout": "B-T2",
+   "lens": "transaction",
+   "template": null
+  },
+  {
+   "code": "A12",
+   "name": "Community or social",
+   "does": "Post, read, react",
+   "examples": "forums, groups, feeds",
+   "groups": [
+    "C"
+   ],
+   "layout": "B-C5",
+   "lens": "content",
+   "template": null
+  },
+  {
+   "code": "A13",
+   "name": "Learning",
+   "does": "Learn along a path",
+   "examples": "courses, LMS",
+   "groups": [
+    "C",
+    "T"
+   ],
+   "layout": "B-C7",
+   "lens": "content",
+   "template": null
+  },
+  {
+   "code": "A14",
+   "name": "Media or streaming",
+   "does": "Watch, listen",
+   "examples": "video, podcasts, music",
+   "groups": [
+    "C"
+   ],
+   "layout": "B-C8",
+   "lens": "content",
+   "template": null
+  },
+  {
+   "code": "A15",
+   "name": "Chat or AI assistant",
+   "does": "Ask and hand over work in words",
+   "examples": "assistants, copilots",
+   "groups": [
+    "X"
+   ],
+   "layout": "B-X1",
+   "lens": null,
+   "template": null
+  }
+ ],
+ "layouts": [
+  {
+   "code": "B-M1",
+   "group": "M",
+   "name": "Hero, features, call to action",
+   "use": "The default when the product is easy to grasp.",
+   "regions": [
+    "site-header",
+    "hero",
+    "logo-strip",
+    "feature-grid",
+    "call-to-action",
+    "site-footer"
+   ]
+  },
+  {
+   "code": "B-M2",
+   "group": "M",
+   "name": "Hero with social proof",
+   "use": "When trust matters more than explanation.",
+   "regions": [
+    "site-header",
+    "hero",
+    "logo-strip",
+    "testimonial",
+    "feature-grid",
+    "call-to-action"
+   ]
+  },
+  {
+   "code": "B-M3",
+   "group": "M",
+   "name": "Demo or video first",
+   "use": "When the product has to be seen to be understood.",
+   "regions": [
+    "site-header",
+    "media-player",
+    "feature-grid",
+    "call-to-action"
+   ]
+  },
+  {
+   "code": "B-M4",
+   "group": "M",
+   "name": "Single minimal column",
+   "use": "One message, one action.",
+   "regions": [
+    "site-header",
+    "hero",
+    "article",
+    "call-to-action"
+   ]
+  },
+  {
+   "code": "B-M5",
+   "group": "M",
+   "name": "Long sales page",
+   "use": "High price, long decision.",
+   "regions": [
+    "site-header",
+    "hero",
+    "story",
+    "testimonial",
+    "pricing",
+    "faq",
+    "call-to-action"
+   ]
+  },
+  {
+   "code": "B-M6",
+   "group": "M",
+   "name": "Pricing and plan comparison",
+   "use": "SaaS and subscription services.",
+   "regions": [
+    "site-header",
+    "hero",
+    "pricing",
+    "comparison-table",
+    "faq"
+   ]
+  },
+  {
+   "code": "B-M7",
+   "group": "M",
+   "name": "Lead magnet with form",
+   "use": "Collecting B2B leads.",
+   "regions": [
+    "site-header",
+    "hero",
+    "form",
+    "logo-strip",
+    "feature-grid"
+   ]
+  },
+  {
+   "code": "B-M8",
+   "group": "M",
+   "name": "Waitlist or coming soon",
+   "use": "No product yet.",
+   "regions": [
+    "hero",
+    "form"
+   ]
+  },
+  {
+   "code": "B-M9",
+   "group": "M",
+   "name": "Scroll storytelling",
+   "use": "Brand launches. Costly and easily slow.",
+   "regions": [
+    "site-header",
+    "hero",
+    "story",
+    "call-to-action"
+   ]
+  },
+  {
+   "code": "B-M10",
+   "group": "M",
+   "name": "Event or webinar",
+   "use": "A date, speakers and an agenda.",
+   "regions": [
+    "site-header",
+    "hero",
+    "timeline",
+    "feature-grid",
+    "call-to-action"
+   ]
+  },
+  {
+   "code": "B-S1",
+   "group": "S",
+   "name": "Category grid with side filters",
+   "use": "Many items bought by attribute.",
+   "regions": [
+    "site-header",
+    "page-header",
+    "facet-filters",
+    "product-grid",
+    "pagination"
+   ]
+  },
+  {
+   "code": "B-S2",
+   "group": "S",
+   "name": "Product page as the home page",
+   "use": "Direct-to-consumer, one to ten products.",
+   "regions": [
+    "site-header",
+    "product-gallery",
+    "buy-box",
+    "feature-grid",
+    "testimonial"
+   ]
+  },
+  {
+   "code": "B-S3",
+   "group": "S",
+   "name": "Editorial commerce or lookbook",
+   "use": "Fashion and premium goods.",
+   "regions": [
+    "site-header",
+    "hero",
+    "product-grid"
+   ]
+  },
+  {
+   "code": "B-S4",
+   "group": "S",
+   "name": "Search first",
+   "use": "Marketplaces, parts, long catalogues.",
+   "regions": [
+    "site-header",
+    "search",
+    "filter-bar",
+    "result-list"
+   ]
+  },
+  {
+   "code": "B-S5",
+   "group": "S",
+   "name": "Map with list",
+   "use": "Location-based services, property.",
+   "regions": [
+    "site-header",
+    "result-list",
+    "map"
+   ]
+  },
+  {
+   "code": "B-S6",
+   "group": "S",
+   "name": "Product configurator",
+   "use": "Made-to-order goods.",
+   "regions": [
+    "site-header",
+    "product-gallery",
+    "option-picker",
+    "buy-box"
+   ]
+  },
+  {
+   "code": "B-S7",
+   "group": "S",
+   "name": "Subscription box",
+   "use": "Recurring purchase.",
+   "regions": [
+    "site-header",
+    "hero",
+    "pricing",
+    "feature-grid"
+   ]
+  },
+  {
+   "code": "B-C1",
+   "group": "C",
+   "name": "Magazine front page",
+   "use": "News and magazines.",
+   "regions": [
+    "site-header",
+    "lead-story",
+    "story-list",
+    "card-grid"
+   ]
+  },
+  {
+   "code": "B-C2",
+   "group": "C",
+   "name": "Long single column",
+   "use": "Blogs and analysis.",
+   "regions": [
+    "site-header",
+    "article"
+   ]
+  },
+  {
+   "code": "B-C3",
+   "group": "C",
+   "name": "Three-column docs",
+   "use": "Technical documentation.",
+   "regions": [
+    "site-header",
+    "toc-nav",
+    "article",
+    "on-this-page"
+   ]
+  },
+  {
+   "code": "B-C4",
+   "group": "C",
+   "name": "Help centre",
+   "use": "Search plus topics.",
+   "regions": [
+    "site-header",
+    "search",
+    "card-grid"
+   ]
+  },
+  {
+   "code": "B-C5",
+   "group": "C",
+   "name": "Feed",
+   "use": "Social networks and communities.",
+   "regions": [
+    "app-shell",
+    "composer",
+    "feed",
+    "side-panel"
+   ]
+  },
+  {
+   "code": "B-C6",
+   "group": "C",
+   "name": "Thread or forum",
+   "use": "Discussion by topic.",
+   "regions": [
+    "site-header",
+    "thread"
+   ]
+  },
+  {
+   "code": "B-C7",
+   "group": "C",
+   "name": "Lesson path",
+   "use": "Courses and LMS.",
+   "regions": [
+    "app-shell",
+    "media-player",
+    "progress",
+    "lesson-list"
+   ]
+  },
+  {
+   "code": "B-C8",
+   "group": "C",
+   "name": "Media grid with player",
+   "use": "Video, podcasts, music.",
+   "regions": [
+    "app-shell",
+    "media-player",
+    "card-grid"
+   ]
+  },
+  {
+   "code": "B-W1",
+   "group": "W",
+   "name": "Sidebar and table",
+   "use": "The default admin screen.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "kpi-inline",
+    "filter-bar",
+    "data-table",
+    "bulk-bar",
+    "pagination"
+   ]
+  },
+  {
+   "code": "B-W2",
+   "group": "W",
+   "name": "List-detail",
+   "use": "Working through many records one after another without losing one's place.",
+   "regions": [
+    "app-shell",
+    "record-list",
+    "detail-header",
+    "detail-panel",
+    "timeline"
+   ]
+  },
+  {
+   "code": "B-W3",
+   "group": "W",
+   "name": "Table to detail page",
+   "use": "Records with much information, rarely handled in a row.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "filter-bar",
+    "data-table",
+    "pagination"
+   ]
+  },
+  {
+   "code": "B-W4",
+   "group": "W",
+   "name": "Record 360",
+   "use": "Customers, staff, partners.",
+   "regions": [
+    "app-shell",
+    "detail-header",
+    "tabs",
+    "detail-panel",
+    "timeline"
+   ]
+  },
+  {
+   "code": "B-W5",
+   "group": "W",
+   "name": "Kanban",
+   "use": "Records whose status changes often.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "kanban"
+   ]
+  },
+  {
+   "code": "B-W6",
+   "group": "W",
+   "name": "Calendar, timeline or Gantt",
+   "use": "Appointments, shifts, projects.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "calendar"
+   ]
+  },
+  {
+   "code": "B-W7",
+   "group": "W",
+   "name": "Inbox or queue",
+   "use": "Tickets, things to handle, approvals.",
+   "regions": [
+    "app-shell",
+    "record-list",
+    "detail-header",
+    "notice",
+    "bulk-bar"
+   ]
+  },
+  {
+   "code": "B-W8",
+   "group": "W",
+   "name": "Multi-step form or wizard",
+   "use": "Creating a complex record.",
+   "regions": [
+    "app-shell",
+    "stepper",
+    "form"
+   ]
+  },
+  {
+   "code": "B-W9",
+   "group": "W",
+   "name": "Canvas or editor",
+   "use": "Design, diagrams, documents.",
+   "regions": [
+    "toolbar",
+    "layer-list",
+    "canvas",
+    "inspector"
+   ]
+  },
+  {
+   "code": "B-W10",
+   "group": "W",
+   "name": "Settings",
+   "use": "Sub-navigation with forms.",
+   "regions": [
+    "app-shell",
+    "settings-nav",
+    "form"
+   ]
+  },
+  {
+   "code": "B-W11",
+   "group": "W",
+   "name": "Tree or org chart",
+   "use": "Hierarchy, teams, permissions.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "tree"
+   ]
+  },
+  {
+   "code": "B-W12",
+   "group": "W",
+   "name": "Command palette",
+   "use": "People who live on the keyboard.",
+   "regions": [
+    "app-shell",
+    "record-list",
+    "command-palette"
+   ]
+  },
+  {
+   "code": "B-D1",
+   "group": "D",
+   "name": "Executive dashboard",
+   "use": "Leadership: few numbers, against last period and target.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "kpi",
+    "chart"
+   ]
+  },
+  {
+   "code": "B-D2",
+   "group": "D",
+   "name": "Operational dashboard",
+   "use": "People on shift: near real time, alerts, thresholds.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "kpi",
+    "chart",
+    "alert-list"
+   ]
+  },
+  {
+   "code": "B-D3",
+   "group": "D",
+   "name": "Analytical dashboard",
+   "use": "Analysts: filter, drill down, compare.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "filter-bar",
+    "chart",
+    "data-table"
+   ]
+  },
+  {
+   "code": "B-D4",
+   "group": "D",
+   "name": "Tactical dashboard",
+   "use": "Team leads: progress against target by team.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "progress"
+   ]
+  },
+  {
+   "code": "B-D5",
+   "group": "D",
+   "name": "Report as a document",
+   "use": "Read top to bottom, printed or exported.",
+   "regions": [
+    "site-header",
+    "article",
+    "kpi",
+    "chart",
+    "data-table"
+   ]
+  },
+  {
+   "code": "B-D6",
+   "group": "D",
+   "name": "Funnel or conversion flow",
+   "use": "Marketing and sales.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "funnel",
+    "kpi"
+   ]
+  },
+  {
+   "code": "B-D7",
+   "group": "D",
+   "name": "Map or geography",
+   "use": "Operations by region.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "map",
+    "result-list"
+   ]
+  },
+  {
+   "code": "B-D8",
+   "group": "D",
+   "name": "Dense number table (pivot)",
+   "use": "Accounting and finance.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "data-table"
+   ]
+  },
+  {
+   "code": "B-T1",
+   "group": "T",
+   "name": "One-page checkout",
+   "use": "Few fields.",
+   "regions": [
+    "site-header",
+    "form",
+    "order-summary"
+   ]
+  },
+  {
+   "code": "B-T2",
+   "group": "T",
+   "name": "Steps with progress",
+   "use": "Many fields; people may stop halfway.",
+   "regions": [
+    "site-header",
+    "stepper",
+    "form"
+   ]
+  },
+  {
+   "code": "B-T3",
+   "group": "T",
+   "name": "One question per page",
+   "use": "The general public and hard forms (GOV.UK style).",
+   "regions": [
+    "site-header",
+    "question"
+   ]
+  },
+  {
+   "code": "B-T4",
+   "group": "T",
+   "name": "Date and time slots",
+   "use": "Appointments, tables, courts.",
+   "regions": [
+    "site-header",
+    "date-strip",
+    "slot-grid",
+    "order-summary"
+   ]
+  },
+  {
+   "code": "B-T5",
+   "group": "T",
+   "name": "Conversational form",
+   "use": "Gathering soft information.",
+   "regions": [
+    "site-header",
+    "chat"
+   ]
+  },
+  {
+   "code": "B-X1",
+   "group": "X",
+   "name": "Chat with a context panel",
+   "use": "A standalone assistant.",
+   "regions": [
+    "app-shell",
+    "chat",
+    "side-panel"
+   ]
+  },
+  {
+   "code": "B-X2",
+   "group": "X",
+   "name": "AI inside the work screen",
+   "use": "A suggestion panel beside the data.",
+   "regions": [
+    "app-shell",
+    "page-header",
+    "data-table",
+    "assistant-panel"
+   ]
+  },
+  {
+   "code": "B-X3",
+   "group": "X",
+   "name": "Prompt first",
+   "use": "A page that starts with a question.",
+   "regions": [
+    "prompt",
+    "card-grid"
+   ]
+  }
+ ],
+ "densities": [
+  {
+   "code": "C1",
+   "name": "Compact",
+   "use": "Experienced people on large screens all day.",
+   "rowHeight": 36,
+   "controlHeight": 32,
+   "bodySize": 13,
+   "typeScale": [
+    12,
+    13,
+    15,
+    18,
+    24
+   ],
+   "spacingUnit": 4
+  },
+  {
+   "code": "C2",
+   "name": "Comfortable",
+   "use": "The default for web applications.",
+   "rowHeight": 48,
+   "controlHeight": 40,
+   "bodySize": 14,
+   "typeScale": [
+    12,
+    14,
+    16,
+    20,
+    28
+   ],
+   "spacingUnit": 8
+  },
+  {
+   "code": "C3",
+   "name": "Spacious",
+   "use": "Marketing, reading and touch.",
+   "rowHeight": 60,
+   "controlHeight": 48,
+   "bodySize": 16,
+   "typeScale": [
+    13,
+    16,
+    18,
+    24,
+    36
+   ],
+   "spacingUnit": 8
+  }
+ ],
+ "styles": [
+  {
+   "code": "D01",
+   "name": "Minimal / Swiss",
+   "looks": "Grid, white space, type leads, few colours.",
+   "fits": "Any type.",
+   "avoidFor": [],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#ffffff",
+    "surface": "#ffffff",
+    "text": "#111111",
+    "muted": "#5e5e5e",
+    "action": "#d42317",
+    "onAction": "#ffffff",
+    "line": "#e2e2e2",
+    "radius": 0,
+    "shadow": "none",
+    "fontBody": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "fontHeading": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "headingWeight": 700
+   }
+  },
+  {
+   "code": "D02",
+   "name": "Enterprise clean",
+   "looks": "Neutral ground, one brand colour, thin rules, clear tables.",
+   "fits": "A07, A09, A10.",
+   "avoidFor": [],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#f4f6f9",
+    "surface": "#ffffff",
+    "text": "#1d2733",
+    "muted": "#5f6b7a",
+    "action": "#0f62fe",
+    "onAction": "#ffffff",
+    "line": "#dde3ea",
+    "radius": 6,
+    "shadow": "none",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 600
+   }
+  },
+  {
+   "code": "D03",
+   "name": "Flat / Material",
+   "looks": "Flat surfaces, elevation shadows, colour blocks.",
+   "fits": "A07, A08, apps.",
+   "avoidFor": [],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#f7f2fa",
+    "surface": "#ffffff",
+    "text": "#1d1b20",
+    "muted": "#5d566b",
+    "action": "#6750a4",
+    "onAction": "#ffffff",
+    "line": "#e7e0ec",
+    "radius": 14,
+    "shadow": "0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08)",
+    "fontBody": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
+    "fontHeading": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
+    "headingWeight": 600
+   }
+  },
+  {
+   "code": "D04",
+   "name": "Soft depth (neumorphism, clay)",
+   "looks": "Soft shadows lifting elements out of a same-colour ground.",
+   "fits": "Accents, personal apps.",
+   "avoidFor": [
+    "A07",
+    "A09",
+    "A11"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#e4e8ee",
+    "surface": "#e4e8ee",
+    "text": "#2f3646",
+    "muted": "#545c6c",
+    "action": "#3d5ce0",
+    "onAction": "#ffffff",
+    "line": "#d3d8e0",
+    "radius": 18,
+    "shadow": "8px 8px 16px #c4c9d2, -8px -8px 16px #ffffff",
+    "fontBody": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
+    "fontHeading": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
+    "headingWeight": 700
+   }
+  },
+  {
+   "code": "D05",
+   "name": "Glass (glassmorphism, Liquid Glass)",
+   "looks": "Translucent layers over a blurred ground.",
+   "fits": "Overlays, navigation, A02.",
+   "avoidFor": [
+    "A07",
+    "A09"
+   ],
+   "accent": true,
+   "scheme": "dark",
+   "tokens": {
+    "bg": "#24315e",
+    "surface": "rgba(255,255,255,.16)",
+    "text": "#ffffff",
+    "muted": "#d4daea",
+    "action": "#ffffff",
+    "onAction": "#24315e",
+    "line": "rgba(255,255,255,.28)",
+    "radius": 20,
+    "shadow": "0 8px 32px rgba(0,0,0,.18)",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 600
+   }
+  },
+  {
+   "code": "D06",
+   "name": "Bento grid",
+   "looks": "Rectangles of many sizes in one grid, large radius.",
+   "fits": "A02 feature sections, executive dashboards.",
+   "avoidFor": [],
+   "accent": true,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#efefec",
+    "surface": "#ffffff",
+    "text": "#141414",
+    "muted": "#5e5e5a",
+    "action": "#141414",
+    "onAction": "#ffffff",
+    "line": "#e2e2de",
+    "radius": 24,
+    "shadow": "none",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 650
+   }
+  },
+  {
+   "code": "D07",
+   "name": "Brutalism / neubrutalism",
+   "looks": "Thick black borders, hard shadows, loud colour, monospace.",
+   "fits": "A02 for creators and startups, portfolios.",
+   "avoidFor": [
+    "A07",
+    "A09",
+    "A10",
+    "A11"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#fff4c7",
+    "surface": "#ffffff",
+    "text": "#111111",
+    "muted": "#3a3a3a",
+    "action": "#ff5c8a",
+    "onAction": "#111111",
+    "line": "#111111",
+    "radius": 6,
+    "shadow": "5px 5px 0 #111111",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "ui-monospace, \"SF Mono\", Menlo, Consolas, monospace",
+    "headingWeight": 800
+   }
+  },
+  {
+   "code": "D08",
+   "name": "Editorial / magazine",
+   "looks": "Large serif type, a newspaper grid, big pictures, hairlines.",
+   "fits": "A05, premium A03, A01.",
+   "avoidFor": [
+    "A07"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#fbfaf7",
+    "surface": "#fbfaf7",
+    "text": "#141414",
+    "muted": "#5c5a55",
+    "action": "#b3121b",
+    "onAction": "#ffffff",
+    "line": "#d9d5cc",
+    "radius": 0,
+    "shadow": "none",
+    "fontBody": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
+    "fontHeading": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
+    "headingWeight": 600
+   }
+  },
+  {
+   "code": "D09",
+   "name": "Dark / OLED",
+   "looks": "A dark ground leads, with a bright accent.",
+   "fits": "Developer tools, media, control rooms.",
+   "avoidFor": [
+    "A05"
+   ],
+   "accent": false,
+   "scheme": "dark",
+   "tokens": {
+    "bg": "#000000",
+    "surface": "#0e0f12",
+    "text": "#e9eaee",
+    "muted": "#9a9ea8",
+    "action": "#4f8cff",
+    "onAction": "#000000",
+    "line": "#23252b",
+    "radius": 10,
+    "shadow": "none",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 600
+   }
+  },
+  {
+   "code": "D10",
+   "name": "Vibrant colour blocks",
+   "looks": "Saturated colour, big blocks, heavy type.",
+   "fits": "A02, young communities, consumer apps.",
+   "avoidFor": [
+    "A07",
+    "A10"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#ffffff",
+    "surface": "#f4f4f4",
+    "text": "#111111",
+    "muted": "#3d3d3d",
+    "action": "#d6195f",
+    "onAction": "#ffffff",
+    "line": "#e5e5e5",
+    "radius": 18,
+    "shadow": "none",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 900
+   }
+  },
+  {
+   "code": "D11",
+   "name": "Playful / illustrated",
+   "looks": "Illustration, large radius, warm colour.",
+   "fits": "Learning, children, empty states.",
+   "avoidFor": [
+    "A09"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#fff7ed",
+    "surface": "#ffffff",
+    "text": "#3b2a1a",
+    "muted": "#7a5c42",
+    "action": "#c2410c",
+    "onAction": "#ffffff",
+    "line": "#fde2c4",
+    "radius": 24,
+    "shadow": "0 6px 0 #fde2c4",
+    "fontBody": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
+    "fontHeading": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
+    "headingWeight": 800
+   }
+  },
+  {
+   "code": "D12",
+   "name": "Luxury / premium",
+   "looks": "Much white space, thin serif, deep tones, gold.",
+   "fits": "Premium A03, hotels, property.",
+   "avoidFor": [
+    "A07"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#f6f3ee",
+    "surface": "#f6f3ee",
+    "text": "#1c1a17",
+    "muted": "#655d52",
+    "action": "#1c1a17",
+    "onAction": "#f6f3ee",
+    "line": "#d8d0c3",
+    "radius": 0,
+    "shadow": "none",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "Didot, \"Bodoni 72\", \"Bodoni MT\", Georgia, serif",
+    "headingWeight": 400
+   }
+  },
+  {
+   "code": "D13",
+   "name": "Organic / biophilic",
+   "looks": "Earth colours, curves, natural material.",
+   "fits": "Wellness, spas, agriculture.",
+   "avoidFor": [
+    "A09"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#eef0e6",
+    "surface": "#f8f8f1",
+    "text": "#2d3325",
+    "muted": "#5a6450",
+    "action": "#4f6b40",
+    "onAction": "#ffffff",
+    "line": "#d7dccb",
+    "radius": 28,
+    "shadow": "none",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
+    "headingWeight": 500
+   }
+  },
+  {
+   "code": "D14",
+   "name": "Retro (Y2K, Memphis)",
+   "looks": "Nostalgia, patterns, candy colours.",
+   "fits": "Young brands, events.",
+   "avoidFor": [
+    "A07",
+    "A09",
+    "A10",
+    "A11"
+   ],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#c9f0ff",
+    "surface": "#ffffff",
+    "text": "#1b1b3a",
+    "muted": "#4d4d73",
+    "action": "#ff4fd8",
+    "onAction": "#1b1b3a",
+    "line": "#1b1b3a",
+    "radius": 12,
+    "shadow": "4px 4px 0 #ffd23f",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "\"Arial Black\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 900
+   }
+  },
+  {
+   "code": "D15",
+   "name": "Futuristic / HUD",
+   "looks": "Neon, grids, glow, monospace.",
+   "fits": "Games, web3, AI launches.",
+   "avoidFor": [
+    "A07",
+    "A10",
+    "A11"
+   ],
+   "accent": false,
+   "scheme": "dark",
+   "tokens": {
+    "bg": "#050a14",
+    "surface": "rgba(0,229,255,.04)",
+    "text": "#bff7ff",
+    "muted": "#79c0cc",
+    "action": "#00e5ff",
+    "onAction": "#02101a",
+    "line": "rgba(0,229,255,.25)",
+    "radius": 0,
+    "shadow": "none",
+    "fontBody": "ui-monospace, \"SF Mono\", Menlo, Consolas, monospace",
+    "fontHeading": "ui-monospace, \"SF Mono\", Menlo, Consolas, monospace",
+    "headingWeight": 700
+   }
+  },
+  {
+   "code": "D16",
+   "name": "3D / motion",
+   "looks": "3D models, depth, scroll motion.",
+   "fits": "Physical product launches.",
+   "avoidFor": [
+    "A07",
+    "A09",
+    "A10",
+    "A11"
+   ],
+   "accent": true,
+   "scheme": "dark",
+   "tokens": {
+    "bg": "#120c2a",
+    "surface": "rgba(255,255,255,.06)",
+    "text": "#f1edff",
+    "muted": "#b4aad8",
+    "action": "#a78bff",
+    "onAction": "#120c2a",
+    "line": "rgba(255,255,255,.12)",
+    "radius": 22,
+    "shadow": "0 20px 50px rgba(0,0,0,.45)",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 700
+   }
+  },
+  {
+   "code": "D17",
+   "name": "AI-native",
+   "looks": "The input is the centre; generated content; suggestions in context.",
+   "fits": "Assistants, AI features inside A07 and A08.",
+   "avoidFor": [],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#fbfbfd",
+    "surface": "#ffffff",
+    "text": "#18181b",
+    "muted": "#5b5b66",
+    "action": "#18181b",
+    "onAction": "#ffffff",
+    "line": "#ececf1",
+    "radius": 14,
+    "shadow": "0 1px 2px rgba(0,0,0,.04)",
+    "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
+    "headingWeight": 600
+   }
+  },
+  {
+   "code": "D18",
+   "name": "Accessible-first (GOV.UK)",
+   "looks": "Large type, high contrast, one column, no decoration.",
+   "fits": "A10, A11, public services, healthcare for the public.",
+   "avoidFor": [],
+   "accent": false,
+   "scheme": "light",
+   "tokens": {
+    "bg": "#ffffff",
+    "surface": "#ffffff",
+    "text": "#0b0c0c",
+    "muted": "#505a5f",
+    "action": "#00703c",
+    "onAction": "#ffffff",
+    "line": "#b1b4b6",
+    "radius": 0,
+    "shadow": "none",
+    "fontBody": "Arial, \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "fontHeading": "Arial, \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "headingWeight": 700
+   }
+  }
+ ],
+ "status": {
+  "light": {
+   "critical": {
+    "text": "#b42318",
+    "soft": "#fdecea"
+   },
+   "warning": {
+    "text": "#8a5300",
+    "soft": "#fff4dc"
+   },
+   "success": {
+    "text": "#1a7f37",
+    "soft": "#e6f4ea"
+   },
+   "info": {
+    "text": "#0b5cad",
+    "soft": "#e7f0fb"
+   }
+  },
+  "dark": {
+   "critical": {
+    "text": "#ff8a80",
+    "soft": "#3a1714"
+   },
+   "warning": {
+    "text": "#f5c451",
+    "soft": "#33270f"
+   },
+   "success": {
+    "text": "#5fd19a",
+    "soft": "#0f2e1f"
+   },
+   "info": {
+    "text": "#8ab4ff",
+    "soft": "#14223d"
+   }
+  }
+ },
+ "systems": [
+  {
+   "code": "E-Ant",
+   "name": "Ant Design",
+   "strength": "Dense admin, a complete component set, compact mode built in.",
+   "fits": "A07, A09, A10",
+   "library": "antd",
+   "why": null
+  },
+  {
+   "code": "E-shadcn",
+   "name": "shadcn/ui on Base UI",
+   "strength": "Fast start, the code is copied into the project and owned there.",
+   "fits": "A08, A02, A06, SaaS",
+   "library": "shadcn",
+   "why": null
+  },
+  {
+   "code": "E-Material",
+   "name": "Material (MUI)",
+   "strength": "Apps and mobile, Material look, data grid with density.",
+   "fits": "A08, Android-like apps",
+   "library": "mui",
+   "why": null
+  },
+  {
+   "code": "E-Mantine",
+   "name": "Mantine",
+   "strength": "Neutral look themed from JSON, many hooks and components.",
+   "fits": "Any type that wants its own look",
+   "library": "mantine",
+   "why": null
+  },
+  {
+   "code": "E-Carbon",
+   "name": "IBM Carbon",
+   "strength": "Dense data, tables, accessibility.",
+   "fits": "A07, A09",
+   "library": null,
+   "why": "Reference only in this version: @carbon/react is current but themed through Sass; not adapted yet."
+  },
+  {
+   "code": "E-Fluent",
+   "name": "Microsoft Fluent 2",
+   "strength": "Productivity, consistency across platforms.",
+   "fits": "A07, A08",
+   "library": null,
+   "why": "Reference only in this version: the theme needs a 16-shade brand ramp; not adapted yet."
+  },
+  {
+   "code": "E-Atlassian",
+   "name": "Atlassian",
+   "strength": "Complex forms, progressive disclosure.",
+   "fits": "A07, A08",
+   "library": null,
+   "why": "Reference only: the icons and logos are licensed for products that integrate with Atlassian."
+  },
+  {
+   "code": "E-Polaris",
+   "name": "Shopify Polaris",
+   "strength": "Commerce admin, content guidelines.",
+   "fits": "Shop admin",
+   "library": null,
+   "why": "Reference only: @shopify/polaris (React) is deprecated outside Shopify admin apps."
+  },
+  {
+   "code": "E-HIG",
+   "name": "Apple Human Interface Guidelines",
+   "strength": "Apple apps, Liquid Glass.",
+   "fits": "iOS, macOS",
+   "library": null,
+   "why": "Reference only: Apple ships no web component library."
+  },
+  {
+   "code": "E-GOVUK",
+   "name": "GOV.UK Design System",
+   "strength": "Forms, public services, plain content.",
+   "fits": "A10, A11",
+   "library": null,
+   "why": "Reference only: govuk-frontend is not React and its palette and brand are fixed for government services."
+  }
+ ],
+ "personalities": [
+  {
+   "code": "F1",
+   "name": "Trustworthy / professional",
+   "looks": "Deep colours, little effect, sans-serif."
+  },
+  {
+   "code": "F2",
+   "name": "Friendly / warm",
+   "looks": "Rounded corners, warm colours, plain close wording."
+  },
+  {
+   "code": "F3",
+   "name": "Premium",
+   "looks": "White space, serif, few colours."
+  },
+  {
+   "code": "F4",
+   "name": "Energetic / young",
+   "looks": "Strong colour, motion, short words."
+  },
+  {
+   "code": "F5",
+   "name": "Technical / precise",
+   "looks": "Monospace, numbers, a tight grid."
+  },
+  {
+   "code": "F6",
+   "name": "Playful",
+   "looks": "Illustration, mascots, micro-interactions."
+  }
+ ],
+ "platforms": [
+  {
+   "code": "G1",
+   "name": "Desktop first",
+   "use": "Still responsive. A07, A08, A09."
+  },
+  {
+   "code": "G2",
+   "name": "Mobile first",
+   "use": "A02, A03, A05, A10, A11."
+  },
+  {
+   "code": "G3",
+   "name": "Both equally",
+   "use": "A01, A12."
+  },
+  {
+   "code": "G4",
+   "name": "App or PWA",
+   "use": "Used daily on a phone."
+  },
+  {
+   "code": "G5",
+   "name": "Special screen",
+   "use": "Kiosk, TV, control-room wall."
+  }
+ ],
+ "presets": [
+  {
+   "code": "P1",
+   "name": "Internal CRM / HRM",
+   "does": "Dense tables, list-detail, record 360, queues; enterprise clean.",
+   "formula": "A07 + B-W1, B-W2, B-W4, B-W7 + C1 + D02 + E-Ant + F1 + G1"
+  },
+  {
+   "code": "P2",
+   "name": "Executive BI",
+   "does": "Executive numbers, analysis, funnel; bento for the overview.",
+   "formula": "A09 + B-D1, B-D3, B-D6 + C2 + D02, D06 + E-Ant + F1 + G1"
+  },
+  {
+   "code": "P3",
+   "name": "Control room",
+   "does": "Wall screen, dark ground, alerts by threshold.",
+   "formula": "A09 + B-D2 + C1 + D09 + F5 + G5"
+  },
+  {
+   "code": "P4",
+   "name": "SaaS tool",
+   "does": "Canvas, command palette, settings; with its landing and docs.",
+   "formula": "A08, A02, A06 + B-W9, B-W12, B-W10, B-M3, B-M6, B-C3 + C2 + D01 + E-shadcn + F5 + G1"
+  },
+  {
+   "code": "P5",
+   "name": "B2B landing",
+   "does": "Minimal, social proof, pricing.",
+   "formula": "A02 + B-M1, B-M2, B-M6 + C3 + D01, D06 + F1 + G2"
+  },
+  {
+   "code": "P6",
+   "name": "Consumer product launch",
+   "does": "Demo first, scroll storytelling, vibrant colour, motion.",
+   "formula": "A02 + B-M3, B-M9 + C3 + D10, D16 + F4 + G2"
+  },
+  {
+   "code": "P7",
+   "name": "Everyday shop",
+   "does": "Category grid, search, one-page checkout.",
+   "formula": "A03 + B-S1, B-S4, B-T1 + C2 + D03 + F2 + G2"
+  },
+  {
+   "code": "P8",
+   "name": "Premium shop",
+   "does": "Lookbook, product page, luxury.",
+   "formula": "A03 + B-S3, B-S2 + C3 + D12 + F3 + G2"
+  },
+  {
+   "code": "P9",
+   "name": "Local service site",
+   "does": "Clinics, salons, restaurants: trust, then book.",
+   "formula": "A01, A11 + B-M2, B-T4 + C3 + D01 + F1, F2 + G2"
+  },
+  {
+   "code": "P10",
+   "name": "Self-service portal",
+   "does": "My records, my tasks, one question per page; accessible-first.",
+   "formula": "A10, A11 + B-W4, B-W7, B-T2, B-T3 + C2 + D18 + F1 + G2"
+  },
+  {
+   "code": "P11",
+   "name": "Docs and help",
+   "does": "Three-column docs and a help centre.",
+   "formula": "A06 + B-C3, B-C4 + C2 + D01 + F5 + G3"
+  },
+  {
+   "code": "P12",
+   "name": "AI inside the product",
+   "does": "An AI panel in the work screen and a chat with context.",
+   "formula": "A15, A07 + B-X2, B-X1 + C2 + D17 + F5 + G1"
+  }
+ ],
+ "conflicts": [
+  {
+   "axis": "C",
+   "code": "C3",
+   "types": [
+    "A07",
+    "A09"
+   ],
+   "says": "Spacious density loses rows on every screen; work screens used all day usually take C1 or C2."
+  },
+  {
+   "axis": "C",
+   "code": "C1",
+   "types": [
+    "A01",
+    "A02",
+    "A05"
+   ],
+   "says": "Compact density rarely suits marketing or reading pages."
+  },
+  {
+   "axis": "G",
+   "code": "G2",
+   "types": [
+    "A07",
+    "A08",
+    "A09"
+   ],
+   "says": "Mobile first rarely suits desktop work screens; consider G1, still responsive."
+  }
+ ],
+ "rules": [
+  {
+   "id": "colour-roles",
+   "rule": "Colour has fixed roles: a neutral ground, one action colour and four status colours (critical, warning, success, info). No colour outside a role.",
+   "check": "List the tokens; count colours used outside them — zero.",
+   "evidence": "system",
+   "sources": [
+    {
+     "name": "Shopify Polaris — colour roles",
+     "url": "https://polaris.shopify.com/design/colors/palettes-and-roles"
+    },
+    {
+     "name": "IBM Carbon — colour",
+     "url": "https://carbondesignsystem.com/elements/color/overview/"
+    },
+    {
+     "name": "USWDS — theme tokens",
+     "url": "https://designsystem.digital.gov/design-tokens/color/theme-tokens/"
+    }
+   ]
+  },
+  {
+   "id": "one-meaning",
+   "rule": "One colour, one meaning across the product; the action colour is not a status colour.",
+   "check": "Compare the colour-to-meaning table between screens.",
+   "evidence": "study",
+   "sources": [
+    {
+     "name": "Shopify Polaris — colour roles",
+     "url": "https://polaris.shopify.com/design/colors/palettes-and-roles"
+    },
+    {
+     "name": "IBM Carbon — colour",
+     "url": "https://carbondesignsystem.com/elements/color/overview/"
+    },
+    {
+     "name": "Stroop and reverse Stroop on an interactive tabletop",
+     "url": "https://hal.archives-ouvertes.fr/hal-01370664"
+    }
+   ]
+  },
+  {
+   "id": "quiet-normal",
+   "rule": "The normal state is quiet; only what needs attention carries colour.",
+   "check": "The share of rows with a warm status chip on one screen stays low.",
+   "evidence": "study",
+   "sources": [
+    {
+     "name": "Treisman, preattentive processing (eagereyes summary)",
+     "url": "https://eagereyes.org/blog/2015/treisman-preattentive-processing"
+    },
+    {
+     "name": "Healey, preattentive features (TVCG)",
+     "url": "https://www.csc2.ncsu.edu/faculty/healey/download/tvcg.11.pdf"
+    }
+   ]
+  },
+  {
+   "id": "few-codes",
+   "rule": "At most five to seven status colours per entity, and about four new colour codes to learn per screen.",
+   "check": "Count them.",
+   "evidence": "study",
+   "sources": [
+    {
+     "name": "Munzner after Ware — distinguishable colours",
+     "url": "https://www.cs.ubc.ca/~tmm/courses/533-09/slides/color.pdf"
+    },
+    {
+     "name": "Cowan 2001 — the magical number 4",
+     "url": "https://memory.psych.missouri.edu/assets/doc/articles/2001/cowan-bbs-2001.pdf"
+    }
+   ]
+  },
+  {
+   "id": "never-colour-alone",
+   "rule": "Colour is never the only signal: a short word or an icon always goes with it.",
+   "check": "In greyscale every state is still told apart.",
+   "evidence": "standard",
+   "sources": [
+    {
+     "name": "WCAG 2.2 — 1.4.1 Use of color",
+     "url": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html"
+    }
+   ]
+  },
+  {
+   "id": "contrast",
+   "rule": "Text 4.5:1, large text and component parts 3:1, in light and dark.",
+   "check": "Measure automatically.",
+   "evidence": "standard",
+   "sources": [
+    {
+     "name": "WCAG 2.2 — 1.4.3 Contrast (minimum)",
+     "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+    },
+    {
+     "name": "WCAG 2.2 — 1.4.11 Non-text contrast",
+     "url": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+    }
+   ]
+  },
+  {
+   "id": "scales",
+   "rule": "About four type sizes on one scale and spacing from one scale; space between groups is clearly larger than space within them.",
+   "check": "Count the distinct values in the CSS.",
+   "evidence": "designer",
+   "sources": [
+    {
+     "name": "Bringhurst — compose with a scale",
+     "url": "http://webtypography.net/3.1.1"
+    },
+    {
+     "name": "NN/g — Gestalt proximity",
+     "url": "https://www.nngroup.com/articles/gestalt-proximity/"
+    }
+   ]
+  },
+  {
+   "id": "one-primary",
+   "rule": "One dominant element and one primary button per screen.",
+   "check": "Squint test; count primary buttons.",
+   "evidence": "designer",
+   "sources": [
+    {
+     "name": "Erik Kennedy — 7 rules for gorgeous UI",
+     "url": "https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html"
+    }
+   ]
+  },
+  {
+   "id": "space-lines-boxes",
+   "rule": "Separate with space first, a line second, a box last; no box inside a box.",
+   "check": "Count nested boxed layers.",
+   "evidence": "designer",
+   "sources": [
+    {
+     "name": "Refactoring UI (Wathan, Schoger)",
+     "url": "https://www.refactoringui.com/"
+    },
+    {
+     "name": "NN/g — common region",
+     "url": "https://www.nngroup.com/articles/common-region/"
+    }
+   ]
+  },
+  {
+   "id": "first-screen",
+   "rule": "The most important thing is on the first screen; long pages have headings that read alone; no scroll box inside a scrolling page.",
+   "check": "Position of the main element against 100vh; count nested scroll areas.",
+   "evidence": "study",
+   "sources": [
+    {
+     "name": "NN/g — Scrolling and attention (2018)",
+     "url": "https://www.nngroup.com/articles/scrolling-and-attention/"
+    },
+    {
+     "name": "NN/g — F-shaped pattern (2017)",
+     "url": "https://nngroup.com/articles/f-shaped-pattern-reading-web-content/"
+    }
+   ]
+  },
+  {
+   "id": "table-card-list",
+   "rule": "Compare in a table, browse independent items with pictures in cards, read in order in a list.",
+   "check": "Check against what the person does on the screen.",
+   "evidence": "system",
+   "sources": [
+    {
+     "name": "NN/g — Data tables: four major user tasks",
+     "url": "https://nngroup.com/articles/data-tables"
+    },
+    {
+     "name": "Queensland Design System — card",
+     "url": "https://www.designsystem.qld.gov.au/components/card/tabs/overview"
+    }
+   ]
+  },
+  {
+   "id": "table-basics",
+   "rule": "Tables: numbers right-aligned in tabular figures, text left, one unit per column, sort state visible, sticky header, empty and loading states.",
+   "check": "Check column by column.",
+   "evidence": "system",
+   "sources": [
+    {
+     "name": "GitHub Primer — data table",
+     "url": "https://primer.style/product/components/data-table/"
+    },
+    {
+     "name": "W3C WAI — table tips",
+     "url": "https://www.w3.org/WAI/tutorials/tables/tips/"
+    },
+    {
+     "name": "USWDS — table",
+     "url": "https://designsystem.digital.gov/components/table/"
+    }
+   ]
+  }
+ ],
+ "checks": [
+  {
+   "id": "bulk-visible-only",
+   "check": "Bulk actions touch only the rows the filter shows; filtering cuts the selection in the same render.",
+   "kind": "bug",
+   "severity": "S1",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W3",
+     "B-D3",
+     "B-D8",
+     "B-X2",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "bulk-server-allowed",
+   "check": "Bulk sends only rows the server marked as allowed, and says beforehand how many are skipped and why.",
+   "kind": "contract",
+   "severity": "S2",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W3",
+     "B-D3",
+     "B-D8",
+     "B-X2",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "selection-across-pages",
+   "check": "With pagination, the selection bar says which page the selection is on and offers \"select all N\".",
+   "kind": "usability",
+   "severity": "N3",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W3",
+     "B-D3",
+     "B-D8",
+     "B-X2",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "no-nested-scroll",
+   "check": "The table is not its own scroll box inside a scrolling page; the header sticks, the pager sticks.",
+   "kind": "usability",
+   "severity": "N2",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W3",
+     "B-D3",
+     "B-D8",
+     "B-X2",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "sort-visible",
+   "check": "Sort arrows are always visible, faintly, not only on hover.",
+   "kind": "usability",
+   "severity": "N2",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W3",
+     "B-D3",
+     "B-D8",
+     "B-X2",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "drop-flat-columns",
+   "check": "A column holding one value in 80% or more of rows is dropped or merged; no \"Open\" button column when the name is a link.",
+   "kind": "usability",
+   "severity": "N1",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W3",
+     "B-D3",
+     "B-D8",
+     "B-X2",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "tier-one-on-top",
+   "check": "Identity, status, next action and what is overdue sit on top; standing explanatory paragraphs go behind a \"?\".",
+   "kind": "usability",
+   "severity": "N3",
+   "on": {
+    "layouts": [
+     "B-W2",
+     "B-W4",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "alert-with-fix",
+   "check": "Every alert carries the way to fix it right there.",
+   "kind": "usability",
+   "severity": "N3",
+   "on": {
+    "layouts": [
+     "B-W2",
+     "B-W4",
+     "B-W7",
+     "B-D2"
+    ]
+   }
+  },
+  {
+   "id": "no-dead-links",
+   "check": "No link leads to a refusal (403) or nothing (404); say why in words instead.",
+   "kind": "usability",
+   "severity": "N3",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W2",
+     "B-W4",
+     "B-W7"
+    ]
+   }
+  },
+  {
+   "id": "default-view-has-data",
+   "check": "A screen does not open on an empty view while the view beside it has data.",
+   "kind": "usability",
+   "severity": "N2",
+   "on": {
+    "layouts": [
+     "B-W6",
+     "B-W7",
+     "B-T4"
+    ]
+   }
+  },
+  {
+   "id": "refusals-in-words",
+   "check": "A refusal shows a sentence from one shared table of reason codes, never a raw code or the backend's English.",
+   "kind": "contract",
+   "severity": "S2",
+   "on": {
+    "types": [
+     "A07",
+     "A10",
+     "A11"
+    ]
+   }
+  },
+  {
+   "id": "read-the-backend",
+   "check": "Field names of errors and allowlists are read from the backend code, not guessed; \"\" clears a field, it is not \"do not send\".",
+   "kind": "contract",
+   "severity": "S2",
+   "on": {
+    "types": [
+     "A07",
+     "A10"
+    ]
+   }
+  },
+  {
+   "id": "why-on-rule-errors",
+   "check": "An error caused by a business rule links to \"Why?\" explained in place; an input error does not.",
+   "kind": "usability",
+   "severity": "N2",
+   "on": {
+    "types": [
+     "A07",
+     "A10",
+     "A11"
+    ]
+   }
+  },
+  {
+   "id": "no-typed-codes",
+   "check": "Nobody types a reason code; offer sentences with the code behind them; a choice list over ten items has search.",
+   "kind": "usability",
+   "severity": "N3",
+   "on": {
+    "types": [
+     "A07"
+    ]
+   }
+  },
+  {
+   "id": "dialog-cancel",
+   "check": "Long create or edit forms open in a dialog or a page, never inline pushing the page down; a writing dialog ends with \"Cancel\", a reading one with \"Close\".",
+   "kind": "usability",
+   "severity": "N2",
+   "on": {
+    "layouts": [
+     "B-W1",
+     "B-W2",
+     "B-W4",
+     "B-W7",
+     "B-W8",
+     "B-W10"
+    ]
+   }
+  },
+  {
+   "id": "open-every-layer",
+   "check": "Open every overlay (select, popover, dialog) and confirm it has content; reading text on the page is not enough.",
+   "kind": "bug",
+   "severity": "S1",
+   "on": {
+    "types": [
+     "A07",
+     "A08",
+     "A09",
+     "A10",
+     "A11",
+     "A15"
+    ]
+   }
+  },
+  {
+   "id": "layer-order",
+   "check": "A select or popover opened in a dialog sits above the dialog's backdrop; every floating layer has its own z-index.",
+   "kind": "bug",
+   "severity": "S2",
+   "on": {
+    "types": [
+     "A07",
+     "A08",
+     "A09",
+     "A10",
+     "A11",
+     "A15"
+    ]
+   }
+  },
+  {
+   "id": "no-money-in-funnel",
+   "check": "Money is not a step of a funnel; counted steps go in the funnel, money is a result line beneath.",
+   "kind": "bug",
+   "severity": "S2",
+   "on": {
+    "layouts": [
+     "B-D6"
+    ]
+   }
+  },
+  {
+   "id": "empty-has-meanings",
+   "check": "An empty cell has distinct meanings — hidden for privacy, capped, never measured — and each says so.",
+   "kind": "usability",
+   "severity": "N3",
+   "on": {
+    "types": [
+     "A09"
+    ]
+   }
+  },
+  {
+   "id": "no-duplicate-kpis",
+   "check": "No row of KPI cards repeating the numbers the chart right below already draws.",
+   "kind": "usability",
+   "severity": "N1",
+   "on": {
+    "layouts": [
+     "B-D1",
+     "B-D6"
+    ]
+   }
+  },
+  {
+   "id": "wait-for-main-source",
+   "check": "Numbers are drawn only once the main source has answered; never \"0 …\" while waiting.",
+   "kind": "bug",
+   "severity": "S2",
+   "on": {
+    "types": [
+     "A09"
+    ]
+   }
+  },
+  {
+   "id": "tokens-in-dark",
+   "check": "Text and ground colours go through tokens; open dark mode and measure contrast.",
+   "kind": "a11y",
+   "severity": "S2",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "no-sideways-scroll",
+   "check": "No horizontal scroll at 390px; header button rows may wrap. Check 1920, 1280, 860 and 390.",
+   "kind": "a11y",
+   "severity": "S2",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "no-button-in-button",
+   "check": "No button inside a button; a long screen-reader name goes in aria-label, not in visible text.",
+   "kind": "a11y",
+   "severity": "S2",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "one-word-one-meaning",
+   "check": "One word, one meaning per screen; buttons with one role share one label; one way of saying \"empty\".",
+   "kind": "usability",
+   "severity": "N2",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "component-at-second-use",
+   "check": "Sizes, weights and colours come from tokens; markup used on a second screen becomes a component.",
+   "kind": "debt",
+   "severity": "-",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "count-boxes",
+   "check": "Count boxed nesting before showing a page: space first, lines next, boxes last.",
+   "kind": "usability",
+   "severity": "N1",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "measure-not-eyeball",
+   "check": "When a prototype exists, compare the build by measurement, not by eye.",
+   "kind": "drift",
+   "severity": "N2",
+   "on": {
+    "all": true
+   }
+  },
+  {
+   "id": "translucent-contrast",
+   "check": "Translucent or soft-shadow styles: measure text contrast on every layer, and states must show without colour.",
+   "kind": "a11y",
+   "severity": "S2",
+   "on": {
+    "styles": [
+     "D04",
+     "D05",
+     "D16"
+    ]
+   }
+  },
+  {
+   "id": "motion-limits",
+   "check": "Motion under 200–300 ms, transform and opacity only, honour prefers-reduced-motion.",
+   "kind": "a11y",
+   "severity": "N2",
+   "on": {
+    "styles": [
+     "D05",
+     "D16"
+    ],
+    "layouts": [
+     "B-M9"
+    ]
+   }
+  }
+ ],
+ "regions": {
+  "app-shell": {
+   "antd": "Layout, Layout.Sider, Menu",
+   "shadcn": "Sidebar (block)",
+   "mui": "Drawer, AppBar, List",
+   "mantine": "AppShell, NavLink"
+  },
+  "site-header": {
+   "antd": "Layout.Header, Menu (horizontal)",
+   "shadcn": "NavigationMenu",
+   "mui": "AppBar, Toolbar",
+   "mantine": "Group, Anchor, Burger"
+  },
+  "site-footer": {
+   "antd": "Layout.Footer",
+   "shadcn": "footer markup",
+   "mui": "Box, Link",
+   "mantine": "Group, Anchor"
+  },
+  "page-header": {
+   "antd": "Flex, Typography.Title, Button type=\"primary\"",
+   "shadcn": "heading markup, Button",
+   "mui": "Stack, Typography, Button variant=\"contained\"",
+   "mantine": "Group, Title, Button"
+  },
+  "filter-bar": {
+   "antd": "Input.Search, Select, Segmented",
+   "shadcn": "Input, Select, ToggleGroup",
+   "mui": "TextField, Select, ToggleButtonGroup",
+   "mantine": "TextInput, Select, SegmentedControl"
+  },
+  "facet-filters": {
+   "antd": "Checkbox.Group, Slider, Collapse",
+   "shadcn": "Checkbox, Slider, Accordion",
+   "mui": "Checkbox, Slider, Accordion",
+   "mantine": "Checkbox.Group, RangeSlider, Accordion"
+  },
+  "data-table": {
+   "antd": "Table (rowSelection, sticky, sorter)",
+   "shadcn": "Table + @tanstack/react-table",
+   "mui": "DataGrid (@mui/x-data-grid)",
+   "mantine": "DataTable (mantine-datatable)"
+  },
+  "record-list": {
+   "antd": "List, List.Item",
+   "shadcn": "ScrollArea, Item",
+   "mui": "List, ListItemButton",
+   "mantine": "ScrollArea, NavLink"
+  },
+  "result-list": {
+   "antd": "List",
+   "shadcn": "Item list markup",
+   "mui": "List, Card",
+   "mantine": "Stack, Card"
+  },
+  "pagination": {
+   "antd": "Pagination",
+   "shadcn": "Pagination",
+   "mui": "Pagination",
+   "mantine": "Pagination"
+  },
+  "bulk-bar": {
+   "antd": "Flex, Button, Typography.Text",
+   "shadcn": "Button group markup",
+   "mui": "Toolbar, Button",
+   "mantine": "Group, Button"
+  },
+  "kpi": {
+   "antd": "Statistic, Card",
+   "shadcn": "Card",
+   "mui": "Card, Typography",
+   "mantine": "Paper, Text"
+  },
+  "kpi-inline": {
+   "antd": "Statistic (small), Space",
+   "shadcn": "inline markup",
+   "mui": "Stack direction=\"row\", Typography",
+   "mantine": "Group, Text"
+  },
+  "status": {
+   "antd": "Tag with color and icon",
+   "shadcn": "Badge with a lucide icon",
+   "mui": "Chip with color and icon",
+   "mantine": "Badge with leftSection"
+  },
+  "detail-header": {
+   "antd": "Flex, Avatar, Typography.Title, Tag, Button",
+   "shadcn": "Avatar, heading markup, Badge, Button",
+   "mui": "Avatar, Typography, Chip, Button",
+   "mantine": "Avatar, Title, Badge, Button"
+  },
+  "detail-panel": {
+   "antd": "Descriptions",
+   "shadcn": "description list markup (dl)",
+   "mui": "Grid, Typography",
+   "mantine": "SimpleGrid, Text"
+  },
+  "tabs": {
+   "antd": "Tabs",
+   "shadcn": "Tabs",
+   "mui": "Tabs",
+   "mantine": "Tabs"
+  },
+  "timeline": {
+   "antd": "Timeline",
+   "shadcn": "list markup",
+   "mui": "List",
+   "mantine": "Timeline"
+  },
+  "form": {
+   "antd": "Form, Form.Item",
+   "shadcn": "Field, Input, Select, Textarea",
+   "mui": "TextField, FormControl",
+   "mantine": "TextInput, Select (+ @mantine/form)"
+  },
+  "stepper": {
+   "antd": "Steps",
+   "shadcn": "Progress with step markup",
+   "mui": "Stepper",
+   "mantine": "Stepper"
+  },
+  "question": {
+   "antd": "Radio.Group, Button",
+   "shadcn": "RadioGroup, Button",
+   "mui": "RadioGroup, Button",
+   "mantine": "Radio.Group, Button"
+  },
+  "dialog": {
+   "antd": "Modal",
+   "shadcn": "Dialog, AlertDialog",
+   "mui": "Dialog",
+   "mantine": "Modal"
+  },
+  "notice": {
+   "antd": "Alert",
+   "shadcn": "Alert",
+   "mui": "Alert",
+   "mantine": "Alert"
+  },
+  "alert-list": {
+   "antd": "List with Tag",
+   "shadcn": "Item list with Badge",
+   "mui": "List with Chip",
+   "mantine": "Stack with Badge"
+  },
+  "empty-state": {
+   "antd": "Empty, Result",
+   "shadcn": "Empty",
+   "mui": "Box, Typography, Button",
+   "mantine": "Stack, Text, Button"
+  },
+  "kanban": {
+   "antd": "Card + @dnd-kit/core",
+   "shadcn": "Card + @dnd-kit/core",
+   "mui": "Card + @dnd-kit/core",
+   "mantine": "Card + @dnd-kit/core"
+  },
+  "calendar": {
+   "antd": "Calendar",
+   "shadcn": "Calendar (date picking only)",
+   "mui": "DateCalendar (@mui/x-date-pickers, picking only)",
+   "mantine": "Calendar (@mantine/dates)"
+  },
+  "date-strip": {
+   "antd": "Segmented, DatePicker",
+   "shadcn": "Calendar, ToggleGroup",
+   "mui": "DatePicker (@mui/x-date-pickers)",
+   "mantine": "DatePicker (@mantine/dates)"
+  },
+  "slot-grid": {
+   "antd": "Radio.Group optionType=\"button\"",
+   "shadcn": "ToggleGroup",
+   "mui": "ToggleButtonGroup",
+   "mantine": "Chip.Group"
+  },
+  "chart": {
+   "antd": "@ant-design/charts",
+   "shadcn": "Chart (recharts)",
+   "mui": "@mui/x-charts",
+   "mantine": "@mantine/charts"
+  },
+  "funnel": {
+   "antd": "@ant-design/charts (Funnel)",
+   "shadcn": "Chart (recharts BarChart)",
+   "mui": "@mui/x-charts (BarChart)",
+   "mantine": "@mantine/charts (FunnelChart)"
+  },
+  "progress": {
+   "antd": "Progress",
+   "shadcn": "Progress",
+   "mui": "LinearProgress",
+   "mantine": "Progress"
+  },
+  "tree": {
+   "antd": "Tree",
+   "shadcn": null,
+   "mui": null,
+   "mantine": "Tree"
+  },
+  "command-palette": {
+   "antd": null,
+   "shadcn": "Command",
+   "mui": null,
+   "mantine": null
+  },
+  "search": {
+   "antd": "Input.Search, AutoComplete",
+   "shadcn": "Command, Combobox",
+   "mui": "Autocomplete",
+   "mantine": "Autocomplete"
+  },
+  "toc-nav": {
+   "antd": "Menu, Anchor",
+   "shadcn": "Sidebar",
+   "mui": "List",
+   "mantine": "NavLink, TableOfContents"
+  },
+  "settings-nav": {
+   "antd": "Menu",
+   "shadcn": "Sidebar",
+   "mui": "List",
+   "mantine": "NavLink"
+  },
+  "on-this-page": {
+   "antd": "Anchor",
+   "shadcn": "link list markup",
+   "mui": "List",
+   "mantine": "TableOfContents"
+  },
+  "article": {
+   "antd": "Typography",
+   "shadcn": "prose markup",
+   "mui": "Typography",
+   "mantine": "TypographyStylesProvider"
+  },
+  "card-grid": {
+   "antd": "Card, Row, Col",
+   "shadcn": "Card, CSS grid",
+   "mui": "Card, Grid",
+   "mantine": "Card, SimpleGrid"
+  },
+  "product-grid": {
+   "antd": "Card, Row, Col",
+   "shadcn": "Card, CSS grid",
+   "mui": "Card, Grid",
+   "mantine": "Card, SimpleGrid"
+  },
+  "product-gallery": {
+   "antd": "Image, Image.PreviewGroup",
+   "shadcn": "Carousel",
+   "mui": "ImageList",
+   "mantine": "Image, Carousel (@mantine/carousel)"
+  },
+  "buy-box": {
+   "antd": "Typography, Radio.Group, Button",
+   "shadcn": "ToggleGroup, Button",
+   "mui": "ToggleButtonGroup, Button",
+   "mantine": "Chip.Group, Button"
+  },
+  "option-picker": {
+   "antd": "Radio.Group, ColorPicker",
+   "shadcn": "ToggleGroup",
+   "mui": "ToggleButtonGroup",
+   "mantine": "Chip.Group, ColorSwatch"
+  },
+  "order-summary": {
+   "antd": "Card, Descriptions",
+   "shadcn": "Card",
+   "mui": "Card, List",
+   "mantine": "Card, Table"
+  },
+  "comparison-table": {
+   "antd": "Table",
+   "shadcn": "Table",
+   "mui": "Table",
+   "mantine": "Table"
+  },
+  "pricing": {
+   "antd": "Card, Row, Col",
+   "shadcn": "Card",
+   "mui": "Card, Grid",
+   "mantine": "Card, SimpleGrid"
+  },
+  "faq": {
+   "antd": "Collapse",
+   "shadcn": "Accordion",
+   "mui": "Accordion",
+   "mantine": "Accordion"
+  },
+  "hero": {
+   "antd": "Typography, Button",
+   "shadcn": "heading markup, Button",
+   "mui": "Typography, Button",
+   "mantine": "Title, Text, Button"
+  },
+  "logo-strip": {
+   "antd": "Flex, Image",
+   "shadcn": "flex markup",
+   "mui": "Stack, Box",
+   "mantine": "Group, Image"
+  },
+  "feature-grid": {
+   "antd": "Card, Row, Col",
+   "shadcn": "Card, CSS grid",
+   "mui": "Card, Grid",
+   "mantine": "Card, SimpleGrid"
+  },
+  "testimonial": {
+   "antd": "Card, Avatar",
+   "shadcn": "Card, Avatar",
+   "mui": "Card, Avatar",
+   "mantine": "Card, Avatar"
+  },
+  "call-to-action": {
+   "antd": "Flex, Button",
+   "shadcn": "Button",
+   "mui": "Box, Button",
+   "mantine": "Group, Button"
+  },
+  "story": {
+   "antd": "Row, Col, Image, Typography",
+   "shadcn": "grid markup",
+   "mui": "Grid, Typography",
+   "mantine": "SimpleGrid, Image, Text"
+  },
+  "lead-story": {
+   "antd": "Card, Image, Typography",
+   "shadcn": "Card",
+   "mui": "Card, CardMedia",
+   "mantine": "Card, Image"
+  },
+  "story-list": {
+   "antd": "List",
+   "shadcn": "list markup",
+   "mui": "List",
+   "mantine": "Stack"
+  },
+  "composer": {
+   "antd": "Input.TextArea, Button",
+   "shadcn": "Textarea, Button",
+   "mui": "TextField multiline, Button",
+   "mantine": "Textarea, Button"
+  },
+  "feed": {
+   "antd": "List, Card",
+   "shadcn": "Card",
+   "mui": "Card",
+   "mantine": "Card, Stack"
+  },
+  "side-panel": {
+   "antd": "Card",
+   "shadcn": "Card",
+   "mui": "Card",
+   "mantine": "Paper"
+  },
+  "thread": {
+   "antd": "List, Avatar, Typography",
+   "shadcn": "Card, Avatar",
+   "mui": "Card, Avatar",
+   "mantine": "Paper, Avatar"
+  },
+  "lesson-list": {
+   "antd": "List, Progress",
+   "shadcn": "ScrollArea, Progress",
+   "mui": "List, LinearProgress",
+   "mantine": "Stack, Progress"
+  },
+  "media-player": {
+   "antd": null,
+   "shadcn": null,
+   "mui": null,
+   "mantine": null
+  },
+  "map": {
+   "antd": null,
+   "shadcn": null,
+   "mui": null,
+   "mantine": null
+  },
+  "canvas": {
+   "antd": null,
+   "shadcn": null,
+   "mui": null,
+   "mantine": null
+  },
+  "toolbar": {
+   "antd": "Flex, Button, Tooltip",
+   "shadcn": "Toolbar markup, Button, Tooltip",
+   "mui": "Toolbar, IconButton",
+   "mantine": "Group, ActionIcon"
+  },
+  "layer-list": {
+   "antd": "Tree",
+   "shadcn": "ScrollArea",
+   "mui": "List",
+   "mantine": "Tree"
+  },
+  "inspector": {
+   "antd": "Form (small)",
+   "shadcn": "Field, Input",
+   "mui": "TextField size=\"small\"",
+   "mantine": "TextInput size=\"xs\""
+  },
+  "chat": {
+   "antd": "List, Input.TextArea",
+   "shadcn": "ScrollArea, Textarea",
+   "mui": "List, TextField",
+   "mantine": "ScrollArea, Textarea"
+  },
+  "assistant-panel": {
+   "antd": "Card, List, Input",
+   "shadcn": "Card, Textarea",
+   "mui": "Card, List, TextField",
+   "mantine": "Paper, Stack, Textarea"
+  },
+  "prompt": {
+   "antd": "Input.TextArea, Tag",
+   "shadcn": "Textarea, Badge",
+   "mui": "TextField multiline, Chip",
+   "mantine": "Textarea, Badge"
+  }
+ },
+ "regionNotes": {
+  "media-player": "Use the native <video>/<audio> element; no library here ships a player.",
+  "map": "Use a map library (for example MapLibre or Leaflet); none of these ships one.",
+  "canvas": "Use a canvas or diagram library (for example tldraw or React Flow); none of these ships one.",
+  "tree": "shadcn and MUI core have no tree; MUI has one in @mui/x-tree-view, not pinned here.",
+  "command-palette": "antd, MUI and Mantine core have no command palette; Mantine has @mantine/spotlight, not pinned here; otherwise a Dialog with a search list.",
+  "kanban": "@dnd-kit/core 6.3.1 has had no release since 2024-12; its successor @dnd-kit/react is 0.5.0, pre-1.0. Pick knowingly.",
+  "calendar": "Month-agenda calendars with events are not in these libraries' cores; antd Calendar comes closest."
+ },
+ "libraries": {
+  "antd": {
+   "name": "Ant Design 6",
+   "license": "MIT",
+   "site": "https://ant.design",
+   "packages": [
+    {
+     "name": "antd",
+     "version": "6.6.6",
+     "role": "components"
+    },
+    {
+     "name": "@ant-design/icons",
+     "version": "6.3.4",
+     "role": "icons"
+    }
+   ],
+   "extras": [
+    {
+     "name": "@ant-design/charts",
+     "version": "2.6.7",
+     "role": "chart"
+    },
+    {
+     "name": "@dnd-kit/core",
+     "version": "6.3.1",
+     "role": "kanban"
+    }
+   ],
+   "theming": "ConfigProvider theme={{ token, algorithm }}; v6 writes CSS variables.",
+   "density": {
+    "C1": "algorithm: theme.compactAlgorithm",
+    "C2": "algorithm: theme.defaultAlgorithm",
+    "C3": "token.controlHeight and token.fontSize raised to the C3 values"
+   },
+   "map": {
+    "action": "token.colorPrimary",
+    "critical": "token.colorError",
+    "warning": "token.colorWarning",
+    "success": "token.colorSuccess",
+    "info": "token.colorInfo",
+    "text": "token.colorText",
+    "muted": "token.colorTextSecondary",
+    "bg": "token.colorBgLayout",
+    "surface": "token.colorBgContainer",
+    "line": "token.colorBorderSecondary",
+    "radius": "token.borderRadius",
+    "fontBody": "token.fontFamily",
+    "bodySize": "token.fontSize",
+    "controlHeight": "token.controlHeight"
+   },
+   "notes": [
+    "The four status colours map one to one onto antd's semantic tokens."
+   ]
+  },
+  "shadcn": {
+   "name": "shadcn/ui on Base UI, with TanStack Table",
+   "license": "MIT",
+   "site": "https://ui.shadcn.com",
+   "packages": [
+    {
+     "name": "shadcn",
+     "version": "4.21.4",
+     "role": "CLI that copies components into the project"
+    },
+    {
+     "name": "@base-ui/react",
+     "version": "1.9.0",
+     "role": "primitives"
+    },
+    {
+     "name": "tailwindcss",
+     "version": "4.3.3",
+     "role": "styling"
+    },
+    {
+     "name": "@tanstack/react-table",
+     "version": "9.3.1",
+     "role": "table logic"
+    },
+    {
+     "name": "lucide-react",
+     "version": "1.57.0",
+     "role": "icons"
+    }
+   ],
+   "extras": [
+    {
+     "name": "recharts",
+     "version": "3.10.1",
+     "role": "chart"
+    },
+    {
+     "name": "sonner",
+     "version": "2.0.8",
+     "role": "toast"
+    },
+    {
+     "name": "@dnd-kit/core",
+     "version": "6.3.1",
+     "role": "kanban"
+    }
+   ],
+   "theming": "CSS variables mapped through Tailwind v4 @theme; components are edited in place.",
+   "density": {
+    "C1": "controls h-8, table rows h-9, text-sm",
+    "C2": "controls h-10, table rows h-12, text-sm",
+    "C3": "controls h-12, table rows h-14, text-base"
+   },
+   "map": {
+    "action": "--primary",
+    "onAction": "--primary-foreground",
+    "critical": "--destructive",
+    "warning": "--warning (add)",
+    "success": "--success (add)",
+    "info": "--info (add)",
+    "text": "--foreground",
+    "muted": "--muted-foreground",
+    "bg": "--background",
+    "surface": "--card",
+    "line": "--border",
+    "radius": "--radius",
+    "fontBody": "--font-sans"
+   },
+   "notes": [
+    "shadcn ships neutral, primary and destructive only: add --warning, --success and --info and a Badge variant for each.",
+    "Run the init with Base UI primitives (--base base-ui)."
+   ]
+  },
+  "mui": {
+   "name": "MUI 9 (Material)",
+   "license": "MIT",
+   "site": "https://mui.com",
+   "packages": [
+    {
+     "name": "@mui/material",
+     "version": "9.5.0",
+     "role": "components"
+    },
+    {
+     "name": "@mui/icons-material",
+     "version": "9.5.0",
+     "role": "icons"
+    },
+    {
+     "name": "@mui/x-data-grid",
+     "version": "9.15.0",
+     "role": "table"
+    }
+   ],
+   "extras": [
+    {
+     "name": "@mui/x-charts",
+     "version": "9.15.0",
+     "role": "chart"
+    },
+    {
+     "name": "@mui/x-date-pickers",
+     "version": "9.15.0",
+     "role": "dates"
+    },
+    {
+     "name": "@dnd-kit/core",
+     "version": "6.3.1",
+     "role": "kanban"
+    }
+   ],
+   "theming": "createTheme({ cssVariables: true, palette, shape, typography }).",
+   "density": {
+    "C1": "DataGrid density=\"compact\"; components size=\"small\" through theme defaultProps",
+    "C2": "DataGrid density=\"standard\"",
+    "C3": "DataGrid density=\"comfortable\"; components size=\"large\""
+   },
+   "map": {
+    "action": "palette.primary.main",
+    "onAction": "palette.primary.contrastText",
+    "critical": "palette.error.main",
+    "warning": "palette.warning.main",
+    "success": "palette.success.main",
+    "info": "palette.info.main",
+    "text": "palette.text.primary",
+    "muted": "palette.text.secondary",
+    "bg": "palette.background.default",
+    "surface": "palette.background.paper",
+    "line": "palette.divider",
+    "radius": "shape.borderRadius",
+    "fontBody": "typography.fontFamily",
+    "bodySize": "typography.fontSize"
+   },
+   "notes": [
+    "The four status colours map one to one onto palette.error, warning, success and info."
+   ]
+  },
+  "mantine": {
+   "name": "Mantine 9",
+   "license": "MIT",
+   "site": "https://mantine.dev",
+   "packages": [
+    {
+     "name": "@mantine/core",
+     "version": "9.7.2",
+     "role": "components"
+    },
+    {
+     "name": "@tabler/icons-react",
+     "version": "3.49.0",
+     "role": "icons"
+    },
+    {
+     "name": "mantine-datatable",
+     "version": "9.4.0",
+     "role": "table"
+    }
+   ],
+   "extras": [
+    {
+     "name": "@mantine/charts",
+     "version": "9.7.2",
+     "role": "chart"
+    },
+    {
+     "name": "@mantine/dates",
+     "version": "9.7.2",
+     "role": "dates"
+    },
+    {
+     "name": "@dnd-kit/core",
+     "version": "6.3.1",
+     "role": "kanban"
+    }
+   ],
+   "theming": "createTheme({ primaryColor, colors, defaultRadius, fontFamily, fontSizes }); writes --mantine-* variables.",
+   "density": {
+    "C1": "components defaultProps size \"xs\"; mantine-datatable verticalSpacing \"xs\"",
+    "C2": "defaultProps size \"sm\"",
+    "C3": "defaultProps size \"md\""
+   },
+   "map": {
+    "action": "primaryColor (a 10-shade tuple generated from the action colour)",
+    "critical": "colors.red (assign)",
+    "warning": "colors.yellow (assign)",
+    "success": "colors.green (assign)",
+    "info": "colors.blue (assign)",
+    "text": "black",
+    "bg": "body background (CSS variable)",
+    "surface": "white",
+    "radius": "defaultRadius",
+    "fontBody": "fontFamily",
+    "bodySize": "fontSizes.sm"
+   },
+   "notes": [
+    "Mantine has no semantic status roles: assign the four status colours to colour families and use them by name everywhere.",
+    "Its primary colour wants ten shades; generate them from the action colour."
+   ]
+  }
+ },
+ "recommend": {
+  "A01": "shadcn",
+  "A02": "shadcn",
+  "A03": "shadcn",
+  "A04": "shadcn",
+  "A05": "shadcn",
+  "A06": "shadcn",
+  "A07": "antd",
+  "A08": "shadcn",
+  "A09": "antd",
+  "A10": "antd",
+  "A11": "shadcn",
+  "A12": "shadcn",
+  "A13": "shadcn",
+  "A14": "shadcn",
+  "A15": "shadcn"
+ }
+}
