@@ -29,6 +29,10 @@ Entries are written per release. The log is the source material, not the text.
 
 ### Fixed
 
+- Releases publish again. `release.yml` had replaced `publish.yml` and asked for an `NPM_TOKEN` that was
+  never set, while npm trusts the workflow by the name `publish.yml` (trusted publishing, OIDC): 0.7.0
+  and 0.8.0 passed the gate and never reached npm. The workflow is `publish.yml` again, on Node 24,
+  with no token; the release chain in it is unchanged.
 - `--json` output longer than 64KB was cut short when piped on macOS, because every command ends in
   `process.exit` before an asynchronous pipe drains. stdout and stderr now block.
 
