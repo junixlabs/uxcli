@@ -8,6 +8,35 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Added — the designer: a catalog, a profile, argued decisions, a kit
+
+- `skills/uxcli/designer/catalog.json` and the `catalog.md` an agent reads: seven axes a screen is
+  described on (A product type, B layout variant in seven groups, C density, D style with tokens, E
+  design system, F personality, G platform), twelve presets, the combinations it warns about, twelve
+  rules that hold in every style with their evidence level and sources, thirty checks before done
+  drawn from a real CRM review, and the four supported libraries (Ant Design 6, shadcn/ui on Base UI
+  with TanStack Table, MUI 9, Mantine 9) with pinned versions and the component each offers per
+  region. A brief is a formula — `A07 + B-W1, B-W2 + C1 + D02 + E-Ant + F1 + G1` — read strictly: a
+  code the catalog does not hold is refused, an advised-against combination is a warning. Gate:
+  `catalog-pairs`, which also holds `catalog.md` equal to its rendering.
+- `uxcli designer [show | init [--global] [--apply] | check | learn [--apply]]`: a profile in
+  `~/.uxcli/designer/` (or `$UXCLI_HOME`) and one in the project that wins field by field; neutral at
+  first, every axis asked. Decisions in `.uxcli/designer/decisions/D-NNNN.json` close only over two
+  grounded options, after one grounded challenge when the owner overrode or a rule was in conflict,
+  after a clarify question when the feedback was unclear, and never by an agent on a topic the profile
+  says it asks. Context feedback is proposed as an insight, never learned as taste; a kept
+  rule-conflict is the project's exception, signed by the owner. A preference settles at three for and
+  at most one against, is global only across two projects, and `learn` writes `taste.json`, never a
+  profile. Gate: `designer-pairs`.
+- `uxcli designer propose "<formula or preset>" [--lib=…] [--write]`: a kit, not code — the library and
+  packages, the tokens as DTCG 2025.10 data, their contrast checked (text 4.5:1, the action colour
+  3:1; a failing pair is no kit), the library's theme keys mapped to them, the regions of each chosen
+  layout with the component for each, a folder structure and the checks that apply. A design system
+  that is a reference only (Polaris, Atlassian, GOV.UK, Apple HIG, Carbon, Fluent) is refused with its
+  reason; `--write` only creates. Writing the check found catalog tokens under contrast (the light
+  success colour, and the action or ground of D05, D07 and D14), fixed in the data. Gate: `kit-pairs`. Schemas `catalog`, `designer-profile`, `decision`, `kit`; the CRM
+  example carries a profile, a decision and a kit. `references/designer.md` is the loop.
+
 ## [0.8.0] - 2026-10-07
 
 ### Changed — one visual surface, picked from drawings

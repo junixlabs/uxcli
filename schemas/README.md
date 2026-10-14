@@ -20,6 +20,10 @@ key before `uxcli init` does.
 | `lens.schema.json` | `skills/uxcli/lenses/<kind>.json` (shipped) | `parseLens`, `resolveLens` |
 | `review.schema.json` | `.uxcli/mockups/<state>/<variant>.<lens>.review.json`, `.uxcli/reviews/<name>.<lens>.review.json` | `parseReview` |
 | `lenses.schema.json` | `.uxcli/lenses.json` | `parseLensesFile` |
+| `catalog.schema.json` | `skills/uxcli/designer/catalog.json` (shipped) | `src/core/model/catalog.js` `parseCatalog`, `parseFormula` |
+| `designer-profile.schema.json` | `~/.uxcli/designer/profile.json`, `.uxcli/designer/profile.json` | `src/core/model/designer.js` `parseProfile` |
+| `decision.schema.json` | `.uxcli/designer/decisions/D-NNNN.json` | `parseDecision` |
+| `kit.schema.json` | `.uxcli/designer/kits/<id>.json` (written by `designer propose --write`) | read as data; made by `src/core/designer/kit.js` |
 
 The parsers are the law. A schema says what keys a file may carry and what type each has; a parser
 also says what the values must mean — a `strength` claimed above what the signals give, a

@@ -34,7 +34,12 @@ Use this bounded path for ordinary UI work. Read a reference only where a step n
    and `references/journey.md` before writing any UI.
    If you do not know the product's field from sources, research it first: `npx -y @junixlabs/uxcli
    template` names a starting point for the kind of product, and `references/research.md` is how.
-3. **Draw before you build.** First pick the lens for what the person does on this screen —
+3. **Draw before you build.** Start as the designer: `npx -y @junixlabs/uxcli designer` prints
+   your profile (defaults per axis, what you must ask) and the decisions still open. With no default
+   for an axis, propose two or three options from `designer/catalog.md`, each with grounds, and let the
+   person choose; `uxcli designer propose "<formula>"` checks the formula and proposes a kit (library,
+   tokens, the component per region). Feedback is classified, argued once and logged before anything
+   is learned: `references/designer.md`. Then pick the lens for what the person does on this screen —
    `marketing`, `content`, `data`, `workspace`, `shop` or `transaction` — and read its checklist,
    `lenses/<kind>.md` in this skill: named designers' rules, each with its source and what to look
    at. Draw to it. For each state the card names, draw two or three variants into
@@ -113,6 +118,8 @@ Before you design or change a screen, you read `uxcli context show` for the jour
 | `references/prefer.md` | two versions exist and someone asks which people would rather use: a blind pairwise study you prepare and people judge |
 | `references/research.md` | you do not know the product's field from sources yet: where to look, what to come back with, how to write it down |
 | `templates/<id>.md` | the product is a kind uxcli has a template for — `workspace`, `shop`, `landing`: screens and their lens, journeys to walk, what to research |
+| `designer/catalog.md` | describing a product or screen: the seven axes and their codes, presets, the rules that hold in every style, the libraries and the component per region |
+| `references/designer.md` | before proposing a design direction, taking design feedback, or choosing a kit: your profile, the decision log, what may be learned |
 | `lenses/<kind>.md` | before you draw or change a screen: the checklist for its kind of UI — `marketing`, `content`, `data`, `workspace`, `shop`, `transaction` |
 | `references/lenses.md` | how to pick the lens, answer it, write the review, and pass `review check` |
 | `references/principles.md` | a verdict is `not-committed` and the project should decide; proposing a commitment |

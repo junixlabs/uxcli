@@ -92,6 +92,7 @@ Node 20+. `npx -y @junixlabs/uxcli <command>` works without installing.
 uxcli init --apply --origin=http://localhost:3000    # a rule file, the skill, .uxcli/ with the floor policy
 uxcli template show workspace                        # the kind of product: screens, lens per screen, what to research
 uxcli context show handle-inbound-lead               # read before you design
+uxcli designer propose P1                            # the designer: a catalog formula or preset becomes a kit — library, tokens, component per region
 uxcli mockups                                        # the screens drawn as the journey's flow; a person picks
 uxcli lens show workspace                            # named designers' viewpoints for this kind of UI
 uxcli review check                                   # every lens review complete, fresh, not contradicted by a probe
@@ -215,6 +216,7 @@ uxcli init [dir] [--apply --origin=URL]    # where the project stands and the fi
 uxcli context show [journey]          # what to read before designing
 uxcli mockups [dir] [--viewport=WxH[,WxH…]]  # every screen's variants photographed; the picked ones as each journey's flow
 uxcli lens [show <kind>]              # the shipped lenses: named designers' viewpoints by kind of UI
+uxcli designer [show | init | check | learn | propose "<formula>"]   # the agent as a designer: profile, argued decisions, learned taste, a kit per formula
 uxcli template [show <id> | apply <id>]   # where to start for a kind of product: screens, lenses, journeys, research questions
 uxcli review <state>/<variant> --lens=<kind> --write   # an empty review beside a drawing (a URL with --name reviews a screen)
 uxcli review check                    # every review complete, fresh, and not contradicted by a probe
