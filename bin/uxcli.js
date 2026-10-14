@@ -50,8 +50,9 @@ const usage = `usage:
   uxcli dashboard [dir …] [--serve [--port=N]] [--json]   the management view, read-only: every screen against every kind of evidence (a gap is never a pass), the runs with their steps and pictures, the design, the understanding; --serve on localhost switches between folders and takes another folder from the page
   uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]   the board: every journey as a canvas — each step drawn (variants, the pick), built (the last walk, findings pinned) and in each named version; pan, zoom, inspect; --serve on localhost refreshes as files change and lets a person pick or ask for a redraw
   uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
-  uxcli designer [show | init [--global] [--apply] | check | learn [--apply]]   the agent as a designer: its profile (global, the project's wins field by field), its decisions with grounds,
-      and the taste learned from closed ones — only taste feedback, settled at three for, global across two projects; learn never writes a profile
+  uxcli designer [show | init [--global] [--apply] | check | learn [--apply] | propose "<formula>" [--lib=antd|shadcn|mui|mantine] [--write]]   the agent as a designer: its profile (global, the project's wins field by field), its decisions with grounds,
+      and the taste learned from closed ones — only taste feedback, settled at three for, global across two projects; learn never writes a profile;
+      propose checks a catalog formula (skills/uxcli/designer/catalog.md) and proposes a kit: library and packages, DTCG tokens that pass their own contrast check, theme keys, the component for each region of each layout, checks before done
   uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
   uxcli review <state>/<variant> --lens=<kind> --write   an empty review beside the drawing; a URL with --name=<n> reviews a screen
   uxcli review check                  every review complete, fresh against its drawing, and not contradicted by a probe
@@ -243,6 +244,13 @@ try {
       if (!root) { console.error('uxcli: no .uxcli/policy/policy.json here or above'); process.exit(1); }
       const r = D.learnDesigner(root, { apply: flags.has('--apply') });
       console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : D.learnCard(r, flags.has('--apply')));
+      process.exit(r.problems.length ? 1 : 0);
+    }
+    if (sub === 'propose') {
+      if (!args[1]) { console.error('uxcli: designer propose "<formula or preset>", e.g. "A07 + B-W1, B-W2 + C1 + D02 + F1 + G1" or P1'); process.exit(1); }
+      if (flags.has('--write') && !root) { console.error('uxcli: no .uxcli/policy/policy.json here or above; --write needs a project'); process.exit(1); }
+      const r = D.proposeDesigner(root, args[1], { lib: opt('lib'), write: flags.has('--write') });
+      console.log(flags.has('--json') ? JSON.stringify(r.kit || r, null, 1) : D.kitCard(r));
       process.exit(r.problems.length ? 1 : 0);
     }
     if (sub !== 'show' && sub !== 'check') { console.error(`uxcli: designer ${sub}? show, init, check, learn, propose`); process.exit(1); }

@@ -1,0 +1,822 @@
+{
+  "schema_version": 1,
+  "id": "a07-w7-antd",
+  "formula": "A07 + B-W7, B-W2 + C2 + D02 + F1 + G2",
+  "checked": "2026-10-14",
+  "library": {
+    "id": "antd",
+    "name": "Ant Design 6",
+    "why": "the usual library for A07 Operations workspace (CRM, ERP, HRM, admin)",
+    "alternatives": [
+      "shadcn",
+      "mui",
+      "mantine"
+    ],
+    "packages": [
+      {
+        "name": "antd",
+        "version": "6.6.6",
+        "role": "components"
+      },
+      {
+        "name": "@ant-design/icons",
+        "version": "6.3.4",
+        "role": "icons"
+      }
+    ],
+    "theming": "ConfigProvider theme={{ token, algorithm }}; v6 writes CSS variables.",
+    "density": "algorithm: theme.defaultAlgorithm",
+    "notes": [
+      "The four status colours map one to one onto antd's semantic tokens."
+    ]
+  },
+  "tokens": {
+    "$description": "D02 Enterprise clean, C2 Comfortable; light scheme. DTCG Format Module 2025.10.",
+    "color": {
+      "bg": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.957,
+            0.965,
+            0.976
+          ],
+          "hex": "#f4f6f9"
+        }
+      },
+      "surface": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "hex": "#ffffff"
+        }
+      },
+      "text": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.114,
+            0.153,
+            0.2
+          ],
+          "hex": "#1d2733"
+        }
+      },
+      "muted": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.373,
+            0.42,
+            0.478
+          ],
+          "hex": "#5f6b7a"
+        }
+      },
+      "action": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.059,
+            0.384,
+            0.996
+          ],
+          "hex": "#0f62fe"
+        }
+      },
+      "onAction": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            1,
+            1
+          ],
+          "hex": "#ffffff"
+        }
+      },
+      "line": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.867,
+            0.89,
+            0.918
+          ],
+          "hex": "#dde3ea"
+        }
+      },
+      "critical": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.706,
+            0.137,
+            0.094
+          ],
+          "hex": "#b42318"
+        }
+      },
+      "criticalSoft": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.992,
+            0.925,
+            0.918
+          ],
+          "hex": "#fdecea"
+        }
+      },
+      "warning": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.541,
+            0.325,
+            0
+          ],
+          "hex": "#8a5300"
+        }
+      },
+      "warningSoft": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1,
+            0.957,
+            0.863
+          ],
+          "hex": "#fff4dc"
+        }
+      },
+      "success": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.082,
+            0.439,
+            0.204
+          ],
+          "hex": "#157034"
+        }
+      },
+      "successSoft": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.902,
+            0.957,
+            0.918
+          ],
+          "hex": "#e6f4ea"
+        }
+      },
+      "info": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.043,
+            0.361,
+            0.678
+          ],
+          "hex": "#0b5cad"
+        }
+      },
+      "infoSoft": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.906,
+            0.941,
+            0.984
+          ],
+          "hex": "#e7f0fb"
+        }
+      }
+    },
+    "dimension": {
+      "radius": {
+        "$type": "dimension",
+        "$value": {
+          "value": 6,
+          "unit": "px"
+        }
+      },
+      "rowHeight": {
+        "$type": "dimension",
+        "$value": {
+          "value": 48,
+          "unit": "px"
+        }
+      },
+      "controlHeight": {
+        "$type": "dimension",
+        "$value": {
+          "value": 40,
+          "unit": "px"
+        }
+      },
+      "space": {
+        "1": {
+          "$type": "dimension",
+          "$value": {
+            "value": 8,
+            "unit": "px"
+          }
+        },
+        "2": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          }
+        },
+        "3": {
+          "$type": "dimension",
+          "$value": {
+            "value": 24,
+            "unit": "px"
+          }
+        },
+        "4": {
+          "$type": "dimension",
+          "$value": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "6": {
+          "$type": "dimension",
+          "$value": {
+            "value": 48,
+            "unit": "px"
+          }
+        },
+        "8": {
+          "$type": "dimension",
+          "$value": {
+            "value": 64,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "font": {
+      "body": {
+        "$type": "fontFamily",
+        "$value": [
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ]
+      },
+      "heading": {
+        "$type": "fontFamily",
+        "$value": [
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ]
+      },
+      "headingWeight": {
+        "$type": "fontWeight",
+        "$value": 600
+      },
+      "size": {
+        "xs": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 20,
+            "unit": "px"
+          }
+        },
+        "xl": {
+          "$type": "dimension",
+          "$value": {
+            "value": 28,
+            "unit": "px"
+          }
+        }
+      }
+    }
+  },
+  "contrast": [
+    {
+      "fg": "text",
+      "bg": "bg",
+      "ratio": 13.95,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "text",
+      "bg": "surface",
+      "ratio": 15.11,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "muted",
+      "bg": "bg",
+      "ratio": 5.01,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "muted",
+      "bg": "surface",
+      "ratio": 5.43,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "onAction",
+      "bg": "action",
+      "ratio": 5,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "action",
+      "bg": "bg",
+      "ratio": 4.62,
+      "min": 3,
+      "ok": true
+    },
+    {
+      "fg": "critical",
+      "bg": "criticalSoft",
+      "ratio": 5.75,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "critical",
+      "bg": "surface",
+      "ratio": 6.57,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "warning",
+      "bg": "warningSoft",
+      "ratio": 5.79,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "warning",
+      "bg": "surface",
+      "ratio": 6.33,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "success",
+      "bg": "successSoft",
+      "ratio": 5.44,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "success",
+      "bg": "surface",
+      "ratio": 6.18,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "info",
+      "bg": "infoSoft",
+      "ratio": 5.8,
+      "min": 4.5,
+      "ok": true
+    },
+    {
+      "fg": "info",
+      "bg": "surface",
+      "ratio": 6.67,
+      "min": 4.5,
+      "ok": true
+    }
+  ],
+  "theme": [
+    {
+      "key": "token.colorPrimary",
+      "token": "action",
+      "value": "#0f62fe"
+    },
+    {
+      "key": "token.colorError",
+      "token": "critical",
+      "value": "#b42318"
+    },
+    {
+      "key": "token.colorWarning",
+      "token": "warning",
+      "value": "#8a5300"
+    },
+    {
+      "key": "token.colorSuccess",
+      "token": "success",
+      "value": "#157034"
+    },
+    {
+      "key": "token.colorInfo",
+      "token": "info",
+      "value": "#0b5cad"
+    },
+    {
+      "key": "token.colorText",
+      "token": "text",
+      "value": "#1d2733"
+    },
+    {
+      "key": "token.colorTextSecondary",
+      "token": "muted",
+      "value": "#5f6b7a"
+    },
+    {
+      "key": "token.colorBgLayout",
+      "token": "bg",
+      "value": "#f4f6f9"
+    },
+    {
+      "key": "token.colorBgContainer",
+      "token": "surface",
+      "value": "#ffffff"
+    },
+    {
+      "key": "token.colorBorderSecondary",
+      "token": "line",
+      "value": "#dde3ea"
+    },
+    {
+      "key": "token.borderRadius",
+      "token": "radius",
+      "value": 6
+    },
+    {
+      "key": "token.fontFamily",
+      "token": "fontBody",
+      "value": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"
+    },
+    {
+      "key": "token.fontSize",
+      "token": "bodySize",
+      "value": 14
+    },
+    {
+      "key": "token.controlHeight",
+      "token": "controlHeight",
+      "value": 40
+    }
+  ],
+  "patterns": [
+    {
+      "layout": "B-W7",
+      "name": "Inbox or queue",
+      "use": "Tickets, things to handle, approvals.",
+      "regions": [
+        {
+          "region": "app-shell",
+          "component": "Layout, Layout.Sider, Menu",
+          "note": null
+        },
+        {
+          "region": "record-list",
+          "component": "List, List.Item",
+          "note": null
+        },
+        {
+          "region": "detail-header",
+          "component": "Flex, Avatar, Typography.Title, Tag, Button",
+          "note": null
+        },
+        {
+          "region": "notice",
+          "component": "Alert",
+          "note": null
+        },
+        {
+          "region": "bulk-bar",
+          "component": "Flex, Button, Typography.Text",
+          "note": null
+        }
+      ],
+      "checks": [
+        "bulk-visible-only",
+        "bulk-server-allowed",
+        "selection-across-pages",
+        "no-nested-scroll",
+        "sort-visible",
+        "drop-flat-columns",
+        "tier-one-on-top",
+        "alert-with-fix",
+        "no-dead-links",
+        "default-view-has-data",
+        "dialog-cancel"
+      ]
+    },
+    {
+      "layout": "B-W2",
+      "name": "List-detail",
+      "use": "Working through many records one after another without losing one's place.",
+      "regions": [
+        {
+          "region": "app-shell",
+          "component": "Layout, Layout.Sider, Menu",
+          "note": null
+        },
+        {
+          "region": "record-list",
+          "component": "List, List.Item",
+          "note": null
+        },
+        {
+          "region": "detail-header",
+          "component": "Flex, Avatar, Typography.Title, Tag, Button",
+          "note": null
+        },
+        {
+          "region": "detail-panel",
+          "component": "Descriptions",
+          "note": null
+        },
+        {
+          "region": "timeline",
+          "component": "Timeline",
+          "note": null
+        }
+      ],
+      "checks": [
+        "tier-one-on-top",
+        "alert-with-fix",
+        "no-dead-links",
+        "dialog-cancel"
+      ]
+    }
+  ],
+  "structure": [
+    "src/theme/tokens.json  (this kit's tokens)",
+    "src/theme/theme.ts  (the Ant Design 6 theme, keys as below)",
+    "src/components/  (a component at its second use)",
+    "src/features/<area>/  (screens, by what the person does)"
+  ],
+  "rules": [
+    {
+      "id": "colour-roles",
+      "rule": "Colour has fixed roles: a neutral ground, one action colour and four status colours (critical, warning, success, info). No colour outside a role.",
+      "check": "List the tokens; count colours used outside them — zero."
+    },
+    {
+      "id": "one-meaning",
+      "rule": "One colour, one meaning across the product; the action colour is not a status colour.",
+      "check": "Compare the colour-to-meaning table between screens."
+    },
+    {
+      "id": "quiet-normal",
+      "rule": "The normal state is quiet; only what needs attention carries colour.",
+      "check": "The share of rows with a warm status chip on one screen stays low."
+    },
+    {
+      "id": "few-codes",
+      "rule": "At most five to seven status colours per entity, and about four new colour codes to learn per screen.",
+      "check": "Count them."
+    },
+    {
+      "id": "never-colour-alone",
+      "rule": "Colour is never the only signal: a short word or an icon always goes with it.",
+      "check": "In greyscale every state is still told apart."
+    },
+    {
+      "id": "contrast",
+      "rule": "Text 4.5:1, large text and component parts 3:1, in light and dark.",
+      "check": "Measure automatically."
+    },
+    {
+      "id": "scales",
+      "rule": "About four type sizes on one scale and spacing from one scale; space between groups is clearly larger than space within them.",
+      "check": "Count the distinct values in the CSS."
+    },
+    {
+      "id": "one-primary",
+      "rule": "One dominant element and one primary button per screen.",
+      "check": "Squint test; count primary buttons."
+    },
+    {
+      "id": "space-lines-boxes",
+      "rule": "Separate with space first, a line second, a box last; no box inside a box.",
+      "check": "Count nested boxed layers."
+    },
+    {
+      "id": "first-screen",
+      "rule": "The most important thing is on the first screen; long pages have headings that read alone; no scroll box inside a scrolling page.",
+      "check": "Position of the main element against 100vh; count nested scroll areas."
+    },
+    {
+      "id": "table-card-list",
+      "rule": "Compare in a table, browse independent items with pictures in cards, read in order in a list.",
+      "check": "Check against what the person does on the screen."
+    },
+    {
+      "id": "table-basics",
+      "rule": "Tables: numbers right-aligned in tabular figures, text left, one unit per column, sort state visible, sticky header, empty and loading states.",
+      "check": "Check column by column."
+    }
+  ],
+  "checks": [
+    {
+      "id": "bulk-visible-only",
+      "kind": "bug",
+      "severity": "S1",
+      "check": "Bulk actions touch only the rows the filter shows; filtering cuts the selection in the same render."
+    },
+    {
+      "id": "bulk-server-allowed",
+      "kind": "contract",
+      "severity": "S2",
+      "check": "Bulk sends only rows the server marked as allowed, and says beforehand how many are skipped and why."
+    },
+    {
+      "id": "selection-across-pages",
+      "kind": "usability",
+      "severity": "N3",
+      "check": "With pagination, the selection bar says which page the selection is on and offers \"select all N\"."
+    },
+    {
+      "id": "no-nested-scroll",
+      "kind": "usability",
+      "severity": "N2",
+      "check": "The table is not its own scroll box inside a scrolling page; the header sticks, the pager sticks."
+    },
+    {
+      "id": "sort-visible",
+      "kind": "usability",
+      "severity": "N2",
+      "check": "Sort arrows are always visible, faintly, not only on hover."
+    },
+    {
+      "id": "drop-flat-columns",
+      "kind": "usability",
+      "severity": "N1",
+      "check": "A column holding one value in 80% or more of rows is dropped or merged; no \"Open\" button column when the name is a link."
+    },
+    {
+      "id": "tier-one-on-top",
+      "kind": "usability",
+      "severity": "N3",
+      "check": "Identity, status, next action and what is overdue sit on top; standing explanatory paragraphs go behind a \"?\"."
+    },
+    {
+      "id": "alert-with-fix",
+      "kind": "usability",
+      "severity": "N3",
+      "check": "Every alert carries the way to fix it right there."
+    },
+    {
+      "id": "no-dead-links",
+      "kind": "usability",
+      "severity": "N3",
+      "check": "No link leads to a refusal (403) or nothing (404); say why in words instead."
+    },
+    {
+      "id": "default-view-has-data",
+      "kind": "usability",
+      "severity": "N2",
+      "check": "A screen does not open on an empty view while the view beside it has data."
+    },
+    {
+      "id": "refusals-in-words",
+      "kind": "contract",
+      "severity": "S2",
+      "check": "A refusal shows a sentence from one shared table of reason codes, never a raw code or the backend's English."
+    },
+    {
+      "id": "read-the-backend",
+      "kind": "contract",
+      "severity": "S2",
+      "check": "Field names of errors and allowlists are read from the backend code, not guessed; \"\" clears a field, it is not \"do not send\"."
+    },
+    {
+      "id": "why-on-rule-errors",
+      "kind": "usability",
+      "severity": "N2",
+      "check": "An error caused by a business rule links to \"Why?\" explained in place; an input error does not."
+    },
+    {
+      "id": "no-typed-codes",
+      "kind": "usability",
+      "severity": "N3",
+      "check": "Nobody types a reason code; offer sentences with the code behind them; a choice list over ten items has search."
+    },
+    {
+      "id": "dialog-cancel",
+      "kind": "usability",
+      "severity": "N2",
+      "check": "Long create or edit forms open in a dialog or a page, never inline pushing the page down; a writing dialog ends with \"Cancel\", a reading one with \"Close\"."
+    },
+    {
+      "id": "open-every-layer",
+      "kind": "bug",
+      "severity": "S1",
+      "check": "Open every overlay (select, popover, dialog) and confirm it has content; reading text on the page is not enough."
+    },
+    {
+      "id": "layer-order",
+      "kind": "bug",
+      "severity": "S2",
+      "check": "A select or popover opened in a dialog sits above the dialog's backdrop; every floating layer has its own z-index."
+    },
+    {
+      "id": "tokens-in-dark",
+      "kind": "a11y",
+      "severity": "S2",
+      "check": "Text and ground colours go through tokens; open dark mode and measure contrast."
+    },
+    {
+      "id": "no-sideways-scroll",
+      "kind": "a11y",
+      "severity": "S2",
+      "check": "No horizontal scroll at 390px; header button rows may wrap. Check 1920, 1280, 860 and 390."
+    },
+    {
+      "id": "no-button-in-button",
+      "kind": "a11y",
+      "severity": "S2",
+      "check": "No button inside a button; a long screen-reader name goes in aria-label, not in visible text."
+    },
+    {
+      "id": "one-word-one-meaning",
+      "kind": "usability",
+      "severity": "N2",
+      "check": "One word, one meaning per screen; buttons with one role share one label; one way of saying \"empty\"."
+    },
+    {
+      "id": "component-at-second-use",
+      "kind": "debt",
+      "severity": "-",
+      "check": "Sizes, weights and colours come from tokens; markup used on a second screen becomes a component."
+    },
+    {
+      "id": "count-boxes",
+      "kind": "usability",
+      "severity": "N1",
+      "check": "Count boxed nesting before showing a page: space first, lines next, boxes last."
+    },
+    {
+      "id": "measure-not-eyeball",
+      "kind": "drift",
+      "severity": "N2",
+      "check": "When a prototype exists, compare the build by measurement, not by eye."
+    }
+  ],
+  "warnings": [
+    "G2 with A07: Mobile first rarely suits desktop work screens; consider G1, still responsive."
+  ]
+}

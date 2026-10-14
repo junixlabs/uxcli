@@ -44,5 +44,6 @@ export const SUITES = [
   { tag: 'dash', title: 'the dashboard says what is missing as plainly as what is there', file: 'dashboard-pairs.mjs', miss: 'seen' },
   { tag: 'cat', title: 'a formula names only what the catalog holds', file: 'catalog-pairs.mjs', miss: 'refused' },
   { tag: 'brain', title: 'the designer learns only what was argued and agreed', file: 'designer-pairs.mjs', miss: 'refused' },
+  { tag: 'kit', title: 'a kit checks its own tokens before anyone builds', file: 'kit-pairs.mjs', miss: 'refused' },
   { tag: 'board', title: 'the studio shows every step, and decides through the files', file: 'studio-pairs.mjs', miss: 'refused' },
 ];

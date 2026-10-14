@@ -12,6 +12,10 @@ export function create(file, doc) {
   if (fs.existsSync(file)) return 'kept';
   fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(doc, null, 2) + '\n'); return 'create';
 }
+export function createText(file, text) {
+  if (fs.existsSync(file)) return 'kept';
+  fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, text); return 'create';
+}
 // Derived files (taste.json, the global copy of a decision) are rewritten from their source each time.
 export function rewrite(file, doc) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(doc, null, 2) + '\n'); }
 // The global store keeps a copy of every decision a project let it learn from, one folder per project.

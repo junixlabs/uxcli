@@ -110,7 +110,7 @@ export function parseFormula(text, catalog) {
   });
   const groups = new Set(types.flatMap(t => catalog.codes.get(t).groups));
   for (const b of value.B) if (!groups.has(catalog.codes.get(b).group)) warnings.push(`${b} is not a usual layout for ${types.join(', ')}`);
-  for (const e of value.E) { const s = catalog.codes.get(e); if (!s.library) warnings.push(`${e} is a reference only: ${s.why}`); }
+  for (const e of value.E) { const s = catalog.codes.get(e); if (!s.library) warnings.push(`${e} ${s.name}: ${s.why}`); }
   return { ...done(value, []), warnings };
 }
 

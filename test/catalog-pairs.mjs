@@ -41,7 +41,7 @@ export async function pair() {
   must('a style advised against for the type was not warned', f('A07 + B-W1 + C1 + D07').warnings.some(w => /D07 .* advised against for A07/.test(w)));
   must('an accent style put first was not warned', f('A02 + B-M1 + C3 + D05').warnings.some(w => /accent/.test(w)));
   must('a layout outside the type\'s groups was not warned', f('A07 + B-S1 + C1 + D02').warnings.some(w => /B-S1 is not a usual layout/.test(w)));
-  must('a reference-only design system was not warned', f('A03 + B-S1 + C2 + D03 + E-Polaris').warnings.some(w => /reference only/.test(w)));
+  must('a reference-only design system was not warned', f('A03 + B-S1 + C2 + D03 + E-Polaris').warnings.some(w => /reference only/i.test(w)));
 
   // the catalog refuses what must never ship
   const doc = raw();

@@ -12,7 +12,7 @@ const listBeside = (dir, name) => fs.existsSync(dir) ? fs.readdirSync(dir).sort(
 const BESIDE = ['pick', 'about', 'revise'];
 
 // Which schema each directory under .uxcli/ answers to.
-export const WHERE = { actor: 'understanding/actors', insight: 'understanding/insights', journey: 'journeys', commitment: 'commitments', policy: 'policy', profile: 'profiles', proposal: 'proposals', pick: 'mockups', about: 'mockups', revise: 'mockups', 'designer-profile': 'designer', decision: 'designer/decisions' };
+export const WHERE = { actor: 'understanding/actors', insight: 'understanding/insights', journey: 'journeys', commitment: 'commitments', policy: 'policy', profile: 'profiles', proposal: 'proposals', pick: 'mockups', about: 'mockups', revise: 'mockups', 'designer-profile': 'designer', decision: 'designer/decisions', kit: 'designer/kits' };
 export const PROJECTS = ['examples/crm/.uxcli', 'test/fixtures/crm/.uxcli'];
 
 export async function pair() {

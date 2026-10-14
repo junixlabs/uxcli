@@ -6,7 +6,8 @@ import fs from 'node:fs'; import path from 'node:path';
 import { parseCatalog, catalogMarkdown, AXES } from './core/model/catalog.js';
 import { parseProfile, parseDecision, mergeProfiles, neutralProfile } from './core/model/designer.js';
 import { learn, promotions } from './core/designer/learn.js';
-import { globalDir, projectDir, readJson, listJson, create, rewrite, globalDecisions } from './adapters/store/designer.js';
+import { proposeKit, kitMarkdown } from './core/designer/kit.js';
+import { globalDir, projectDir, readJson, listJson, create, createText, rewrite, globalDecisions } from './adapters/store/designer.js';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 export const DESIGNER_DIR = path.join(ROOT, 'skills', 'uxcli', 'designer');
@@ -93,5 +94,32 @@ export function learnCard(r, apply) {
   if (r.promote.length) L.push('', '  to propose — the owner signs; learn never writes a profile', ...r.promote.map(p => `  ${p.where === 'global' ? rel(r.files.global) : rel(r.files.project || '')}  defaults.${p.axis} add ${p.add} (over ${p.over}; ${p.evidence.join(', ')})`));
   for (const p of r.problems) L.push(`  problem  ${p}`);
   L.push('', apply ? '  wrote taste.json (project and global); no profile was changed' : '  nothing written; --apply rewrites taste.json and copies global-scope decisions to the global store');
+  return L.join('\n');
+}
+
+// A kit for a formula: printed, and with write, created under .uxcli/designer/kits/<id>.json and .md — never over one already there.
+export function proposeDesigner(root, text, { lib = null, write = false } = {}) {
+  const cat = catalog(); if (!cat.value) return { problems: cat.problems, warnings: [] };
+  const r = proposeKit(text, cat.value, { lib });
+  if (!r.value || !write) return { ...r, files: [] };
+  const base = path.join(projectDir(root), 'kits', r.value.id);
+  const files = [[`${base}.json`, create(`${base}.json`, r.value)], [`${base}.md`, createText(`${base}.md`, kitMarkdown(r.value))]];
+  return { ...r, files };
+}
+
+export function kitCard(r) {
+  const k = r.kit; const L = [''];
+  if (!k) { L.push(`  designer propose — refused`, ...r.problems.map(p => `  problem  ${p}`)); return L.join('\n'); }
+  L.push(`  kit ${k.id}  ${k.formula}`, '', `  library   ${k.library.name} — ${k.library.why}; alternatives ${k.library.alternatives.join(', ')}`,
+    `  install   ${k.library.packages.map(p => `${p.name}@${p.version}`).join(' ')}`, `  density   ${k.library.density}`,
+    `  theme     ${k.theme.slice(0, 6).map(t => `${t.key}=${t.value}`).join(' · ')}${k.theme.length > 6 ? ' …' : ''}`,
+    `  contrast  ${k.contrast.filter(c => c.ok).length}/${k.contrast.length} pairs hold`);
+  for (const p of k.patterns) L.push(`  ${p.layout.padEnd(8)}  ${p.regions.map(x => `${x.region}: ${x.component || '—'}`).join(' · ')}`);
+  L.push(`  checks    ${k.checks.length} before done (in the .md)`);
+  for (const w of r.warnings) L.push(`  warning   ${w}`);
+  for (const p of r.problems) L.push(`  problem   ${p}`);
+  for (const [f, s] of r.files || []) L.push(`  ${s.padEnd(8)}  ${rel(f)}`);
+  L.push('', r.files?.length ? '  Choosing a kit is a decision: write D-NNNN with this kit and at least one other option, each with grounds; the owner picks.'
+    : '  nothing written; --write creates the kit under .uxcli/designer/kits/. Choosing a kit is a decision with at least two options.');
   return L.join('\n');
 }

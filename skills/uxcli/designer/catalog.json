@@ -1034,12 +1034,12 @@
    "accent": true,
    "scheme": "dark",
    "tokens": {
-    "bg": "#24315e",
+    "bg": "#141b33",
     "surface": "rgba(255,255,255,.16)",
     "text": "#ffffff",
     "muted": "#d4daea",
     "action": "#ffffff",
-    "onAction": "#24315e",
+    "onAction": "#141b33",
     "line": "rgba(255,255,255,.28)",
     "radius": 20,
     "shadow": "0 8px 32px rgba(0,0,0,.18)",
@@ -1089,8 +1089,8 @@
     "surface": "#ffffff",
     "text": "#111111",
     "muted": "#3a3a3a",
-    "action": "#ff5c8a",
-    "onAction": "#111111",
+    "action": "#c2185b",
+    "onAction": "#ffffff",
     "line": "#111111",
     "radius": 6,
     "shadow": "5px 5px 0 #111111",
@@ -1268,8 +1268,8 @@
     "surface": "#ffffff",
     "text": "#1b1b3a",
     "muted": "#4d4d73",
-    "action": "#ff4fd8",
-    "onAction": "#1b1b3a",
+    "action": "#b0168a",
+    "onAction": "#ffffff",
     "line": "#1b1b3a",
     "radius": 12,
     "shadow": "4px 4px 0 #ffd23f",
@@ -1391,7 +1391,7 @@
     "soft": "#fff4dc"
    },
    "success": {
-    "text": "#1a7f37",
+    "text": "#157034",
     "soft": "#e6f4ea"
    },
    "info": {
