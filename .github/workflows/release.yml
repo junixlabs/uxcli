@@ -20,6 +20,9 @@ jobs:
       - run: npx playwright-core install --with-deps chromium-headless-shell
       - name: gate
         run: node bin/uxcli.js gate
+      # actions/checkout recreates the pushed tag as a lightweight ref; fetch the tag object itself before asking what it is
+      - name: fetch the tag as pushed
+        run: git fetch --force --no-tags origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
       - name: the tag is annotated
         run: test "$(git cat-file -t "$GITHUB_REF_NAME")" = tag
       - name: tag, package.json and the skill agree on the version
