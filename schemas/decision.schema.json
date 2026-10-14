@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/decision.schema.json",
+  "title": "Design decision",
+  "description": ".uxcli/designer/decisions/D-NNNN.json: a question, two or more options each with grounds, the agent's proposal, the owner's feedback classified, clarify questions, at most one grounded challenge, the resolution, and what may be learned from it. src/core/model/designer.js refuses what this schema cannot see: owner-overrode without a challenge, unclear closed without a clarify, context learned as taste.",
+  "type": "object",
+  "required": ["schema_version", "id", "when", "question", "about", "options", "proposal", "resolution", "learn"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^D-\\d{4}$" },
+    "when": { "type": "string", "minLength": 1 },
+    "question": { "type": "string", "minLength": 1 },
+    "about": { "enum": ["A", "B", "C", "D", "E", "F", "G", "library", "tokens", "copy", "spacing", "component", "pattern"] },
+    "context": { "type": "object", "additionalProperties": false, "properties": { "formula": { "type": "string" }, "journey": { "type": "string" }, "state": { "type": "string" }, "pick": { "type": "string" }, "kit": { "type": "string" } } },
+    "options": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id", "says", "grounds"], "additionalProperties": false, "properties": {
+      "id": { "type": "string", "minLength": 1 }, "says": { "type": "string", "minLength": 1 }, "grounds": { "type": "array", "items": { "$ref": "#/$defs/ground" } } } } },
+    "proposal": { "type": "object", "required": ["option", "why"], "additionalProperties": false, "properties": { "option": { "type": "string" }, "why": { "type": "string", "minLength": 1 } } },
+    "feedback": { "type": "array", "items": { "type": "object", "required": ["by", "said", "kind"], "additionalProperties": false, "properties": {
+      "by": { "$ref": "#/$defs/signer" }, "said": { "type": "string", "minLength": 1 }, "kind": { "enum": ["taste", "context", "rule-conflict", "unclear"] } } } },
+    "clarify": { "type": "array", "items": { "type": "object", "required": ["asked"], "additionalProperties": false, "properties": { "asked": { "type": "string", "minLength": 1 }, "answer": { "type": "string" } } } },
+    "challenge": { "type": "object", "required": ["argument", "grounds"], "additionalProperties": false, "properties": { "argument": { "type": "string", "minLength": 1 }, "grounds": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ground" } } } },
+    "resolution": { "type": "object", "required": ["state"], "additionalProperties": false, "properties": {
+      "state": { "enum": ["open", "agreed", "owner-overrode", "agent-convinced"] }, "chosen": { "type": "string" }, "by": { "$ref": "#/$defs/signer" }, "why": { "type": "string" } } },
+    "learn": { "type": "object", "required": ["scope", "signals"], "additionalProperties": false, "properties": {
+      "scope": { "enum": ["global", "project", "none"] },
+      "signals": { "type": "array", "items": { "type": "object", "required": ["axis", "prefer", "over"], "additionalProperties": false, "properties": { "axis": { "enum": ["A", "B", "C", "D", "E", "F", "G", "library"] }, "prefer": { "type": "string" }, "over": { "type": "string" } } } } } }
+  },
+  "$defs": {
+    "ground": { "type": "object", "required": ["kind", "ref"], "additionalProperties": false, "properties": { "kind": { "enum": ["rule", "viewpoint", "research", "insight", "commitment", "taste"] }, "ref": { "type": "string", "minLength": 1 }, "note": { "type": "string" } } },
+    "signer": { "type": "object", "required": ["type", "ref"], "additionalProperties": false, "properties": { "type": { "enum": ["person", "role", "agent"] }, "ref": { "type": "string", "minLength": 1 }, "onBehalfOf": { "type": "string" } } }
+  }
+}

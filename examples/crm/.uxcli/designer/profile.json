@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "by": { "type": "person", "ref": "Trưởng nhóm sản phẩm" },
+  "when": "2026-10-14",
+  "note": "Dự án ghi đè hồ sơ chung: CRM cho môi giới, dùng chủ yếu trên điện thoại.",
+  "beliefs": [
+    { "says": "Môi giới xử lý lead trên điện thoại, giữa hai cuộc gọi: thao tác chính phải chạm được bằng một ngón tay.", "source": "understanding/insights/I-001.json" }
+  ],
+  "defaults": { "A": ["A07"], "B": null, "C": ["C2"], "D": ["D02"], "E": null, "F": ["F1"], "G": ["G2"] },
+  "never": ["Không đặt nút gọi lead dưới màn hình đầu tiên."],
+  "priority": ["user-data", "accessibility-standard", "project-commitments", "design-system", "foundation-rules", "taste", "trends"],
+  "decides": { "alone": ["spacing", "copy", "component"], "asks": ["A", "B", "C", "D", "E", "F", "G", "library", "tokens", "pattern"] }
+}

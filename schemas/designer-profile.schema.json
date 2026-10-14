@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/junixlabs/uxcli/schemas/designer-profile.schema.json",
+  "title": "Designer profile",
+  "description": "~/.uxcli/designer/profile.json (global) or .uxcli/designer/profile.json (the project's, which wins field by field): what the designer believes, its defaults per catalog axis, what it never does, the order it settles conflicts in, and what it decides alone or asks. Neutral at first: every default null.",
+  "type": "object",
+  "required": ["schema_version", "by", "when", "beliefs", "defaults", "never", "priority", "decides"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "by": { "$ref": "#/$defs/signer" },
+    "when": { "type": "string", "minLength": 1 },
+    "note": { "type": "string" },
+    "beliefs": { "type": "array", "items": { "type": "object", "required": ["says", "source"], "additionalProperties": false, "properties": { "says": { "type": "string", "minLength": 1 }, "source": { "type": "string", "minLength": 1 } } } },
+    "defaults": { "type": "object", "additionalProperties": false, "properties": {
+      "A": { "$ref": "#/$defs/codes" }, "B": { "$ref": "#/$defs/codes" }, "C": { "$ref": "#/$defs/codes" }, "D": { "$ref": "#/$defs/codes" },
+      "E": { "$ref": "#/$defs/codes" }, "F": { "$ref": "#/$defs/codes" }, "G": { "$ref": "#/$defs/codes" } } },
+    "never": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "priority": { "type": "array", "items": { "enum": ["user-data", "accessibility-standard", "project-commitments", "design-system", "foundation-rules", "taste", "trends"] } },
+    "decides": { "type": "object", "required": ["alone", "asks"], "additionalProperties": false, "properties": {
+      "alone": { "type": "array", "items": { "$ref": "#/$defs/topic" } }, "asks": { "type": "array", "items": { "$ref": "#/$defs/topic" } } } },
+    "exceptions": { "type": "array", "description": "Project only: a foundation rule this project sets aside, by the owner, after a decision.", "items": { "type": "object", "required": ["rule", "why", "decision", "by"], "additionalProperties": false, "properties": {
+      "rule": { "type": "string" }, "why": { "type": "string", "minLength": 1 }, "decision": { "type": "string", "pattern": "^D-\\d{4}$" }, "by": { "$ref": "#/$defs/signer" } } } }
+  },
+  "$defs": {
+    "codes": { "anyOf": [{ "type": "null" }, { "type": "array", "minItems": 1, "items": { "type": "string" } }] },
+    "topic": { "enum": ["A", "B", "C", "D", "E", "F", "G", "library", "tokens", "copy", "spacing", "component", "pattern"] },
+    "signer": { "type": "object", "required": ["type", "ref"], "additionalProperties": false, "properties": { "type": { "enum": ["person", "role", "agent"] }, "ref": { "type": "string", "minLength": 1 }, "onBehalfOf": { "type": "string" } } }
+  }
+}

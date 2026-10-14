@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "D-0001",
+  "when": "2026-10-14",
+  "question": "Mật độ của danh sách lead trên điện thoại",
+  "about": "C",
+  "context": { "formula": "A07 + B-W7 + C2 + D02 + F1 + G2", "journey": "handle-inbound-lead", "state": "agent.workspace_ready" },
+  "options": [
+    { "id": "c2", "says": "C2 Comfortable: hàng 48px, nút 40px", "grounds": [ { "kind": "insight", "ref": "I-001" }, { "kind": "research", "ref": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html" } ] },
+    { "id": "c1", "says": "C1 Compact: hàng 36px, thấy nhiều lead hơn", "grounds": [ { "kind": "insight", "ref": "I-003" } ] }
+  ],
+  "proposal": { "option": "c2", "why": "Môi giới chạm bằng ngón tay giữa hai cuộc gọi (I-001); hàng 36px làm nút gọi sát nhau dễ bấm nhầm." },
+  "feedback": [
+    { "by": { "type": "person", "ref": "Trưởng nhóm sản phẩm" }, "said": "Tôi muốn thấy nhiều lead hơn trên một màn, dùng C1.", "kind": "taste" }
+  ],
+  "challenge": {
+    "argument": "Ba mươi lead một ngày (I-003) là ít; cuộn thêm một chút rẻ hơn bấm nhầm số. Ở 390px, C1 đặt hai nút gọi cách nhau dưới 24px.",
+    "grounds": [ { "kind": "research", "ref": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html" }, { "kind": "insight", "ref": "I-001" } ]
+  },
+  "resolution": { "state": "agent-convinced", "chosen": "c2", "by": { "type": "person", "ref": "Trưởng nhóm sản phẩm" }, "why": "Đồng ý: bấm nhầm số tốn hơn cuộn." },
+  "learn": { "scope": "project", "signals": [ { "axis": "C", "prefer": "C2", "over": "C1" } ] }
+}

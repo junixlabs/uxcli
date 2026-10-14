@@ -50,6 +50,8 @@ const usage = `usage:
   uxcli dashboard [dir …] [--serve [--port=N]] [--json]   the management view, read-only: every screen against every kind of evidence (a gap is never a pass), the runs with their steps and pictures, the design, the understanding; --serve on localhost switches between folders and takes another folder from the page
   uxcli studio [dir] [--serve [--port=N]] [--shot=FILE] [--json]   the board: every journey as a canvas — each step drawn (variants, the pick), built (the last walk, findings pinned) and in each named version; pan, zoom, inspect; --serve on localhost refreshes as files change and lets a person pick or ask for a redraw
   uxcli version [save <journey> <name> [--note=…] [--run=DIR] [--proposal=proposals/P-x.json]]   name a walk of a journey so it is kept and can be compared: uxcli experience --journey=<id> --from=<name> --to=<name> [--page]
+  uxcli designer [show | init [--global] [--apply] | check | learn [--apply]]   the agent as a designer: its profile (global, the project's wins field by field), its decisions with grounds,
+      and the taste learned from closed ones — only taste feedback, settled at three for, global across two projects; learn never writes a profile
   uxcli template [show <id> | apply <id> [dir]]   where to start for a kind of product (workspace, shop, landing): screens and their lens, journeys to walk, what to research; apply writes the actor questions as unknowns, creating only
   uxcli review <state>/<variant> --lens=<kind> --write   an empty review beside the drawing; a URL with --name=<n> reviews a screen
   uxcli review check                  every review complete, fresh against its drawing, and not contradicted by a probe
@@ -227,6 +229,26 @@ try {
     }
     console.log(flags.has('--json') ? JSON.stringify(V.versions(root), null, 1) : V.versionListCard(root));
     process.exit(V.versions(root).some(v => !v.value) ? 1 : 0);
+  } else if (cmd === 'designer') {
+    // The designer's brain: the catalog, a global profile and the project's, decisions, and the taste learned from them.
+    const D = await import('../src/designer.js'); const root = (await import('../src/journey.js')).findRoot(path.resolve(opt('src') || '.'));
+    const sub = args[0] || 'show';
+    if (sub === 'init') {
+      if (!flags.has('--global') && !root) { console.error('uxcli: no .uxcli/policy/policy.json here or above; designer init --global writes the global profile'); process.exit(1); }
+      const r = D.initDesigner(root, { global: flags.has('--global'), apply: flags.has('--apply'), by: { type: 'person', ref: (await import('../src/init.js')).who() } });
+      console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : `  ${r.status}  ${D.shown(r.file)}  a neutral profile: no defaults, every axis asked${r.status === 'create' && !r.applied ? '\n  nothing written; --apply creates it' : ''}`);
+      process.exit(0);
+    }
+    if (sub === 'learn') {
+      if (!root) { console.error('uxcli: no .uxcli/policy/policy.json here or above'); process.exit(1); }
+      const r = D.learnDesigner(root, { apply: flags.has('--apply') });
+      console.log(flags.has('--json') ? JSON.stringify(r, null, 1) : D.learnCard(r, flags.has('--apply')));
+      process.exit(r.problems.length ? 1 : 0);
+    }
+    if (sub !== 'show' && sub !== 'check') { console.error(`uxcli: designer ${sub}? show, init, check, learn, propose`); process.exit(1); }
+    const s = D.designerState(root);
+    console.log(flags.has('--json') ? JSON.stringify({ ...s, catalog: undefined }, null, 1) : sub === 'check' ? (s.problems.length ? 'uxcli: ' + s.problems.join('\n  ') : `  designer files hold: ${s.decisions.length} decision${s.decisions.length === 1 ? '' : 's'}, profile ${s.project ? 'project + ' : ''}${s.global ? 'global' : 'none'}`) : D.designerCard(s));
+    process.exit(s.problems.length ? 1 : 0);
   } else if (cmd === 'template') {
     // Where to start for a kind of product: screens and their lens, journeys to walk, what to research.
     const T = await import('../src/template.js'); const lib = T.templates();

@@ -68,7 +68,7 @@ function items(project, origin) {
 // reach `observe` in one environment, no identity, no fixture, no effect — the level a project starts
 // at, and the one that grants nothing. Its signer is whoever runs `--apply`: that is the say-so.
 const PROJECT = path.join(UXCLI, 'project.json'), POLICY = path.join(UXCLI, 'policy', 'policy.json');
-const who = () => { try { return execSync('git config user.name', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || os.userInfo().username; } catch { return os.userInfo().username; } };
+export const who = () => { try { return execSync('git config user.name', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim() || os.userInfo().username; } catch { return os.userInfo().username; } };
 const projectId = project => { try { return JSON.parse(fs.readFileSync(path.join(project, 'package.json'), 'utf8')).name.replace(/^@[^/]+\//, ''); } catch { return path.basename(project); } };
 export const floorPolicy = (origin, signer, at = new Date().toISOString()) => ({
   schema_version: 1,
