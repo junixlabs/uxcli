@@ -8,6 +8,26 @@ Entries are written per release. The log is the source material, not the text.
 
 ## [Unreleased]
 
+### Added — colour as a system
+
+- A kit's colours are built, not picked (`src/core/designer/color.js`, the method in `catalog.md` under
+  Rules → Colour → *Building the palette*, with its sources). Every family is a 12-step scale in
+  OKLCH, each step with one job: neutral (tinted with the style's hue), action, and critical, warning,
+  success and info. Text steps are solved for their contrast, not hoped for. Roles (`bg`, `text`, `action`,
+  `criticalSoft`…) are what components use. Hover, pressed, selected, disabled and focus come from
+  the scale; hover and pressed move away from the label, so its contrast only grows. Every style
+  gets a dark mode mapped on its own terms (D05, D09, D15 and D16 stay dark only). There are
+  categorical, sequential and diverging chart palettes. Status colours are simulated under protanopia,
+  deuteranopia and tritanopia (Machado 2009), and the action colour is compared with every status
+  colour. The kit maps the roles to each library's keys per mode, with how the library takes a dark
+  mode and Mantine's 10-shade tuple. The rules in `catalog.md` are grouped by topic. Gate:
+  `palette-pairs`.
+- Building it found defects, fixed at the root:
+  - info and success were indistinguishable under tritanopia; info's seed is now `#1570ef`;
+  - D01's red action and D11's orange action read as the critical colour; they are now black and violet;
+  - the antd, MUI and shadcn status keys took the text colour where the library wants the solid.
+
+
 ### Added — the designer: a catalog, a profile, argued decisions, a kit
 
 - `skills/uxcli/designer/catalog.json` and the `catalog.md` an agent reads: seven axes a screen is

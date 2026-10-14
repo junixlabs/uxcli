@@ -3,6 +3,8 @@
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath, pathToFileURL } from 'node:url';
 import { exitFor } from '../src/core/verdict/rank.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// On macOS a pipe is asynchronous, and every command ends in process.exit: without this, --json past 64KB is cut short when piped.
+for (const s of [process.stdout, process.stderr]) s._handle?.setBlocking?.(true);
 const [cmd, ...rest] = process.argv.slice(2);
 const flags = new Set(rest.filter(a => a.startsWith('--') && !a.includes('='))); const args = rest.filter(a => !a.startsWith('--'));
 const opt = k => (rest.find(a => a.startsWith('--' + k + '=')) || '').split('=').slice(1).join('=') || null;

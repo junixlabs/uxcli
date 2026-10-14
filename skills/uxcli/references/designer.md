@@ -75,9 +75,19 @@ zero every time.
 
   A design system that is a reference only is refused, with the reason: Polaris, Atlassian, GOV.UK,
   Apple HIG, Carbon or Fluent. Read it for its rules and build with one of the four.
-- **Tokens as DTCG data.** Contrast is checked: text 4.5:1 and the action colour 3:1. If a pair
-  fails, there is no kit, so change the token first.
-- **Theme keys.** The library's own keys, mapped to the tokens, and how its density is set.
+- **Colour as a system, in DTCG data** (`catalog.md` → Rules → Colour → *Building the palette* is the method):
+  - **Scales:** neutral, action and four statuses, each a 12-step OKLCH scale; every step has one job.
+  - **Roles:** what components use (`bg`, `text`, `action`, `critical`, `criticalSoft`…), per mode.
+    Build with roles; never put a scale step or a hex into a component.
+  - **States** come from the scale: hover, pressed, selected, disabled, focus ring.
+  - **Modes:** light and dark, each its own mapping. A style that is dark only says so.
+  - **Chart palettes:** categorical, sequential and diverging, kept apart from the UI colours.
+  - **Checks, in every mode:** text 4.5:1; control borders, the focus ring, the action colour and
+    chart marks 3:1. If a pair fails, there is no kit. The style's own hand-picked colours are
+    measured as they are, so a bad one is reported, not quietly repaired. Status colours are
+    simulated under three kinds of colour blindness, and the action colour is compared with every
+    status colour; a close pair is a warning that the word or the icon has to carry the meaning.
+- **Theme keys.** The library's own keys, mapped to the roles in each mode, how its density is set and how it takes a dark mode. Mantine's primary colour is the action scale as a 10-shade tuple.
 - **For each chosen layout:**
   - its regions in reading order;
   - the component the library offers for each region, or what to use when it offers none;

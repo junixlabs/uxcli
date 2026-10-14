@@ -114,24 +114,24 @@ Chosen for the people who use it, not for looks.
 
 One base style and at most one accent style.
 
-- **D01 Minimal / Swiss.** Grid, white space, type leads, few colours. Fits Any type.
-- **D02 Enterprise clean.** Neutral ground, one brand colour, thin rules, clear tables. Fits A07, A09, A10.
-- **D03 Flat / Material.** Flat surfaces, elevation shadows, colour blocks. Fits A07, A08, apps.
-- **D04 Soft depth (neumorphism, clay).** Soft shadows lifting elements out of a same-colour ground. Fits Accents, personal apps. Avoid for A07, A09, A11.
-- **D05 Glass (glassmorphism, Liquid Glass) (accent).** Translucent layers over a blurred ground. Fits Overlays, navigation, A02. Avoid for A07, A09.
-- **D06 Bento grid (accent).** Rectangles of many sizes in one grid, large radius. Fits A02 feature sections, executive dashboards.
-- **D07 Brutalism / neubrutalism.** Thick black borders, hard shadows, loud colour, monospace. Fits A02 for creators and startups, portfolios. Avoid for A07, A09, A10, A11.
-- **D08 Editorial / magazine.** Large serif type, a newspaper grid, big pictures, hairlines. Fits A05, premium A03, A01. Avoid for A07.
-- **D09 Dark / OLED.** A dark ground leads, with a bright accent. Fits Developer tools, media, control rooms. Avoid for A05.
-- **D10 Vibrant colour blocks.** Saturated colour, big blocks, heavy type. Fits A02, young communities, consumer apps. Avoid for A07, A10.
-- **D11 Playful / illustrated.** Illustration, large radius, warm colour. Fits Learning, children, empty states. Avoid for A09.
-- **D12 Luxury / premium.** Much white space, thin serif, deep tones, gold. Fits Premium A03, hotels, property. Avoid for A07.
-- **D13 Organic / biophilic.** Earth colours, curves, natural material. Fits Wellness, spas, agriculture. Avoid for A09.
-- **D14 Retro (Y2K, Memphis).** Nostalgia, patterns, candy colours. Fits Young brands, events. Avoid for A07, A09, A10, A11.
-- **D15 Futuristic / HUD.** Neon, grids, glow, monospace. Fits Games, web3, AI launches. Avoid for A07, A10, A11.
-- **D16 3D / motion (accent).** 3D models, depth, scroll motion. Fits Physical product launches. Avoid for A07, A09, A10, A11.
-- **D17 AI-native.** The input is the centre; generated content; suggestions in context. Fits Assistants, AI features inside A07 and A08.
-- **D18 Accessible-first (GOV.UK).** Large type, high contrast, one column, no decoration. Fits A10, A11, public services, healthcare for the public.
+- **D01 Minimal / Swiss.** Grid, white space, type leads, black and white with one accent kept for meaning. Modes: light, dark. Fits Any type.
+- **D02 Enterprise clean.** Neutral ground, one brand colour, thin rules, clear tables. Modes: light, dark. Fits A07, A09, A10.
+- **D03 Flat / Material.** Flat surfaces, elevation shadows, colour blocks. Modes: light, dark. Fits A07, A08, apps.
+- **D04 Soft depth (neumorphism, clay).** Soft shadows lifting elements out of a same-colour ground. Modes: light, dark. Fits Accents, personal apps. Avoid for A07, A09, A11.
+- **D05 Glass (glassmorphism, Liquid Glass) (accent).** Translucent layers over a blurred ground. Modes: dark. Fits Overlays, navigation, A02. Avoid for A07, A09.
+- **D06 Bento grid (accent).** Rectangles of many sizes in one grid, large radius. Modes: light, dark. Fits A02 feature sections, executive dashboards.
+- **D07 Brutalism / neubrutalism.** Thick black borders, hard shadows, loud colour, monospace. Modes: light, dark. Fits A02 for creators and startups, portfolios. Avoid for A07, A09, A10, A11.
+- **D08 Editorial / magazine.** Large serif type, a newspaper grid, big pictures, hairlines. Modes: light, dark. Fits A05, premium A03, A01. Avoid for A07.
+- **D09 Dark / OLED.** A dark ground leads, with a bright accent. Modes: dark. Fits Developer tools, media, control rooms. Avoid for A05.
+- **D10 Vibrant colour blocks.** Saturated colour, big blocks, heavy type. Modes: light, dark. Fits A02, young communities, consumer apps. Avoid for A07, A10.
+- **D11 Playful / illustrated.** Illustration, large radius, warm colour. Modes: light, dark. Fits Learning, children, empty states. Avoid for A09.
+- **D12 Luxury / premium.** Much white space, thin serif, deep tones, gold. Modes: light, dark. Fits Premium A03, hotels, property. Avoid for A07.
+- **D13 Organic / biophilic.** Earth colours, curves, natural material. Modes: light, dark. Fits Wellness, spas, agriculture. Avoid for A09.
+- **D14 Retro (Y2K, Memphis).** Nostalgia, patterns, candy colours. Modes: light, dark. Fits Young brands, events. Avoid for A07, A09, A10, A11.
+- **D15 Futuristic / HUD.** Neon, grids, glow, monospace. Modes: dark. Fits Games, web3, AI launches. Avoid for A07, A10, A11.
+- **D16 3D / motion (accent).** 3D models, depth, scroll motion. Modes: dark. Fits Physical product launches. Avoid for A07, A09, A10, A11.
+- **D17 AI-native.** The input is the centre; generated content; suggestions in context. Modes: light, dark. Fits Assistants, AI features inside A07 and A08.
+- **D18 Accessible-first (GOV.UK).** Large type, high contrast, one column, no decoration. Modes: light, dark. Fits A10, A11, public services, healthcare for the public.
 
 ## E — Reference design system
 
@@ -195,18 +195,62 @@ One.
 
 Evidence: standard (WCAG), study (peer-reviewed), system (published design systems agree), designer (named practitioners), trend.
 
-1. **colour-roles** (system). Colour has fixed roles: a neutral ground, one action colour and four status colours (critical, warning, success, info). No colour outside a role. *Check:* List the tokens; count colours used outside them — zero. Sources: [Shopify Polaris — colour roles](https://polaris.shopify.com/design/colors/palettes-and-roles); [IBM Carbon — colour](https://carbondesignsystem.com/elements/color/overview/); [USWDS — theme tokens](https://designsystem.digital.gov/design-tokens/color/theme-tokens/).
-2. **one-meaning** (study). One colour, one meaning across the product; the action colour is not a status colour. *Check:* Compare the colour-to-meaning table between screens. Sources: [Shopify Polaris — colour roles](https://polaris.shopify.com/design/colors/palettes-and-roles); [IBM Carbon — colour](https://carbondesignsystem.com/elements/color/overview/); [Stroop and reverse Stroop on an interactive tabletop](https://hal.archives-ouvertes.fr/hal-01370664).
-3. **quiet-normal** (study). The normal state is quiet; only what needs attention carries colour. *Check:* The share of rows with a warm status chip on one screen stays low. Sources: [Treisman, preattentive processing (eagereyes summary)](https://eagereyes.org/blog/2015/treisman-preattentive-processing); [Healey, preattentive features (TVCG)](https://www.csc2.ncsu.edu/faculty/healey/download/tvcg.11.pdf).
-4. **few-codes** (study). At most five to seven status colours per entity, and about four new colour codes to learn per screen. *Check:* Count them. Sources: [Munzner after Ware — distinguishable colours](https://www.cs.ubc.ca/~tmm/courses/533-09/slides/color.pdf); [Cowan 2001 — the magical number 4](https://memory.psych.missouri.edu/assets/doc/articles/2001/cowan-bbs-2001.pdf).
-5. **never-colour-alone** (standard). Colour is never the only signal: a short word or an icon always goes with it. *Check:* In greyscale every state is still told apart. Sources: [WCAG 2.2 — 1.4.1 Use of color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
-6. **contrast** (standard). Text 4.5:1, large text and component parts 3:1, in light and dark. *Check:* Measure automatically. Sources: [WCAG 2.2 — 1.4.3 Contrast (minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html); [WCAG 2.2 — 1.4.11 Non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html).
-7. **scales** (designer). About four type sizes on one scale and spacing from one scale; space between groups is clearly larger than space within them. *Check:* Count the distinct values in the CSS. Sources: [Bringhurst — compose with a scale](http://webtypography.net/3.1.1); [NN/g — Gestalt proximity](https://www.nngroup.com/articles/gestalt-proximity/).
-8. **one-primary** (designer). One dominant element and one primary button per screen. *Check:* Squint test; count primary buttons. Sources: [Erik Kennedy — 7 rules for gorgeous UI](https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html).
-9. **space-lines-boxes** (designer). Separate with space first, a line second, a box last; no box inside a box. *Check:* Count nested boxed layers. Sources: [Refactoring UI (Wathan, Schoger)](https://www.refactoringui.com/); [NN/g — common region](https://www.nngroup.com/articles/common-region/).
-10. **first-screen** (study). The most important thing is on the first screen; long pages have headings that read alone; no scroll box inside a scrolling page. *Check:* Position of the main element against 100vh; count nested scroll areas. Sources: [NN/g — Scrolling and attention (2018)](https://www.nngroup.com/articles/scrolling-and-attention/); [NN/g — F-shaped pattern (2017)](https://nngroup.com/articles/f-shaped-pattern-reading-web-content/).
-11. **table-card-list** (system). Compare in a table, browse independent items with pictures in cards, read in order in a list. *Check:* Check against what the person does on the screen. Sources: [NN/g — Data tables: four major user tasks](https://nngroup.com/articles/data-tables); [Queensland Design System — card](https://www.designsystem.qld.gov.au/components/card/tabs/overview).
-12. **table-basics** (system). Tables: numbers right-aligned in tabular figures, text left, one unit per column, sort state visible, sticky header, empty and loading states. *Check:* Check column by column. Sources: [GitHub Primer — data table](https://primer.style/product/components/data-table/); [W3C WAI — table tips](https://www.w3.org/WAI/tutorials/tables/tips/); [USWDS — table](https://designsystem.digital.gov/components/table/).
+### Colour
+
+- **colour-roles** (system). Colour has fixed roles: a neutral ground, one action colour and four status colours (critical, warning, success, info). No colour outside a role. *Check:* List the tokens; count colours used outside them — zero. Sources: [Shopify Polaris — colour roles](https://polaris.shopify.com/design/colors/palettes-and-roles); [IBM Carbon — colour](https://carbondesignsystem.com/elements/color/overview/); [USWDS — theme tokens](https://designsystem.digital.gov/design-tokens/color/theme-tokens/).
+- **one-meaning** (study). One colour, one meaning across the product; the action colour is not a status colour. *Check:* Compare the colour-to-meaning table between screens. Sources: [Shopify Polaris — colour roles](https://polaris.shopify.com/design/colors/palettes-and-roles); [IBM Carbon — colour](https://carbondesignsystem.com/elements/color/overview/); [Stroop and reverse Stroop on an interactive tabletop](https://hal.archives-ouvertes.fr/hal-01370664).
+- **quiet-normal** (study). The normal state is quiet; only what needs attention carries colour. *Check:* The share of rows with a warm status chip on one screen stays low. Sources: [Treisman, preattentive processing (eagereyes summary)](https://eagereyes.org/blog/2015/treisman-preattentive-processing); [Healey, preattentive features (TVCG)](https://www.csc2.ncsu.edu/faculty/healey/download/tvcg.11.pdf).
+- **few-codes** (study). At most five to seven status colours per entity, and about four new colour codes to learn per screen. *Check:* Count them. Sources: [Munzner after Ware — distinguishable colours](https://www.cs.ubc.ca/~tmm/courses/533-09/slides/color.pdf); [Cowan 2001 — the magical number 4](https://memory.psych.missouri.edu/assets/doc/articles/2001/cowan-bbs-2001.pdf).
+- **never-colour-alone** (standard). Colour is never the only signal: a short word or an icon always goes with it. *Check:* In greyscale every state is still told apart. Sources: [WCAG 2.2 — 1.4.1 Use of color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
+- **contrast** (standard). Text 4.5:1, large text and component parts 3:1, in light and dark. *Check:* Measure automatically. Sources: [WCAG 2.2 — 1.4.3 Contrast (minimum)](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html); [WCAG 2.2 — 1.4.11 Non-text contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html).
+
+#### Building the palette
+
+1. Tokens come in three tiers: primitive scales (action-9), semantic roles (action, critical, text-muted), and the library's own keys. Components use roles, never scale steps or hex.
+2. Every colour family is a 12-step scale in OKLCH, where equal steps of lightness look equal; HSL lightness does not (yellow at 50% is far brighter than blue at 50%).
+3. Steps 1–8 follow a fixed lightness ladder per mode; step 9 is the seed; step 10 its hover; steps 11 and 12 are solved for contrast on step 2, so text on the scale passes by construction, not by luck.
+4. The neutral scale comes first and carries a trace of the style's hue (chroma at most neutralChroma). One action family; four status families with conventional hues.
+5. Interaction states are neighbouring steps, never new colours: hover = step 10 or a neutral step 3, pressed = 0.08 lightness further from the ground, selected = action step 4, disabled = neutral 3 and 8, focus ring = the action colour where it reaches 3:1, otherwise solved to 3:1.
+6. Each mode is its own mapping, not an inversion: dark grounds are not pure black, raised surfaces get lighter, and every pair is checked again in that mode.
+7. Status colours are checked under simulated protanopia, deuteranopia and tritanopia, and the action colour against every status colour; a close pair is a warning that the word or icon carries the meaning (never-colour-alone, one-meaning).
+8. Chart colours are a separate palette: categorical hues spaced evenly at one lightness, each 3:1 on the surface; sequential = one hue in lightness steps; diverging = two hues through a neutral middle.
+
+| Step | Use |
+|---|---|
+| 1 | App background |
+| 2 | Subtle background: page bands, striped rows |
+| 3 | Element background: chips, inputs, hover of a neutral row |
+| 4 | Hovered element; selected background (action) |
+| 5 | Active or pressed element background |
+| 6 | Subtle border, divider |
+| 7 | Border of a component that is not interactive |
+| 8 | Strong border; disabled text |
+| 9 | Solid: the seed colour — buttons, badges, chart marks |
+| 10 | Hovered solid |
+| 11 | Low-contrast text on the scale (5:1 or more) |
+| 12 | High-contrast text on the scale (11:1 or more) |
+
+Status seeds: critical `#d92d20`, warning `#f79009`, success `#17b26a`, info `#1570ef`. Neutral chroma at most 0.02. Colour-blind check: pairs closer than 0.06 in OKLab are warned (uxcli's threshold for a glanceable difference in OKLab distance; not a standard). Chart: 8 categorical hues; sequential steps 3, 5, 7, 9, 11. `uxcli designer propose` builds all of it for a style, in each of its modes, and checks it.
+
+Lens viewpoints on colour (`lenses/<kind>.md`): `color.never-the-only-signal`, `color.status-colours-keep-their-meaning`, `color.from-tokens-not-hex`, `color.few-families-in-proportion`, `color.one-action-colour-apart-from-status`, `color.controls-and-graphics-3-to-1`, `color.focus-ring-contrasts-with-its-surroundings`, `color.mode-aware-tokens-in-every-theme`, `color.chart-palette-fits-the-data`, `color.chart-marks-readable-without-hue`.
+
+Sources: [Björn Ottosson — A perceptual color space for image processing (OKLab)](https://bottosson.github.io/posts/oklab/); [Radix Colors — understanding the scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale); [Material 3 — how the color system works (HCT tones)](https://m3.material.io/styles/color/system/how-the-system-works); [USWDS — color tokens and the magic number](https://designsystem.digital.gov/design-tokens/color/overview/); [Refactoring UI — you need more colours than you think](https://www.refactoringui.com/previews/building-your-color-palette); [Machado, Oliveira, Fernandes 2009 — physiologically-based simulation of colour vision deficiency](https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html); [IBM Carbon — data visualization colour palettes](https://carbondesignsystem.com/data-visualization/color-palettes/); [CSS Color 4 — gamut mapping](https://www.w3.org/TR/css-color-4/#gamut-mapping).
+
+### Type and space
+
+- **scales** (designer). About four type sizes on one scale and spacing from one scale; space between groups is clearly larger than space within them. *Check:* Count the distinct values in the CSS. Sources: [Bringhurst — compose with a scale](http://webtypography.net/3.1.1); [NN/g — Gestalt proximity](https://www.nngroup.com/articles/gestalt-proximity/).
+- **space-lines-boxes** (designer). Separate with space first, a line second, a box last; no box inside a box. *Check:* Count nested boxed layers. Sources: [Refactoring UI (Wathan, Schoger)](https://www.refactoringui.com/); [NN/g — common region](https://www.nngroup.com/articles/common-region/).
+
+### Hierarchy
+
+- **one-primary** (designer). One dominant element and one primary button per screen. *Check:* Squint test; count primary buttons. Sources: [Erik Kennedy — 7 rules for gorgeous UI](https://www.learnui.design/blog/7-rules-for-creating-gorgeous-ui-part-1.html).
+- **first-screen** (study). The most important thing is on the first screen; long pages have headings that read alone; no scroll box inside a scrolling page. *Check:* Position of the main element against 100vh; count nested scroll areas. Sources: [NN/g — Scrolling and attention (2018)](https://www.nngroup.com/articles/scrolling-and-attention/); [NN/g — F-shaped pattern (2017)](https://nngroup.com/articles/f-shaped-pattern-reading-web-content/).
+
+### Data
+
+- **table-card-list** (system). Compare in a table, browse independent items with pictures in cards, read in order in a list. *Check:* Check against what the person does on the screen. Sources: [NN/g — Data tables: four major user tasks](https://nngroup.com/articles/data-tables); [Queensland Design System — card](https://www.designsystem.qld.gov.au/components/card/tabs/overview).
+- **table-basics** (system). Tables: numbers right-aligned in tabular figures, text left, one unit per column, sort state visible, sticky header, empty and loading states. *Check:* Check column by column. Sources: [GitHub Primer — data table](https://primer.style/product/components/data-table/); [W3C WAI — table tips](https://www.w3.org/WAI/tutorials/tables/tips/); [USWDS — table](https://designsystem.digital.gov/components/table/).
+
 
 ## Checks before done
 
@@ -247,29 +291,29 @@ Drawn from a real CRM review. Kind: bug, contract (front end and back end disagr
 
 ### `antd` — Ant Design 6
 
-Packages: antd@6.6.6, @ant-design/icons@6.3.4. Extras: @ant-design/charts@2.6.7 (chart), @dnd-kit/core@6.3.1 (kanban). ConfigProvider theme={{ token, algorithm }}; v6 writes CSS variables.
+Packages: antd@6.6.6, @ant-design/icons@6.3.4. Extras: @ant-design/charts@2.6.7 (chart), @dnd-kit/core@6.3.1 (kanban). ConfigProvider theme={{ token, algorithm }}; v6 writes CSS variables. Dark mode: algorithm: [theme.darkAlgorithm] (with theme.compactAlgorithm for C1) and the dark tokens in a second ConfigProvider theme.
 
 - The four status colours map one to one onto antd's semantic tokens.
 
 ### `shadcn` — shadcn/ui on Base UI, with TanStack Table
 
-Packages: shadcn@4.21.4, @base-ui/react@1.9.0, tailwindcss@4.3.3, @tanstack/react-table@9.3.1, lucide-react@1.57.0. Extras: recharts@3.10.1 (chart), sonner@2.0.8 (toast), @dnd-kit/core@6.3.1 (kanban). CSS variables mapped through Tailwind v4 @theme; components are edited in place.
+Packages: shadcn@4.21.4, @base-ui/react@1.9.0, tailwindcss@4.3.3, @tanstack/react-table@9.3.1, lucide-react@1.57.0. Extras: recharts@3.10.1 (chart), sonner@2.0.8 (toast), @dnd-kit/core@6.3.1 (kanban). CSS variables mapped through Tailwind v4 @theme; components are edited in place. Dark mode: the same variables again inside .dark { … }; toggle the class on <html>.
 
 - shadcn ships neutral, primary and destructive only: add --warning, --success and --info and a Badge variant for each.
 - Run the init with Base UI primitives (--base base-ui).
 
 ### `mui` — MUI 9 (Material)
 
-Packages: @mui/material@9.5.0, @mui/icons-material@9.5.0, @mui/x-data-grid@9.15.0. Extras: @mui/x-charts@9.15.0 (chart), @mui/x-date-pickers@9.15.0 (dates), @dnd-kit/core@6.3.1 (kanban). createTheme({ cssVariables: true, palette, shape, typography }).
+Packages: @mui/material@9.5.0, @mui/icons-material@9.5.0, @mui/x-data-grid@9.15.0. Extras: @mui/x-charts@9.15.0 (chart), @mui/x-date-pickers@9.15.0 (dates), @dnd-kit/core@6.3.1 (kanban). createTheme({ cssVariables: true, palette, shape, typography }). Dark mode: createTheme({ cssVariables: true, colorSchemes: { light: { palette }, dark: { palette } } }).
 
 - The four status colours map one to one onto palette.error, warning, success and info.
 
 ### `mantine` — Mantine 9
 
-Packages: @mantine/core@9.7.2, @tabler/icons-react@3.49.0, mantine-datatable@9.4.0. Extras: @mantine/charts@9.7.2 (chart), @mantine/dates@9.7.2 (dates), @dnd-kit/core@6.3.1 (kanban). createTheme({ primaryColor, colors, defaultRadius, fontFamily, fontSizes }); writes --mantine-* variables.
+Packages: @mantine/core@9.7.2, @tabler/icons-react@3.49.0, mantine-datatable@9.4.0. Extras: @mantine/charts@9.7.2 (chart), @mantine/dates@9.7.2 (dates), @dnd-kit/core@6.3.1 (kanban). createTheme({ primaryColor, colors, defaultRadius, fontFamily, fontSizes }); writes --mantine-* variables. Dark mode: defaultColorScheme="auto"; light and dark values through cssVariablesResolver; primaryColor gets the 10-shade tuple below.
 
 - Mantine has no semantic status roles: assign the four status colours to colour families and use them by name everywhere.
-- Its primary colour wants ten shades; generate them from the action colour.
+- colors.brand is the light action scale's steps 1–5, 7 and 9–12: shade 6 is the seed in both schemes; the other roles go in through cssVariablesResolver per scheme.
 
 By product type, when E names no library: `antd` for A07, A09, A10; `shadcn` for A01, A02, A03, A04, A05, A06, A08, A11, A12, A13, A14, A15; `mui` for none; `mantine` for none.
 

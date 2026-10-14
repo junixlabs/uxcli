@@ -4,35 +4,496 @@
   "title": "Design catalog",
   "description": "skills/uxcli/designer/catalog.json: the seven axes a screen is described on, presets, the style-independent rules, checks before done, and the libraries a kit is built from. src/core/model/catalog.js checks the cross-references this schema cannot.",
   "type": "object",
-  "required": ["schema_version", "checked", "axes", "groups", "types", "layouts", "densities", "styles", "status", "systems", "personalities", "platforms", "presets", "conflicts", "rules", "checks", "regions", "regionNotes", "libraries", "recommend"],
+  "required": [
+    "schema_version",
+    "checked",
+    "axes",
+    "groups",
+    "types",
+    "layouts",
+    "densities",
+    "styles",
+    "palette",
+    "systems",
+    "personalities",
+    "platforms",
+    "presets",
+    "conflicts",
+    "rules",
+    "checks",
+    "regions",
+    "regionNotes",
+    "libraries",
+    "recommend"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "const": 1 },
-    "checked": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "The day the library versions were checked." },
-    "axes": { "type": "object", "required": ["A", "B", "C", "D", "E", "F", "G"] },
-    "groups": { "type": "object" },
-    "types": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/coded" } },
-    "layouts": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/coded" }, { "type": "object", "required": ["group", "regions"] }] } },
-    "densities": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/coded" }, { "type": "object", "required": ["rowHeight", "controlHeight", "bodySize", "typeScale", "spacingUnit"] }] } },
-    "styles": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/coded" }, { "type": "object", "required": ["tokens", "scheme", "accent", "avoidFor"] }] } },
-    "status": { "type": "object", "required": ["light", "dark"] },
-    "systems": { "type": "array", "minItems": 1, "items": { "allOf": [{ "$ref": "#/$defs/coded" }, { "type": "object", "required": ["library"] }] } },
-    "personalities": { "type": "array", "items": { "$ref": "#/$defs/coded" } },
-    "platforms": { "type": "array", "items": { "$ref": "#/$defs/coded" } },
-    "presets": { "type": "array", "items": { "allOf": [{ "$ref": "#/$defs/coded" }, { "type": "object", "required": ["formula"] }] } },
-    "conflicts": { "type": "array", "items": { "type": "object", "required": ["axis", "code", "types", "says"], "additionalProperties": false, "properties": { "axis": { "enum": ["A", "B", "C", "D", "E", "F", "G"] }, "code": { "type": "string" }, "types": { "type": "array", "items": { "type": "string" } }, "says": { "type": "string", "minLength": 1 } } } },
-    "rules": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id", "rule", "check", "evidence", "sources"], "additionalProperties": false, "properties": {
-      "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }, "rule": { "type": "string", "minLength": 1 }, "check": { "type": "string", "minLength": 1 },
-      "evidence": { "enum": ["standard", "study", "system", "designer", "trend"] },
-      "sources": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["name", "url"], "additionalProperties": false, "properties": { "name": { "type": "string" }, "url": { "type": "string", "pattern": "^https?://" } } } } } } },
-    "checks": { "type": "array", "items": { "type": "object", "required": ["id", "check", "kind", "severity", "on"], "additionalProperties": false, "properties": {
-      "id": { "type": "string" }, "check": { "type": "string" }, "kind": { "enum": ["bug", "contract", "a11y", "usability", "drift", "debt"] }, "severity": { "type": "string", "pattern": "^(S[1-4]|N[0-4]|-)$" }, "on": { "type": "object" } } } },
-    "regions": { "type": "object" },
-    "regionNotes": { "type": "object" },
-    "libraries": { "type": "object", "required": ["antd", "shadcn", "mui", "mantine"] },
-    "recommend": { "type": "object" }
+    "schema_version": {
+      "const": 1
+    },
+    "checked": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "The day the library versions were checked."
+    },
+    "axes": {
+      "type": "object",
+      "required": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G"
+      ]
+    },
+    "groups": {
+      "type": "object"
+    },
+    "types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/coded"
+      }
+    },
+    "layouts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/coded"
+          },
+          {
+            "type": "object",
+            "required": [
+              "group",
+              "regions"
+            ]
+          }
+        ]
+      }
+    },
+    "densities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/coded"
+          },
+          {
+            "type": "object",
+            "required": [
+              "rowHeight",
+              "controlHeight",
+              "bodySize",
+              "typeScale",
+              "spacingUnit"
+            ]
+          }
+        ]
+      }
+    },
+    "styles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/coded"
+          },
+          {
+            "type": "object",
+            "required": [
+              "tokens",
+              "scheme",
+              "modes",
+              "accent",
+              "avoidFor"
+            ]
+          }
+        ]
+      }
+    },
+    "systems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/coded"
+          },
+          {
+            "type": "object",
+            "required": [
+              "library"
+            ]
+          }
+        ]
+      }
+    },
+    "personalities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/coded"
+      }
+    },
+    "platforms": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/coded"
+      }
+    },
+    "presets": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/coded"
+          },
+          {
+            "type": "object",
+            "required": [
+              "formula"
+            ]
+          }
+        ]
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "axis",
+          "code",
+          "types",
+          "says"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "axis": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E",
+              "F",
+              "G"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "says": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "topic",
+          "rule",
+          "check",
+          "evidence",
+          "sources"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          },
+          "check": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "enum": [
+              "standard",
+              "study",
+              "system",
+              "designer",
+              "trend"
+            ]
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "url"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string",
+                  "pattern": "^https?://"
+                }
+              }
+            }
+          },
+          "topic": {
+            "enum": [
+              "colour",
+              "type-and-space",
+              "hierarchy",
+              "data"
+            ]
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "check",
+          "kind",
+          "severity",
+          "on"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "check": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "bug",
+              "contract",
+              "a11y",
+              "usability",
+              "drift",
+              "debt"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "pattern": "^(S[1-4]|N[0-4]|-)$"
+          },
+          "on": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "regions": {
+      "type": "object"
+    },
+    "regionNotes": {
+      "type": "object"
+    },
+    "libraries": {
+      "type": "object",
+      "required": [
+        "antd",
+        "shadcn",
+        "mui",
+        "mantine"
+      ]
+    },
+    "recommend": {
+      "type": "object"
+    },
+    "palette": {
+      "type": "object",
+      "required": [
+        "method",
+        "steps",
+        "status",
+        "neutralChroma",
+        "cvd",
+        "chart",
+        "viewpoints",
+        "sources"
+      ],
+      "additionalProperties": false,
+      "description": "How a palette is built: 12-step OKLCH scales, roles, states, two modes, colour-blind and chart checks. src/core/designer/color.js builds it.",
+      "properties": {
+        "method": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 12,
+          "items": {
+            "type": "object",
+            "required": [
+              "step",
+              "use"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "step": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 12
+              },
+              "use": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "status": {
+          "type": "object",
+          "required": [
+            "critical",
+            "warning",
+            "success",
+            "info"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "critical": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "warning": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "success": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "info": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          }
+        },
+        "neutralChroma": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.04
+        },
+        "cvd": {
+          "type": "object",
+          "required": [
+            "minDelta",
+            "note"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "minDelta": {
+              "type": "number",
+              "minimum": 0
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "chart": {
+          "type": "object",
+          "required": [
+            "categorical",
+            "sequential"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "categorical": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 12
+            },
+            "sequential": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 12
+              }
+            }
+          }
+        },
+        "viewpoints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "pattern": "^https?://"
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "$defs": {
-    "coded": { "type": "object", "required": ["code", "name"], "properties": { "code": { "type": "string", "pattern": "^(A\\d\\d|B-[A-Z]\\d+|C\\d|D\\d\\d|E-[A-Za-z]+|F\\d|G\\d|P\\d+)$" }, "name": { "type": "string", "minLength": 1 } } }
+    "coded": {
+      "type": "object",
+      "required": [
+        "code",
+        "name"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^(A\\d\\d|B-[A-Z]\\d+|C\\d|D\\d\\d|E-[A-Za-z]+|F\\d|G\\d|P\\d+)$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
   }
 }

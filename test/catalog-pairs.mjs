@@ -6,13 +6,14 @@ import { parseCatalog, parseFormula } from '../src/core/model/catalog.js';
 import { catalog, catalogMarkdown, DESIGNER_DIR } from '../src/designer.js';
 import { KINDS } from '../src/core/model/lens.js';
 import { templates } from '../src/template.js';
+import { library } from '../src/lens.js';
 import { validate } from './lib/json-schema.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const raw = () => JSON.parse(fs.readFileSync(path.join(DESIGNER_DIR, 'catalog.json'), 'utf8'));
 
 export const OPERATOR = 'the shipped catalog parses, satisfies catalog.schema.json, and every preset is a formula it accepts with no warning; catalog.md equals the rendering of catalog.json and one missing a preset does not; every type names a lens and a template that exist; '
-  + 'a formula naming a code the catalog does not hold, a code twice, or no product type is refused; spacious density on a work screen, a style avoided for the type, an accent style first and a reference-only design system are warned; a rule without a source, a layout region in no library table and a reference-only system without a reason are refused';
+  + 'a formula naming a code the catalog does not hold, a code twice, or no product type is refused; spacious density on a work screen, a style avoided for the type, an accent style first and a reference-only design system are warned; a rule without a source, a layout region in no library table and a reference-only system without a reason are refused; every colour viewpoint the palette names is in a lens pool, and a palette without sources or twelve steps, a style whose modes do not start with its own scheme, and a library with no dark mode are refused';
 
 export async function pair() {
   const problems = []; let checks = 0;
@@ -29,6 +30,10 @@ export async function pair() {
   must('a catalog.md missing a preset matched its catalog', catalogMarkdown({ ...cat, presets: cat.presets.slice(1) }) !== fs.readFileSync(md, 'utf8'));
   const tmpl = new Set(templates().list.map(t => t.id));
   for (const t of cat.types) must(`${t.code} names a lens or a template that does not exist (${t.lens}, ${t.template})`, (t.lens === null || KINDS.includes(t.lens)) && (t.template === null || tmpl.has(t.template)));
+
+  const vps = new Set(library().pools.flatMap(p => p.viewpoints.map(v => v.id)));
+  must(`palette.viewpoints names a viewpoint no lens pool has: ${cat.palette.viewpoints.filter(v => !vps.has(v)).join(', ')}`, cat.palette.viewpoints.every(v => vps.has(v)));
+  must('the colour rules are not grouped under one topic', cat.rules.filter(r => r.topic === 'colour').length >= 5);
 
   // a formula is read strictly
   const f = s => parseFormula(s, cat);
@@ -50,6 +55,10 @@ export async function pair() {
   must('a reference-only system without a reason was accepted', parseCatalog({ ...doc, systems: doc.systems.map(s => s.code === 'E-Polaris' ? { ...s, why: '' } : s) }).problems.some(p => /E-Polaris.why/.test(p)));
   must('a library package without an exact version was accepted', parseCatalog({ ...doc, libraries: { ...doc.libraries, antd: { ...doc.libraries.antd, packages: [{ name: 'antd', version: 'latest', role: 'x' }] } } }).problems.some(p => /exact version/.test(p)));
   must('a preset with a code the catalog does not hold was accepted', parseCatalog({ ...doc, presets: [{ ...doc.presets[0], formula: 'A99 + C1 + D02' }] }).problems.some(p => /P1.formula/.test(p)));
+  must('a palette without sources was accepted', parseCatalog({ ...doc, palette: { ...doc.palette, sources: [] } }).problems.some(p => /palette.sources/.test(p)));
+  must('a palette with eleven steps was accepted', parseCatalog({ ...doc, palette: { ...doc.palette, steps: doc.palette.steps.slice(1) } }).problems.some(p => /twelve/.test(p)));
+  must('a style whose modes do not start with its own scheme was accepted', parseCatalog({ ...doc, styles: doc.styles.map(s => s.code === 'D02' ? { ...s, modes: ['dark', 'light'] } : s) }).problems.some(p => /D02.modes/.test(p)));
+  must('a library with no dark mode was accepted', parseCatalog({ ...doc, libraries: { ...doc.libraries, mui: { ...doc.libraries.mui, dark: '' } } }).problems.some(p => /mui.dark/.test(p)));
   return { ok: !problems.length, checks, problems };
 }
 

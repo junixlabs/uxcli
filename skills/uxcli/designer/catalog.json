@@ -929,7 +929,7 @@
   {
    "code": "D01",
    "name": "Minimal / Swiss",
-   "looks": "Grid, white space, type leads, few colours.",
+   "looks": "Grid, white space, type leads, black and white with one accent kept for meaning.",
    "fits": "Any type.",
    "avoidFor": [],
    "accent": false,
@@ -939,7 +939,7 @@
     "surface": "#ffffff",
     "text": "#111111",
     "muted": "#5e5e5e",
-    "action": "#d42317",
+    "action": "#111111",
     "onAction": "#ffffff",
     "line": "#e2e2e2",
     "radius": 0,
@@ -947,7 +947,11 @@
     "fontBody": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
     "fontHeading": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
     "headingWeight": 700
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D02",
@@ -970,7 +974,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 600
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D03",
@@ -993,7 +1001,11 @@
     "fontBody": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
     "fontHeading": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
     "headingWeight": 600
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D04",
@@ -1020,7 +1032,11 @@
     "fontBody": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
     "fontHeading": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
     "headingWeight": 700
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D05",
@@ -1046,7 +1062,10 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 600
-   }
+   },
+   "modes": [
+    "dark"
+   ]
   },
   {
    "code": "D06",
@@ -1069,7 +1088,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 650
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D07",
@@ -1097,7 +1120,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "ui-monospace, \"SF Mono\", Menlo, Consolas, monospace",
     "headingWeight": 800
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D08",
@@ -1122,7 +1149,11 @@
     "fontBody": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
     "fontHeading": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
     "headingWeight": 600
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D09",
@@ -1147,7 +1178,10 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 600
-   }
+   },
+   "modes": [
+    "dark"
+   ]
   },
   {
    "code": "D10",
@@ -1173,7 +1207,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 900
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D11",
@@ -1190,7 +1228,7 @@
     "surface": "#ffffff",
     "text": "#3b2a1a",
     "muted": "#7a5c42",
-    "action": "#c2410c",
+    "action": "#6d28d9",
     "onAction": "#ffffff",
     "line": "#fde2c4",
     "radius": 24,
@@ -1198,7 +1236,11 @@
     "fontBody": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
     "fontHeading": "\"Avenir Next\", Nunito, \"Trebuchet MS\", system-ui, sans-serif",
     "headingWeight": 800
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D12",
@@ -1223,7 +1265,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "Didot, \"Bodoni 72\", \"Bodoni MT\", Georgia, serif",
     "headingWeight": 400
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D13",
@@ -1248,7 +1294,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
     "headingWeight": 500
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D14",
@@ -1276,7 +1326,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "\"Arial Black\", system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 900
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D15",
@@ -1303,7 +1357,10 @@
     "fontBody": "ui-monospace, \"SF Mono\", Menlo, Consolas, monospace",
     "fontHeading": "ui-monospace, \"SF Mono\", Menlo, Consolas, monospace",
     "headingWeight": 700
-   }
+   },
+   "modes": [
+    "dark"
+   ]
   },
   {
    "code": "D16",
@@ -1331,7 +1388,10 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 700
-   }
+   },
+   "modes": [
+    "dark"
+   ]
   },
   {
    "code": "D17",
@@ -1354,7 +1414,11 @@
     "fontBody": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "fontHeading": "system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif",
     "headingWeight": 600
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   },
   {
    "code": "D18",
@@ -1377,47 +1441,13 @@
     "fontBody": "Arial, \"Helvetica Neue\", Helvetica, Arial, sans-serif",
     "fontHeading": "Arial, \"Helvetica Neue\", Helvetica, Arial, sans-serif",
     "headingWeight": 700
-   }
+   },
+   "modes": [
+    "light",
+    "dark"
+   ]
   }
  ],
- "status": {
-  "light": {
-   "critical": {
-    "text": "#b42318",
-    "soft": "#fdecea"
-   },
-   "warning": {
-    "text": "#8a5300",
-    "soft": "#fff4dc"
-   },
-   "success": {
-    "text": "#157034",
-    "soft": "#e6f4ea"
-   },
-   "info": {
-    "text": "#0b5cad",
-    "soft": "#e7f0fb"
-   }
-  },
-  "dark": {
-   "critical": {
-    "text": "#ff8a80",
-    "soft": "#3a1714"
-   },
-   "warning": {
-    "text": "#f5c451",
-    "soft": "#33270f"
-   },
-   "success": {
-    "text": "#5fd19a",
-    "soft": "#0f2e1f"
-   },
-   "info": {
-    "text": "#8ab4ff",
-    "soft": "#14223d"
-   }
-  }
- },
  "systems": [
   {
    "code": "E-Ant",
@@ -1667,6 +1697,7 @@
  "rules": [
   {
    "id": "colour-roles",
+   "topic": "colour",
    "rule": "Colour has fixed roles: a neutral ground, one action colour and four status colours (critical, warning, success, info). No colour outside a role.",
    "check": "List the tokens; count colours used outside them — zero.",
    "evidence": "system",
@@ -1687,6 +1718,7 @@
   },
   {
    "id": "one-meaning",
+   "topic": "colour",
    "rule": "One colour, one meaning across the product; the action colour is not a status colour.",
    "check": "Compare the colour-to-meaning table between screens.",
    "evidence": "study",
@@ -1707,6 +1739,7 @@
   },
   {
    "id": "quiet-normal",
+   "topic": "colour",
    "rule": "The normal state is quiet; only what needs attention carries colour.",
    "check": "The share of rows with a warm status chip on one screen stays low.",
    "evidence": "study",
@@ -1723,6 +1756,7 @@
   },
   {
    "id": "few-codes",
+   "topic": "colour",
    "rule": "At most five to seven status colours per entity, and about four new colour codes to learn per screen.",
    "check": "Count them.",
    "evidence": "study",
@@ -1739,6 +1773,7 @@
   },
   {
    "id": "never-colour-alone",
+   "topic": "colour",
    "rule": "Colour is never the only signal: a short word or an icon always goes with it.",
    "check": "In greyscale every state is still told apart.",
    "evidence": "standard",
@@ -1751,6 +1786,7 @@
   },
   {
    "id": "contrast",
+   "topic": "colour",
    "rule": "Text 4.5:1, large text and component parts 3:1, in light and dark.",
    "check": "Measure automatically.",
    "evidence": "standard",
@@ -1767,6 +1803,7 @@
   },
   {
    "id": "scales",
+   "topic": "type-and-space",
    "rule": "About four type sizes on one scale and spacing from one scale; space between groups is clearly larger than space within them.",
    "check": "Count the distinct values in the CSS.",
    "evidence": "designer",
@@ -1783,6 +1820,7 @@
   },
   {
    "id": "one-primary",
+   "topic": "hierarchy",
    "rule": "One dominant element and one primary button per screen.",
    "check": "Squint test; count primary buttons.",
    "evidence": "designer",
@@ -1795,6 +1833,7 @@
   },
   {
    "id": "space-lines-boxes",
+   "topic": "type-and-space",
    "rule": "Separate with space first, a line second, a box last; no box inside a box.",
    "check": "Count nested boxed layers.",
    "evidence": "designer",
@@ -1811,6 +1850,7 @@
   },
   {
    "id": "first-screen",
+   "topic": "hierarchy",
    "rule": "The most important thing is on the first screen; long pages have headings that read alone; no scroll box inside a scrolling page.",
    "check": "Position of the main element against 100vh; count nested scroll areas.",
    "evidence": "study",
@@ -1827,6 +1867,7 @@
   },
   {
    "id": "table-card-list",
+   "topic": "data",
    "rule": "Compare in a table, browse independent items with pictures in cards, read in order in a list.",
    "check": "Check against what the person does on the screen.",
    "evidence": "system",
@@ -1843,6 +1884,7 @@
   },
   {
    "id": "table-basics",
+   "topic": "data",
    "rule": "Tables: numbers right-aligned in tabular figures, text left, one unit per column, sort state visible, sticky header, empty and loading states.",
    "check": "Check column by column.",
    "evidence": "system",
@@ -2715,10 +2757,6 @@
    },
    "map": {
     "action": "token.colorPrimary",
-    "critical": "token.colorError",
-    "warning": "token.colorWarning",
-    "success": "token.colorSuccess",
-    "info": "token.colorInfo",
     "text": "token.colorText",
     "muted": "token.colorTextSecondary",
     "bg": "token.colorBgLayout",
@@ -2727,11 +2765,30 @@
     "radius": "token.borderRadius",
     "fontBody": "token.fontFamily",
     "bodySize": "token.fontSize",
-    "controlHeight": "token.controlHeight"
+    "controlHeight": "token.controlHeight",
+    "actionHover": "token.colorPrimaryHover",
+    "actionPressed": "token.colorPrimaryActive",
+    "actionText": "token.colorLink",
+    "lineStrong": "token.colorBorder",
+    "hoverBg": "token.colorFillTertiary",
+    "raised": "token.colorBgElevated",
+    "criticalSolid": "token.colorError",
+    "critical": "token.colorErrorText",
+    "criticalSoft": "token.colorErrorBg",
+    "warningSolid": "token.colorWarning",
+    "warning": "token.colorWarningText",
+    "warningSoft": "token.colorWarningBg",
+    "successSolid": "token.colorSuccess",
+    "success": "token.colorSuccessText",
+    "successSoft": "token.colorSuccessBg",
+    "infoSolid": "token.colorInfo",
+    "info": "token.colorInfoText",
+    "infoSoft": "token.colorInfoBg"
    },
    "notes": [
     "The four status colours map one to one onto antd's semantic tokens."
-   ]
+   ],
+   "dark": "algorithm: [theme.darkAlgorithm] (with theme.compactAlgorithm for C1) and the dark tokens in a second ConfigProvider theme"
   },
   "shadcn": {
    "name": "shadcn/ui on Base UI, with TanStack Table",
@@ -2790,22 +2847,28 @@
    "map": {
     "action": "--primary",
     "onAction": "--primary-foreground",
-    "critical": "--destructive",
-    "warning": "--warning (add)",
-    "success": "--success (add)",
-    "info": "--info (add)",
     "text": "--foreground",
     "muted": "--muted-foreground",
     "bg": "--background",
     "surface": "--card",
     "line": "--border",
     "radius": "--radius",
-    "fontBody": "--font-sans"
+    "fontBody": "--font-sans",
+    "focusRing": "--ring",
+    "lineStrong": "--input",
+    "hoverBg": "--accent",
+    "raised": "--popover",
+    "selectedBg": "--secondary",
+    "criticalSolid": "--destructive",
+    "warningSolid": "--warning (add)",
+    "successSolid": "--success (add)",
+    "infoSolid": "--info (add)"
    },
    "notes": [
     "shadcn ships neutral, primary and destructive only: add --warning, --success and --info and a Badge variant for each.",
     "Run the init with Base UI primitives (--base base-ui)."
-   ]
+   ],
+   "dark": "the same variables again inside .dark { … }; toggle the class on <html>"
   },
   "mui": {
    "name": "MUI 9 (Material)",
@@ -2854,10 +2917,6 @@
    "map": {
     "action": "palette.primary.main",
     "onAction": "palette.primary.contrastText",
-    "critical": "palette.error.main",
-    "warning": "palette.warning.main",
-    "success": "palette.success.main",
-    "info": "palette.info.main",
     "text": "palette.text.primary",
     "muted": "palette.text.secondary",
     "bg": "palette.background.default",
@@ -2865,11 +2924,23 @@
     "line": "palette.divider",
     "radius": "shape.borderRadius",
     "fontBody": "typography.fontFamily",
-    "bodySize": "typography.fontSize"
+    "bodySize": "typography.fontSize",
+    "hoverBg": "palette.action.hover",
+    "selectedBg": "palette.action.selected",
+    "disabledText": "palette.text.disabled",
+    "criticalSolid": "palette.error.main",
+    "onCriticalSolid": "palette.error.contrastText",
+    "warningSolid": "palette.warning.main",
+    "onWarningSolid": "palette.warning.contrastText",
+    "successSolid": "palette.success.main",
+    "onSuccessSolid": "palette.success.contrastText",
+    "infoSolid": "palette.info.main",
+    "onInfoSolid": "palette.info.contrastText"
    },
    "notes": [
     "The four status colours map one to one onto palette.error, warning, success and info."
-   ]
+   ],
+   "dark": "createTheme({ cssVariables: true, colorSchemes: { light: { palette }, dark: { palette } } })"
   },
   "mantine": {
    "name": "Mantine 9",
@@ -2916,7 +2987,6 @@
     "C3": "defaultProps size \"md\""
    },
    "map": {
-    "action": "primaryColor (a 10-shade tuple generated from the action colour)",
     "critical": "colors.red (assign)",
     "warning": "colors.yellow (assign)",
     "success": "colors.green (assign)",
@@ -2926,12 +2996,15 @@
     "surface": "white",
     "radius": "defaultRadius",
     "fontBody": "fontFamily",
-    "bodySize": "fontSizes.sm"
+    "bodySize": "fontSizes.sm",
+    "actionScale": "colors.brand (10 shades, light to dark, one tuple for both schemes; primaryColor: \"brand\", primaryShade: { light: 6, dark: 6 })",
+    "focusRing": "focusRing / --mantine-primary-color-filled"
    },
    "notes": [
     "Mantine has no semantic status roles: assign the four status colours to colour families and use them by name everywhere.",
-    "Its primary colour wants ten shades; generate them from the action colour."
-   ]
+    "colors.brand is the light action scale's steps 1–5, 7 and 9–12: shade 6 is the seed in both schemes; the other roles go in through cssVariablesResolver per scheme."
+   ],
+   "dark": "defaultColorScheme=\"auto\"; light and dark values through cssVariablesResolver; primaryColor gets the 10-shade tuple below"
   }
  },
  "recommend": {
@@ -2950,5 +3023,134 @@
   "A13": "shadcn",
   "A14": "shadcn",
   "A15": "shadcn"
+ },
+ "palette": {
+  "method": [
+   "Tokens come in three tiers: primitive scales (action-9), semantic roles (action, critical, text-muted), and the library's own keys. Components use roles, never scale steps or hex.",
+   "Every colour family is a 12-step scale in OKLCH, where equal steps of lightness look equal; HSL lightness does not (yellow at 50% is far brighter than blue at 50%).",
+   "Steps 1–8 follow a fixed lightness ladder per mode; step 9 is the seed; step 10 its hover; steps 11 and 12 are solved for contrast on step 2, so text on the scale passes by construction, not by luck.",
+   "The neutral scale comes first and carries a trace of the style's hue (chroma at most neutralChroma). One action family; four status families with conventional hues.",
+   "Interaction states are neighbouring steps, never new colours: hover = step 10 or a neutral step 3, pressed = 0.08 lightness further from the ground, selected = action step 4, disabled = neutral 3 and 8, focus ring = the action colour where it reaches 3:1, otherwise solved to 3:1.",
+   "Each mode is its own mapping, not an inversion: dark grounds are not pure black, raised surfaces get lighter, and every pair is checked again in that mode.",
+   "Status colours are checked under simulated protanopia, deuteranopia and tritanopia, and the action colour against every status colour; a close pair is a warning that the word or icon carries the meaning (never-colour-alone, one-meaning).",
+   "Chart colours are a separate palette: categorical hues spaced evenly at one lightness, each 3:1 on the surface; sequential = one hue in lightness steps; diverging = two hues through a neutral middle."
+  ],
+  "steps": [
+   {
+    "step": 1,
+    "use": "App background"
+   },
+   {
+    "step": 2,
+    "use": "Subtle background: page bands, striped rows"
+   },
+   {
+    "step": 3,
+    "use": "Element background: chips, inputs, hover of a neutral row"
+   },
+   {
+    "step": 4,
+    "use": "Hovered element; selected background (action)"
+   },
+   {
+    "step": 5,
+    "use": "Active or pressed element background"
+   },
+   {
+    "step": 6,
+    "use": "Subtle border, divider"
+   },
+   {
+    "step": 7,
+    "use": "Border of a component that is not interactive"
+   },
+   {
+    "step": 8,
+    "use": "Strong border; disabled text"
+   },
+   {
+    "step": 9,
+    "use": "Solid: the seed colour — buttons, badges, chart marks"
+   },
+   {
+    "step": 10,
+    "use": "Hovered solid"
+   },
+   {
+    "step": 11,
+    "use": "Low-contrast text on the scale (5:1 or more)"
+   },
+   {
+    "step": 12,
+    "use": "High-contrast text on the scale (11:1 or more)"
+   }
+  ],
+  "status": {
+   "critical": "#d92d20",
+   "warning": "#f79009",
+   "success": "#17b26a",
+   "info": "#1570ef"
+  },
+  "neutralChroma": 0.02,
+  "cvd": {
+   "minDelta": 0.06,
+   "note": "uxcli's threshold for a glanceable difference in OKLab distance; not a standard"
+  },
+  "chart": {
+   "categorical": 8,
+   "sequential": [
+    3,
+    5,
+    7,
+    9,
+    11
+   ]
+  },
+  "viewpoints": [
+   "color.never-the-only-signal",
+   "color.status-colours-keep-their-meaning",
+   "color.from-tokens-not-hex",
+   "color.few-families-in-proportion",
+   "color.one-action-colour-apart-from-status",
+   "color.controls-and-graphics-3-to-1",
+   "color.focus-ring-contrasts-with-its-surroundings",
+   "color.mode-aware-tokens-in-every-theme",
+   "color.chart-palette-fits-the-data",
+   "color.chart-marks-readable-without-hue"
+  ],
+  "sources": [
+   {
+    "name": "Björn Ottosson — A perceptual color space for image processing (OKLab)",
+    "url": "https://bottosson.github.io/posts/oklab/"
+   },
+   {
+    "name": "Radix Colors — understanding the scale",
+    "url": "https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale"
+   },
+   {
+    "name": "Material 3 — how the color system works (HCT tones)",
+    "url": "https://m3.material.io/styles/color/system/how-the-system-works"
+   },
+   {
+    "name": "USWDS — color tokens and the magic number",
+    "url": "https://designsystem.digital.gov/design-tokens/color/overview/"
+   },
+   {
+    "name": "Refactoring UI — you need more colours than you think",
+    "url": "https://www.refactoringui.com/previews/building-your-color-palette"
+   },
+   {
+    "name": "Machado, Oliveira, Fernandes 2009 — physiologically-based simulation of colour vision deficiency",
+    "url": "https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html"
+   },
+   {
+    "name": "IBM Carbon — data visualization colour palettes",
+    "url": "https://carbondesignsystem.com/data-visualization/color-palettes/"
+   },
+   {
+    "name": "CSS Color 4 — gamut mapping",
+    "url": "https://www.w3.org/TR/css-color-4/#gamut-mapping"
+   }
+  ]
  }
 }

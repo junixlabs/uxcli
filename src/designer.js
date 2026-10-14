@@ -112,10 +112,11 @@ export function kitCard(r) {
   if (!k) { L.push(`  designer propose — refused`, ...r.problems.map(p => `  problem  ${p}`)); return L.join('\n'); }
   L.push(`  kit ${k.id}  ${k.formula}`, '', `  library   ${k.library.name} — ${k.library.why}; alternatives ${k.library.alternatives.join(', ')}`,
     `  install   ${k.library.packages.map(p => `${p.name}@${p.version}`).join(' ')}`, `  density   ${k.library.density}`,
-    `  theme     ${k.theme.slice(0, 6).map(t => `${t.key}=${t.value}`).join(' · ')}${k.theme.length > 6 ? ' …' : ''}`,
-    `  contrast  ${k.contrast.filter(c => c.ok).length}/${k.contrast.length} pairs hold`);
+    `  theme     ${k.theme.slice(0, 6).map(t => `${t.key}=${Array.isArray(t.light) ? '[10 shades]' : t.light}`).join(' · ')}${k.theme.length > 6 ? ' …' : ''}`,
+    `  colour    modes ${k.modes.join(', ')} · 12-step OKLCH scales for neutral, action and four statuses · states, chart palettes`,
+    `  checks    ${k.contrast.filter(c => c.ok).length}/${k.contrast.length} contrast pairs hold; ${k.modes.reduce((n, m) => n + k.cvd[m].checked, 0)} status pairs simulated for colour blindness`);
   for (const p of k.patterns) L.push(`  ${p.layout.padEnd(8)}  ${p.regions.map(x => `${x.region}: ${x.component || '—'}`).join(' · ')}`);
-  L.push(`  checks    ${k.checks.length} before done (in the .md)`);
+  L.push(`  before    ${k.checks.length} checks before done (in the .md)`);
   for (const w of r.warnings) L.push(`  warning   ${w}`);
   for (const p of r.problems) L.push(`  problem   ${p}`);
   for (const [f, s] of r.files || []) L.push(`  ${s.padEnd(8)}  ${rel(f)}`);

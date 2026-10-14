@@ -7,12 +7,13 @@ import { isStr, isObj, done } from './common.js';
 export const AXES = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 export const EVIDENCE = ['standard', 'study', 'system', 'designer', 'trend'];
 export const LIBRARIES = ['antd', 'shadcn', 'mui', 'mantine'];
+export const TOPICS = ['colour', 'type-and-space', 'hierarchy', 'data'];
 const ROLES = ['bg', 'surface', 'text', 'muted', 'action', 'onAction', 'line'];
 const STATUS = ['critical', 'warning', 'success', 'info'];
 const PATTERN = { A: /^A\d\d$/, B: /^B-[A-Z]\d+$/, C: /^C\d$/, D: /^D\d\d$/, E: /^E-[A-Za-z]+$/, F: /^F\d$/, G: /^G\d$/ };
 export const axisOf = code => AXES.find(a => PATTERN[a].test(code)) || null;
 
-const SECTIONS = ['schema_version', 'checked', 'axes', 'groups', 'types', 'layouts', 'densities', 'styles', 'status', 'systems', 'personalities', 'platforms', 'presets', 'conflicts', 'rules', 'checks', 'regions', 'regionNotes', 'libraries', 'recommend'];
+const SECTIONS = ['schema_version', 'checked', 'axes', 'groups', 'types', 'layouts', 'densities', 'styles', 'palette', 'systems', 'personalities', 'platforms', 'presets', 'conflicts', 'rules', 'checks', 'regions', 'regionNotes', 'libraries', 'recommend'];
 
 export function parseCatalog(doc) {
   const problems = [];
@@ -48,8 +49,19 @@ export function parseCatalog(doc) {
     if (!isObj(t) || ROLES.some(r => !isStr(t[r]))) problems.push(`${s.code}.tokens: needs ${ROLES.join(', ')}`);
     if (!['light', 'dark'].includes(s.scheme)) problems.push(`${s.code}.scheme: light or dark`);
     for (const a of s.avoidFor || []) if (axisOf(a) !== 'A' || !codes.has(a)) problems.push(`${s.code}.avoidFor: "${a}" is not a product type`);
+    if (!Array.isArray(s.modes) || !s.modes.length || s.modes[0] !== s.scheme || s.modes.some(m => !['light', 'dark'].includes(m)) || new Set(s.modes).size !== s.modes.length) problems.push(`${s.code}.modes: its own scheme first, then the other mode if it has one`);
   }
-  for (const sch of ['light', 'dark']) for (const st of STATUS) if (!isObj(doc.status[sch]?.[st]) || !isStr(doc.status[sch][st].text) || !isStr(doc.status[sch][st].soft)) problems.push(`status.${sch}.${st}: { text, soft }`);
+  const pal = doc.palette;
+  if (!isObj(pal) || !Array.isArray(pal.method) || !pal.method.every(isStr)) problems.push('palette.method: the steps of building a palette, as sentences');
+  else {
+    if (!Array.isArray(pal.steps) || pal.steps.length !== 12 || pal.steps.some((x, i) => x?.step !== i + 1 || !isStr(x.use))) problems.push('palette.steps: twelve { step, use }, in order');
+    if (!isObj(pal.status) || STATUS.some(k => !/^#[0-9a-f]{6}$/i.test(pal.status[k] || ''))) problems.push(`palette.status: a #rrggbb seed for each of ${STATUS.join(', ')}`);
+    if (!(pal.neutralChroma > 0 && pal.neutralChroma <= 0.04)) problems.push('palette.neutralChroma: a trace of hue, above 0 and at most 0.04');
+    if (!isObj(pal.cvd) || !(pal.cvd.minDelta > 0) || !isStr(pal.cvd.note)) problems.push('palette.cvd: { minDelta, note } — say where the threshold comes from');
+    if (!isObj(pal.chart) || !(pal.chart.categorical >= 2 && pal.chart.categorical <= 12) || !Array.isArray(pal.chart.sequential) || pal.chart.sequential.some(n => !(n >= 1 && n <= 12))) problems.push('palette.chart: { categorical 2–12, sequential: scale steps }');
+    if (!Array.isArray(pal.sources) || !pal.sources.length || pal.sources.some(x => !isStr(x?.name) || !/^https?:\/\//.test(x?.url || ''))) problems.push('palette.sources: a method without the pages it came from does not ship');
+    if (!Array.isArray(pal.viewpoints) || !pal.viewpoints.every(isStr)) problems.push('palette.viewpoints: the lens viewpoint ids about colour');
+  }
   for (const e of doc.systems) {
     if (e.library !== null && !LIBRARIES.includes(e.library)) problems.push(`${e.code}.library: one of ${LIBRARIES.join(', ')}, or null`);
     if (e.library === null && !isStr(e.why)) problems.push(`${e.code}.why: a reference-only system says why it is not a library here`);
@@ -57,6 +69,7 @@ export function parseCatalog(doc) {
   for (const lib of LIBRARIES) {
     const L = doc.libraries[lib];
     if (!isObj(L) || !isStr(L.name) || !Array.isArray(L.packages) || !L.packages.length || !isObj(L.map)) { problems.push(`libraries.${lib}: { name, packages[], map{}, … }`); continue; }
+    if (!isStr(L.dark)) problems.push(`libraries.${lib}.dark: how this library takes a dark mode`);
     for (const p of [...L.packages, ...(L.extras || [])]) if (!isStr(p.name) || !/^\d+\.\d+\.\d+/.test(p.version || '')) problems.push(`libraries.${lib}: "${p.name}" needs an exact version`);
   }
   for (const [name, r] of Object.entries(regions)) for (const lib of LIBRARIES) if (r[lib] === null && !isStr(doc.regionNotes[name])) problems.push(`regions.${name}.${lib}: nothing in the library, and regionNotes.${name} does not say what to use`);
@@ -64,6 +77,7 @@ export function parseCatalog(doc) {
   doc.rules.forEach((r, i) => {
     if (!isStr(r.id) || ruleIds.has(r.id)) problems.push(`rules[${i}].id: missing or repeated`); ruleIds.add(r.id);
     if (!isStr(r.rule) || !isStr(r.check)) problems.push(`rules[${i}]: { rule, check }`);
+    if (!TOPICS.includes(r.topic)) problems.push(`rules[${i}].topic: one of ${TOPICS.join(', ')}`);
     if (!EVIDENCE.includes(r.evidence)) problems.push(`rules[${i}].evidence: one of ${EVIDENCE.join(', ')}`);
     if (!Array.isArray(r.sources) || !r.sources.length || r.sources.some(s => !isStr(s?.name) || !/^https?:\/\//.test(s?.url || ''))) problems.push(`rules[${i}].sources: a rule without a page it came from does not ship`);
   });
@@ -134,7 +148,7 @@ export function catalogMarkdown(c) {
   axis('C');
   for (const d of c.densities) L.push(`- **${d.code} ${d.name}.** ${d.use} Rows ${d.rowHeight}px, controls ${d.controlHeight}px, body ${d.bodySize}px, type scale ${d.typeScale.join('/')}, spacing unit ${d.spacingUnit}px.`);
   L.push(''); axis('D');
-  for (const s of c.styles) L.push(`- **${s.code} ${s.name}${s.accent ? ' (accent)' : ''}.** ${s.looks} Fits ${s.fits}${s.avoidFor.length ? ` Avoid for ${s.avoidFor.join(', ')}.` : ''}`);
+  for (const s of c.styles) L.push(`- **${s.code} ${s.name}${s.accent ? ' (accent)' : ''}.** ${s.looks} Modes: ${s.modes.join(', ')}. Fits ${s.fits}${s.avoidFor.length ? ` Avoid for ${s.avoidFor.join(', ')}.` : ''}`);
   L.push(''); axis('E');
   for (const e of c.systems) L.push(`- **${e.code} ${e.name}.** ${e.strength} ${e.library ? `Library: \`${e.library}\`.` : e.why}`);
   L.push(''); axis('F');
@@ -147,14 +161,26 @@ export function catalogMarkdown(c) {
   for (const x of c.conflicts) L.push(`- ${x.code} with ${x.types.join(', ')}: ${x.says}`);
   L.push('- A style is warned against for the types in its "avoid for"; an accent style is not a base; a layout outside the type\'s groups is unusual.', '',
     '## Rules that hold in every style', '', 'Evidence: standard (WCAG), study (peer-reviewed), system (published design systems agree), designer (named practitioners), trend.', '');
-  c.rules.forEach((r, i) => L.push(`${i + 1}. **${r.id}** (${r.evidence}). ${r.rule} *Check:* ${r.check} Sources: ${r.sources.map(s => `[${s.name}](${s.url})`).join('; ')}.`));
+  const NAMES = { colour: 'Colour', 'type-and-space': 'Type and space', hierarchy: 'Hierarchy', data: 'Data' };
+  for (const topic of TOPICS) {
+    L.push(`### ${NAMES[topic]}`, '');
+    for (const r of c.rules.filter(x => x.topic === topic)) L.push(`- **${r.id}** (${r.evidence}). ${r.rule} *Check:* ${r.check} Sources: ${r.sources.map(s => `[${s.name}](${s.url})`).join('; ')}.`);
+    L.push('');
+    if (topic === 'colour') {
+      const p = c.palette;
+      L.push('#### Building the palette', '', ...p.method.map((m, i) => `${i + 1}. ${m}`), '', '| Step | Use |', '|---|---|', ...p.steps.map(x => `| ${x.step} | ${x.use} |`), '',
+        `Status seeds: ${Object.entries(p.status).map(([k, v]) => `${k} \`${v}\``).join(', ')}. Neutral chroma at most ${p.neutralChroma}. Colour-blind check: pairs closer than ${p.cvd.minDelta} in OKLab are warned (${p.cvd.note}). Chart: ${p.chart.categorical} categorical hues; sequential steps ${p.chart.sequential.join(', ')}. \`uxcli designer propose\` builds all of it for a style, in each of its modes, and checks it.`, '',
+        `Lens viewpoints on colour (\`lenses/<kind>.md\`): ${p.viewpoints.map(v => `\`${v}\``).join(', ')}.`, '',
+        `Sources: ${p.sources.map(s => `[${s.name}](${s.url})`).join('; ')}.`, '');
+    }
+  }
   L.push('', '## Checks before done', '', 'Drawn from a real CRM review. Kind: bug, contract (front end and back end disagree), a11y, usability, drift, debt. Severity: S1–S4 for bugs, N0–N4 (Nielsen) for usability.', '');
   const on = o => o.all ? 'every screen' : [...(o.types || []), ...(o.layouts || []), ...(o.styles || [])].join(', ');
   for (const k of c.checks) L.push(`- **${k.id}** (${k.kind}, ${k.severity}; ${on(k.on)}). ${k.check}`);
   L.push('', '## Libraries', '');
   for (const lib of LIBRARIES) {
     const x = c.libraries[lib];
-    L.push(`### \`${lib}\` — ${x.name}`, '', `Packages: ${x.packages.map(p => `${p.name}@${p.version}`).join(', ')}. Extras: ${(x.extras || []).map(p => `${p.name}@${p.version} (${p.role})`).join(', ')}. ${x.theming}`, '');
+    L.push(`### \`${lib}\` — ${x.name}`, '', `Packages: ${x.packages.map(p => `${p.name}@${p.version}`).join(', ')}. Extras: ${(x.extras || []).map(p => `${p.name}@${p.version} (${p.role})`).join(', ')}. ${x.theming} Dark mode: ${x.dark}.`, '');
     for (const n of x.notes || []) L.push(`- ${n}`);
     L.push('');
   }

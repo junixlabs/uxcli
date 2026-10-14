@@ -24,7 +24,7 @@ export async function pair() {
   for (const s of cat.styles) { const r = k(`A02 + B-M1 + C2 + ${s.code}`); must(`style ${s.code} fails its own contrast: ${r.problems.join('; ')}`, !!r.value); }
   const p1 = k('P1').value;
   must('P1 is not antd with the compact algorithm', p1?.library.id === 'antd' && /compactAlgorithm/.test(p1.library.density));
-  must('P1 does not map the action colour to colorPrimary', p1?.theme.some(t => t.key === 'token.colorPrimary' && t.value === cat.codes.get('D02').tokens.action));
+  must('P1 does not map the action colour to colorPrimary', p1?.theme.some(t => t.key === 'token.colorPrimary' && t.light === cat.codes.get('D02').tokens.action));
   must('E-Material did not give mui', k('A08 + B-W9 + C2 + D03 + E-Material').value?.library.id === 'mui');
   const a08 = k('A08 + B-W9 + C2 + D01').value;
   must('A08 with no design system did not give shadcn with --warning to add', a08?.library.id === 'shadcn' && a08.theme.some(t => /--warning \(add\)/.test(t.key)));
@@ -35,7 +35,7 @@ export async function pair() {
   // planted defects
   const bad = structuredClone({ ...cat, codes: undefined }); bad.codes = new Map(cat.codes);
   bad.codes.set('D01', { ...cat.codes.get('D01'), tokens: { ...cat.codes.get('D01').tokens, text: '#949494' } });
-  must('a text token planted at 3:1 on its ground was accepted', proposeKit('A02 + B-M1 + C2 + D01', bad).problems.some(p => /^text on bg is 3\.\d+:1, under 4\.5:1/.test(p)));
+  must('a text token planted at 3:1 on its ground was accepted', proposeKit('A02 + B-M1 + C2 + D01', bad).problems.some(p => /^light: text on bg is 3\.\d+:1, under 4\.5:1/.test(p)));
   bad.codes.set('D05', { ...cat.codes.get('D05'), tokens: { ...cat.codes.get('D05').tokens, surface: 'rgba(255,255,255,.9)' } });
   must('a translucent surface was not measured over its ground', proposeKit('A02 + B-M1 + C2 + D05', bad).problems.some(p => /on surface/.test(p)));
   must('E-Polaris was accepted', k('A03 + B-S1 + C2 + D03 + E-Polaris').problems.some(p => /deprecated outside Shopify/.test(p)));
