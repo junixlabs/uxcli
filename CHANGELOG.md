@@ -27,6 +27,11 @@ Entries are written per release. The log is the source material, not the text.
   - D01's red action and D11's orange action read as the critical colour; they are now black and violet;
   - the antd, MUI and shadcn status keys took the text colour where the library wants the solid.
 
+### Fixed
+
+- `--json` output longer than 64KB was cut short when piped on macOS, because every command ends in
+  `process.exit` before an asynchronous pipe drains. stdout and stderr now block.
+
 
 ### Added — the designer: a catalog, a profile, argued decisions, a kit
 
