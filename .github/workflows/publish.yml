@@ -2,7 +2,9 @@
 # tag v* → gate (every falsification pair, in real Chrome) → the tag, package.json and the skill's
 # metadata.version agree → npm publish (provenance) → a GitHub Release whose body is the CHANGELOG
 # section for that version. A step that fails stops the chain; nothing is published half-way.
-name: release
+# npm publishes through trusted publishing (OIDC): no token. npmjs.com trusts this file by its name,
+# publish.yml, so renaming it breaks publishing until the trusted publisher is changed to match.
+name: publish
 on:
   push:
     tags: ['v*']
@@ -15,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm, registry-url: 'https://registry.npmjs.org' }
+        with: { node-version: 24, cache: npm }
       - run: npm ci
       - run: npx playwright-core install --with-deps chromium-headless-shell
       - name: gate
@@ -29,8 +31,7 @@ jobs:
         run: node scripts/release-identity.mjs "${GITHUB_REF_NAME#v}"
       - name: what ships is the file list
         run: npm pack --dry-run 2>&1 | tee pack.log && node scripts/release-identity.mjs --pack pack.log
-      - run: npm publish --access public --provenance
-        env: { NODE_AUTH_TOKEN: '${{ secrets.NPM_TOKEN }}' }
+      - run: npm publish --access public
       - name: release notes from the changelog
         run: node scripts/release-identity.mjs --notes "${GITHUB_REF_NAME#v}" > notes.md && cat notes.md
       - uses: softprops/action-gh-release@v2

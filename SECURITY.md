@@ -36,5 +36,5 @@ drive the browser somewhere its policy forbids.
 ## Supply chain
 
 Two runtime dependencies (`playwright-core`, `axe-core`), pinned. Releases are published from
-`release.yml` with npm provenance on an annotated tag that must match `package.json`; nothing is
+`publish.yml` through npm trusted publishing, with provenance, on an annotated tag that must match `package.json`; nothing is
 published by hand.

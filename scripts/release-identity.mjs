@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // One version, three places that must say it: the git tag, package.json, and the shipped skill's
 // metadata.version. The 0.6.0/0.7.0 drift (tag pushed, npm never updated) happened because nothing
-// held them together; this holds them, and release.yml refuses a tag where they disagree.
+// held them together; this holds them, and publish.yml refuses a tag where they disagree.
 //
 //   release-identity.mjs <version>          exit 1 unless package.json and skills/uxcli/SKILL.md carry it
 //   release-identity.mjs --notes <version>  the CHANGELOG section for that version, on stdout

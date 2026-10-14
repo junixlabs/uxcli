@@ -42,7 +42,7 @@ the issue.
 ## Releasing
 
 Bump `package.json`, set `metadata.version` in `skills/uxcli/SKILL.md` to the same major.minor, cut
-the CHANGELOG section, and push an annotated tag `vX.Y.Z`. `release.yml` runs the gate, refuses a
+the CHANGELOG section, and push an annotated tag `vX.Y.Z`. `publish.yml` runs the gate, refuses a
 tag that disagrees with either file, publishes to npm with provenance, and writes the GitHub Release
 from the CHANGELOG section. `node scripts/release-identity.mjs X.Y.Z` runs the same checks locally.
 
